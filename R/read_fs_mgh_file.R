@@ -7,7 +7,7 @@
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header.
 #'
 #' @examples
-#'     brain_image = file.path(path.expand("~"), "software, "freesurfer", "subjects", "bert", "mri", "T1.mgz")
+#'     brain_image = file.path(path.expand("~"), "software", "freesurfer", "subjects", "bert", "mri", "T1.mgz");
 #'     voxel_data = read_fs_mgh_file(brain_image);
 #'
 #' @export

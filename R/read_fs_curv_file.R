@@ -7,7 +7,7 @@
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curv.file = file.path(path.expand("~"), "software, "freesurfer", "subjects", "bert", "surf", "lh.thickness")
+#'     curv.file = file.path(path.expand("~"), "software", "freesurfer", "subjects", "bert", "surf", "lh.thickness");
 #'     cortical.thickness = read_fs_curv_file(curv.file);
 #'
 #' @export
