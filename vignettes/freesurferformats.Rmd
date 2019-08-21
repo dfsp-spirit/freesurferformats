@@ -1,0 +1,12 @@
+---
+title: "Reading FreeSurfer format brain imaging data files with freesurferformats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reading FreeSurfer format brain imaging data files with freesurferformats}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+In this document, we show how to read files.
+
+See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format.
