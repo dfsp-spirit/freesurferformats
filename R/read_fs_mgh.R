@@ -1,18 +1,20 @@
 #' @title Read file in FreeSurfer MGH or MGZ format
 #'
-#' @description Reads multi-dimensional brain imaging data from a file in FreeSurfer binary MGH or MGZ format. The MGZ format is just a gzipped version of the MGH format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/mri/T1.mgz', which contains a 3D brain scan of bert.
+#' @description Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH or MGZ format. The MGZ format is just a gzipped version of the MGH format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/mri/T1.mgz', which contains a 3D brain scan of bert.
 #'
 #' @param filepath, string. Full path to the input MGZ or MGH file.
+#'
+#' @param is_gzipped, a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGZ is assumed.
 #'
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header.
 #'
 #' @examples
 #'     brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
-#'     voxel_data = read_fs_mgh_file(brain_image);
+#'     voxel_data = read.fs.mgh(brain_image);
 #'     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n",  paste(dim(voxel_data), collapse = ' '), min(voxel_data), mean(voxel_data), max(voxel_data)));
 #'
 #' @export
-read_fs_mgh_file <- function(filepath, is_gzipped = "AUTO") {
+read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
 
     if(typeof(is_gzipped) == "logical") {
         is_gz = is_gzipped;
@@ -64,9 +66,9 @@ read_fs_mgh_file <- function(filepath, is_gzipped = "AUTO") {
     ras_good_flag = readBin(fh, numeric(), n = 1, endian = "big");
     if(ras_good_flag == 1) {
         cat(sprintf(" 'RAS good' flag is set, reading RAS information.\n"));
-        delta  = readBin(filehandle, float(), n = 3, endian = "big")
-        Mdc    = readBin(filehandle, float(), n = 9, endian = "big")
-        Pxyz_c = readBin(filehandle, float(), n = 3, endian = "big")
+        delta  = readBin(filehandle, float(), n = 3, endian = "big");
+        Mdc    = readBin(filehandle, float(), n = 9, endian = "big");
+        Pxyz_c = readBin(filehandle, float(), n = 3, endian = "big");
         RAS_space_size = (3*4 + 4*3*4);
         cat(sprintf(" Read %d bytes of RAS information.\n", RAS_space_size));
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;

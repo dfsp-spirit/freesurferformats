@@ -1,18 +1,19 @@
 #' @title Read file in FreeSurfer curv format
 #'
-#' @description Reads vertex-wise brain surface data from a file in FreeSurfer binary 'curv' format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
+#' @description Read vertex-wise brain surface data from a file in FreeSurfer binary 'curv' format.
+#'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
 #' @param filepath, string. Full path to the input curv file.
 #'
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curv_file = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
-#'     ct = read_fs_curv_file(curv_file);
+#'     curvfile = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
+#'     ct = read.fs.curv(curvfile);
 #'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)));
 #'
 #' @export
-read_fs_curv_file <- function(filepath) {
+read.fs.curv <- function(filepath) {
     MAGIC_FILE_TYPE_NUMBER = 16777215;
     fh = file(filepath, "rb");
 
