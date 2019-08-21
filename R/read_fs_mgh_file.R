@@ -7,8 +7,9 @@
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header.
 #'
 #' @examples
-#'     brain_image = file.path(path.expand("~"), "software", "freesurfer", "subjects", "bert", "mri", "T1.mgz");
+#'     brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
 #'     voxel_data = read_fs_mgh_file(brain_image);
+#'     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n",  paste(dim(voxel_data), collapse = ' '), min(voxel_data), mean(voxel_data), max(voxel_data)));
 #'
 #' @export
 read_fs_mgh_file <- function(filepath, is_gzipped = "AUTO") {

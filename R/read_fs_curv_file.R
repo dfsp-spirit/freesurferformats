@@ -7,8 +7,9 @@
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curv.file = file.path(path.expand("~"), "software", "freesurfer", "subjects", "bert", "surf", "lh.thickness");
-#'     cortical.thickness = read_fs_curv_file(curv.file);
+#'     curv_file = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
+#'     ct = read_fs_curv_file(curv_file);
+#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)));
 #'
 #' @export
 read_fs_curv_file <- function(filepath) {
