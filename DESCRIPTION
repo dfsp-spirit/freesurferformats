@@ -1,0 +1,13 @@
+Package: freesurferformats
+Type: Package
+Title: Read FreeSurfer Neuroimaging File Formats
+Version: 0.1.0
+Author: Tim Schäfer
+Maintainer: Tim Schäfer <ts+code@rcmd.org>
+Description: Provides functions to read data from neuroimaging files in FreeSurfer binary formats.
+This includes the following file formats: 
+1) MGH/MGZ format files, which can contain multi-dimensional images or other data. Typically they contain time-series of three-dimensional brain scans acquired by MRI. They can also contain vertex-wise measures of surface morphometry data though.
+2) FreeSurfer morphometry data files in binary 'curv' format. These contain one value per vertex for each vertex of a brain surface. These are typically values like the cortical thickness or area at each vertex.
+License: MIT
+Encoding: UTF-8
+LazyData: true
