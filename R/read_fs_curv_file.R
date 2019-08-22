@@ -38,6 +38,10 @@ read_fs_curv_file <- function(filepath) {
 #' @return integer: The read integer.
 #'
 #' @examples
+#'     curv_file = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
+#'     fh = file(filepath, "rb");
+#'     magic_byte = fread3(fh);
+#'     cat(sprintf("Magic byte in file '%s' is %d.\n", curv_file, magic_byte));
 #'
 #' @keywords internal
 fread3 <- function(filehandle) {
