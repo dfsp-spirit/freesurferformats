@@ -7,6 +7,14 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-In this document, we show how to read files.
+In this document, we show how to read brain imaging data from FreeSurfer binary files. These files are created and used by the [FreeSurfer neuroimaging software suite](https://surfer.nmr.mgh.harvard.edu) to store volume data and surface morphometry data computed from MRI brain images. 
 
-See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format.
+## 
+
+
+
+# References
+* See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format
+
+# Similar Packages
+* The [freesurfer] package by implements an R wrapper around some FreeSurfer command line utilities.
