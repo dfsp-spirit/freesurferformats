@@ -12,6 +12,12 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 * reaf.fs.mgh -- Read FreeSurfer MGH or MGZ format file
 * read.fs.curv -- Read FreeSurfer curv format file
 
+## Documentation
+
+* A short vignette/howto for the package is included, run `browseVignettes("freesurferformats")` to see it.
+* Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `reaf.fs.mgh`.
+* Run `example(function)` to see a live demo that uses the function `function`.
+
 
 ## License
 
