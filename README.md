@@ -21,4 +21,4 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 
 ## License
 
-MIT (See LICENSE file)
+MIT (See [LICENSE](./LICENSE) file)
