@@ -1,5 +1,5 @@
 # freesurferformats
-R package to read FreeSurfer neuroimaging file formats in GNU R.
+GNU R package to read FreeSurfer neuroimaging file formats.
 
 ## Supported formats
 
