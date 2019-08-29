@@ -10,7 +10,12 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 ## Functions
 
 * reaf.fs.mgh -- Read FreeSurfer MGH or MGZ format file
+
+    ```brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"));```
+    
 * read.fs.curv -- Read FreeSurfer curv format file
+    
+    ```cortical_thickness = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"));```
 
 ## Documentation
 
