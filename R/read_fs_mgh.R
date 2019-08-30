@@ -25,7 +25,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
         if(is_gzipped == "AUTO") {
             nc = nchar(filepath);
             num_chars_to_inspect = 3; # last 3 chars
-            if(nc >= 3) {
+            if(nc >= num_chars_to_inspect) {
                 ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
                 if(tolower(ext) == "mgz" || tolower(ext) == ".gz") {
                     is_gz = TRUE;
