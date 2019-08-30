@@ -14,25 +14,25 @@ The package is not yet on CRAN, so you will need to install via `devtools`:
 
 If you do not have `devtools` installed and loaded yet:
 
-   ```
-   install.packages("devtools")
-   library("devtools")
-   ```
+```r
+install.packages("devtools")
+library("devtools")
+```
 
 Then:
 
-   ```
-   devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
-   ```
+```r
+devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
+```
 
 
 ## Usage
 
 Before using any functions, of course load the package itself:
 
-    ```
-    library("freesurferformats")
-    ```
+```r
+library("freesurferformats")
+```
 
 Now you can call the following functions:
 
@@ -41,27 +41,27 @@ Now you can call the following functions:
 
 Let's read a brain volume:
 
-    ```r
-    brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"))
-    ```
+```r
+brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"))
+```
 
 Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file.
 
 The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). Here, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
 
 
-    ```
-    cortical_thickness_standard = read.fs.mgh(system.file("mystudy", "subject1", "surf", "lh.thickness.fwhm25.fsaverage.mgh"))
-    ```
+```r
+cortical_thickness_standard = read.fs.mgh(system.file("mystudy", "subject1", "surf", "lh.thickness.fwhm25.fsaverage.mgh"))
+```
 
 Now, `cortical_thickness_standard` is a vector of n float values, where *n* is the number of vertices of the fsaverage left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
 
 * `read.fs.curv` -- Read FreeSurfer curv format file
 
-    ```
-    cortical_thickness_native = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"))
-    ```
+```r
+cortical_thickness_native = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"))
+```
 
 Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is the number of vertices of the surface mesh the data belongs to (usually `surf/lh.white`, the number of vertices differs between subjects).
 
@@ -78,11 +78,11 @@ Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is t
 
 In a clean R session:
 
-    ```
-    library(devtools)
-    library(freesurferformats)
-    devtools::check()
-    ```
+```r
+library(devtools)
+library(freesurferformats)
+devtools::check()
+```
 
 
 ## License
