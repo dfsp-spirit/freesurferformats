@@ -11,11 +11,15 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 
 * reaf.fs.mgh -- Read FreeSurfer MGH or MGZ format file
 
-    ```brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"));```
-    
+    ```
+    brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"))
+    ```
+
 * read.fs.curv -- Read FreeSurfer curv format file
-    
-    ```cortical_thickness = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"));```
+
+    ```
+    cortical_thickness = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"))
+    ```
 
 ## Documentation
 
@@ -27,3 +31,21 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 ## License
 
 MIT (See [LICENSE](./LICENSE) file)
+
+
+## Installation
+
+The package is not yet on CRAN, so you will need to install via devtools:
+
+If you do not have devtools installed and loaded yet:
+
+   ```
+   install.packages("devtools")
+   library("devtools")
+   ```
+
+Then:
+
+   ```
+   devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
+   ```
