@@ -20,7 +20,23 @@ Brain imaging data come in different formats. Typically, the data is acquired on
 ## Reading MGH and MGZ format files
 
 
+
+
 ## Reading 'curv' format files
+
+Let's read an example morphometry data file that comes with this package. It contains vertex-wise measures of cortical thickness for the left hemisphere of a single subject in native space.
+
+```{r}
+    curvfile = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
+    ct = read.fs.curv(curvfile);
+```
+
+We can now have a closer look at the data and maybe plot a histogram:
+
+```{r}
+    cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)));
+    hist(ct, main="Histogram of cortical thickness for left hemisphere", xlab="Cortical thickness [mm]", ylab="Vertex count");
+```  
 
 
 ## References
@@ -29,3 +45,4 @@ Brain imaging data come in different formats. Typically, the data is acquired on
 
 ## Alternatives and similar Packages
 * The [freesurfer package by John Muschelli]( https://CRAN.R-project.org/package=freesurfer) implements an R wrapper around some FreeSurfer command line utilities. This includes functions to read MGH/MGZ files by converting them to NIFTI format using command line utilities that come with FreeSurfer, then loading the resulting NIFTI file with the [oro.nifti package](https://CRAN.R-project.org/package=oro.nifti). As such, the package requires that you have FreeSurfer installed.
+* Several packages exist that read files in NIFTI format, including [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) and [RNifti](https://CRAN.R-project.org/package=RNifti)
