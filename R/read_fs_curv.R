@@ -8,9 +8,11 @@
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curvfile = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
+#'     curvfile = system.file("extdata", "lh.thickness",
+#'                             package = "freesurferformats", mustWork = TRUE);
 #'     ct = read.fs.curv(curvfile);
-#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)));
+#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'                             length(ct), min(ct), mean(ct), max(ct)));
 #'
 #' @export
 read.fs.curv <- function(filepath) {
@@ -38,11 +40,6 @@ read.fs.curv <- function(filepath) {
 #'
 #' @return integer: The read integer.
 #'
-#' @examples
-#'     curv_file = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE);
-#'     fh = file(filepath, "rb");
-#'     magic_byte = fread3(fh);
-#'     cat(sprintf("Magic byte in file '%s' is %d.\n", curv_file, magic_byte));
 #'
 #' @keywords internal
 fread3 <- function(filehandle) {
