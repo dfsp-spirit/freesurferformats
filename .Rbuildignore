@@ -6,3 +6,4 @@
 .*/\.DS_Store$
 .DS_Store$
 README_DEVELOPMENT.md
+\.travis\.yml
