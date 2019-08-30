@@ -7,14 +7,25 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-In this document, we show how to read brain imaging data from FreeSurfer binary files. These files are created and used by the [FreeSurfer neuroimaging software suite](https://surfer.nmr.mgh.harvard.edu) to store volume data and surface morphometry data computed from MRI brain images. 
-
-## 
+In this document, we show how to read brain imaging data from [FreeSurfer](https://surfer.nmr.mgh.harvard.edu) binary files. These files are created and used by the [FreeSurfer neuroimaging software suite](https://surfer.nmr.mgh.harvard.edu) to store volume data and surface morphometry data computed from MRI brain images.
 
 
+# Reading FreeSurfer data with the *freesurferdata* R package
 
-# References
+## Background
+
+Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The DICOM images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer. This *freesurferdata* R package implements functions to parse data in MGH format, as well as some related FreeSurfer formats.
+
+
+## Reading MGH and MGZ format files
+
+
+## Reading 'curv' format files
+
+
+## References
 * See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format
 
-# Similar Packages
-* The [freesurfer] package by implements an R wrapper around some FreeSurfer command line utilities.
+
+## Alternatives and similar Packages
+* The [freesurfer package by John Muschelli]( https://CRAN.R-project.org/package=freesurfer) implements an R wrapper around some FreeSurfer command line utilities. This includes functions to read MGH/MGZ files by converting them to NIFTI format using command line utilities that come with FreeSurfer, then loading the resulting NIFTI file with the [oro.nifti package](https://CRAN.R-project.org/package=oro.nifti). As such, the package requires that you have FreeSurfer installed.
