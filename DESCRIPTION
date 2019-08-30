@@ -8,6 +8,9 @@ Description: Provides functions to read data from neuroimaging files in FreeSurf
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: knitr, rmarkdown
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 2.1.0)
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
