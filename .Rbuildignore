@@ -5,4 +5,4 @@
 ^\.DS_Store$
 .*/\.DS_Store$
 .DS_Store$
-^README_DEVELOPMENT\.md$ 
+README_DEVELOPMENT.md
