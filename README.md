@@ -36,7 +36,7 @@ library("freesurferformats")
 
 Now you can call the following functions:
 
-### `reaf.fs.mgh` -- Read FreeSurfer MGH or MGZ format file
+### *read.fs.mgh* -- Read FreeSurfer MGH or MGZ format files
 
 
 Let's read a brain volume:
@@ -59,7 +59,7 @@ cortical_thickness_standard = read.fs.mgh(mgh_file)
 Now, `cortical_thickness_standard` is a vector of n float values, where *n* is the number of vertices of the fsaverage left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
 
-### `read.fs.curv` -- Read FreeSurfer curv format file
+### *read.fs.curv* -- Read FreeSurfer curv format files
 
 ```r
 curv_file = system.file("mystudy", "subject1", "surf", "lh.thickness")
