@@ -23,7 +23,7 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 
 ## Documentation
 
-* A short vignette/howto for the package is included, run `browseVignettes("freesurferformats")` to see it.
+* A short vignette/howto for the package is included, run `vignette("freesurferformats")` or `browseVignettes("freesurferformats")` to see it.
 * Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `reaf.fs.mgh`.
 * Run `example(function)` to see a live demo that uses the function `function`.
 
@@ -35,9 +35,9 @@ MIT (See [LICENSE](./LICENSE) file)
 
 ## Installation
 
-The package is not yet on CRAN, so you will need to install via devtools:
+The package is not yet on CRAN, so you will need to install via `devtools`:
 
-If you do not have devtools installed and loaded yet:
+If you do not have `devtools` installed and loaded yet:
 
    ```
    install.packages("devtools")
