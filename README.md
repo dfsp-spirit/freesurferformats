@@ -76,7 +76,7 @@ Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is t
 * Run `example(function)` to see a live demo that uses the function `function`.
 
 
-## Running the Unit tests
+## Unit tests / CI
 
 
 In a clean R session:
@@ -86,6 +86,8 @@ library(devtools)
 library(freesurferformats)
 devtools::check()
 ```
+
+Continuous integration is run on travis: [![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats)
 
 
 ## License
