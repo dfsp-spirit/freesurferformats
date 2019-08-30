@@ -41,7 +41,7 @@ Now you can call the following functions:
 
 Let's read a brain volume:
 
-    ```
+    ```r
     brain_3D_voxels = read.fs.mgh(system.file("mystudy", "subject1", "mri", "brain.mgz"))
     ```
 
@@ -54,7 +54,7 @@ The MGH/MGZ format is also used to store morphometry data mapped to standard spa
     cortical_thickness_standard = read.fs.mgh(system.file("mystudy", "subject1", "surf", "lh.thickness.fwhm25.fsaverage.mgh"))
     ```
 
-    Now, `cortical_thickness_standard` is a vector of n float values, where *n* is the number of vertices of the fsaverage left hemisphere surface (i.e., 163842 in FreeSurfer 6).
+Now, `cortical_thickness_standard` is a vector of n float values, where *n* is the number of vertices of the fsaverage left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
 
 * `read.fs.curv` -- Read FreeSurfer curv format file
@@ -63,7 +63,7 @@ The MGH/MGZ format is also used to store morphometry data mapped to standard spa
     cortical_thickness_native = read.fs.curv(system.file("mystudy", "subject1", "surf", "lh.thickness"))
     ```
 
-    Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is the number of vertices of the surface mesh the data belongs to (usually `surf/lh.white`, the number of vertices differs between subjects).
+Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is the number of vertices of the surface mesh the data belongs to (usually `surf/lh.white`, the number of vertices differs between subjects).
 
 
 ## Full Documentation
