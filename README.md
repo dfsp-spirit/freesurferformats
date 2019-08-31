@@ -92,4 +92,6 @@ Continuous integration is run on travis: [![Build Status](https://travis-ci.org/
 
 ## License
 
-MIT (See [LICENSE](./LICENSE) file)
+[MIT](https://opensource.org/licenses/MIT)
+
+Note: The file LICENSE in this repository is a CRAN license template only (as required by CRAN) and does not contain the full MIT  license text. See the file LICENSE_FULL for the full license text.
