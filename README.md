@@ -10,7 +10,17 @@ GNU R package to read FreeSurfer neuroimaging file formats.
 
 ## Installation
 
-The package is not yet on CRAN, so you will need to install via `devtools`:
+### Recommended: install the stable version from CRAN
+
+The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
+
+```r
+install.packages("freesurferformats")
+```
+
+### Development version (from GitHub)
+
+You can try the development version if you need features which have not been released yet. Use at your own risk though.
 
 If you do not have `devtools` installed and loaded yet:
 
