@@ -56,7 +56,7 @@ mgz_file = system.file("mystudy", "subject1", "mri", "brain.mgz")
 brain_3D_voxels = read.fs.mgh(mgz_file)
 ```
 
-Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 3 dimensions and 256*256*256 = 16777216 voxels.
+Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 3 dimensions and 256 x 256 x 256 = 16777216 voxels.
 
 The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). Here, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
 
