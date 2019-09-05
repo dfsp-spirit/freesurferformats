@@ -38,7 +38,7 @@ In this case, the file was compressed and in MGZ format, but the function does n
 
 If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize your brain image like this:
 
-```{r}
+```{r, eval = FALSE}
     oro.nifti::orthographic(oro.nifti::nifti(brain))
 ```
 
