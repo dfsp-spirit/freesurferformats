@@ -14,12 +14,33 @@ In this document, we show how to read brain imaging data from [FreeSurfer](https
 
 ## Background
 
-Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The DICOM images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer. This *freesurferdata* R package implements functions to parse data in MGH format, as well as some related FreeSurfer formats.
+Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The DICOM images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer.
+
+This *freesurferdata* R package implements functions to parse data in MGH format, as well as some related FreeSurfer formats. MGH stands for Massachusetts General Hospital, and is a binary format. The MGZ format is a compressed version of the MGH format.
 
 
 ## Reading MGH and MGZ format files
 
+Here is an example for reading MGH data.
 
+
+```{r}
+    library("freesurferformats")
+    mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE)
+    brain = read.fs.mgh(mgh_file)
+    cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n", paste(dim(brain), collapse = 'x'), min(brain), mean(brain), max(brain)));
+```
+
+In this case, the file was compressed and in MGZ format, but the function does not care, it works for both MGH and MGZ.
+
+
+### Further processing and visualization
+
+If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize your brain image like this:
+
+```{r}
+    oro.nifti::orthographic(oro.nifti::nifti(brain))
+```
 
 
 ## Reading 'curv' format files
@@ -44,6 +65,6 @@ We can now have a closer look at the data and maybe plot a histogram:
 * See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format
 
 
-## Alternatives and similar Packages
+## Alternatives, similar and related Packages
 * The [freesurfer package by John Muschelli]( https://CRAN.R-project.org/package=freesurfer) implements an R wrapper around some FreeSurfer command line utilities. This includes functions to read MGH/MGZ files by converting them to NIFTI format using command line utilities that come with FreeSurfer, then loading the resulting NIFTI file with the [oro.nifti package](https://CRAN.R-project.org/package=oro.nifti). As such, the package requires that you have FreeSurfer installed.
 * Several packages exist that read files in NIFTI format, including [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) and [RNifti](https://CRAN.R-project.org/package=RNifti)
