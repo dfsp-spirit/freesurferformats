@@ -5,7 +5,7 @@
 #'
 #' @param data, vector of floats. The brain morphometry data to write, one value per vertex.
 #'
-#' @param filepath, string. Full path to the input curv file.
+#' @param filepath, string. Full path to the output curv file.
 #'
 #'
 #' @export
