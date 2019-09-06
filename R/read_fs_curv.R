@@ -21,7 +21,7 @@ read.fs.curv <- function(filepath) {
 
     magic_byte = fread3(fh);
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
-        stop(sprintf("Magic number mismatch. The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", filepath));
+        stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath));
     }
     num_verts = readBin(fh, integer(), n = 1, endian = "big");
     num_faces = readBin(fh, integer(), n = 1, endian = "big");
