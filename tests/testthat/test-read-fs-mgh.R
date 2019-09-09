@@ -1,4 +1,4 @@
-test_that("The dimensions of our demo file are read correctly", {
+test_that("The dimensions of our demo MGZ file are read correctly", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   vd = read.fs.mgh(brain_image);
 
