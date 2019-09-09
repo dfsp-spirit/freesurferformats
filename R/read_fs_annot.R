@@ -5,7 +5,7 @@
 #'
 #' @param filepath, string. Full path to the input curv file.
 #'
-#' @return ???
+#' @return named list, enties are:
 #'
 #'
 #' @export
@@ -14,37 +14,118 @@ read.fs.annot <- function(filepath) {
     fh = file(filepath, "rb");
 
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
-    verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels, endian = "big");
+    cat(sprintf("\\nnum_verts_and_labels = %d.\n", num_verts_and_labels));
+    verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");
 
-    verts = verts_and_labels[seq(1L, length(verts_and_labels), 2L)]
-    labels = verts_and_labels[seq(2L, length(verts_and_labels), 2L)]
+    verts = verts_and_labels[seq(1L, length(verts_and_labels), 2L)];
+    labels = verts_and_labels[seq(2L, length(verts_and_labels), 2L)];
 
-    has_colortable = readBin(fh, integer(), n = 1, endian = "big");
+    return_list = list("vertices" = verts, "labels" = labels);
+
+    cat(sprintf("Loaded %d verts, %s labels.\n", length(verts), length(labels)));
+
+    has_colortable = readBin(fh, logical(), n = 1, endian = "big");
+    cat(sprintf("has_colortable is: %d.\n", has_colortable));
 
     if (has_colortable) {
         ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
 
         if(ctable_num_entries > 0) {
-          # num_colortable_entries is really the number of entries
-          colortable <- list("num_entries" = num_colortable_entries)
-          ctable_length = readBin(fh, integer(), n = 1, endian = "big");
-
-          ctab_orig = readBin(fh, char(), n = ctable_length, endian = "big");
-          ctab_orig = ctab_orig[1:length(ctab_orig)-1]  # remove last element
-
+            stop(sprintf("Unsupported old annotation file version.", version));
         } else {
-          # num_colortable_entries is a version code (actually, the abs value is).
-          version = -num_colortable_entries;
-          if(version == 2) {
+            # If ctable_num_entries is negative, it is a version code (actually, the abs value is the version).
+            version = -ctable_num_entries;
+            cat(sprintf("Colortable has negative number of entries (%d), version set to abs value %d.\n", ctable_num_entries, version));
+            if(version == 2) {
+                ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
 
-          }
-          else {
-              error("Unsupported annotation file version.");
-          }
+                colortable = readcolortable(fh, ctable_num_entries);
 
+                cat(sprintf("v2 colortable with %d entries read.\n", colortable$num_entries));
+                return_list$colortable = colortable;
+            }
+            else {
+                stop(sprintf("Unsupported annotation file version '%d'.", version));
+            }
         }
 
     }
+    close(fh);
+    return(return_list);
+}
 
-    return(data);
+
+
+
+
+#' @title Read binary colortable in v2 format.
+#'
+#' @description Read a v2 format colortable from a connection to a binary file.
+#'
+#' @param filehandle: file handle
+#'
+#' @return list: the color table. Entries are: "num_entries": int, number of brain structures. "struct_names": vector of strings, the names. "table": numeric matrix.
+#'
+#'
+#' @keywords internal
+readcolortable <- function(fh, ctable_num_entries) {
+
+    cat(sprintf("readcolortable: Reading v2 colortable with %d entries.\n", ctable_num_entries));
+
+    colortable <- list("num_entries" = ctable_num_entries)
+    ctab_orig_dev_filename_length = readBin(fh, integer(), n = 1, endian = "big");
+
+    # Orginial filename of the colortable file that was used to create the atlas colortable (on the dev machine).
+    ctab_orig_dev_filename = readChar(fh, ctab_orig_dev_filename_length);
+    cat(sprintf("Filename of dev version with %d chars was '%s'.\n", ctab_orig_dev_filename_length, ctab_orig_dev_filename));
+
+
+    colortable$struct_names = rep("", ctable_num_entries);
+    colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
+
+    # There is another field here which also encodes the number of entries.
+    ctable_num_entries_2nd = readBin(fh, integer(), n = 1, endian = "big");
+    cat(sprintf("Read ctable_num_entries_2nd: %d\n", ctable_num_entries_2nd));
+    for (i in 1:ctable_num_entries) {
+        struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1;
+        cat(sprintf("Reading entry #%d with struct_idx '%d'.\n", i, struct_idx));
+
+        # Index must not be negative:
+        if (struct_idx < 0) {
+            stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, struct_idx));
+        } else {
+            cat(sprintf("#%d struct_idx '%d' ok.\n", i, struct_idx));
+        }
+
+        name_so_far = colortable$struct_names[struct_idx];
+        #cat(sprintf("#%d Name at index %d so far: '%s'\n", i, struct_idx, name_so_far));
+        # The same structure must not occur more than once:
+        if (!identical(name_so_far, "")) {
+            cat(sprintf("Annotation file entry #%d struct index %d: entry with identical name '%s' already hit, this must not happen. Brain structure names must be unique.\n", i, struct_idx, name_so_far));
+        }
+        entry_num_chars = readBin(fh, integer(), n = 1, endian = "big");
+        cat(sprintf("Reading entry #%d with %d chars.\n", i, entry_num_chars));
+
+        brain_structure_name = readChar(fh, entry_num_chars);
+        #brain_structure_name = brain_structure_name[1:length(brain_structure_name)-1];
+        cat(sprintf("Reading entry #%d for brain structure '%s'.\n", i, brain_structure_name));
+
+        colortable$struct_names[i] = brain_structure_name;
+
+        r = readBin(fh, integer(), n = 1, endian = "big");   # red channel of color
+        g = readBin(fh, integer(), n = 1, endian = "big");   # green channel of color
+        b = readBin(fh, integer(), n = 1, endian = "big");   # blue channel of color
+        a = readBin(fh, integer(), n = 1, endian = "big");   # alpha channel of color
+        unique_color_label = r + g*2^8 + b*2^16 + a*2^24;
+
+        cat(sprintf("Read RGBA color: (%d, %d, %d, %d), unique code is %d.\n", r, g, b, a, unique_color_label));
+
+        colortable$table[i,1] = r;
+        colortable$table[i,2] = g;
+        colortable$table[i,3] = b;
+        colortable$table[i,4] = a;
+        colortable$table[i,5] = unique_color_label;
+    }
+
+    return(colortable);
 }
