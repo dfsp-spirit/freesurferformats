@@ -10,7 +10,7 @@ read.fs.annot(filepath)
 \item{filepath, }{string. Full path to the input curv file.}
 }
 \value{
-???
+named list, enties are:
 }
 \description{
 Read a data annotation file in FreeSurfer format. Such a file assigns a label and a color to each vertex of a brain surface. The assignment of labels to vertices is based on at atlas or brain parcellation file. Typically the atlas is available for some standard template subject, and the labels are assigned to another subject by registering it to the template.

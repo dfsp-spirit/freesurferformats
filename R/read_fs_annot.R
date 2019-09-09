@@ -5,7 +5,8 @@
 #'
 #' @param filepath, string. Full path to the input curv file.
 #'
-#' @return named list, enties are:
+#' @return named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
+#'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
 #'
 #' @export
@@ -20,7 +21,7 @@ read.fs.annot <- function(filepath) {
     verts = verts_and_labels[seq(1L, length(verts_and_labels), 2L)];
     labels = verts_and_labels[seq(2L, length(verts_and_labels), 2L)];
 
-    return_list = list("vertices" = verts, "labels" = labels);
+    return_list = list("vertices" = verts, "label_codes" = labels);
 
     cat(sprintf("Loaded %d verts, %s labels.\n", length(verts), length(labels)));
 
@@ -43,6 +44,22 @@ read.fs.annot <- function(filepath) {
 
                 cat(sprintf("v2 colortable with %d entries read.\n", colortable$num_entries));
                 return_list$colortable = colortable;
+
+                struct_names = colortable$struct_names;
+                r = colortable$table[,1];
+                g = colortable$table[,2];
+                b = colortable$table[,3];
+                a = colortable$table[,4];
+                code = colortable$table[,5];
+                colortable_df = data.frame(struct_names, r, g, b, a, code)
+
+                label_names = rep("", length(labels))
+                for (i in 1:length(colortable$struct_names)) {
+                    label_code = code[i]
+                    cat(sprintf("Handling struct #%d named '%s' with code %d.\n", i, colortable$struct_names[i], label_code))
+                    label_names[labels==label_code] = colortable$struct_names[i]
+                }
+                return_list$label_names = label_names;
             }
             else {
                 stop(sprintf("Unsupported annotation file version '%d'.", version));
@@ -64,7 +81,7 @@ read.fs.annot <- function(filepath) {
 #'
 #' @param filehandle: file handle
 #'
-#' @return list: the color table. Entries are: "num_entries": int, number of brain structures. "struct_names": vector of strings, the names. "table": numeric matrix.
+#' @return named list: the color table. The named entries are: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
 #'
 #' @keywords internal

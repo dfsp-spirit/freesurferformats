@@ -26,7 +26,7 @@ test_that("Our demo annotation file can be read", {
 
     # Test number of vertices and labels
     expect_equal(length(annot$vertices), known_vertex_count)
-    expect_equal(length(annot$labels), known_vertex_count)
+    expect_equal(length(annot$label_codes), known_vertex_count)
 
     # Test vertex indices: vertex indices in the file are zero-based
     expect_equal(annot$vertices[1], 0)
@@ -35,6 +35,9 @@ test_that("Our demo annotation file can be read", {
     }
 
     # Test vertex labels
-    expect_equal(annot$labels[1], 9182740)
+    expect_equal(annot$label_codes[1], 9182740)
+    expect_equal(annot$label_names[1], "lateraloccipital")
+    expect_equal(length(annot$label_names), known_vertex_count)
+
 
 })
