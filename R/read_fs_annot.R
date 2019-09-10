@@ -15,7 +15,6 @@ read.fs.annot <- function(filepath) {
     fh = file(filepath, "rb");
 
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
-    cat(sprintf("\\nnum_verts_and_labels = %d.\n", num_verts_and_labels));
     verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");
 
     verts = verts_and_labels[seq(1L, length(verts_and_labels), 2L)];
@@ -79,8 +78,6 @@ read.fs.annot <- function(filepath) {
 #'
 #' @keywords internal
 readcolortable <- function(fh, ctable_num_entries) {
-
-    cat(sprintf("readcolortable: Reading v2 colortable with %d entries.\n", ctable_num_entries));
 
     colortable <- list("num_entries" = ctable_num_entries);
     ctab_orig_dev_filename_length = readBin(fh, integer(), n = 1, endian = "big");
