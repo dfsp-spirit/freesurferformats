@@ -3,13 +3,13 @@
 #' @description Write vertex-wise brain surface data to a file in FreeSurfer binary 'curv' format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
-#' @param data, vector of floats. The brain morphometry data to write, one value per vertex.
-#'
 #' @param filepath, string. Full path to the output curv file.
+#'
+#' @param data, vector of floats. The brain morphometry data to write, one value per vertex.
 #'
 #'
 #' @export
-write.fs.curv <- function(data, filepath) {
+write.fs.curv <- function(filepath, data) {
     MAGIC_FILE_TYPE_NUMBER = 16777215;
     num_verts = length(data);
     num_faces = length(data);   # Has no meaning.
