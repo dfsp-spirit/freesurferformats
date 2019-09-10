@@ -6,6 +6,11 @@
 #'
 #' @param filepath, string. Full path to the output curv file.
 #'
+#' @param vox2ras_matrix, 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1].
+#'
+#' @param mr_parms, numerical vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. Defaults to c(0, 0, 0, 0) if omitted.
+#'
+#'
 #'
 #' @export
 write.fs.mgh <- function(filepath, data, vox2ras_matrix, mri_params = c(0, 0, 0, 0)) {
