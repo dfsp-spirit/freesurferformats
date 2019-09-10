@@ -1,11 +1,13 @@
 # freesurferformats
-GNU R package to read FreeSurfer neuroimaging file formats.
+GNU R package to read and write FreeSurfer neuroimaging file formats.
 
 ## Supported formats
 
-* MGH/MGZ: FreeSurfer n-dimensional brain images or arbitrary other data. Typically a single 3D brain MRI scan or a time series of scans, or morphometry data for brain surfaces. The format is named after the Massachusetts General Hospital, and the specs are given (rather implicitely) [here in the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat). MGZ is just a gzipped version of MGH. An example file would be `mri/T1.mgz` (containing a 3D brain volume), but also `surf/lh.area.fwhm15.fsaverage.mgh` (containing surface data mapped to standard space).
+* MGH/MGZ: FreeSurfer n-dimensional brain images or arbitrary other data. Typically a single 3D brain MRI scan or a time series of scans, or morphometry data for brain surfaces. The format is named after the Massachusetts General Hospital, and the specs are given (rather implicitely) [here in the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat). MGZ is just a gzipped version of MGH. An example file would be `mri/T1.mgz` (containing a 3D brain volume), but also `surf/lh.area.fwhm15.fsaverage.mgh` (containing surface data mapped to standard space). This format can be read and written.
 
-* FreeSurfer 'curv' format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Several versions of this format exist, the supported version is the new, binary one (the only one that is used in current FS versions). An example file would be `surf/lh.area`.
+* FreeSurfer 'curv' format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Several versions of this format exist, the supported version is the new, binary one (the only one that is used in current FS versions). An example file would be `surf/lh.area`. This format can be read and written.
+
+* FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can be read only.
 
 
 ## Installation
@@ -20,7 +22,7 @@ install.packages("freesurferformats")
 
 ### Development version (from GitHub)
 
-You can try the development version if you need features which have not been released yet. Use at your own risk though.
+You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
 
 If you do not have `devtools` installed and loaded yet:
 
@@ -56,7 +58,7 @@ mgz_file = system.file("mystudy", "subject1", "mri", "brain.mgz")
 brain_3D_voxels = read.fs.mgh(mgz_file)
 ```
 
-Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 3 dimensions and 256 x 256 x 256 = 16777216 voxels.
+Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 4 dimensions and 256 x 256 x 256 x 1 = 16777216 voxels. (The final dimension means it has only a single time point or *frame*).
 
 The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). Here, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
 
@@ -98,6 +100,8 @@ devtools::check()
 ```
 
 Continuous integration is run on travis: [![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats)
+
+Don't worry if it is currently failing, development happens on master atm.
 
 
 ## License
