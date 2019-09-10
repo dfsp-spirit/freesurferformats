@@ -29,13 +29,11 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
     d = dim(data);
     num_dim = length(d);
-    cat(sprintf("Received data with %d dimensions: %s.\n", num_dim, paste(d, collapse = ' ')));
 
     dim1 = d[1];
     dim2 = ifelse(num_dim >= 2, d[2], 1);
     dim3 = ifelse(num_dim >= 3, d[3], 1);
     num_frames = ifelse(num_dim >= 4, d[4], 1);
-    cat(sprintf("Writing data with dimensions: %d, %d, %d, %d.\n", dim1, dim2, dim3, num_frames));
 
     writeBin(as.integer(1), fh, size = 4, endian = "big");
     writeBin(as.integer(dim1), fh, size = 4, endian = "big");
@@ -54,14 +52,13 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     dof = 1;    # Unused, ignore
     writeBin(as.integer(dof), fh, size = 4, endian = "big");
 
-    header_size_total = 256;
+    header_size_total = 256;    # MGH uses a fixed header size.
 
 
-    MdcD = vox2ras_matrix[1:3, 1:3];
-    delta = sqrt(colSums(MdcD ** 2));
+    MdcD = vox2ras_matrix[1:3, 1:3];   # The upper left 3x3 part of the 4x4 vox2ras matrix
+    delta = sqrt(colSums(MdcD ** 2));    # a 3x1 vector
 
-    delta_tvec = matrix(rep(delta, 3));
-    delta_tvec = rep(delta, 3);
+    delta_tvec = rep(delta, 3);  # 3x3 matrix
     Mdc = as.vector(MdcD / delta_tvec);
     Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
     Pxyz_c = vox2ras_matrix * Pcrs_c;
@@ -70,9 +67,9 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     ras_flag = 1;
     writeBin(as.integer(ras_flag), fh, size = 2, endian = "big");
     if(ras_flag == 1) {
-        writeBin(delta, fh, size = 4, endian = "big"); # 3x4 = 12
-        writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36
-        writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12
+        writeBin(delta, fh, size = 4, endian = "big"); # 3x1 vector => 3x4 = 12 bytes
+        writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36 bytes
+        writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12 bytes
         used_space_RAS = (3*4 + 4*3*4);
     } else {
         used_space_RAS = 0;
