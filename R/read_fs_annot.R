@@ -8,6 +8,11 @@
 #' @return named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
 #'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
+#' @examples
+#'     annot_file = system.file("extdata", "lh.aparc.annot",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     annot = read.fs.annot(annot_file);
 #'
 #' @export
 read.fs.annot <- function(filepath) {
