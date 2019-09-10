@@ -4,12 +4,12 @@
 \alias{write.fs.curv}
 \title{Write file in FreeSurfer curv format}
 \usage{
-write.fs.curv(data, filepath)
+write.fs.curv(filepath, data)
 }
 \arguments{
-\item{data, }{vector of floats. The brain morphometry data to write, one value per vertex.}
-
 \item{filepath, }{string. Full path to the output curv file.}
+
+\item{data, }{vector of floats. The brain morphometry data to write, one value per vertex.}
 }
 \description{
 Write vertex-wise brain surface data to a file in FreeSurfer binary 'curv' format.
