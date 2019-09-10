@@ -30,13 +30,21 @@ Here is an example for reading MGH data.
     brain = read.fs.mgh(mgh_file)
     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n", paste(dim(brain), collapse = 'x'), min(brain), mean(brain), max(brain)));
 ```
+Now, `brain` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 4 dimensions and 256 x 256 x 256 x 1 = 16777216 voxels. The final dimension, which is 1 here, means it has only a single time point or *frame*. In this case, the file was compressed and in MGZ format, but the function does not care, it works for both MGH and MGZ.
 
-In this case, the file was compressed and in MGZ format, but the function does not care, it works for both MGH and MGZ.
+The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). In the following example, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
 
+
+```{r, eval = FALSE}
+    mgh_file = system.file("mystudy", "subject1", "surf", "lh.thickness.fwhm25.fsaverage.mgh")
+    cortical_thickness_standard = read.fs.mgh(mgh_file)
+```
+
+Now, `cortical_thickness_standard` is a vector of *n* float values, where *n* is the number of vertices of the *fsaverage* subject's left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
 ### Further processing and visualization
 
-If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize your brain image like this:
+If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize the `brain` data we loaded earlier like this:
 
 ```{r, eval = FALSE}
     oro.nifti::orthographic(oro.nifti::nifti(brain))
@@ -53,7 +61,9 @@ Let's read an example morphometry data file that comes with this package. It con
     ct = read.fs.curv(curvfile)
 ```
 
-We can now have a closer look at the data and maybe plot a histogram:
+Now, `ct` is a vector of *n* float values, where *n* is the number of vertices of the surface mesh the data belongs to (usually `surf/lh.white`). The number of vertices differs between subjects, as this is native space data.
+
+We can now have a closer look at the data and maybe plot a histogram of cortical thickness for this subject:
 
 ```{r}
     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)))
