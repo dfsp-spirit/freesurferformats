@@ -48,42 +48,26 @@ library("freesurferformats")
 
 Now you can call the following functions:
 
-### *read.fs.mgh* -- Read FreeSurfer MGH or MGZ format files
 
-
-Let's read a brain volume:
+### Reading data
 
 ```r
-mgz_file = system.file("mystudy", "subject1", "mri", "brain.mgz")
-brain_3D_voxels = read.fs.mgh(mgz_file)
+read.fs.mgh() -- read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
+read.fs.curv() -- read morphometry data from 'curv' format files like `surf/lh.area`
+read.fs.annot() -- read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
 ```
 
-Now, `brain_3D_voxels` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 4 dimensions and 256 x 256 x 256 x 1 = 16777216 voxels. (The final dimension means it has only a single time point or *frame*).
-
-The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). Here, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
-
-
+### Writing data
 ```r
-mgh_file = system.file("mystudy", "subject1", "surf", "lh.thickness.fwhm25.fsaverage.mgh")
-cortical_thickness_standard = read.fs.mgh(mgh_file)
+write.fs.mgh() -- write data with 1 to 4 dimensions to an MGH format file
+write.fs.curv() -- write a data vector to a 'curv' format file
 ```
 
-Now, `cortical_thickness_standard` is a vector of n float values, where *n* is the number of vertices of the fsaverage left hemisphere surface (i.e., 163842 in FreeSurfer 6).
-
-
-### *read.fs.curv* -- Read FreeSurfer curv format files
-
-```r
-curv_file = system.file("mystudy", "subject1", "surf", "lh.thickness")
-cortical_thickness_native = read.fs.curv(curv_file)
-```
-
-Now, `cortical_thickness_native` is a vector of *n* float values, where *n* is the number of vertices of the surface mesh the data belongs to (usually `surf/lh.white`, the number of vertices differs between subjects).
-
+The documentation is included in the package and not repeated on this website.
 
 ## Full Documentation
 
-* A short vignette for the package is included, run `vignette("freesurferformats")` or `browseVignettes("freesurferformats")` to see it.
+* A detailed vignette with explanation and examples for the usage of all functions of the package is included, run `vignette("freesurferformats")` or `browseVignettes("freesurferformats")` to see it.
 * Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `reaf.fs.mgh`.
 * Run `example(function)` to see a live demo that uses the function `function`.
 
