@@ -14,14 +14,14 @@ In this document, we show how to read brain imaging data from [FreeSurfer](https
 
 ## Background
 
-Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The DICOM images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer.
+Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The 2D images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer.
 
 This *freesurferdata* R package implements functions to parse data in MGH format, as well as some related FreeSurfer formats. MGH stands for Massachusetts General Hospital, and is a binary format. The MGZ format is a compressed version of the MGH format.
 
 
 ## Reading MGH and MGZ format files
 
-Here is an example for reading MGH data.
+Here is a first example for reading MGH data.
 
 
 ```{r}
@@ -31,6 +31,8 @@ Here is an example for reading MGH data.
     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n", paste(dim(brain), collapse = 'x'), min(brain), mean(brain), max(brain)));
 ```
 Now, `brain` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 4 dimensions and 256 x 256 x 256 x 1 = 16777216 voxels. The final dimension, which is 1 here, means it has only a single time point or *frame*. In this case, the file was compressed and in MGZ format, but the function does not care, it works for both MGH and MGZ.
+
+### A second MGH example
 
 The MGH/MGZ format is also used to store morphometry data mapped to standard space (fsaverage). In the following example, we read cortical thickness data in standard space, smoothed with a FWHM 25 kernel:
 
@@ -42,7 +44,7 @@ The MGH/MGZ format is also used to store morphometry data mapped to standard spa
 
 Now, `cortical_thickness_standard` is a vector of *n* float values, where *n* is the number of vertices of the *fsaverage* subject's left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
-### Further processing and visualization
+### Hint: Further image processing and visualization
 
 If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize the `brain` data we loaded earlier like this:
 
@@ -67,8 +69,44 @@ We can now have a closer look at the data and maybe plot a histogram of cortical
 
 ```{r}
     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)))
-    hist(ct, main="Histogram of cortical thickness for left hemisphere", xlab="Cortical thickness [mm]", ylab="Vertex count")
+    hist(ct, main="lh cortical thickness", xlab="Cortical thickness [mm]", ylab="Vertex count")
 ```  
+
+## Reading annotation files
+
+An annotation file contains a cortical parcellation for a subject, based on a brain atlas. It contains a label for each vertex of a surface, and that label assigns this vertex to one of a set of atlas regions. The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot` for the `aparc` (Desikan) atlas.
+
+Let's read an example annotation file that comes with this package:
+
+```{r}
+    library("freesurferformats")
+    annotfile = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE)
+    annot = read.fs.annot(annotfile)
+```
+
+## Working with annotation data
+
+As mentioned earlier, such a file contains various pieces of information. Let us investigate the labels and the atlas region names for some vertices first:
+
+```{r}    
+    num_vertices_total = length(annot$vertices);
+    for (vert_idx in c(1, 5000, 123456)) {
+        cat(sprintf("Vertex #%d with zero-based index %d has label code '%d' which stands for atlas region '%s'\n", vert_idx, annot$vertices[vert_idx], annot$label_codes[vert_idx], annot$label_names[vert_idx]));
+    }
+```
+
+Now, we will focus on the colortable. We will list the available regions and their color codes.
+
+```{r}
+    ctable = annot$colortable$table;
+    regions = annot$colortable$struct_names;
+    for (region_idx in seq_len(annot$colortable$num_entries)) {
+        cat(sprintf("Region #%d called '%s' has RGBA color (%d %d %d %d) and code '%d'.\n", region_idx, regions[region_idx], ctable[region_idx,1], ctable[region_idx,2], ctable[region_idx,3], ctable[region_idx,4], ctable[region_idx,5]));
+    }
+```
+
+That's all the information you can get from an annotation file. Feel free to combine it with morphometry data obtained via `read.fs.curv` or `read.fs.mgh` to compute stuff like the average thickness in a region.
+
 
 
 ## References
