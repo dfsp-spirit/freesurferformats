@@ -59,8 +59,12 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
 
     MdcD = vox2ras_matrix[1:3, 1:3];
+    cat(sprintf("*******************length vox2ras_matrix=%d, len MdcD=%d\n", length(vox2ras_matrix), length(MdcD)));
 
-    delta = sqrt(sum(MdcD ** 2));
+    sq = MdcD ** 2;
+    sm = sum(MdcD ** 2);
+    cat(sprintf("*******************lengths: MdcD=%d sq=%d sm=%d\n", length(MdcD), length(sq), length(sm)));
+    delta = sqrt(colSums(MdcD ** 2));
     cat(sprintf("delta is %f\n", delta));
 
     delta_tvec = matrix(rep(delta, 3));
@@ -75,12 +79,13 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
     cat(sprintf("Writing RAS information.\n"));
     # Write RAS-good flag as a short
-    ras_flag = 0;
+    ras_flag = 1;
     writeBin(as.integer(ras_flag), fh, size = 2, endian = "big");
     if(ras_flag == 1) {
-        writeBin(delta, fh, size = 4, endian = "big");
-        writeBin(Mdc, fh, size = 4, endian = "big");
-        writeBin(Pxyz_c, fh, size = 4, endian = "big");
+        cat(sprintf("Writing RAS data. Lengths are: delta=%d, Mdc=%d, Pxyz_c=%d.\n",  length(delta), length(Mdc), length(Pxyz_c)));
+        writeBin(delta, fh, size = 4, endian = "big"); # 3x4 = 12
+        writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36
+        writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12
         used_space_RAS = (3*4 + 4*3*4);
     } else {
         used_space_RAS = 0;
