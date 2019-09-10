@@ -17,14 +17,13 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
     # Sanity checks for arguments
     if (!class(data)=="array") {
-        stop("The 'data' argument must be an array");
+        stop("The 'data' argument must be an array.");
     }
     if (!class(vox2ras_matrix)=="matrix") {
-        stop("The 'vox2ras_matrix' argument must be a matrix");
+        stop("The 'vox2ras_matrix' argument must be a matrix.");
     }
 
-    MRI_FLOAT = 3;
-    MRI_TENSOR = 6;
+
 
     fh = file(filepath, "wb", blocking = TRUE);
 
@@ -44,13 +43,13 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     writeBin(as.integer(dim3), fh, size = 4, endian = "big");
     writeBin(as.integer(num_frames), fh, size = 4, endian = "big");
 
-    if (num_dim == 5) {
-        is_tensor = TRUE;
-        writeBin(as.integer(MRI_TENSOR), fh, size = 4, endian = "big");
-    } else {
-        is_tensor = FALSE;
-        writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
+    if (num_dim >= 5) {
+        stop(sprintf("The data must not have more than 4 dimensions, but it has %d.", num_dim));
     }
+
+    # write data type
+    MRI_FLOAT = 3;
+    writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
 
     dof = 1;    # Unused, ignore
     writeBin(as.integer(dof), fh, size = 4, endian = "big");
@@ -59,30 +58,18 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
 
     MdcD = vox2ras_matrix[1:3, 1:3];
-    cat(sprintf("*******************length vox2ras_matrix=%d, len MdcD=%d\n", length(vox2ras_matrix), length(MdcD)));
-
-    sq = MdcD ** 2;
-    sm = sum(MdcD ** 2);
-    cat(sprintf("*******************lengths: MdcD=%d sq=%d sm=%d\n", length(MdcD), length(sq), length(sm)));
     delta = sqrt(colSums(MdcD ** 2));
-    cat(sprintf("delta is %f\n", delta));
 
     delta_tvec = matrix(rep(delta, 3));
     delta_tvec = rep(delta, 3);
-    print("delta_tvec:", delta_tvec)
-    print("Computing Mdc")
     Mdc = as.vector(MdcD / delta_tvec);
-    cat(sprintf("Mdc=%f.\n", Mdc));
     Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
     Pxyz_c = vox2ras_matrix * Pcrs_c;
     Pxyz_c = Pxyz_c[1:3];
 
-    cat(sprintf("Writing RAS information.\n"));
-    # Write RAS-good flag as a short
     ras_flag = 1;
     writeBin(as.integer(ras_flag), fh, size = 2, endian = "big");
     if(ras_flag == 1) {
-        cat(sprintf("Writing RAS data. Lengths are: delta=%d, Mdc=%d, Pxyz_c=%d.\n",  length(delta), length(Mdc), length(Pxyz_c)));
         writeBin(delta, fh, size = 4, endian = "big"); # 3x4 = 12
         writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36
         writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12
