@@ -18,7 +18,7 @@ test_that("Aggregation on subject level works", {
 
 
   # Test with custom region names and aggregation function
-  agg2 = fs.atlas.region.agg(ct, annot$label_names, agg_fun = max, all_possible_label_names=c("bankssts", "nosuchregion"));
+  agg2 = fs.atlas.region.agg(ct, annot$label_names, agg_fun = max, requested_label_names=c("bankssts", "nosuchregion"));
   expect_equal(class(agg2), "data.frame");
   expect_equal(nrow(agg2), 2);   # Only the 2 explicitely requested regions should occur
   expect_equal(ncol(agg2), 2);
