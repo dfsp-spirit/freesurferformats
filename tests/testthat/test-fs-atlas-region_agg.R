@@ -35,3 +35,12 @@ test_that("Aggregation on subject level works", {
 })
 
 
+test_that("Aggregation on group level works", {
+    subjects_dir = path.expand("~/data/tim/")
+    subjects_list = c("tim", "tim2")
+    measure = "area"
+    hemi = "lh"
+    fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = mean)
+})
+
+
