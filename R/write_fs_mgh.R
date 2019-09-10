@@ -38,25 +38,25 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     num_frames = ifelse(num_dim >= 4, d[4], 1);
     cat(sprintf("Writing data with dimensions: %d, %d, %d, %d.\n", dim1, dim2, dim3, num_frames));
 
-    writeBin(as.integer(1), fh, endian = "big");
-    writeBin(as.integer(dim1), fh, endian = "big");
-    writeBin(as.integer(dim2), fh, endian = "big");
-    writeBin(as.integer(dim3), fh, endian = "big");
-    writeBin(as.integer(num_frames), fh, endian = "big");
+    writeBin(as.integer(1), fh, size = 4, endian = "big");
+    writeBin(as.integer(dim1), fh, size = 4, endian = "big");
+    writeBin(as.integer(dim2), fh, size = 4, endian = "big");
+    writeBin(as.integer(dim3), fh, size = 4, endian = "big");
+    writeBin(as.integer(num_frames), fh, size = 4, endian = "big");
 
     if (num_dim == 5) {
         is_tensor = TRUE;
-        writeBin(as.integer(MRI_TENSOR), fh, endian = "big");
+        writeBin(as.integer(MRI_TENSOR), fh, size = 4, endian = "big");
     } else {
         is_tensor = FALSE;
-        writeBin(as.integer(MRI_FLOAT), fh, endian = "big");
+        writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
     }
 
     dof = 1;    # Unused, ignore
-    writeBin(as.integer(dof), fh, endian = "big");
+    writeBin(as.integer(dof), fh, size = 4, endian = "big");
 
     header_size_total = 256;
-    used_space_RAS = (3*4 + 4*3*4);
+
 
     MdcD = vox2ras_matrix[1:3, 1:3];
 
@@ -75,17 +75,23 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
 
     cat(sprintf("Writing RAS information.\n"));
     # Write RAS-good flag as a short
-    writeBin(as.integer(1), fh, size = 4, endian = "big");
-    writeBin(delta, fh, size = 4, endian = "big");
-    writeBin(Mdc, fh, size = 4, endian = "big");
-    writeBin(Pxyz_c, fh, size = 4, endian = "big");
+    ras_flag = 0;
+    writeBin(as.integer(ras_flag), fh, size = 2, endian = "big");
+    if(ras_flag == 1) {
+        writeBin(delta, fh, size = 4, endian = "big");
+        writeBin(Mdc, fh, size = 4, endian = "big");
+        writeBin(Pxyz_c, fh, size = 4, endian = "big");
+        used_space_RAS = (3*4 + 4*3*4);
+    } else {
+        used_space_RAS = 0;
+    }
 
     # The header has a fixed size (data starts at a fixed index), so fill the rest with zeros.
-    space_to_fill = header_size_total - 2 - used_space_RAS;
-    writeBin(as.character(rep(0, space_to_fill)), fh, endian = "big");
+    space_to_fill = header_size_total - used_space_RAS;
+    writeBin(as.integer(rep.int(0, space_to_fill)), fh, size = 1, endian = "big");
 
     # Write the data:
-    writeBin(as.vector(data), fh, endian = "big");
+    writeBin(as.numeric(as.vector(data)), fh, size = 4, endian = "big");
 
     # A footer follows the data, it contains the MR acquisition parameters
     writeBin(mr_params, fh, endian = "big");

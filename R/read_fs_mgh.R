@@ -60,11 +60,12 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
 
     unused_header_space_size_left = 256;
 
-    ras_good_flag = readBin(fh, numeric(), n = 1, endian = "big");
+    ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
+    cat(sprintf("RAS good flag is %d\n", ras_good_flag))
     if(ras_good_flag == 1) {
-        delta  = readBin(fh, numeric(), n = 3, endian = "big");
-        Mdc    = readBin(fh, numeric(), n = 9, endian = "big");
-        Pxyz_c = readBin(fh, numeric(), n = 3, endian = "big");
+        delta  = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        Mdc    = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
+        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
         RAS_space_size = (3*4 + 4*3*4);
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
     }
