@@ -29,6 +29,9 @@ test_that("Aggregation on subject level works", {
   expect_equal(max_bankssts, 3.9, tolerance=1e-2);
   max_nosuchregion = subset(agg2, region=="nosuchregion", select=aggregated, drop=TRUE);
   expect_true(is.nan(max_nosuchregion));
+
+  # Test with incorrect input data: mismatch between vertex count and label count
+  expect_error(fs.atlas.region.agg(ct, annot$label_names[1:10]), "Counts must match");
 })
 
 
