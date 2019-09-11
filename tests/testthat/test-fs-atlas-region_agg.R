@@ -37,6 +37,7 @@ test_that("Aggregation on subject level works", {
 
 test_that("Aggregation on group level works", {
     subjects_dir = path.expand("~/data/tim_only")
+    skip_if_not(dir.exists(subjects_dir), message="Test data missing.") # skip on travis
     subjects_list = c("tim", "timcopy")
     measure = "thickness"
     hemi = "lh"
