@@ -32,3 +32,24 @@ test_that("Writing morph files in a format based on the filename works", {
   format_written = write.fs.morph(tempfile(fileext="mgz"), data);
   expect_equal(format_written, "mgz");
 })
+
+
+test_that("Morphometry file formats are derived from file names correctly", {
+  data_length = 149244;
+  data = rep(1.25, data_length);
+  data[5] = 3.5;
+
+  expect_equal(write.fs.morph(tempfile(fileext="mgh"), data), "mgh");
+  expect_equal(write.fs.morph(tempfile(fileext="mgz"), data), "mgz");
+  expect_equal(write.fs.morph(tempfile(fileext=""), data), "curv");
+})
+
+
+test_that("Morphometry file extensions are derived from formats correctly", {
+  expect_equal(fs.get.morph.file.ext.for.format("mgh"), ".mgh");
+  expect_equal(fs.get.morph.file.ext.for.format("mgz"), ".mgz");
+  expect_equal(fs.get.morph.file.ext.for.format("curv"), "");
+  expect_error(fs.get.morph.file.ext.for.format("nosuchformat"));
+})
+
+

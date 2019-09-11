@@ -45,6 +45,18 @@ fwrite3 <- function(filehandle, data) {
 }
 
 
+#' @title Write morphometry data in a format derived from the given file name (the file extension).
+#'
+#' @description Given data and a morphometry file name, derive the proper format and write the file.
+#'
+#' @param filepath, string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, everything else will be treated as curv format.
+#'
+#' @param data, numerical vector. The data to write.
+#'
+#' @return format, string. The format that was used to write the data. One of c("mgh", "mgz", "curv").
+#'
+#'
+#' @export
 write.fs.morph <- function(filepath, data) {
     nc = nchar(filepath);
     num_chars_to_inspect = 3;
@@ -62,4 +74,28 @@ write.fs.morph <- function(filepath, data) {
     write.fs.curv(filepath, data);
     return("curv");
 }
+
+
+#' @title Determine morphometry file extension from format
+#'
+#' @description Given a morphometry file format, derive the proper file extension.
+#'
+#' @param format, string. One of c("mgh", "mgz", "curv").
+#'
+#' @return file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
+#'
+#'
+#' @export
+fs.get.morph.file.ext.for.format <- function(format) {
+    if (format == "mgh") {
+        return(".mgh");
+    } else if(format == "mgz") {
+        return(".mgz");
+    } else if(format == "curv") {
+        return("");
+    } else {
+        stop(sprintf("Unsupported morphometry file format: '%s'.", format));
+    }
+}
+
 
