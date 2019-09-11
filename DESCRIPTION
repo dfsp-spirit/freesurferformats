@@ -8,6 +8,8 @@ Description: Provides functions to read data from neuroimaging files in 'FreeSur
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Imports:
+    reshape
 Suggests:
     knitr,
     rmarkdown,
