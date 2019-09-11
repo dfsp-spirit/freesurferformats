@@ -38,14 +38,35 @@ test_that("Aggregation on subject level works", {
 test_that("Aggregation on group level works", {
     subjects_dir = path.expand("~/data/tim_only")
     subjects_list = c("tim", "timcopy")
-    measure = "area"
+    measure = "thickness"
     hemi = "lh"
     atlas = "aparc"
-    agg_all_subjects = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = mean);
-    expect_equal(class(agg_all_subjects), "data.frame");
-    expect_equal(nrow(agg_all_subjects), 70);   # Only the 2 explicitely requested regions should occur
-    expect_equal(ncol(agg_all_subjects), 3);
-    expect_equal(colnames(agg_all_subjects), c("region", "aggregated", "subject_id"));
+
+    # Test for mean aggregation
+    agg.res = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas);
+
+    expect_equal(nrow(agg.res), 2);   # 2 subjects
+    expect_equal(rownames(agg.res), c("tim", "timcopy"));
+    expect_equal(ncol(agg.res), 36);  # 36 regions
+    expect_true("bankssts" %in% colnames(agg.res));
+    expect_equal(class(agg.res), "data.frame");
+
+    mean_bankssts_tim = agg.res$bankssts[1]
+    expect_equal(mean_bankssts_tim, 2.49, tolerance=1e-2);
+
+
+
+    # Test for max aggregation
+    agg.res = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = max);
+
+    expect_equal(nrow(agg.res), 2);   # 2 subjects
+    expect_equal(rownames(agg.res), c("tim", "timcopy"));
+    expect_equal(ncol(agg.res), 36);  # 36 regions
+    expect_true("bankssts" %in% colnames(agg.res));
+    expect_equal(class(agg.res), "data.frame");
+
+    max_bankssts_tim = agg.res$bankssts[1]
+    expect_equal(max_bankssts_tim, 3.9, tolerance=1e-2);
 })
 
 

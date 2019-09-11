@@ -55,14 +55,13 @@ fs.atlas.region.agg.group <- function(subjects_dir, subjects_list, measure, hemi
     agg_all_subjects = data.frame()
     for (subject_id in subjects_list) {
         curvfile = file.path(subjects_dir, subject_id, "surf", sprintf("%s.%s", hemi, measure));
-        cat(sprintf("Reading curv file '%s'.\n", curvfile));
         morph_data = read.fs.curv(curvfile);
 
         annot_file = file.path(subjects_dir, subject_id, "label", sprintf("%s.%s.annot", hemi, atlas));
         annot = read.fs.annot(annot_file);
 
         subject_agg = fs.atlas.region.agg(morph_data, annot$label_names, agg_fun=agg_fun)
-        subject_agg$subject_id = subject_id;
+        subject_agg$subject = subject_id;
 
         if(nrow(agg_all_subjects) > 0) {
           agg_all_subjects = rbind(agg_all_subjects, subject_agg)
@@ -70,5 +69,7 @@ fs.atlas.region.agg.group <- function(subjects_dir, subjects_list, measure, hemi
           agg_all_subjects = subject_agg;
         }
     }
-    return(agg_all_subjects);
+    agg_res = reshape::cast(agg_all_subjects, subject~region, value='aggregated');
+    rownames(agg_res) = subjects_list;
+    return(as.data.frame(agg_res));
 }
