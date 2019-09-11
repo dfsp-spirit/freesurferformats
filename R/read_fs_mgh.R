@@ -100,6 +100,17 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
 }
 
 
+#' @title Guess whether a file is gzipped.
+#'
+#' @description Guess whether a file is gzipped, based on the file extension.
+#'
+#' @param filepath, string. Path to a file.
+#'
+#' @param gz_entensions, list of strings. A list of suffixes that is considered indicative for the file being gzipped. Defaults to c(".gz", ".mgz").
+#'
+#' @return logical, whether this function thinks the file is gzipped.
+#'
+#' @keywords internal
 guess.filename.is.gzipped <- function(filepath, gz_entensions=c(".gz", ".mgz")) {
     nc = nchar(filepath);
     for (gz_ext in gz_entensions) {

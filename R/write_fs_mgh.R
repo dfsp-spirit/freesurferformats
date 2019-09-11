@@ -8,6 +8,8 @@
 #'
 #' @param vox2ras_matrix, 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1].
 #'
+#' @param gzipped, logical. Whether the file should be written in MGZ format. If not, it will be written in MGH. Defaults to FALSE.
+#'
 #' @param mr_params, numerical vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. Defaults to c(0, 0, 0, 0) if omitted.
 #'
 #'

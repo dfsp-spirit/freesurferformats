@@ -5,7 +5,8 @@
 \title{Write file in FreeSurfer MGH format}
 \usage{
 write.fs.mgh(filepath, data, vox2ras_matrix = matrix(c(1, 0, 0, 0, 0, 1,
-  0, 0, 0, 0, 1, 0, 1, 1, 1, 1), nrow = 4), mr_params = c(0, 0, 0, 0))
+  0, 0, 0, 0, 1, 0, 1, 1, 1, 1), nrow = 4), mr_params = c(0, 0, 0, 0),
+  gzipped = FALSE)
 }
 \arguments{
 \item{filepath, }{string. Full path to the output curv file.}
@@ -15,6 +16,8 @@ write.fs.mgh(filepath, data, vox2ras_matrix = matrix(c(1, 0, 0, 0, 0, 1,
 \item{vox2ras_matrix, }{4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1].}
 
 \item{mr_params, }{numerical vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. Defaults to c(0, 0, 0, 0) if omitted.}
+
+\item{gzipped, }{logical. Whether the file should be written in MGZ format. If not, it will be written in MGH. Defaults to FALSE.}
 }
 \description{
 Write brain data to a file in FreeSurfer binary MGH format.

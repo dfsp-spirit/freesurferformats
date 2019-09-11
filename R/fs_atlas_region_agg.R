@@ -146,7 +146,7 @@ fs.write.region.aggregated <- function(subjects_dir, subjects_list, measure, hem
         outfile_part = sprintf("agg_%s", measure);
     }
 
-    outfile_part = sprintf("%s%s", outfile_part, fs.get.morph.file.ext(format));
+    outfile_part = sprintf("%s%s", outfile_part, fs.get.morph.file.ext.for.format(format));
 
     agg_res = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = agg_fun);
 
