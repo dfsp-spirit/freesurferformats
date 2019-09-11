@@ -17,3 +17,10 @@ named list, enties are: "vertices" vector of n vertex indices, starting with 0. 
 Read a data annotation file in FreeSurfer format. Such a file assigns a label and a color to each vertex of a brain surface. The assignment of labels to vertices is based on at atlas or brain parcellation file. Typically the atlas is available for some standard template subject, and the labels are assigned to another subject by registering it to the template.
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.aparc.annot', which contains the annotation based on the Desikan-Killiany Atlas for the left hemisphere of bert.
 }
+\examples{
+    annot_file = system.file("extdata", "lh.aparc.annot",
+                               package = "freesurferformats",
+                               mustWork = TRUE);
+    annot = read.fs.annot(annot_file);
+
+}
