@@ -43,3 +43,23 @@ fwrite3 <- function(filehandle, data) {
     writeBin(b2, filehandle, size = 1, endian = "big");
     writeBin(b3, filehandle, size = 1, endian = "big");
 }
+
+
+write.fs.morph <- function(filepath, data) {
+    nc = nchar(filepath);
+    num_chars_to_inspect = 3;
+    if(nc >= num_chars_to_inspect) {
+        ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
+        if(tolower(ext) == "mgh") {
+            write.fs.mgh(filepath, data);
+            return("mgh");
+        }
+        if(tolower(ext) == "mgz") {
+            write.fs.mgh(filepath, data, gzipped=TRUE);
+            return("mgz");
+        }
+    }
+    write.fs.curv(filepath, data);
+    return("curv");
+}
+

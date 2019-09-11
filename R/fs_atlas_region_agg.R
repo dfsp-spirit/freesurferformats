@@ -138,3 +138,30 @@ fs.spread.value.over.region <- function(annot, region_value_list, value_for_unli
     return(unlist(new_data));
 }
 
+
+fs.write.region.aggregated <- function(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = mean, outfile_part="", format="mgh") {
+    if(nchar(outfile_part)==0) {
+        outfile_part = sprintf("agg_%s", measure);
+    }
+
+    if (format=="mgh") {
+      outfile_part = sprintf("%s%s", outfile_part, ".mgh");
+      is_mgh = TRUE;
+    } else {
+      is_mgh = FALSE;
+    }
+
+    agg_res = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = agg_fun);
+
+    for (subject_id in subjects_list) {
+        agg_morph_outfile = file.path(subjects_dir, subject_id, "surf", sprintf("%s.%s", hemi, outfile_part));
+
+        annot_file = file.path(subjects_dir, subject_id, "label", sprintf("%s.%s.annot", hemi, atlas));
+        annot = read.fs.annot(annot_file);
+
+        region_value_list = fs.value.list.from.agg.res(agg_res, subject_id);
+        agg_morph_data = fs.spread.value.over.region(annot, region_value_list);
+        write.fs.curv(agg_morph_outfile, agg_morph_data);
+    }
+}
+

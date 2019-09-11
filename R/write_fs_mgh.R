@@ -13,7 +13,7 @@
 #'
 #'
 #' @export
-write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,1), nrow=4), mr_params = c(0, 0, 0, 0)) {
+write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,1), nrow=4), mr_params = c(0, 0, 0, 0), gzipped=FALSE) {
 
     # Sanity checks for arguments
     if (!class(data)=="array") {
@@ -23,7 +23,9 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
         stop("The 'vox2ras_matrix' argument must be a matrix.");
     }
 
-
+    if(gzipped) {
+        stop(sprintf("write.fs.mgh: Writing gzipped not implemented yet.\n"));
+    }
 
     fh = file(filepath, "wb", blocking = TRUE);
 
