@@ -63,7 +63,7 @@ The documentation is included in the package and not repeated on this website.
 ## Full Documentation
 
 * A detailed vignette with explanation and examples for the usage of all functions of the package is included, run `vignette("freesurferformats")` or `browseVignettes("freesurferformats")` to see it.
-* Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `reaf.fs.mgh`.
+* Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `read.fs.mgh`.
 * Run `example(function)` to see a live demo that uses the function `function`.
 
 
