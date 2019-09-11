@@ -3,5 +3,5 @@ test_that("Our demo curv file can be read", {
     ct = read.fs.curv(curvfile)
     known_vertex_count = 149244
 
-    expect_equal(length(ct), known_vertex_count)
+    expect_equal(length(ct), known_vertex_count);
 })

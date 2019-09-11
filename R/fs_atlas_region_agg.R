@@ -49,16 +49,26 @@ fs.atlas.region.agg <- function(vertex_morph_data, vertex_label_names, agg_fun =
 
 fs.atlas.region.agg.group <- function(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = mean) {
     if (! dir.exists(subjects_dir)) {
-        stop("Subjects directory '%s' does not exist or cannot be accessed.\n", subjects_dir);
+        stop(sprintf("Subjects directory '%s' does not exist or cannot be accessed.\n", subjects_dir));
     }
 
+    agg_all_subjects = data.frame()
     for (subject_id in subjects_list) {
-        curvfile = system.file(subjects_dir, subject_id, "surf", sprintf("%s.%s", hemi, measure));
+        curvfile = file.path(subjects_dir, subject_id, "surf", sprintf("%s.%s", hemi, measure));
+        cat(sprintf("Reading curv file '%s'.\n", curvfile));
         morph_data = read.fs.curv(curvfile);
 
-        annot_file = system.file(subjects_dir, subject_id, "label", sprintf("%s.%s.annot", hemi, atlas));
+        annot_file = file.path(subjects_dir, subject_id, "label", sprintf("%s.%s.annot", hemi, atlas));
         annot = read.fs.annot(annot_file);
 
         subject_agg = fs.atlas.region.agg(morph_data, annot$label_names, agg_fun=agg_fun)
+        subject_agg$subject_id = subject_id;
+
+        if(nrow(agg_all_subjects) > 0) {
+          agg_all_subjects = rbind(agg_all_subjects, subject_agg)
+        } else {
+          agg_all_subjects = subject_agg;
+        }
     }
+    return(agg_all_subjects);
 }
