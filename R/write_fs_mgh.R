@@ -29,10 +29,10 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     }
 
     if(gzipped) {
-        stop(sprintf("write.fs.mgh: Writing gzipped not implemented yet.\n"));
+        fh = gzfile(filepath, "wb");
+    } else {
+        fh = file(filepath, "wb", blocking = TRUE);
     }
-
-    fh = file(filepath, "wb", blocking = TRUE);
 
     d = dim(data);
     num_dim = length(d);

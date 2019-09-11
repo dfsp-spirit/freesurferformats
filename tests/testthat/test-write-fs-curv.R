@@ -29,6 +29,6 @@ test_that("Writing morph files in a format based on the filename works", {
   format_written = write.fs.morph(tempfile(fileext="whatever"), data);
   expect_equal(format_written, "curv");
 
-  expect_error(write.fs.morph(tempfile(fileext="mgz"), data)); # not implemented
-
+  format_written = write.fs.morph(tempfile(fileext="mgz"), data);
+  expect_equal(format_written, "mgz");
 })
