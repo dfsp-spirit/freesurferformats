@@ -28,7 +28,7 @@ fs.atlas.region.agg <- function(vertex_morph_data, vertex_label_names, agg_fun =
   }
 
   df = data.frame("vertex_morph_data"=vertex_morph_data, "vertex_label_names"=vertex_label_names);
-  agg = aggregate(df$vertex_morph_data, by=list(df$vertex_label_names), FUN=agg_fun, drop = FALSE);
+  agg = stats::aggregate(df$vertex_morph_data, by=list(df$vertex_label_names), FUN=agg_fun, drop = FALSE);
   colnames(agg) = c("region", "aggregated");
 
   if (did_request_regions) {
@@ -92,3 +92,49 @@ fs.atlas.region.agg.group <- function(subjects_dir, subjects_list, measure, hemi
     rownames(agg_res) = subjects_list;
     return(as.data.frame(agg_res));
 }
+
+
+#' @title Create a named value list from a dataframe.
+#'
+#' @description Given the result of the fs.atlas.region.agg.group function, extract a named region value list (typically for use with the fs.spread.value.over.region function) for a single subject.
+#'
+#' @param agg_res, a dataframe. The result of calling fs.atlas.region.agg.group.
+#'
+#' @param subject_id, string. A subject identifier, must occur in the subject column of the dataframe agg_res.
+#'
+#' @return region_value_list, named list of strings. Each name must is a region name from the annotation, and the value is a scalar that resulting from aggregating the morphometry data for that region and subject.
+#'
+#' @keywords internal
+fs.value.list.from.agg.res <- function(agg_res, subject_id) {
+  value_list_by_region = subset(agg_res, agg_res$subject==subject_id, drop=TRUE);
+  names(value_list_by_region) = colnames(agg_res);
+  return(value_list_by_region);
+}
+
+
+#' @title Spread a single value for a region to all region vertices.
+#'
+#' @description Given an annotation and a list of values (one per brain region), return data that has the values for each region mapped to all region vertices.
+#'
+#' @param annot, annotation. The result of calling fs.read.annot.
+#'
+#' @param region_value_list, named list of strings. Each name must be a region name from the annotation, and the value must be the value to spread to all region vertices.
+#'
+#' @param value_for_unlisted_regions, numeric scalar. The value to assign to vertices which are part of atlas regions that are not listed in region_value_list. Defaults to NaN.
+#'
+#' @return a vector of length n, where n is the number of vertices in the annotation. One could write this to an MGH or curv file for visualization.
+#'
+#' @keywords internal
+fs.spread.value.over.region <- function(annot, region_value_list, value_for_unlisted_regions = NaN) {
+    num_verts = length(annot$vertices);
+    new_data = rep(value_for_unlisted_regions, num_verts);
+
+    list_region_names = names(region_value_list);
+    for (idx in 1:length(region_value_list)) {
+      region_name = list_region_names[idx];
+      region_value = region_value_list[idx];
+      new_data[annot$label_names==region_name] = region_value;
+    }
+    return(unlist(new_data));
+}
+
