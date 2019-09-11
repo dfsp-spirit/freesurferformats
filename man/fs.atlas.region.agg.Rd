@@ -22,3 +22,4 @@ dataframe with aggregated values for all regions, with 2 columns and n rows, whe
 \description{
 Aggregate morphometry data over brain atlas regions, e.g., compute the mean thickness value over all regions in an atlas.
 }
+\keyword{internal}
