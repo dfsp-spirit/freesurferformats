@@ -67,7 +67,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     # Skip to end of header/beginning of data
-    seek(fh, where = unused_header_space_size_left, origin = "current");
+    seek(fh, where = unused_header_space_size_left - 2, origin = "current");
 
     nv = ndim1 * ndim2 * ndim3 * nframes;   # number of voxels
     volsz = c(ndim1, ndim2, ndim3, nframes);
@@ -105,11 +105,19 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     # Reshape to expected dimensions
     data = array(data, dim = c(ndim1, ndim2, ndim3, nframes));
+    #data = aperm(data, c(2,1,3,4), resize = FALSE);
 
     if(flatten) {
         dim(data) = c(nv);
         data = as.vector(unlist(data));
         header$voldim = c(length(data));
+    }
+
+    if(with_header) {
+        # Read the mr_params footer behind the data. The mr_params footer is optional, so we do not care if reading it fails.
+        tryCatch({
+            header$mr_params  = readBin(fh, numeric(), n = 4, size = 4, endian = "big");
+        });
     }
 
     close(fh);

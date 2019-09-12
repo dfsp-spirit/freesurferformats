@@ -85,13 +85,13 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     }
 
     # The header has a fixed size (data starts at a fixed index), so fill the rest with zeros.
-    space_to_fill = header_size_total - used_space_RAS;
+    space_to_fill = header_size_total -2 - used_space_RAS;
     writeBin(as.integer(rep.int(0, space_to_fill)), fh, size = 1, endian = "big");
 
     # Write the data:
     writeBin(as.numeric(as.vector(data)), fh, size = 4, endian = "big");
 
     # A footer follows the data, it contains the MR acquisition parameters
-    writeBin(mr_params, fh, endian = "big");
+    writeBin(mr_params, fh, size = 4, endian = "big");
     close(fh);
 }

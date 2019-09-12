@@ -26,7 +26,7 @@ test_that("The header can be read", {
 
   header = ret$header;
   expect_equal(class(header), "list");
-  expect_equal(header$dtype, 0);
+  expect_equal(header$dtype, 0);  # MRI_UCHAR
   expect_equal(header$dof, 0);
   expect_equal(header$ras_good_flag, 1);
   expect_equal(length(header$delta), 3);
@@ -36,12 +36,17 @@ test_that("The header can be read", {
   expect_equal(length(header$Pxyz_c), 3);
   expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
   expect_equal(header$voldim, c(256, 256, 256, 1));
+  expect_equal(length(header$mr_params), 4);
+  expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
 
 
   vd = ret$data;
   expect_equal(class(vd), "array");
   expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
   expect_equal(dim(vd), c(256, 256, 256, 1));
+  expect_equal(vd[80,80,80,1], 110); # value of voxel 80,80,80 must be 110 (known from ref. implementation)
+  expect_equal(vd[100,100,100,1], 77);
+  expect_equal(vd[100,100,80,1], 105);
 })
 
 
