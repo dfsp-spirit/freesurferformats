@@ -44,7 +44,7 @@ The MGH/MGZ format is also used to store morphometry data mapped to standard spa
 
 Now, `cortical_thickness_standard` is a vector of *n* float values, where *n* is the number of vertices of the *fsaverage* subject's left hemisphere surface (i.e., 163842 in FreeSurfer 6).
 
-### Hint: Further image processing and visualization
+### Hint: Further image processing and visualization for volumes
 
 If all you need is to perform statistical analysis of the data in the MGH file, you are ready to do that after loading. If you need access to more image operations, I would recommend to convert the data to a NIFTI object. E.g., if you have [oro.nifti](https://CRAN.R-project.org/package=oro.nifti ) installed, you could visualize the `brain` data we loaded earlier like this:
 
@@ -71,6 +71,30 @@ We can now have a closer look at the data and maybe plot a histogram of cortical
     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",  length(ct), min(ct), mean(ct), max(ct)))
     hist(ct, main="lh cortical thickness", xlab="Cortical thickness [mm]", ylab="Vertex count")
 ```  
+
+
+## Reading morphometry data, no matter the format
+
+The package provides a wrapper function to read morphometry data, no matter the format. It always returns data as a vector and automatically determines the format from the file name. Here we use the function to read the file from the last example:
+
+
+```{r}
+    morphfile1 = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE)
+    thickness_native = read.fs.morph(morphfile1)
+    hist(thickness_native, main="lh cortical thickness", xlab="Cortical thickness [mm]", ylab="Vertex count")
+```  
+
+
+And here is an example for an MGZ file:
+
+```{r}
+    morphfile2 = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz", package = "freesurferformats", mustWork = TRUE)
+    curv_standard = read.fs.morph(morphfile2)
+    hist(curv_standard, main="lh std curvature", xlab="Mean Curvature [mm^-1]", ylab="Vertex count")
+    
+```  
+
+
 
 ## Reading annotation files
 
@@ -109,7 +133,7 @@ Now, we will focus on the colortable. We will list the available regions and the
     }
 ```
 
-That's all the information you can get from an annotation file. Feel free to combine it with morphometry data obtained via `read.fs.curv` or `read.fs.mgh` to compute stuff like the average thickness in a region.
+That's all the information you can get from an annotation file.
 
 
 
