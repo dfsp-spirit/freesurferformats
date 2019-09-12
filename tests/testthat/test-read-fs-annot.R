@@ -1,5 +1,5 @@
 test_that("Our demo annotation file can be read", {
-    annotfile = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE)
+    annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE)
     annot = read.fs.annot(annotfile)
     known_vertex_count = 149244
 
@@ -38,6 +38,4 @@ test_that("Our demo annotation file can be read", {
     expect_equal(annot$label_codes[1], 9182740)
     expect_equal(annot$label_names[1], "lateraloccipital")
     expect_equal(length(annot$label_names), known_vertex_count)
-
-
 })

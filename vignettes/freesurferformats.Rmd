@@ -80,9 +80,13 @@ Let's read an example annotation file that comes with this package:
 
 ```{r}
     library("freesurferformats")
-    annotfile = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE)
+    annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE)
     annot = read.fs.annot(annotfile)
 ```
+
+
+**Note:** The example file that comes with this package was gzipped to save space. While this is not typical for annot files, the *read.fs.annot* function handles it automatically if the filename ends with *.gz*.
+
 
 ## Working with annotation data
 

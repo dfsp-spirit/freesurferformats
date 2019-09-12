@@ -7,7 +7,7 @@
 read.fs.annot(filepath)
 }
 \arguments{
-\item{filepath, }{string. Full path to the input curv file.}
+\item{filepath, }{string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
 }
 \value{
 named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
@@ -18,7 +18,7 @@ Read a data annotation file in FreeSurfer format. Such a file assigns a label an
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.aparc.annot', which contains the annotation based on the Desikan-Killiany Atlas for the left hemisphere of bert.
 }
 \examples{
-    annot_file = system.file("extdata", "lh.aparc.annot",
+    annot_file = system.file("extdata", "lh.aparc.annot.gz",
                                package = "freesurferformats",
                                mustWork = TRUE);
     annot = read.fs.annot(annot_file);

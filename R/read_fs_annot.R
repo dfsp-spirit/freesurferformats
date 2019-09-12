@@ -3,13 +3,13 @@
 #' @description Read a data annotation file in FreeSurfer format. Such a file assigns a label and a color to each vertex of a brain surface. The assignment of labels to vertices is based on at atlas or brain parcellation file. Typically the atlas is available for some standard template subject, and the labels are assigned to another subject by registering it to the template.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.aparc.annot', which contains the annotation based on the Desikan-Killiany Atlas for the left hemisphere of bert.
 #'
-#' @param filepath, string. Full path to the input curv file.
+#' @param filepath, string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
 #' @return named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
 #'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
 #' @examples
-#'     annot_file = system.file("extdata", "lh.aparc.annot",
+#'     annot_file = system.file("extdata", "lh.aparc.annot.gz",
 #'                                package = "freesurferformats",
 #'                                mustWork = TRUE);
 #'     annot = read.fs.annot(annot_file);
@@ -17,7 +17,11 @@
 #' @export
 read.fs.annot <- function(filepath) {
 
-    fh = file(filepath, "rb");
+    if(guess.filename.is.gzipped(filepath)) {
+        fh = gzfile(filepath, "rb");
+    } else {
+        fh = file(filepath, "rb");
+    }
 
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
     verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");

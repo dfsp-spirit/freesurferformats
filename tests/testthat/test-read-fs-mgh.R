@@ -19,7 +19,9 @@ test_that("Data is flattened when requested", {
 
 test_that("The gzip status is guessed as expected from a filename", {
   expect_equal(guess.filename.is.gzipped("noway"), FALSE);
+  expect_equal(guess.filename.is.gzipped("/there/is/noway"), FALSE);
   expect_equal(guess.filename.is.gzipped("file.tar.gz"), TRUE);
+  expect_equal(guess.filename.is.gzipped("relative/path/to/file.tar.gz"), TRUE);
   expect_equal(guess.filename.is.gzipped("file.tar"), FALSE);
   expect_equal(guess.filename.is.gzipped("brain.mgz"), TRUE);
   expect_equal(guess.filename.is.gzipped("brain.mgh"), FALSE);

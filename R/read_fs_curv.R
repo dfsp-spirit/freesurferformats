@@ -3,7 +3,7 @@
 #' @description Read vertex-wise brain surface data from a file in FreeSurfer binary 'curv' format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
-#' @param filepath, string. Full path to the input curv file.
+#' @param filepath, string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
@@ -17,7 +17,12 @@
 #' @export
 read.fs.curv <- function(filepath) {
     MAGIC_FILE_TYPE_NUMBER = 16777215;
-    fh = file(filepath, "rb");
+
+    if(guess.filename.is.gzipped(filepath)) {
+        fh = gzfile(filepath, "rb");
+    } else {
+        fh = file(filepath, "rb");
+    }
 
     magic_byte = fread3(fh);
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {

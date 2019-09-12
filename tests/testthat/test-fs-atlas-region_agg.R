@@ -2,7 +2,7 @@ test_that("Aggregation on subject level works", {
   curvfile = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE)
   ct = read.fs.curv(curvfile);
 
-  annot_file = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE);
+  annot_file = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
   annot = read.fs.annot(annot_file);
   expect_equal(length(ct), length(annot$label_names));  # ensure the data fits together.
 
@@ -77,8 +77,9 @@ test_that("Aggregation on group level works", {
     expect_equal(region_value_list$bankssts, 3.9, tolerance=1e-2);
 })
 
+
 test_that("Spreading a single value over an atlas region works from agg.res result", {
-    annot_file = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE);
+    annot_file = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
     annot = read.fs.annot(annot_file);
 
     subjects_dir = path.expand("~/data/tim_only")
@@ -99,7 +100,7 @@ test_that("Spreading a single value over an atlas region works from agg.res resu
 
 test_that("Spreading a single value over an atlas region works from manually created list", {
   # Test with handcrafted list
-  annot_file = system.file("extdata", "lh.aparc.annot", package = "freesurferformats", mustWork = TRUE);
+  annot_file = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
   annot = read.fs.annot(annot_file);
 
   region_value_list = list("bankssts"= 0.1, "blah"= 0.3)
