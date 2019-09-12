@@ -45,6 +45,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     v = readBin(fh, integer(), n = 1, endian = "big");
+    if(v!=1L) {
+        stop("File not in MGH/MGZ format.");
+    }
     ndim1 = readBin(fh, integer(), n = 1, endian = "big");
     ndim2 = readBin(fh, integer(), n = 1, endian = "big");
     ndim3  = readBin(fh, integer(), n = 1, endian = "big");
@@ -79,7 +82,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     MRI_FLOAT = 3L;
     MRI_SHORT = 4L;
 
-    dt_explanation = "0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 3=MRI_SHORT";
+    dt_explanation = "0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT";
 
     # Determine number of bytes per voxel
     if(dtype == MRI_FLOAT) {
@@ -97,6 +100,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     } else {
        stop(sprintf(" ERROR: Unexpected data type found in header. Expected one of {0, 1, 3, 4} (%s) but got %d.\n", dt_explanation, dtype));
     }
+    header$nbytespervox = nbytespervox;
 
     num_read = prod(length(data));
     if (num_read != nv) {

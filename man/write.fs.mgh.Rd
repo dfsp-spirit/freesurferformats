@@ -10,7 +10,7 @@ write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
 \arguments{
 \item{filepath, }{string. Full path to the output curv file.}
 
-\item{data, }{matrix of numerical values. The brain data to write. Must be integers or doubles.}
+\item{data, }{matrix of numerical values. The brain data to write. Must be integers or doubles. (The data type is set automatically to MRI_INT for integers and MRI_FLOAT for doubles in the MGH header).}
 
 \item{vox2ras_matrix, }{4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1]. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.}
 

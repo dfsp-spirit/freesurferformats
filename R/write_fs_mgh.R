@@ -2,7 +2,7 @@
 #'
 #' @description Write brain data to a file in FreeSurfer binary MGH format.
 #'
-#' @param data, matrix of numerical values. The brain data to write. Must be integers or doubles.
+#' @param data, matrix of numerical values. The brain data to write. Must be integers or doubles. (The data type is set automatically to MRI_INT for integers and MRI_FLOAT for doubles in the MGH header).
 #'
 #' @param filepath, string. Full path to the output curv file.
 #'
@@ -74,7 +74,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     MRI_SHORT = 4L;
 
     if(typeof(data)=="integer") {
-        writeBin(as.integer(MRI_SHORT), fh, size = 4,  endian = "big");
+        writeBin(as.integer(MRI_INT), fh, size = 4,  endian = "big");
     } else if(typeof(data)=="double") {
         writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
     } else {
@@ -111,7 +111,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     writeBin(as.integer(rep.int(0, space_to_fill)), fh, size = 1, endian = "big");
 
     # Write the data:
-    writeBin(as.numeric(as.vector(data)), fh, size = 4, endian = "big");
+    writeBin(as.vector(data), fh, size = 4, endian = "big");
 
     # A footer follows the data, it contains the MR acquisition parameters
     writeBin(mr_params, fh, size = 4, endian = "big");
