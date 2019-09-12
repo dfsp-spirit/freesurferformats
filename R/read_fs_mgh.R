@@ -62,9 +62,34 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     header$ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
     if(header$ras_good_flag == 1) {
-        header$delta  = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
-        header$Mdc    = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
+        header$delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        header$Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
+        header$Mdc = matrix(header$Mdc, nrow=3, byrow = FALSE);
         header$Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+
+
+        print(header$delta)
+        D = diag(header$delta);
+        Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2);
+        Pxyz_0 = header$Pxyz_c - ((header$Mdc %*% D) %*% Pcrs_c);
+
+        blah = header$Mdc %*% D;
+        #Mvec = c(blah, 0,0,0,1, Pxyz_0); ### TODO: this is incorrect
+
+        M = matrix(rep(0, 16), nrow=4);
+        M[1:3,1:3] = blah;
+        M[4,1:4] = c(0,0,0,1);
+        M[1:3,4] = Pxyz_0;
+
+        print("*****M*****")
+        print(M)
+
+        header$D = D;
+        header$Pcrs_c = Pcrs_c;
+        header$Pxyz_0 = Pxyz_0;
+        header$vox2ras_matrix = M;
+
+
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
     }

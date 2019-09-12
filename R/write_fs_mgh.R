@@ -28,7 +28,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     }
 
     if(length(mr_params) != 4) {
-        stop("The mr_params must be a double vector of length 4.");
+        stop(sprintf("The mr_params must be a vector of length 4 but length is %d.", length(mr_params)));
     }
 
     if(length(vox2ras_matrix) == 0) {
@@ -38,7 +38,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
             stop("The 'vox2ras_matrix' argument must be a matrix.");
         }
         if(length(vox2ras_matrix) != 16 || nrow(vox2ras_matrix) != 4) {
-            stop("The 'vox2ras_matrix' argument must be a 4x4 matrix of length 16.");
+            stop(sprintf("The 'vox2ras_matrix' argument must be a 4x4 matrix of length 16, but length is %d and nrow is %d.", length(vox2ras_matrix), nrow(vox2ras_matrix)));
         }
         ras_flag = 1;
     }
@@ -81,7 +81,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
         stop(sprintf("Data type '%s' not supported. Try integer or double.", typeof(data)));
     }
 
-    dof = 1;    # Unused, ignore
+    dof = 0;    # Unused, ignore
     writeBin(as.integer(dof), fh, size = 4, endian = "big");
 
     header_size_total = 256;    # MGH uses a fixed header size.
