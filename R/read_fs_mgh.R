@@ -74,25 +74,25 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     header$voldim = volsz;
 
     # Determine size of voxel data, depending on dtype from header above
-    MRI_UCHAR = 0;
-    MRI_INT = 1;
-    MRI_FLOAT = 3;
-    MRI_SHORT = 4;
+    MRI_UCHAR = 0L;
+    MRI_INT = 1L;
+    MRI_FLOAT = 3L;
+    MRI_SHORT = 4L;
 
     dt_explanation = "0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 3=MRI_SHORT";
 
     # Determine number of bytes per voxel
     if(dtype == MRI_FLOAT) {
-        nbytespervox = 4;
+        nbytespervox = 4L;
         data = readBin(fh, numeric(), size = nbytespervox, n = nv, endian = "big");
     } else if(dtype == MRI_UCHAR) {
-        nbytespervox = 1;
+        nbytespervox = 1L;
         data = readBin(fh, integer(), size = nbytespervox, n = nv, signed = FALSE, endian = "big");
     } else if (dtype == MRI_SHORT) {
-        nbytespervox = 2;
+        nbytespervox = 2L;
         data = readBin(fh, integer(), size = nbytespervox, n = nv, endian = "big");
     } else if (dtype == MRI_INT) {
-        nbytespervox = 4;
+        nbytespervox = 4L;
         data = readBin(fh, integer(), size = nbytespervox, n = nv, endian = "big");
     } else {
        stop(sprintf(" ERROR: Unexpected data type found in header. Expected one of {0, 1, 3, 4} (%s) but got %d.\n", dt_explanation, dtype));
@@ -105,7 +105,6 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     # Reshape to expected dimensions
     data = array(data, dim = c(ndim1, ndim2, ndim3, nframes));
-    #data = aperm(data, c(2,1,3,4), resize = FALSE);
 
     if(flatten) {
         dim(data) = c(nv);

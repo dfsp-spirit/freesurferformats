@@ -2,20 +2,20 @@
 #'
 #' @description Write brain data to a file in FreeSurfer binary MGH format.
 #'
-#' @param data, matrix of numerical values. The brain data to write.
+#' @param data, matrix of numerical values. The brain data to write. Must be integers or doubles.
 #'
 #' @param filepath, string. Full path to the output curv file.
 #'
-#' @param vox2ras_matrix, 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1].
+#' @param vox2ras_matrix, 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1]. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.
 #'
 #' @param gzipped, logical. Whether the file should be written in MGZ format. If not, it will be written in MGH. Defaults to FALSE.
 #'
-#' @param mr_params, numerical vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. Defaults to c(0, 0, 0, 0) if omitted.
+#' @param mr_params, double vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. The unit for the three times is ms, the angle unit is radians. Defaults to c(0, 0, 0, 0) if omitted.
 #'
 #'
 #'
 #' @export
-write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,1), nrow=4), mr_params = c(0, 0, 0, 0), gzipped=FALSE) {
+write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0.), gzipped=FALSE) {
 
     # Sanity checks for arguments
     if (!class(data)=="array") {
@@ -26,8 +26,21 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
             stop("The 'data' argument must be an array, a vector or a matrix.");
         }
     }
-    if (!class(vox2ras_matrix)=="matrix") {
-        stop("The 'vox2ras_matrix' argument must be a matrix.");
+
+    if(length(mr_params) != 4) {
+        stop("The mr_params must be a double vector of length 4.");
+    }
+
+    if(length(vox2ras_matrix) == 0) {
+        ras_flag = 0;
+    } else {
+        if (!class(vox2ras_matrix)=="matrix") {
+            stop("The 'vox2ras_matrix' argument must be a matrix.");
+        }
+        if(length(vox2ras_matrix) != 16 || nrow(vox2ras_matrix) != 4) {
+            stop("The 'vox2ras_matrix' argument must be a 4x4 matrix of length 16.");
+        }
+        ras_flag = 1;
     }
 
     if(gzipped) {
@@ -55,8 +68,18 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     }
 
     # write data type
-    MRI_FLOAT = 3;
-    writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
+    MRI_UCHAR = 0L;
+    MRI_INT = 1L;
+    MRI_FLOAT = 3L;
+    MRI_SHORT = 4L;
+
+    if(typeof(data)=="integer") {
+        writeBin(as.integer(MRI_SHORT), fh, size = 4,  endian = "big");
+    } else if(typeof(data)=="double") {
+        writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
+    } else {
+        stop(sprintf("Data type '%s' not supported. Try integer or double.", typeof(data)));
+    }
 
     dof = 1;    # Unused, ignore
     writeBin(as.integer(dof), fh, size = 4, endian = "big");
@@ -64,18 +87,17 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = matrix(c(1,0,0,0, 0,1,
     header_size_total = 256;    # MGH uses a fixed header size.
 
 
-    MdcD = vox2ras_matrix[1:3, 1:3];   # The upper left 3x3 part of the 4x4 vox2ras matrix
-    delta = sqrt(colSums(MdcD ** 2));    # a 3x1 vector
-
-    delta_tvec = rep(delta, 3);  # 3x3 matrix
-    Mdc = as.vector(MdcD / delta_tvec);
-    Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
-    Pxyz_c = vox2ras_matrix * Pcrs_c;
-    Pxyz_c = Pxyz_c[1:3];
-
-    ras_flag = 1;
     writeBin(as.integer(ras_flag), fh, size = 2, endian = "big");
     if(ras_flag == 1) {
+        MdcD = vox2ras_matrix[1:3, 1:3];   # The upper left 3x3 part of the 4x4 vox2ras matrix
+        delta = sqrt(colSums(MdcD ** 2));    # a 3x1 vector
+
+        delta_tvec = rep(delta, 3);  # 3x3 matrix
+        Mdc = as.vector(MdcD / delta_tvec);
+        Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
+        Pxyz_c = vox2ras_matrix * Pcrs_c;
+        Pxyz_c = Pxyz_c[1:3];
+
         writeBin(delta, fh, size = 4, endian = "big"); # 3x1 vector => 3x4 = 12 bytes
         writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36 bytes
         writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12 bytes

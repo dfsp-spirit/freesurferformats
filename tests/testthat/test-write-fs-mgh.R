@@ -10,14 +10,19 @@ test_that("An one-dimensional MGH file can be written", {
   write.fs.mgh(output_file, data_array);
 
   # load data again and check it
-  read_data = read.fs.mgh(output_file);
+  mgh = read.fs.mgh(output_file, with_header=TRUE);
+  read_data = mgh$data
+  header = mgh$header
+  expect_equal(header$mr_params, c(0,0,0,0));
+  expect_equal(header$dtype, 3); #MRI_FLOAT
+  expect_equal(header$ras_good_flag, 0L);
 
   # Check data dimensions: we should get 4 dimensions back. Since we wrote a vector of data only, the last 3 should be 1.
-  expect_equal(length(dim(read_data)), 4);
+  expect_equal(length(dim(read_data)), 4L);
   expect_equal((dim(read_data)[1]), data_length);
-  expect_equal((dim(read_data)[2]), 1);
-  expect_equal((dim(read_data)[3]), 1);
-  expect_equal((dim(read_data)[4]), 1);
+  expect_equal((dim(read_data)[2]), 1L);
+  expect_equal((dim(read_data)[3]), 1L);
+  expect_equal((dim(read_data)[4]), 1L);
 
   # Check the data values
   expect_equal(length(data), length(as.vector(read_data)));
