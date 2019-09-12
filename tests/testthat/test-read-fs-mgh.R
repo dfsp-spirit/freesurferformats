@@ -1,10 +1,21 @@
-test_that("The dimensions of our demo MGZ file are read correctly", {
+test_that("The dimensions of our demo 3D MGZ file are read correctly", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   vd = read.fs.mgh(brain_image);
 
   expect_equal(class(vd), "array");
   expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
   expect_equal(dim(vd), c(256, 256, 256, 1));
+})
+
+
+test_that("The demo 1D MGZ file is read correctly", {
+  morph_file = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz", package = "freesurferformats", mustWork = TRUE);
+  vd = read.fs.mgh(morph_file);
+
+  expect_equal(class(vd), "array");
+  expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
+  num_vers_fsaverage = 163842
+  expect_equal(dim(vd), c(num_vers_fsaverage, 1, 1, 1));
 })
 
 

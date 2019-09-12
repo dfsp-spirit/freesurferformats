@@ -15,3 +15,19 @@ data, vector of floats. The brain morphometry data, one value per vertex.
 \description{
 Read vertex-wise brain surface data from a file. The file can be in any of the supported formats, and the format will be determined from the file extension.
 }
+\examples{
+    curvfile = system.file("extdata", "lh.thickness",
+                            package = "freesurferformats", mustWork = TRUE);
+    ct = read.fs.morph(curvfile);
+    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
+                            length(ct), min(ct), mean(ct), max(ct)));
+
+
+    mghfile = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz",
+                            package = "freesurferformats", mustWork = TRUE);
+    curv = read.fs.morph(mghfile);
+    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
+                            length(ct), min(ct), mean(ct), max(ct)));
+
+
+}

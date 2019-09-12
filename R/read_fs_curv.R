@@ -64,6 +64,21 @@ fread3 <- function(filehandle) {
 #'
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
+#' @examples
+#'     curvfile = system.file("extdata", "lh.thickness",
+#'                             package = "freesurferformats", mustWork = TRUE);
+#'     ct = read.fs.morph(curvfile);
+#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'                             length(ct), min(ct), mean(ct), max(ct)));
+#'
+#'
+#'     mghfile = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz",
+#'                             package = "freesurferformats", mustWork = TRUE);
+#'     curv = read.fs.morph(mghfile);
+#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'                             length(ct), min(ct), mean(ct), max(ct)));
+#'
+#'
 #' @export
 read.fs.morph <- function(filepath) {
     format = fs.get.morph.file.format.from.filename(filepath);
