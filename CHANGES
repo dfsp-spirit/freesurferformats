@@ -1,0 +1,19 @@
+freesurferformats Changes
+=========================
+
+Version 0.1.1
+------------------
+- Extended read.fs.mgh to support reading MGH header and allow squashing of empty dimensions
+- Added function to read annotation files: read.fs.annot
+- Added convenience function to read morphometry data (curv, MGH or MGZ): read.fs.morph
+- Added function to write mgh and mgz files: write.fs.mgh
+- Added function to write curv files: write.fs.curv
+- Added convenience function to write morphometry data (curv, MGH or MGZ): write.fs.morph
+- Extend vignette
+
+
+Version 0.1
+-------------
+- Added functions to read files in MGH, MGZ and curv formats: read.fs.mgh and read.fs.curv
+- Added vignette
+- Added unit tests
