@@ -49,3 +49,25 @@ fread3 <- function(filehandle) {
     res = bitwShiftL(b1, 16) + bitwShiftL(b2, 8) + b3;
     return(res);
 }
+
+
+#' @title Read morphometry data file in any FreeSurfer format
+#'
+#' @description Read vertex-wise brain surface data from a file. The file can be in any of the supported formats, and the format will be determined from the file extension.
+#'
+#' @param filepath, string. Full path to the input file. The suffix determines the expected format as follows: ".mgz" and ".mgh" will be read with the read.fs.mgh function, all other file extensions will be read with the read.fs.curv function.
+#'
+#' @return data, vector of floats. The brain morphometry data, one value per vertex.
+#'
+#' @export
+read.fs.morph <- function(filepath) {
+    format = fs.get.morph.file.format.from.filename(filepath);
+    return_list = list();
+    if(format == "mgh" || format=="mgz") {
+        data = read.fs.mgh(filepath, flatten=TRUE);
+    }
+    else {
+        data = read.fs.curv(filepath);
+    }
+    return(data);
+}

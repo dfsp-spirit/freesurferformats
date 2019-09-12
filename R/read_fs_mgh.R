@@ -6,7 +6,9 @@
 #'
 #' @param is_gzipped, a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.
 #'
-#' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header.
+#' @param flatten, logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
+#'
+#' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead.
 #'
 #' @examples
 #'     brain_image = system.file("extdata", "brain.mgz",
@@ -17,7 +19,7 @@
 #'                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
 #'
 #' @export
-read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
+read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE) {
 
     if(typeof(is_gzipped) == "logical") {
         is_gz = is_gzipped;
@@ -95,6 +97,12 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO") {
 
     # Reshape to expected dimensions
     data = array(data, dim = c(ndim1, ndim2, ndim3, nframes));
+
+    if(flatten) {
+        dim(data) = c(nv);
+        data = as.vector(unlist(data));
+    }
+
     close(fh);
     return(data);
 }

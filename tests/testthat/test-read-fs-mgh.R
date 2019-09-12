@@ -2,8 +2,18 @@ test_that("The dimensions of our demo MGZ file are read correctly", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   vd = read.fs.mgh(brain_image);
 
-  expect_equal(length(dim(vd)), 4)  # It has 4 dimensions
-  expect_equal(dim(vd), c(256, 256, 256, 1))
+  expect_equal(class(vd), "array");
+  expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
+  expect_equal(dim(vd), c(256, 256, 256, 1));
+})
+
+
+test_that("Data is flattened when requested", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  vd = read.fs.mgh(brain_image, flatten=TRUE);
+
+  expect_equal(class(vd), "integer");
+  expect_equal(length((vd)), 16777216);
 })
 
 

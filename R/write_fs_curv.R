@@ -58,22 +58,45 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @export
 write.fs.morph <- function(filepath, data) {
+    format = fs.get.morph.file.format.from.filename(filepath);
+    if(format == "mgh") {
+        write.fs.mgh(filepath, data);
+    }
+    else if (format=="mgz") {
+        write.fs.mgh(filepath, data, gzipped=TRUE);
+    }
+    else {
+        write.fs.curv(filepath, data);
+    }
+    return(format);
+}
+
+
+#' @title Determine morphometry file format from filename
+#'
+#' @description Given a morphometry file name, derive the proper file format, based on the suffix. Case is ignored, i.e., cast to lowercase before checks. If the filepath ends with "mgh", returns format "mgh". For suffix "mgz", returns "mgz" format. For all others, returns "curv" format.
+#'
+#' @param filepath, string. A path to a file.
+#'
+#' @return format, string. The format, one of c("mgz", "mgh", "curv").
+#'
+#'
+#' @keywords internal
+fs.get.morph.file.format.from.filename <- function(filepath) {
     nc = nchar(filepath);
     num_chars_to_inspect = 3;
     if(nc >= num_chars_to_inspect) {
         ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
         if(tolower(ext) == "mgh") {
-            write.fs.mgh(filepath, data);
             return("mgh");
         }
         if(tolower(ext) == "mgz") {
-            write.fs.mgh(filepath, data, gzipped=TRUE);
             return("mgz");
         }
     }
-    write.fs.curv(filepath, data);
     return("curv");
 }
+
 
 
 #' @title Determine morphometry file extension from format
@@ -85,7 +108,7 @@ write.fs.morph <- function(filepath, data) {
 #' @return file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
 #'
 #'
-#' @export
+#' @keywords internal
 fs.get.morph.file.ext.for.format <- function(format) {
     if (format == "mgh") {
         return(".mgh");

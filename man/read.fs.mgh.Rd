@@ -4,15 +4,17 @@
 \alias{read.fs.mgh}
 \title{Read file in FreeSurfer MGH or MGZ format}
 \usage{
-read.fs.mgh(filepath, is_gzipped = "AUTO")
+read.fs.mgh(filepath, is_gzipped = "AUTO", flatten = FALSE)
 }
 \arguments{
 \item{filepath, }{string. Full path to the input MGZ or MGH file.}
 
 \item{is_gzipped, }{a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.}
+
+\item{flatten, }{logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.}
 }
 \value{
-data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header.
+data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead.
 }
 \description{
 Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH or MGZ format. The MGZ format is just a gzipped version of the MGH format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/mri/T1.mgz', which contains a 3D brain scan of bert.

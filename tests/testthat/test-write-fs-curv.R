@@ -45,7 +45,19 @@ test_that("Morphometry file formats are derived from file names correctly", {
 })
 
 
-test_that("Morphometry file extensions are derived from formats correctly", {
+test_that("Morphometry file formats are derived from file names correctly", {
+  data_length = 149244;
+  data = rep(1.25, data_length);
+  data[5] = 3.5;
+
+  expect_equal(fs.get.morph.file.format.from.filename("/blah.mgh"), "mgh");
+  expect_equal(fs.get.morph.file.format.from.filename("/blah.mgz"), "mgz");
+  expect_equal(fs.get.morph.file.format.from.filename("/blah.whatever"), "curv");
+})
+
+
+
+test_that("Morphometry file extensions are derived from formats correctly when writing morph data files", {
   expect_equal(fs.get.morph.file.ext.for.format("mgh"), ".mgh");
   expect_equal(fs.get.morph.file.ext.for.format("mgz"), ".mgz");
   expect_equal(fs.get.morph.file.ext.for.format("curv"), "");
