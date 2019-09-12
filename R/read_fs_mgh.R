@@ -8,7 +8,9 @@
 #'
 #' @param flatten, logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
 #'
-#' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead.
+#' @param with_header, logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data.
+#'
+#' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.
 #'
 #' @examples
 #'     brain_image = system.file("extdata", "brain.mgz",
@@ -19,7 +21,9 @@
 #'                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
 #'
 #' @export
-read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE) {
+read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE) {
+
+    header = list();
 
     if(typeof(is_gzipped) == "logical") {
         is_gz = is_gzipped;
@@ -48,13 +52,16 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE) {
     dtype = readBin(fh, integer(), n = 1, endian = "big");
     dof = readBin(fh, integer(), n = 1, endian = "big");
 
+    header$dtype = dtype;
+    header$dof = dof;
+
     unused_header_space_size_left = 256;
 
-    ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
-    if(ras_good_flag == 1) {
-        delta  = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
-        Mdc    = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
-        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+    header$ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
+    if(header$ras_good_flag == 1) {
+        header$delta  = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        header$Mdc    = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
+        header$Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
     }
@@ -64,6 +71,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE) {
 
     nv = ndim1 * ndim2 * ndim3 * nframes;   # number of voxels
     volsz = c(ndim1, ndim2, ndim3, nframes);
+    header$voldim = volsz;
 
     # Determine size of voxel data, depending on dtype from header above
     MRI_UCHAR = 0;
@@ -101,9 +109,16 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE) {
     if(flatten) {
         dim(data) = c(nv);
         data = as.vector(unlist(data));
+        header$voldim = c(length(data));
     }
 
     close(fh);
+    if(with_header) {
+        return_list = list();
+        return_list$header = header;
+        return_list$data = data;
+        return(return_list);
+    }
     return(data);
 }
 
