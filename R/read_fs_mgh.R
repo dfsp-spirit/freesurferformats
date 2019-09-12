@@ -145,9 +145,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     if(with_header) {
         # Read the mr_params footer behind the data. The mr_params footer is optional, so we do not care if reading it fails.
-        tryCatch({
+        ignored = tryCatch({
             header$mr_params  = readBin(fh, numeric(), n = 4, size = 4, endian = "big");
-        });
+        }, error=function(e){}, warning=function(w){});
     }
 
     close(fh);
