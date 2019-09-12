@@ -42,7 +42,7 @@ test_that("The header can be read", {
   expect_equal(length(header$Pcrs_c), 3); # 3x1
   expect_equal(length(header$Pxyz_0), 3); # 3x1
   expect_equal(length(header$vox2ras_matrix), 16);
-  expect_equal(header$vox2ras_matrix, matrix(c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0), nrow=4));
+  expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
 
 
   vd = ret$data;

@@ -74,21 +74,23 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         Pxyz_0 = header$Pxyz_c - ((header$Mdc %*% D) %*% Pcrs_c);
 
         blah = header$Mdc %*% D;
-        #Mvec = c(blah, 0,0,0,1, Pxyz_0); ### TODO: this is incorrect
 
         M = matrix(rep(0, 16), nrow=4);
         M[1:3,1:3] = blah;
         M[4,1:4] = c(0,0,0,1);
         M[1:3,4] = Pxyz_0;
 
-        print("*****M*****")
-        print(M)
+        ras_xform = matrix(rep(0, 16), nrow=4);
+        ras_xform[1:3,1:3] = header$Mdc;
+        ras_xform[4,1:4] = c(0,0,0,1);
+        ras_xform[1:3,4] = header$Pxyz_c;
 
         header$D = D;
         header$Pcrs_c = Pcrs_c;
         header$Pxyz_0 = Pxyz_0;
+        header$M = M;
         header$vox2ras_matrix = M;
-
+        header$ras_xform = ras_xform;
 
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
