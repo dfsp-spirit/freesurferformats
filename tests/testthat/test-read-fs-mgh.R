@@ -76,38 +76,39 @@ test_that("The gzip status is guessed as expected from a filename", {
 })
 
 
-# test_that("A real MGH can be read, rewritten, read again, and the data and header are preserved as expected.", {
-#   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
-#   ret_orig = read.fs.mgh(brain_image, with_header=TRUE);
-#   expect_equal(class(ret_orig), "list");
-#
-#   new_copy = tempfile(fileext="mgz");
-#   write.fs.mgh(new_copy, ret_orig$data, vox2ras_matrix = matrix(c(-1,0,0,1,0,0,-1,1,0,1,0,1,1,1,1,1), nrow=4), mr_params=ret_orig$header$mr_params)
-#
-#   ret = read.fs.mgh(new_copy, with_header=TRUE);
-#   header = ret$header;
-#   expect_equal(class(header), "list");
-#   expect_equal(header$dtype, 1);  # IMPORTANT: The data type will have changed from MRI_UCHAR to MRI_INTEGER. This is fine with us for now.
-#   expect_equal(header$dof, 0);
-#   expect_equal(header$ras_good_flag, 1);
-#   expect_equal(length(header$delta), 3);
-#   expect_equal(header$delta, c(1, 1, 1), tolerance=1e-2);
-#   expect_equal(length(header$Mdc), 9);
-#   expect_equal(header$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
-#   expect_equal(length(header$D), 9);  # 3x3
-#   expect_equal(length(header$Pcrs_c), 3); # 3x1
-#   expect_equal(length(header$Pxyz_0), 3); # 3x1
-#   expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
-#   expect_equal(header$voldim, c(256, 256, 256, 1));
-#   expect_equal(length(header$mr_params), 4);
-#   expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
-#
-#
-#   vd = ret$data;
-#   expect_equal(class(vd), "array");
-#   expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
-#   expect_equal(dim(vd), c(256, 256, 256, 1));
-#   expect_equal(vd[80,80,80,1], 110); # value of voxel 80,80,80 must be 110 (known from ref. implementation)
-#   expect_equal(vd[100,100,100,1], 77);
-#   expect_equal(vd[100,100,80,1], 105);
-# })
+test_that("A real MGH can be read, rewritten, read again, and the data and header are preserved as expected.", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  ret_orig = read.fs.mgh(brain_image, with_header=TRUE);
+  expect_equal(class(ret_orig), "list");
+
+  new_copy = tempfile(fileext="mgz");
+  write.fs.mgh(new_copy, ret_orig$data, vox2ras_matrix = ret_orig$header$vox2ras_matrix, mr_params=ret_orig$header$mr_params)
+
+  ret = read.fs.mgh(new_copy, with_header=TRUE);
+  header = ret$header;
+  expect_equal(class(header), "list");
+  expect_equal(header$dtype, 1);  # IMPORTANT: The data type will have changed from MRI_UCHAR to MRI_INTEGER. This is fine with us for now.
+  expect_equal(header$dof, 0);
+  expect_equal(header$ras_good_flag, 1);
+  expect_equal(length(header$delta), 3);
+  expect_equal(header$delta, c(1, 1, 1), tolerance=1e-2);
+  expect_equal(length(header$Mdc), 9);
+  expect_equal(header$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
+  expect_equal(length(header$D), 9);  # 3x3
+  expect_equal(length(header$Pcrs_c), 3); # 3x1
+  expect_equal(length(header$Pxyz_0), 3); # 3x1
+  expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
+  expect_equal(header$voldim, c(256, 256, 256, 1));
+  expect_equal(length(header$mr_params), 4);
+  expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
+  expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
+
+
+  vd = ret$data;
+  expect_equal(class(vd), "array");
+  expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
+  expect_equal(dim(vd), c(256, 256, 256, 1));
+  expect_equal(vd[80,80,80,1], 110); # value of voxel 80,80,80 must be 110 (known from ref. implementation)
+  expect_equal(vd[100,100,100,1], 77);
+  expect_equal(vd[100,100,80,1], 105);
+})

@@ -95,7 +95,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
         delta_tvec = rep(delta, 3);  # 3x3 matrix
         Mdc = as.vector(MdcD / delta_tvec);
         Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
-        Pxyz_c = vox2ras_matrix * Pcrs_c;
+        Pxyz_c = vox2ras_matrix %*% Pcrs_c;
         Pxyz_c = Pxyz_c[1:3];
 
         writeBin(delta, fh, size = 4, endian = "big"); # 3x1 vector => 3x4 = 12 bytes
