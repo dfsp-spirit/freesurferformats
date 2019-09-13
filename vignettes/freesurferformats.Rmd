@@ -52,14 +52,14 @@ Now you have acces to the following header data:
 
 ```{r, eval = FALSE}
     header$dtype           # int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT
-    header$ras_good_flag   # int, 0 or 1. Whether the file contains a valid ras2vox matrix and ras_xform (see header$ras2vox_matrix below)
+    header$ras_good_flag   # int, 0 or 1. Whether the file contains a valid vox2ras matrix and ras_xform (see header$vox2ras_matrix below)
     header$has_mr_params   # int, 0 or 1. Whether the file contains mr_params (see header$mr_params below)
     header$voldim          # integer vector or length 4. The volume (=data) dimensions. E.g., c(256, 256, 256, 1) for 3D data.
 
 ```
 
 
-If your MGH/MGZ file contains valid information on the ras2vox matrix and/or acquisition parameters (`mr_params`), you can access them like this for the mr params:
+If your MGH/MGZ file contains valid information on the vox2ras matrix and/or acquisition parameters (`mr_params`), you can access them like this for the mr params:
 
 ```{r}
     if(header$has_mr_params) {
@@ -68,11 +68,11 @@ If your MGH/MGZ file contains valid information on the ras2vox matrix and/or acq
     }
 ```
 
-And like this for the `ras2vox_matrix`:
+And like this for the `vox2ras_matrix`:
 
 ```{r}
     if(header$ras_good_flag) {
-        print(header$ras2vox_matrix);
+        print(header$vox2ras_matrix);
     }
 ```
 
