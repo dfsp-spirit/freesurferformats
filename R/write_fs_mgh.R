@@ -4,18 +4,16 @@
 #'
 #' @param data, matrix of numerical values. The brain data to write. Must be integers or doubles. (The data type is set automatically to MRI_INT for integers and MRI_FLOAT for doubles in the MGH header).
 #'
-#' @param filepath, string. Full path to the output curv file.
+#' @param filepath, string. Full path to the output curv file. If this ends with ".mgz", the file will be written gzipped (i.e., in MGZ instead of MGH format).
 #'
 #' @param vox2ras_matrix, 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1]. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.
-#'
-#' @param gzipped, logical. Whether the file should be written in MGZ format. If not, it will be written in MGH. Defaults to FALSE.
 #'
 #' @param mr_params, double vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. The unit for the three times is ms, the angle unit is radians. Defaults to c(0, 0, 0, 0) if omitted.
 #'
 #'
 #'
 #' @export
-write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0.), gzipped=FALSE) {
+write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0.)) {
 
     # Sanity checks for arguments
     if (!class(data)=="array") {
@@ -43,7 +41,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
         ras_flag = 1;
     }
 
-    if(gzipped) {
+    if(guess.filename.is.gzipped(filepath, gz_entensions=c(".mgz"))) {
         fh = gzfile(filepath, "wb");
     } else {
         fh = file(filepath, "wb", blocking = TRUE);

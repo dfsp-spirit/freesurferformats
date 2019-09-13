@@ -3,7 +3,7 @@
 #' @description Write vertex-wise brain surface data to a file in FreeSurfer binary 'curv' format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
-#' @param filepath, string. Full path to the output curv file.
+#' @param filepath, string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
 #' @param data, vector of floats. The brain morphometry data to write, one value per vertex.
 #'
@@ -15,7 +15,12 @@ write.fs.curv <- function(filepath, data) {
     num_faces = length(data);   # Has no meaning.
     values_per_vert = 1;
 
-    fh = file(filepath, "wb", blocking = TRUE);
+    if(guess.filename.is.gzipped(filepath, gz_entensions=c(".gz"))) {
+        fh = gzfile(filepath, "wb");
+    } else {
+        fh = file(filepath, "wb", blocking = TRUE);
+    }
+
     fwrite3(fh, MAGIC_FILE_TYPE_NUMBER);
     writeBin(as.integer(num_verts), fh, endian = "big");
     writeBin(as.integer(num_faces), fh, endian = "big");
@@ -59,13 +64,9 @@ fwrite3 <- function(filehandle, data) {
 #' @export
 write.fs.morph <- function(filepath, data) {
     format = fs.get.morph.file.format.from.filename(filepath);
-    if(format == "mgh") {
+    if(format == "mgh" || format == "mgz" ) {
         write.fs.mgh(filepath, data);
-    }
-    else if (format=="mgz") {
-        write.fs.mgh(filepath, data, gzipped=TRUE);
-    }
-    else {
+    } else {
         write.fs.curv(filepath, data);
     }
     return(format);
@@ -74,7 +75,7 @@ write.fs.morph <- function(filepath, data) {
 
 #' @title Determine morphometry file format from filename
 #'
-#' @description Given a morphometry file name, derive the proper file format, based on the suffix. Case is ignored, i.e., cast to lowercase before checks. If the filepath ends with "mgh", returns format "mgh". For suffix "mgz", returns "mgz" format. For all others, returns "curv" format.
+#' @description Given a morphometry file name, derive the proper file format, based on the end of the string. Case is ignored, i.e., cast to lowercase before checks. If the filepath ends with "mgh", returns format "mgh". For suffix "mgz", returns "mgz" format. For all others, returns "curv" format.
 #'
 #' @param filepath, string. A path to a file.
 #'

@@ -1,8 +1,8 @@
 ---
-title: "Reading FreeSurfer format brain imaging data files with freesurferformats"
+title: "Reading FreeSurfer neuroimaging data with freesurferformats"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Reading FreeSurfer format brain imaging data files with freesurferformats}
+  %\VignetteIndexEntry{Reading FreeSurfer neuroimaging data with freesurferformats}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
@@ -10,13 +10,15 @@ vignette: >
 In this document, we show how to read brain imaging data from [FreeSurfer](https://surfer.nmr.mgh.harvard.edu) binary files. These files are created and used by the [FreeSurfer neuroimaging software suite](https://surfer.nmr.mgh.harvard.edu) to store volume data and surface morphometry data computed from MRI brain images.
 
 
-# Reading FreeSurfer data with the *freesurferdata* R package
+# Reading FreeSurfer neuroimaging data with freesurferformats
 
 ## Background
 
 Brain imaging data come in different formats. Typically, the data is acquired on a scanner that outputs a set of two-dimensional (2D) DICOM format images. The 2D images are often combined into a single file that holds a 3D or 4D stack of images for further processing. Common formats include ANALYZE, NIFTI, and the MGH format used by FreeSurfer.
 
 This *freesurferdata* R package implements functions to parse data in MGH format, as well as some related FreeSurfer formats. MGH stands for Massachusetts General Hospital, and is a binary format. The MGZ format is a compressed version of the MGH format.
+
+**Note:** To learn how to *write* neuroimaging data with this package, read the vignette *Writing FreeSurfer neuroimaging data with freesurferformats* that comes with this package.
 
 
 ## Reading MGH and MGZ format files
