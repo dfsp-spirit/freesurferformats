@@ -64,7 +64,7 @@ The documentation is included in the package and not repeated on this website.
 
 ## Full Documentation
 
-The documentation can be accessed from within an R session:
+The documentation can be accessed from within an R session after you have loaded the *freesurferformats* package:
 
 * Detailed vignettes with explanations and examples for the usage of all functions of the package are included, run  or `browseVignettes("freesurferformats")` to see them. You can also open these vignettes directly:
   * for reading neuroimaging data: `vignette("freesurferformats")`
