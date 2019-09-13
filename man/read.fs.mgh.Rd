@@ -14,7 +14,7 @@ read.fs.mgh(filepath, is_gzipped = "AUTO", flatten = FALSE,
 
 \item{flatten, }{logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.}
 
-\item{with_header, }{logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data.}
+\item{with_header, }{logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries may or may not exist: "ras2vox_matrix", "mr_params".}
 }
 \value{
 data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.

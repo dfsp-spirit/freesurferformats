@@ -32,7 +32,59 @@ Here is a first example for reading MGH data.
     brain = read.fs.mgh(mgh_file)
     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n", paste(dim(brain), collapse = 'x'), min(brain), mean(brain), max(brain)));
 ```
+
 Now, `brain` is an *n*-dimensional matrix, where *n* depends on the data in the MGZ file. A conformed FreeSurfer volume like `brain.mgz` typically has 4 dimensions and 256 x 256 x 256 x 1 = 16777216 voxels. The final dimension, which is 1 here, means it has only a single time point or *frame*. In this case, the file was compressed and in MGZ format, but the function does not care, it works for both MGH and MGZ.
+
+If you need the header data, read on.
+
+### Accessing metadata from the MGH header
+
+To access not only the volume data, but also the header, call `read.fs.mgh` like this:
+
+```{r}
+    brain_with_hdr = read.fs.mgh(mgh_file, with_header = TRUE);
+    brain = brain_with_hdr$data;   # as seen before, this is what we got in the last example.
+    header = brain_with_hdr$header;   # as seen before, this is what we got in the last example.
+```
+
+
+Now you have acces to the following header data:
+
+```{r, eval = FALSE}
+    header$dtype           # int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT
+    header$ras_good_flag   # int, 0 or 1. Whether the file contains a valid ras2vox matrix and ras_xform (see header$ras2vox_matrix below)
+    header$has_mr_params   # int, 0 or 1. Whether the file contains mr_params (see header$mr_params below)
+    header$voldim          # integer vector or length 4. The volume (=data) dimensions. E.g., c(256, 256, 256, 1) for 3D data.
+
+```
+
+
+If your MGH/MGZ file contains valid information on the ras2vox matrix and/or acquisition parameters (`mr_params`), you can access them like this for the mr params:
+
+```{r}
+    if(header$has_mr_params) {
+        mr_params = header$mr_params;  
+        cat(sprintf("MR acquisition parameters: TR [ms]=%f, filp angle [radians]=%f, TE [ms]=%f, TI [ms]=%f\n", mr_params[1], mr_params[2], mr_params[3], mr_params[4]));
+    }
+```
+
+And like this for the `ras2vox_matrix`:
+
+```{r}
+    if(header$ras_good_flag) {
+        print(header$ras2vox_matrix);
+    }
+```
+
+
+And finally the `ras_xform`:
+
+```{r}
+    if(header$ras_good_flag) {
+        print(header$ras_xform);
+    }
+```
+
 
 ### A second MGH example
 

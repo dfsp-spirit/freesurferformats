@@ -8,7 +8,7 @@
 #'
 #' @param flatten, logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
 #'
-#' @param with_header, logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data.
+#' @param with_header, logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries may or may not exist: "ras2vox_matrix", "mr_params".
 #'
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.
 #'
@@ -67,8 +67,6 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$Mdc = matrix(header$Mdc, nrow=3, byrow = FALSE);
         header$Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
 
-
-        print(header$delta)
         D = diag(header$delta);
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2);
         Pxyz_0 = header$Pxyz_c - ((header$Mdc %*% D) %*% Pcrs_c);
@@ -143,10 +141,12 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$voldim = c(length(data));
     }
 
+    header$has_mr_params = 0;
     if(with_header) {
         # Read the mr_params footer behind the data. The mr_params footer is optional, so we do not care if reading it fails.
         ignored = tryCatch({
             header$mr_params  = readBin(fh, numeric(), n = 4, size = 4, endian = "big");
+            header$has_mr_params = 1;
         }, error=function(e){}, warning=function(w){});
     }
 

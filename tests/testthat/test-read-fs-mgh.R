@@ -36,6 +36,7 @@ test_that("The header can be read", {
   expect_equal(length(header$Pxyz_c), 3);
   expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
   expect_equal(header$voldim, c(256, 256, 256, 1));
+  expect_equal(length(header$has_mr_params), 1);
   expect_equal(length(header$mr_params), 4);
   expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
   expect_equal(length(header$D), 9);  # 3x3
@@ -99,6 +100,7 @@ test_that("A real MGH can be read, rewritten, read again, and the data and heade
   expect_equal(length(header$Pxyz_0), 3); # 3x1
   expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
   expect_equal(header$voldim, c(256, 256, 256, 1));
+  expect_equal(length(header$has_mr_params), 1);
   expect_equal(length(header$mr_params), 4);
   expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
   expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
