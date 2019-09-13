@@ -135,7 +135,6 @@ The package provides a wrapper function to read morphometry data, no matter the 
 ```{r}
     morphfile1 = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE)
     thickness_native = read.fs.morph(morphfile1)
-    hist(thickness_native, main="lh cortical thickness", xlab="Cortical thickness [mm]", ylab="Vertex count")
 ```  
 
 
@@ -144,8 +143,7 @@ And here is an example for an MGZ file:
 ```{r}
     morphfile2 = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz", package = "freesurferformats", mustWork = TRUE)
     curv_standard = read.fs.morph(morphfile2)
-    hist(curv_standard, main="lh std curvature", xlab="Mean Curvature [mm^-1]", ylab="Vertex count")
-    
+    hist(curv_standard, main="lh std curvature", xlab="Mean Curvature [mm^-1]", ylab="Vertex count", xlim=c(-0.1, 0.1))
 ```  
 
 
