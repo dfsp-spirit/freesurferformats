@@ -1,0 +1,83 @@
+---
+title: "Writing FreeSurfer neuroimaging data with freesurferformats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Writing FreeSurfer neuroimaging data with freesurferformats}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+In this document, we show how to write brain imaging data to [FreeSurfer](https://surfer.nmr.mgh.harvard.edu) binary files.
+
+
+# Writing FreeSurfer neuroimaging data with freesurferformats
+
+
+
+
+## Writing 1D morphometry data or other per-vertex information (in MGH, MGZ or curv format)
+
+
+Morphometry data, or *vertex-wise measures*, are data that usually describe a measure like cortical thickness or surface area over the cortex. There is one scalar value per vertex of the brain surface mesh. Of course, you could write whatever you want (p-values, effect sizes at the vertex, ...), as long as the data is scalar.
+
+The package provides the `write.fs.morph` function to write any scalar data that does not require metadata like MR acquisition parameters or transforms. With this function, the format gets determined automatically from the file name. In the following example, we load the area and thickness values for a subject and write the product of area and thickness (which is *not* cortical volume, by the way) to new files in MGH, MGZ and curv format.
+
+Let's first load the data:
+
+
+```{r, eval = FALSE}
+    library("freesurferformats");
+    area = read.fs.morph(system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE));
+    thickness = read.fs.morph(system.file("extdata", "lh.area.gz", package = "freesurferformats", mustWork = TRUE));
+    mymorphdata = area * thickness;
+```  
+
+Now we could write our derived data like this:
+
+```{r, eval = FALSE}
+    format1 = write.fs.morph(tempfile(fileext = "mgz"), mymorphdata);
+    format2 = write.fs.morph(tempfile(fileext = "mgh"), mymorphdata);
+    format3 = write.fs.morph(tempfile(fileext = "curv"), mymorphdata);
+```  
+
+
+
+## Writing MGH and MGZ format files with full control over the header
+
+
+When writing 3D or 4D images, the voxels alone are sometimes not enough: depending on what you intend to do with the data later on, you may want to save metadata like MR acquisition parameters or vox2ras transformation matrices in the file header. This is possible with the `write.fs.mgh` function, that gives you full control over the MGH header. The two relevant pieces of header data are:
+
+* the `vox2ras_matrix`: a 4x4 double matrix that encodes the affine transformation from voxel indices to *x, y, z* coordinates in space
+* the `mr_params`: a double vector of length 4 that contains the following values (in this order):
+    + tr: repetition time in ms
+    + flipangle: flip angle in radians
+    + te: echo time in ms
+    + ti: inversion time in ms
+
+Here is an example that writes a file in MGH format including custom header data:
+
+```{r, eval = FALSE}
+    mgh_outfile = "mystudy/subject1/mri/shifted_brain.mgz"
+    data = array(data=rep(1L, 256*256*256), dim=c(256,256,256)); # not exactly a brain, but will do.
+    mr_params = c(2300, 0.1, 2., 900.)
+    vox2ras_matrix = matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE)
+    write.fs.mgh(mgh_outfile, data, vox2ras_matrix=vox2ras_matrix, mr_params=mr_params);
+```
+
+
+Note that *if and only if* you provide a `ras2vox_matrix`, the *ras_good* flag will be set to TRUE in the file header. If you do not provide `mr_params`, they default to all zero.
+
+
+## Writing 'curv' format files
+
+You can use `write.fs.curv` to write arbitrary data in binary curv format. The result is identical to using `write.fs.morph` with any filename that does not end in `mgh` or `mgz` instead.)
+
+```{r, eval = FALSE}
+    data = rnorm(120000, 2.0, 1.0);
+    curvfile = "mystudy/subject1/surf/lh.random"
+    write.fs.curv(curvfile, data);
+```
+
+
+It's worth knowing the if your filename ends with `.gz`, the file will be written in gzip format.
+
