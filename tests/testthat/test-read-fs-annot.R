@@ -38,4 +38,11 @@ test_that("Our demo annotation file can be read", {
     expect_equal(annot$label_codes[1], 9182740)
     expect_equal(annot$label_names[1], "lateraloccipital")
     expect_equal(length(annot$label_names), known_vertex_count)
-})
+
+    # Test region data
+    thicknessfile = system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE)
+    thickness = read.fs.morph(thicknessfile)
+    thickness_in_bankssts = thickness[annot$label_names == "bankssts"]
+    expect_equal(length(thickness_in_bankssts), 1722)
+    expect_equal(mean(thickness_in_bankssts), 2.49, tolerance=1e-2)
+ })

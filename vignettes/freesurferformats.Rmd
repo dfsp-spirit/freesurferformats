@@ -157,9 +157,8 @@ An annotation file contains a cortical parcellation for a subject, based on a br
 Let's read an example annotation file that comes with this package:
 
 ```{r}
-    library("freesurferformats")
-    annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE)
-    annot = read.fs.annot(annotfile)
+    annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+    annot = read.fs.annot(annotfile);
 ```
 
 
@@ -186,6 +185,26 @@ Now, we will focus on the colortable. We will list the available regions and the
         cat(sprintf("Region #%d called '%s' has RGBA color (%d %d %d %d) and code '%d'.\n", region_idx, regions[region_idx], ctable[region_idx,1], ctable[region_idx,2], ctable[region_idx,3], ctable[region_idx,4], ctable[region_idx,5]));
     }
 ```
+
+
+Keep in mind the indices when comparing results to those from other software: in GNU R, indices start with 1 but the FreeSurfer standard indices are zero-based:
+
+```{r}
+    r_index = 50;                       # one-based index as used by R and Matlab
+    fs_index = annot$vertices[r_index];  # zero-based index as used in C, Java, Python and many modern languages
+    cat(sprintf("Vertex at R index %d has FreeSurfer index %d and lies in region '%s'.\n", r_index, fs_index, annot$label_names[r_index]));
+```
+
+
+Let us retrieve some information on a specific region. We will reuse the `thickness_native` data loaded above:
+
+```{r}
+    region = "bankssts"
+    thickness_in_region = thickness_native[annot$label_names == region]
+    cat(sprintf("Region '%s' has %d vertices and a mean cortical thickness of %f mm.\n", region, length(thickness_in_region), mean(thickness_in_region)));
+```
+
+
 
 That's all the information you can get from an annotation file.
 
