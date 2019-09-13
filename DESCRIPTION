@@ -1,6 +1,6 @@
 Package: freesurferformats
 Type: Package
-Title: Read and write 'FreeSurfer' Neuroimaging File Formats
+Title: Read and Write 'FreeSurfer' Neuroimaging File Formats
 Version: 0.1.1
 Author: Tim Schäfer
 Maintainer: Tim Schäfer <ts+code@rcmd.org>
