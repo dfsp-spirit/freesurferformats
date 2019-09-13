@@ -143,7 +143,9 @@ And here is an example for an MGZ file:
 ```{r}
     morphfile2 = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz", package = "freesurferformats", mustWork = TRUE)
     curv_standard = read.fs.morph(morphfile2)
-    hist(curv_standard, main="lh std curvature", xlab="Mean Curvature [mm^-1]", ylab="Vertex count", xlim=c(-0.1, 0.1))
+    curv_standard[curv_standard < -1] = 0; # remove extreme outliers
+    curv_standard[curv_standard > 1] = 0;
+    hist(curv_standard, main="lh std curvature", xlab="Mean Curvature [mm^-1], fwhm10", ylab="Vertex count")
 ```  
 
 
