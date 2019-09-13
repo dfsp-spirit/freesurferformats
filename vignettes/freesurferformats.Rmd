@@ -43,8 +43,8 @@ To access not only the volume data, but also the header, call `read.fs.mgh` like
 
 ```{r}
     brain_with_hdr = read.fs.mgh(mgh_file, with_header = TRUE);
-    brain = brain_with_hdr$data;   # as seen before, this is what we got in the last example.
-    header = brain_with_hdr$header;   # as seen before, this is what we got in the last example.
+    brain = brain_with_hdr$data;   # as seen before, this is what we got in the last example (the data).
+    header = brain_with_hdr$header;   # the header
 ```
 
 
