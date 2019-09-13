@@ -64,9 +64,13 @@ The documentation is included in the package and not repeated on this website.
 
 ## Full Documentation
 
-* A detailed vignette with explanation and examples for the usage of all functions of the package is included, run `vignette("freesurferformats")` or `browseVignettes("freesurferformats")` to see it.
-* Help for a specific function can be accessed in the usual R manner: `?function`, where you replace `function` with something like `read.fs.mgh`.
-* Run `example(function)` to see a live demo that uses the function `function`.
+The documentation can be accessed from within an R session:
+
+* Detailed vignettes with explanations and examples for the usage of all functions of the package are included, run  or `browseVignettes("freesurferformats")` to see them. You can also open these vignettes directly:
+  * for reading neuroimaging data: `vignette("freesurferformats")`
+  * for writing neuroimaging data: `vignette("freesurferformats_write")`
+* Help for a specific function can be accessed in the usual R manner: `?<function>`, where you replace `<function>` with a function name. Like this: `?read.fs.mgh`.
+* Run `example(<function>)` to see a live demo that uses the function `<function>`. Like this: `example(read.fs.mgh)`.
 
 
 ## Unit tests / CI
