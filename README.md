@@ -75,7 +75,7 @@ The documentation can be accessed from within an R session after you have loaded
 
 ## An example R session: Reading Bert's brain
 
-One of the example subjects that comes with FreeSurfer is `bert`. The following example shows how to load Bert's brain. If you have FreeSurfer installed, you can start GNU R by typing `R` in your favourite terminal application and run following commands:
+One of the example subjects that comes with FreeSurfer is `bert`. The following example shows how to load Bert's brain. If you have FreeSurfer installed, you can start GNU R by typing `R` in your favourite terminal application and run the following commands:
 
 ```r
 install.packages("freesurferformats")
@@ -94,6 +94,8 @@ mean(mgh$data)
 dim(drop(mgh$data))
 # [1] 256 256 256
 ```
+
+
 
 ## Unit tests / CI
 
