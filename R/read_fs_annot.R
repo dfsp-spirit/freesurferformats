@@ -5,6 +5,8 @@
 #'
 #' @param filepath, string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
+#' @param empty_label_name, string. The region name to assign to regions with empty name. Defaults to 'Unknown'. Set to NULL if you want to keep the empty region name.
+#'
 #' @return named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
 #'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
@@ -15,7 +17,7 @@
 #'     annot = read.fs.annot(annot_file);
 #'
 #' @export
-read.fs.annot <- function(filepath) {
+read.fs.annot <- function(filepath, empty_label_name="Unknown") {
 
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
@@ -58,7 +60,11 @@ read.fs.annot <- function(filepath) {
                 label_names = rep("", length(labels))
                 for (i in 1:length(colortable$struct_names)) {
                     label_code = code[i];
-                    label_names[labels==label_code] = colortable$struct_names[i];
+                    label_name = colortable$struct_names[i];
+                    if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
+                        label_name = empty_label_name;
+                    }
+                    label_names[labels==label_code] = label_name;
                 }
                 return_list$label_names = label_names;
             }
