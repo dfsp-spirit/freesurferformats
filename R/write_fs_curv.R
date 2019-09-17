@@ -109,7 +109,7 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
 #' @return file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
 #'
 #'
-#' @keywords internal
+#' @export
 fs.get.morph.file.ext.for.format <- function(format) {
     if (format == "mgh") {
         return(".mgh");
@@ -121,5 +121,3 @@ fs.get.morph.file.ext.for.format <- function(format) {
         stop(sprintf("Unsupported morphometry file format: '%s'.", format));
     }
 }
-
-
