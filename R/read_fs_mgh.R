@@ -23,6 +23,7 @@
 #' @export
 read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE) {
 
+
     header = list();
 
     if(typeof(is_gzipped) == "logical") {
@@ -99,7 +100,8 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     nv = ndim1 * ndim2 * ndim3 * nframes;   # number of voxels
     volsz = c(ndim1, ndim2, ndim3, nframes);
-    header$voldim = volsz;
+    header$voldim_orig = volsz;
+    header$voldim = volsz;   # May change later due to drop or flatten parameters
 
     # Determine size of voxel data, depending on dtype from header above
     MRI_UCHAR = 0L;

@@ -17,7 +17,7 @@
 fs.atlas.region.agg <- function(vertex_morph_data, vertex_label_names, agg_fun = mean, requested_label_names = c()) {
 
   if (length(vertex_morph_data) != length(vertex_label_names)) {
-      stop(sprintf("Data mismatch: Reveived morphometry data for %d vertices, but %d labels. Counts must match.\n", length(vertex_morph_data), length(vertex_label_names)));
+      stop(sprintf("Data mismatch: Received morphometry data for %d vertices, but %d labels. Counts must match.\n", length(vertex_morph_data), length(vertex_label_names)));
   }
 
   if (!length(requested_label_names)) {
@@ -48,7 +48,11 @@ fs.atlas.region.agg <- function(vertex_morph_data, vertex_label_names, agg_fun =
 
 #' @title Aggregate morphometry data over brain atlas regions and subjects for a group of subjects.
 #'
-#' @description Aggregate morphometry data over brain atlas regions, e.g., compute the mean thickness value over all regions in an atlas for all subjects.
+#' @description Aggregate morphometry data over brain atlas regions, e.g., compute the mean thickness value over all regions in an atlas for all subjects. Try visualizing the results, e.g.,:
+#'
+#'    molten=melt(agg, id=c('subject'));
+#'    ggplot(data=molten, aes(x=variable, y=value, group=subject)) + geom_point() + geom_line() + theme(axis.text.x = element_text(angle = 90, hjust = 1));
+#'
 #'
 #' @param subjects_dir, string. The FreeSurfer SUBJECTS_DIR, i.e., a directory containing the data for all your subjects, each in a subdir named after the subject identifier.
 #'
@@ -74,9 +78,17 @@ fs.atlas.region.agg.group <- function(subjects_dir, subjects_list, measure, hemi
     agg_all_subjects = data.frame()
     for (subject_id in subjects_list) {
         curvfile = file.path(subjects_dir, subject_id, "surf", sprintf("%s.%s", hemi, measure));
+
+        if(!file.exists(curvfile)) {
+            warning(sprintf("Curv file '%s' for subject '%s' measure '%s' cannot be accessed.\n", curvfile, subject_id, measure));
+        }
+
         morph_data = read.fs.curv(curvfile);
 
         annot_file = file.path(subjects_dir, subject_id, "label", sprintf("%s.%s.annot", hemi, atlas));
+        if(!file.exists(annot_file)) {
+            warning(sprintf("Annotation file '%s' for subject '%s' atlas '%s' cannot be accessed.\n", annot_file, subject_id, atlas));
+        }
         annot = read.fs.annot(annot_file);
 
         subject_agg = fs.atlas.region.agg(morph_data, annot$label_names, agg_fun=agg_fun)
@@ -143,10 +155,10 @@ fs.spread.value.over.region <- function(annot, region_value_list, value_for_unli
 
 fs.write.region.aggregated <- function(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = mean, outfile_part="", format="mgh") {
     if(nchar(outfile_part)==0) {
-        outfile_part = sprintf("agg_%s", measure);
+        outfile_part = sprintf("agg_%s", measure);  # something like 'agg_thickness'
     }
 
-    outfile_part = sprintf("%s%s", outfile_part, fs.get.morph.file.ext.for.format(format));
+    outfile_part = sprintf("%s%s", outfile_part, fs.get.morph.file.ext.for.format(format)); # something like 'agg_thickness.mgh'
 
     agg_res = fs.atlas.region.agg.group(subjects_dir, subjects_list, measure, hemi, atlas, agg_fun = agg_fun);
 
@@ -161,4 +173,3 @@ fs.write.region.aggregated <- function(subjects_dir, subjects_list, measure, hem
         write.fs.morph(agg_morph_outfile, agg_morph_data);
     }
 }
-
