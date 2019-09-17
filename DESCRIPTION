@@ -10,8 +10,6 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/dfsp-spirit/freesurferformats
 BugReports: https://github.com/dfsp-spirit/freesurferformats/issues
-Imports:
-    reshape
 Suggests:
     knitr,
     rmarkdown,
