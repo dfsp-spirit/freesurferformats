@@ -73,6 +73,35 @@ The documentation can be accessed from within an R session after you have loaded
 * Run `example(<function>)` to see a live demo that uses the function `<function>`. Like this: `example(read.fs.mgh)`.
 
 
+## An example R session: Reading Bert's brain
+
+One of the example subjects that comes with FreeSurfer is `bert`. The following example shows how to load Bert's brain. If you have FreeSurfer installed, you can start GNU R by typing `R` in your favourite terminal application and run the following commands:
+
+```r
+install.packages("freesurferformats")
+
+# Load volume from file
+library("freesurferformats")
+berts_brain = paste(Sys.getenv("FREESURFER_HOME"), "/subjects/bert/mri/brain.mgz", sep="")
+mgh = read.fs.mgh(berts_brain, with_header=TRUE);
+
+# Inspect the header:
+mgh$header$vox2ras_matrix
+#     [,1] [,2] [,3]      [,4]
+#[1,]   -1    0    0  133.3997
+#[2,]    0    0    1 -110.0000
+#[3,]    0   -1    0  128.0000
+#[4,]    0    0    0    1.0000
+
+# ...and the data:
+mean(mgh$data)
+#[1] 8.214322
+dim(drop(mgh$data))
+# [1] 256 256 256
+```
+
+
+
 ## Unit tests / CI
 
 
