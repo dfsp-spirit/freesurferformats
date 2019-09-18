@@ -82,7 +82,7 @@ write.fs.morph <- function(filepath, data) {
 #' @return format, string. The format, one of c("mgz", "mgh", "curv").
 #'
 #'
-#' @keywords internal
+#' @export
 fs.get.morph.file.format.from.filename <- function(filepath) {
     nc = nchar(filepath);
     num_chars_to_inspect = 3;
@@ -121,3 +121,4 @@ fs.get.morph.file.ext.for.format <- function(format) {
         stop(sprintf("Unsupported morphometry file format: '%s'.", format));
     }
 }
+

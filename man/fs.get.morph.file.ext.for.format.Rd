@@ -15,4 +15,3 @@ file ext, string. The standard file extension for the format. (May be an empty s
 \description{
 Given a morphometry file format, derive the proper file extension.
 }
-\keyword{internal}
