@@ -17,7 +17,7 @@
 #'     annot = read.fs.annot(annot_file);
 #'
 #' @export
-read.fs.annot <- function(filepath, empty_label_name="Unknown") {
+read.fs.annot <- function(filepath, empty_label_name="unknown") {
 
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
@@ -58,11 +58,14 @@ read.fs.annot <- function(filepath, empty_label_name="Unknown") {
                 colortable_df = data.frame(struct_names, r, g, b, a, code);
 
                 label_names = rep("", length(labels))
+                nempty = 1;  # There could be more than 1 empty region, and we cannot match all of them to the same name.
                 for (i in 1:length(colortable$struct_names)) {
                     label_code = code[i];
                     label_name = colortable$struct_names[i];
                     if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
-                        label_name = empty_label_name;
+                        cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
+                        label_name = paste(empty_label_name, nempty);
+                        nempty = nempty + 1;
                     }
                     label_names[labels==label_code] = label_name;
                 }
