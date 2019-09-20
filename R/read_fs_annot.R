@@ -64,7 +64,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
                     label_name = colortable$struct_names[i];
                     if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
                         cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
-                        label_name = paste(empty_label_name, nempty);
+                        label_name = paste(empty_label_name, nempty, sep="");
                         nempty = nempty + 1;
                     }
                     label_names[labels==label_code] = label_name;
