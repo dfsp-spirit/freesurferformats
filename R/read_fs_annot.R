@@ -89,7 +89,9 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
 #'
 #' @description Read a v2 format colortable from a connection to a binary file.
 #'
-#' @param filehandle: file handle
+#' @param fh: file handle
+#'
+#' @param ctable_num_entries: number of entries to read
 #'
 #' @return named list: the color table. The named entries are: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
 #'
@@ -109,6 +111,9 @@ readcolortable <- function(fh, ctable_num_entries) {
 
     # There is another field here which also encodes the number of entries.
     ctable_num_entries_2nd = readBin(fh, integer(), n = 1, endian = "big");
+    if(ctable_num_entries != ctable_num_entries_2nd) {
+      warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));
+    }
     for (i in 1:ctable_num_entries) {
         struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1;
 
