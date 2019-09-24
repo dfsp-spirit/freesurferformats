@@ -20,6 +20,10 @@ test_that("One can write and re-read triangular surface data", {
   expect_equal(surf$internal$num_vertices_expected, 5)
   expect_equal(surf$internal$num_faces_expected, 3)
   expect_equal(nrow(surf$vertices), nrow(vertex_coords));
+
+  expect_equal(typeof(surf$faces), "integer");
+  expect_equal(typeof(surf$vertices), "double");
+
   expect_equal(nrow(surf$faces), nrow(faces));
   expect_equal(surf$mesh_face_type, "tris");
 
@@ -28,3 +32,27 @@ test_that("One can write and re-read triangular surface data", {
 
 })
 
+test_that("One can read, write and re-read triangular surface data", {
+  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = FALSE)
+  skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
+
+  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = TRUE)
+  surf = read.fs.surface(surface_file)
+
+  tmp_file = tempfile(fileext="white");
+  format_written = write.fs.surface(tmp_file, surf$vertices, surf$faces);
+  expect_equal(format_written, "tris");
+
+  cat(sprintf("Temp file based on full lh.white.gz written to temp file '%s'\n", tmp_file))
+
+  surf_re = read.fs.surface(tmp_file);
+  expect_equal(surf$internal$num_vertices_expected, surf_re$internal$num_vertices_expected)
+  expect_equal(surf$internal$num_faces_expected, surf_re$internal$num_faces_expected)
+  expect_equal(nrow(surf$vertices), nrow(surf_re$vertices));
+  expect_equal(nrow(surf$faces), nrow(surf_re$faces));
+  expect_equal(surf$mesh_face_type, "tris");
+  expect_equal(surf$mesh_face_type, surf_re$mesh_face_type);
+
+  expect_equal(surf$vertices, surf_re$vertices);
+  expect_equal(surf$faces, surf_re$faces);
+})

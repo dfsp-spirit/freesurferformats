@@ -18,5 +18,9 @@ test_that("Our demo surface file can be read using read.fs.surface", {
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices
   expect_equal(typeof(surf$faces), "integer");
+
+  # Check whether vertex indices were incremented properly
+  num_faces_with_index_zero = sum(surf$faces==0);
+  expect_equal(num_faces_with_index_zero, 0);
 })
 

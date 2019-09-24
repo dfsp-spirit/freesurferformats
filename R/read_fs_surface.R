@@ -69,8 +69,6 @@ read.fs.surface <- function(filepath) {
     info_text_line = readBin(fh, character(), endian = "big");
     seek(fh, where=-5, origin="current") # rewind
 
-
-    cat(sprintf("Info line with %d chars was: '%s'\n", nchar(info_text_line), info_text_line))
     ret_list$internal = list();
     ret_list$internal$creation_date_text_line = creation_date_text_line;
     ret_list$internal$info_text_line = info_text_line;
@@ -83,8 +81,8 @@ read.fs.surface <- function(filepath) {
 
     num_vertex_coords = num_vertices * 3L;
     #cat(sprintf("Reading %d bytes of vertex data...\n", num_vertex_coords));
-    vertex_coords = readBin(fh, numeric(), size = 4, n = num_vertex_coords, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
-    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3);
+    vertex_coords = readBin(fh, numeric(), size = 4L, n = num_vertex_coords, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L);
 
     if(length(vertex_coords) != num_vertex_coords) {
       stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
@@ -92,8 +90,9 @@ read.fs.surface <- function(filepath) {
 
     num_face_vertex_indices = num_faces * 3L;
     #cat(sprintf("Reading %d vertex indices that define all %d faces...\n", num_face_vertex_indices, num_faces));
-    face_vertex_indices = readBin(fh, integer(), size = 4, n = num_face_vertex_indices, endian = "big");   # a face is made of of 3 integers, which are vertex indices
-    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3);
+    face_vertex_indices = readBin(fh, integer(), size = 4L, n = num_face_vertex_indices, endian = "big");   # a face is made of of 3 integers, which are vertex indices
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3L);
+    faces = faces + 1L;    # Increment indices by 1: GNU R uses 1-based indices.
 
     if(length(face_vertex_indices) != num_face_vertex_indices) {
       stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));

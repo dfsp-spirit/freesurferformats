@@ -17,9 +17,12 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
   QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
 
-  if(sum(faces==0) > 0) {
-    stop("The vertex indices defining the faces must be 1-based (GNU R style). That means the value 0 must not occur in the matrix 'faces' (most likely you will need to add 1 to all values in 'faces').")
+  num_faces_with_index_zero = sum(faces==0);
+  if(num_faces_with_index_zero > 0) {
+    stop(sprintf("The vertex indices defining the faces must be 1-based (GNU R style). That means the value 0 must not occur in the matrix 'faces', but %d of the %d face vertex indices have this value (most likely you will need to add 1 to all values in 'faces').", num_faces_with_index_zero, length(faces)));
   }
+
+  faces = faces - 1L;
 
   if(typeof(faces) != "integer") {
     stop(sprintf("The type of the faces matrix must be 'integer' but is '%s'.", typeof(faces)));
