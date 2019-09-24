@@ -14,6 +14,8 @@ test_that("One can write and re-read triangular surface data", {
   format_written = write.fs.surface(tmp_file, vertex_coords, faces);
   expect_equal(format_written, "tris");
 
+  cat(sprintf("Temp file written to temp file '%s'\n", tmp_file))
+
   surf = read.fs.surface(tmp_file);
   expect_equal(surf$internal$num_vertices_expected, 5)
   expect_equal(surf$internal$num_faces_expected, 3)
