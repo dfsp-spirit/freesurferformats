@@ -62,25 +62,38 @@ read.fs.surface <- function(filepath) {
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
     ret_list$mesh_face_type = "tris";
 
-    creation_date_text_line = readBin(fh, character(), endian = "big");
+    use_read_lines = FALSE;
+    if (use_read_lines) {
+      creation_date_text_line = readLines(fh, 1);
+      cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
+      info_text_line = readLines(fh, 1);
+      cat(sprintf("info_text_line= '%s'\n", info_text_line));
+    } else {
+      creation_date_text_line = readBin(fh, character(), endian = "big");
+      cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
+      seek(fh, where=3, origin="current")
+      info_text_line = readBin(fh, character(), endian = "big");
+      cat(sprintf("info_text_line= '%s'\n", info_text_line));
+      seek(fh, where=-5, origin="current") # skip string termination
+    }
 
-    cat(sprintf("Creation date line with %d chars was: '%s'\n", nchar(creation_date_text_line), creation_date_text_line))
-    seek(fh, where=3, origin="current") # skip string termination
-    info_text_line = readBin(fh, character(), endian = "big");
-    seek(fh, where=-5, origin="current") # rewind
+
+    #info_text_line = readBin(fh, character(), endian = "big");
+    #seek(fh, where=-5, origin="current") # rewind
 
     ret_list$internal = list();
     ret_list$internal$creation_date_text_line = creation_date_text_line;
-    ret_list$internal$info_text_line = info_text_line;
+    #ret_list$internal$info_text_line = info_text_line;
+
+    cur_pos = seek(fh, where=NA);
+    cat(sprintf("At position %d before reading num_vertices.\n", cur_pos));
 
     num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "big");
     num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "big");
-    cat(sprintf("Reading surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
     ret_list$internal$num_vertices_expected = num_vertices;
     ret_list$internal$num_faces_expected = num_faces;
 
     num_vertex_coords = num_vertices * 3L;
-    #cat(sprintf("Reading %d bytes of vertex data...\n", num_vertex_coords));
     vertex_coords = readBin(fh, numeric(), size = 4L, n = num_vertex_coords, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
     vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L);
 
@@ -89,7 +102,6 @@ read.fs.surface <- function(filepath) {
     }
 
     num_face_vertex_indices = num_faces * 3L;
-    #cat(sprintf("Reading %d vertex indices that define all %d faces...\n", num_face_vertex_indices, num_faces));
     face_vertex_indices = readBin(fh, integer(), size = 4L, n = num_face_vertex_indices, endian = "big");   # a face is made of of 3 integers, which are vertex indices
     faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3L);
     faces = faces + 1L;    # Increment indices by 1: GNU R uses 1-based indices.

@@ -41,6 +41,7 @@ test_that("One can read, write and re-read triangular surface data", {
 
   tmp_file = tempfile(fileext="white");
   format_written = write.fs.surface(tmp_file, surf$vertices, surf$faces);
+  format_written = write.fs.surface("/home/spirit/test.lh.white", surf$vertices, surf$faces);
   expect_equal(format_written, "tris");
 
   cat(sprintf("Temp file based on full lh.white.gz written to temp file '%s'\n", tmp_file))
