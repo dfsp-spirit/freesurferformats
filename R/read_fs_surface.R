@@ -64,15 +64,15 @@ read.fs.surface <- function(filepath) {
 
     creation_date_text_line = readBin(fh, character(), endian = "big");
 
-    cat(sprintf("Creation date line: '%s'\n", creation_date_text_line))
+    cat(sprintf("Creation date line with %d chars was: '%s'\n", nchar(creation_date_text_line), creation_date_text_line))
     seek(fh, where=3, origin="current") # skip string termination
 
     info_text_line = readBin(fh, character(), endian = "big");
     if(nchar(info_text_line) == 0) {
-      seeks(fh, where=-5, origin="current") # rewind
+      seek(fh, where=-5, origin="current") # rewind
     }
 
-    cat(sprintf("Info line: '%s'\n", info_text_line))
+    cat(sprintf("Info line with %d chars was: '%s'\n", nchar(info_text_line), info_text_line))
     ret_list$internal = list();
     ret_list$internal$creation_date_text_line = creation_date_text_line;
     ret_list$internal$info_text_line = info_text_line;
