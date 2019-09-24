@@ -28,8 +28,8 @@ read.fs.curv <- function(filepath) {
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
         stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath));
     }
-    num_verts = readBin(fh, integer(), n = 1, endian = "big");
-    num_faces = readBin(fh, integer(), n = 1, endian = "big");
+    num_verts = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    num_faces = readBin(fh, integer(), n = 1, size = 4, endian = "big");
     values_per_vertex = readBin(fh, integer(), n = 1, endian = "big");
     data = readBin(fh, numeric(), size = 4, n = num_verts, endian = "big");
     close(fh);
