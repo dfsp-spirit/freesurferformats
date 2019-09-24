@@ -30,8 +30,15 @@ read.fs.surface <- function(filepath) {
   if (magic_byte == QUAD_MAGIC_FILE_TYPE_NUMBER) {
     warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once the code has unit tests.")
     ret_list$mesh_face_type = "quads";
+
     num_vertices = fread3(fh);
     num_faces = fread3(fh);
+    cat(sprintf("Reading surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
+
+    ret_list$internal = list();
+    ret_list$internal$num_vertices_expected = num_vertices;
+    ret_list$internal$num_faces_expected = num_faces;
+
 
     num_vertex_coords = num_vertices * 3L;
     vertex_coords = readBin(fh, integer(), size=2L, n = num_vertex_coords, endian = "big");
@@ -55,23 +62,26 @@ read.fs.surface <- function(filepath) {
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
     ret_list$mesh_face_type = "tris";
 
-    creation_date_text_line = readBin(fh, character());
+    creation_date_text_line = readBin(fh, character(), endian = "big");
 
-    #cat(sprintf("Creation date line: '%s'\n", creation_date_text_line))
+    cat(sprintf("Creation date line: '%s'\n", creation_date_text_line))
     seek(fh, where=3, origin="current") # skip string termination
 
-    info_text_line = readBin(fh, character());
+    info_text_line = readBin(fh, character(), endian = "big");
     if(nchar(info_text_line) == 0) {
-      seek(fh, where=-5, origin="current") # rewind
-    } else {
-      seek(fh, where=3, origin="current") # skip string termination
+      seeks(fh, where=-5, origin="current") # rewind
     }
 
-    #cat(sprintf("Info line: '%s'\n", info_text_line))
+    cat(sprintf("Info line: '%s'\n", info_text_line))
+    ret_list$internal = list();
+    ret_list$internal$creation_date_text_line = creation_date_text_line;
+    ret_list$internal$info_text_line = info_text_line;
 
     num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "big");
     num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "big");
-    #cat(sprintf("Reading %d vertices and %d faces.\n", num_vertices, num_faces))
+    cat(sprintf("Reading surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
+    ret_list$internal$num_vertices_expected = num_vertices;
+    ret_list$internal$num_faces_expected = num_faces;
 
     num_vertex_coords = num_vertices * 3L;
     #cat(sprintf("Reading %d bytes of vertex data...\n", num_vertex_coords));
