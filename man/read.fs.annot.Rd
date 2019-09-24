@@ -4,7 +4,7 @@
 \alias{read.fs.annot}
 \title{Read file in FreeSurfer annotation format}
 \usage{
-read.fs.annot(filepath, empty_label_name = "Unknown")
+read.fs.annot(filepath, empty_label_name = "unknown")
 }
 \arguments{
 \item{filepath, }{string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}

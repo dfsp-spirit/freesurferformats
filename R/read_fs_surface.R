@@ -4,14 +4,14 @@
 #'
 #' @param filepath, string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @return data, vector of floats. The brain morphometry data, one value per vertex.
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
 #'
 #' @examples
 #'     surface_file = system.file("extdata", "lh.white.gz",
 #'                             package = "freesurferformats", mustWork = TRUE);
 #'     mesh = read.fs.surface(surface_file);
 #'     cat(sprintf("Read data for %d vertices and %d faces. \n",
-#'                             length(mesh$vertices), length(mesh$faces)));
+#'                             nrow(mesh$vertices), nrow(mesh$faces)));
 #'
 #' @export
 read.fs.surface <- function(filepath) {
@@ -28,45 +28,68 @@ read.fs.surface <- function(filepath) {
 
   magic_byte = fread3(fh);
   if (magic_byte == QUAD_MAGIC_FILE_TYPE_NUMBER) {
+    warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once the code has unit tests.")
     ret_list$mesh_face_type = "quads";
     num_vertices = fread3(fh);
     num_faces = fread3(fh);
 
-    vertices = readBin(fh, integer(), size=2, n = num_vertices * 3, endian = "big");
-    vertices = vertices / 100;
-    vertices = matrix(vertices, nrow=num_vertices, ncol=3)
+    num_vertex_coords = num_vertices * 3L;
+    vertex_coords = readBin(fh, integer(), size=2L, n = num_vertex_coords, endian = "big");
+    vertex_coords = vertex_coords / 100.;
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L);
 
-    faces = rep(0, num_faces * 4);
-    faces = matrix(faces, nrow=num_faces, ncol=4)
-    for (face_idx in 1:num_faces) {
-      for (vertex_idx in 1:4) {
-        faces[face_idx, vertex_idx] = fread3(fh);
+    if(length(vertex_coords) != num_vertex_coords) {
+      stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
+    }
+
+    num_face_vertex_indices = num_faces * 4L;
+    face_vertex_indices = rep(0, num_face_vertex_indices);
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L)
+    for (face_idx in 1L:num_faces) {
+      for (vertex_idx_in_face in 1L:4L) {
+        global_vertex_idx = fread3(fh);
+        faces[face_idx, vertex_idx_in_face] = global_vertex_idx;
       }
     }
 
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
     ret_list$mesh_face_type = "tris";
+
     creation_date_text_line = readBin(fh, character());
-    cat(sprintf("Creation date line: '%s'\n", creation_date_text_line))
-    seek(fh, where=3, origin="current")
+
+    #cat(sprintf("Creation date line: '%s'\n", creation_date_text_line))
+    seek(fh, where=3, origin="current") # skip string termination
+
     info_text_line = readBin(fh, character());
-    seek(fh, where=-5, origin="current")
-    cat(sprintf("Info line: '%s'\n", info_text_line))
+    if(nchar(info_text_line) == 0) {
+      seek(fh, where=-5, origin="current") # rewind
+    } else {
+      seek(fh, where=3, origin="current") # skip string termination
+    }
+
+    #cat(sprintf("Info line: '%s'\n", info_text_line))
 
     num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "big");
     num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "big");
-    cat(sprintf("Reading %d vertices and %d faces.\n", num_vertices, num_faces))
+    #cat(sprintf("Reading %d vertices and %d faces.\n", num_vertices, num_faces))
 
-    cat(sprintf("Reading %d bytes of vertex data...\n", (num_vertices * 3L)))
-    vertices = readBin(fh, numeric(), n = num_vertices * 3L, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
-    if(length(vertices) != num_vertices) {
-      warn(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertices))
+    num_vertex_coords = num_vertices * 3L;
+    #cat(sprintf("Reading %d bytes of vertex data...\n", num_vertex_coords));
+    vertex_coords = readBin(fh, numeric(), size = 4, n = num_vertex_coords, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3);
+
+    if(length(vertex_coords) != num_vertex_coords) {
+      stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
     }
-    vertices = matrix(vertices, nrow=num_vertices, ncol=3)
 
-    cat(sprintf("Reading %d bytes of face data...\n", (num_faces * 3L)))
-    faces = readBin(fh, integer(), size = 4, n = num_faces * 3L, endian = "big");   # a face is made of of 3 integers, which are vertex indices
-    faces = matrix(faces, nrow=num_faces, ncol=3)
+    num_face_vertex_indices = num_faces * 3L;
+    #cat(sprintf("Reading %d vertex indices that define all %d faces...\n", num_face_vertex_indices, num_faces));
+    face_vertex_indices = readBin(fh, integer(), size = 4, n = num_face_vertex_indices, endian = "big");   # a face is made of of 3 integers, which are vertex indices
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3);
+
+    if(length(face_vertex_indices) != num_face_vertex_indices) {
+      stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));
+    }
 
   } else {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));
@@ -78,6 +101,7 @@ read.fs.surface <- function(filepath) {
 
 
   ret_list$vertices = vertices;
+  ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1)
   ret_list$faces = faces;
   return(ret_list);
 }
