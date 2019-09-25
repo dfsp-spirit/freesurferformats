@@ -12,9 +12,11 @@ test_that("One can write and re-read triangular surface data", {
 
   tmp_file = tempfile(fileext="white");
   format_written = write.fs.surface(tmp_file, vertex_coords, faces);
-  expect_equal(format_written, "tris");
 
-  cat(sprintf("Temp file written to temp file '%s'\n", tmp_file))
+  # Write a test file to a permanent location to manually check with freeview whether it gets read correctly ('freeview -f <file>').
+  #format_written = write.fs.surface("/home/spirit/test.tiny.white", vertex_coords, faces);
+
+  expect_equal(format_written, "tris");
 
   surf = read.fs.surface(tmp_file);
   expect_equal(surf$internal$num_vertices_expected, 5)
@@ -41,14 +43,15 @@ test_that("One can read, write and re-read triangular surface data", {
 
   tmp_file = tempfile(fileext="white");
   format_written = write.fs.surface(tmp_file, surf$vertices, surf$faces);
-  format_written = write.fs.surface("/home/spirit/test.lh.white", surf$vertices, surf$faces);
+
+  # One should also write the file to some permament location and manually ensure that freeview will open it correctly ('freeview -f <file>'):
+  #format_written = write.fs.surface("/home/spirit/test.lh.white", surf$vertices, surf$faces);
+
   expect_equal(format_written, "tris");
 
-  cat(sprintf("Temp file based on full lh.white.gz written to temp file '%s'\n", tmp_file))
-
   surf_re = read.fs.surface(tmp_file);
-  expect_equal(surf$internal$num_vertices_expected, surf_re$internal$num_vertices_expected)
-  expect_equal(surf$internal$num_faces_expected, surf_re$internal$num_faces_expected)
+  expect_equal(surf$internal$num_vertices_expected, surf_re$internal$num_vertices_expected);
+  expect_equal(surf$internal$num_faces_expected, surf_re$internal$num_faces_expected);
   expect_equal(nrow(surf$vertices), nrow(surf_re$vertices));
   expect_equal(nrow(surf$faces), nrow(surf_re$faces));
   expect_equal(surf$mesh_face_type, "tris");
