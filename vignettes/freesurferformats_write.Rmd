@@ -81,3 +81,16 @@ You can use `write.fs.curv` to write arbitrary data in binary curv format. The r
 
 It's worth knowing the if your filename ends with `.gz`, the file will be written in gzip format.
 
+
+## Writing surface format files
+
+You can use `write.fs.surface` to write triangular meshes in binary surface format (the format used for files like 'surf/lh.white' or 'surf/rh.pial'). A mesh is defined by a list of vertices and a list of faces.
+
+```{r, eval = FALSE}
+    vertices = matrix(rep(0.3, 15), nrow=3);     # 5 vertices
+    faces = matrix(c(1L,2L,3L,2L,4L,3L,4L,5L,3L), nrow=3, byrow = TRUE);   # 3 faces
+
+    write.fs.surface(tempfile(fileext="white"), vertices, faces);
+```
+
+The vertex indices used to define the faces should be 1-based, as used in R. They will be written 0-based to the file.
