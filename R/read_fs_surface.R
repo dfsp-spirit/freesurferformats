@@ -7,7 +7,7 @@
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
 #'
 #' @examples
-#'     surface_file = system.file("extdata", "lh.white.gz",
+#'     surface_file = system.file("extdata", "lh.tinysurface",
 #'                             package = "freesurferformats", mustWork = TRUE);
 #'     mesh = read.fs.surface(surface_file);
 #'     cat(sprintf("Read data for %d vertices and %d faces. \n",

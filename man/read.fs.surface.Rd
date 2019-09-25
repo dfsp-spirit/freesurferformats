@@ -16,7 +16,7 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 Read vertex and face data  from a file in FreeSurfer binary surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 }
 \examples{
-    surface_file = system.file("extdata", "lh.white.gz",
+    surface_file = system.file("extdata", "lh.tinysurface",
                             package = "freesurferformats", mustWork = TRUE);
     mesh = read.fs.surface(surface_file);
     cat(sprintf("Read data for \%d vertices and \%d faces. \\n",
