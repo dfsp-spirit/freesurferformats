@@ -9,6 +9,8 @@ GNU R package to read and write FreeSurfer neuroimaging file formats.
 
 * FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can only be read.
 
+* FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). Currently only triangular meshes are implemented. An example file would be `surf/lh.white`. This format can be read and written.
+
 
 ## Installation
 
@@ -54,10 +56,12 @@ read.fs.mgh() -- read volume or morphometry data from files in MGH or MGZ format
 read.fs.curv() -- read morphometry data from 'curv' format files like `surf/lh.area`
 read.fs.morph() -- wrapper that reads any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 read.fs.annot() -- read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
+read.fs.surface() -- read a surface mesh
 
 write.fs.mgh() -- write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv() -- write a data vector to a 'curv' format file
 write.fs.morph() -- wrapper that writes any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
+write.fs.surface() -- write a surface mesh
 ```
 
 The documentation is included in the package and not repeated on this website.
