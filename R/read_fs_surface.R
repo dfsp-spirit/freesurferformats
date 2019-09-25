@@ -1,6 +1,9 @@
 #' @title Read file in FreeSurfer surface format
 #'
 #' @description Read vertex and face data  from a file in FreeSurfer binary surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
+#'              For a quick preview: library(rgl); mesh = tmesh3d(unlist(surf$vertices); unlist(surf$faces), homogeneous=FALSE); rgl.open(); wire3d(mesh);
+#'
+#'              col = rep("red", nrow(surf$vertices)); col[1:20000] = "blue"; wire3d(mesh, col=col, meshcolor="vertices");
 #'
 #' @param filepath, string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
