@@ -29,19 +29,19 @@ test_that("The header can be read", {
   expect_equal(header$dtype, 0);  # MRI_UCHAR
   expect_equal(header$dof, 0);
   expect_equal(header$ras_good_flag, 1);
-  expect_equal(length(header$delta), 3);
-  expect_equal(header$delta, c(1, 1, 1), tolerance=1e-2);
-  expect_equal(length(header$Mdc), 9);
-  expect_equal(header$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
-  expect_equal(length(header$Pxyz_c), 3);
-  expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
+  expect_equal(length(header$internal$delta), 3);
+  expect_equal(header$internal$delta, c(1, 1, 1), tolerance=1e-2);
+  expect_equal(length(header$internal$Mdc), 9);
+  expect_equal(header$internal$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
+  expect_equal(length(header$internal$Pxyz_c), 3);
+  expect_equal(header$internal$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
   expect_equal(header$voldim, c(256, 256, 256, 1));
   expect_equal(length(header$has_mr_params), 1);
   expect_equal(length(header$mr_params), 4);
   expect_equal(header$mr_params, c(2300.000000, 0.157080, 2.010000, 900.000000), tolerance=1e-2);
-  expect_equal(length(header$D), 9);  # 3x3
-  expect_equal(length(header$Pcrs_c), 3); # 3x1
-  expect_equal(length(header$Pxyz_0), 3); # 3x1
+  expect_equal(length(header$internal$D), 9);  # 3x3
+  expect_equal(length(header$internal$Pcrs_c), 3); # 3x1
+  expect_equal(length(header$internal$Pxyz_0), 3); # 3x1
   expect_equal(length(header$vox2ras_matrix), 16);
   expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
 
@@ -91,14 +91,14 @@ test_that("A real MGH can be read, rewritten, read again, and the data and heade
   expect_equal(header$dtype, 1);  # IMPORTANT: The data type will have changed from MRI_UCHAR to MRI_INTEGER. This is fine with us for now.
   expect_equal(header$dof, 0);
   expect_equal(header$ras_good_flag, 1);
-  expect_equal(length(header$delta), 3);
-  expect_equal(header$delta, c(1, 1, 1), tolerance=1e-2);
-  expect_equal(length(header$Mdc), 9);
-  expect_equal(header$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
-  expect_equal(length(header$D), 9);  # 3x3
-  expect_equal(length(header$Pcrs_c), 3); # 3x1
-  expect_equal(length(header$Pxyz_0), 3); # 3x1
-  expect_equal(header$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
+  expect_equal(length(header$internal$delta), 3);
+  expect_equal(header$internal$delta, c(1, 1, 1), tolerance=1e-2);
+  expect_equal(length(header$internal$Mdc), 9);
+  expect_equal(header$internal$Mdc, matrix(c(-1,0,0,0,0,-1,0,1,0), nrow=3), tolerance=1e-2);
+  expect_equal(length(header$internal$D), 9);  # 3x3
+  expect_equal(length(header$internal$Pcrs_c), 3); # 3x1
+  expect_equal(length(header$internal$Pxyz_0), 3); # 3x1
+  expect_equal(header$internal$Pxyz_c, c(-0.5, 29.4, -48.9), tolerance=1e-2);
   expect_equal(header$voldim, c(256, 256, 256, 1));
   expect_equal(length(header$has_mr_params), 1);
   expect_equal(length(header$mr_params), 4);

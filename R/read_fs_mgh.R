@@ -58,36 +58,40 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     header$dtype = dtype;
     header$dof = dof;
+    header$internal = list();
 
     unused_header_space_size_left = 256;
 
     header$ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
     if(header$ras_good_flag == 1) {
-        header$delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
-        header$Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
-        header$Mdc = matrix(header$Mdc, nrow=3, byrow = FALSE);
-        header$Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
+        Mdc = matrix(Mdc, nrow=3, byrow = FALSE);
+        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
 
-        D = diag(header$delta);
+        D = diag(delta);
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2);
-        Pxyz_0 = header$Pxyz_c - ((header$Mdc %*% D) %*% Pcrs_c);
+        Pxyz_0 = Pxyz_c - ((Mdc %*% D) %*% Pcrs_c);
 
-        blah = header$Mdc %*% D;
-
+        blah = Mdc %*% D;
         M = matrix(rep(0, 16), nrow=4);
         M[1:3,1:3] = blah;
         M[4,1:4] = c(0,0,0,1);
         M[1:3,4] = Pxyz_0;
 
         ras_xform = matrix(rep(0, 16), nrow=4);
-        ras_xform[1:3,1:3] = header$Mdc;
+        ras_xform[1:3,1:3] = Mdc;
         ras_xform[4,1:4] = c(0,0,0,1);
-        ras_xform[1:3,4] = header$Pxyz_c;
+        ras_xform[1:3,4] = Pxyz_c;
 
-        header$D = D;
-        header$Pcrs_c = Pcrs_c;
-        header$Pxyz_0 = Pxyz_0;
-        header$M = M;
+        header$internal$delta = delta;
+        header$internal$Pxyz_c = Pxyz_c;
+        header$internal$D = D;
+        header$internal$Pcrs_c = Pcrs_c;
+        header$internal$Pxyz_0 = Pxyz_0;
+        header$internal$M = M;
+        header$internal$Mdc = Mdc;
+
         header$vox2ras_matrix = M;
         header$ras_xform = ras_xform;
 
