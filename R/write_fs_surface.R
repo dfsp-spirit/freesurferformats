@@ -42,8 +42,8 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
 
     fwrite3(fh, MAGIC_FILE_TYPE_NUMBER);
 
-    creation_date_line = "Created by anonymous on a perfect day.\n\n";
-    writeLines(creation_date_line, con=fh)
+    creation_date_line = "Created by anonymous on a perfect day.\n";
+    writeLines(creation_date_line, con=fh);
 
     writeBin(as.integer(num_verts), fh, size = 4, endian = "big");
     writeBin(as.integer(num_faces), fh, size = 4, endian = "big");

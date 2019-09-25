@@ -62,32 +62,19 @@ read.fs.surface <- function(filepath) {
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
     ret_list$mesh_face_type = "tris";
 
-    use_read_lines = FALSE;
-    if (use_read_lines) {
-      creation_date_text_line = readLines(fh, 1);
-      cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
-      info_text_line = readLines(fh, 1);
-      cat(sprintf("info_text_line= '%s'\n", info_text_line));
-      seek(fh, where=1, origin="current")
-    } else {
-      creation_date_text_line = readBin(fh, character(), endian = "big");
-      cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
-      seek(fh, where=3, origin="current")
-      info_text_line = readBin(fh, character(), endian = "big");
-      cat(sprintf("info_text_line= '%s'\n", info_text_line));
-      seek(fh, where=-5, origin="current") # skip string termination
-    }
-
-
-    #info_text_line = readBin(fh, character(), endian = "big");
-    #seek(fh, where=-5, origin="current") # rewind
+    creation_date_text_line = readBin(fh, character(), endian = "big");
+    #cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
+    seek(fh, where=3, origin="current")
+    info_text_line = readBin(fh, character(), endian = "big");
+    #cat(sprintf("info_text_line= '%s'\n", info_text_line));
+    seek(fh, where=-5, origin="current") # skip string termination
 
     ret_list$internal = list();
     ret_list$internal$creation_date_text_line = creation_date_text_line;
-    #ret_list$internal$info_text_line = info_text_line;
+    ret_list$internal$info_text_line = info_text_line;
 
-    cur_pos = seek(fh, where=NA);
-    cat(sprintf("At position %d before reading num_vertices.\n", cur_pos));
+    #cur_pos = seek(fh, where=NA);
+    #cat(sprintf("At position %d before reading num_vertices.\n", cur_pos));
 
     num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "big");
     num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "big");
@@ -113,15 +100,12 @@ read.fs.surface <- function(filepath) {
 
   } else {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));
-
   }
-
 
   close(fh);
 
-
   ret_list$vertices = vertices;
-  ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1)
+  ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
   return(ret_list);
 }
