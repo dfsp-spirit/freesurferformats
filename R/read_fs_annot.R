@@ -8,7 +8,7 @@
 #' @param empty_label_name, string. The region name to assign to regions with empty name. Defaults to 'Unknown'. Set to NULL if you want to keep the empty region name.
 #'
 #' @return named list, enties are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code.
-#'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
+#'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code. "colortable_df": The same information as a dataframe. Contains the extra columns "hex_color_string_rgb" and "hex_color_string_rgba" that hold the color as an RGB(A) hex string, like "#rrggbbaa".
 #'
 #' @examples
 #'     annot_file = system.file("extdata", "lh.aparc.annot.gz",
@@ -55,21 +55,29 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
                 b = colortable$table[,3];
                 a = colortable$table[,4];
                 code = colortable$table[,5];
-                colortable_df = data.frame(struct_names, r, g, b, a, code);
+                hex_color_string_rgb = rgb(r/255., g/255., b/255.);
+                hex_color_string_rgba = rgb(r/255., g/255., b/255., a/255);
+                colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba);
+                colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
+                return_list$colortable_df = colortable_df;
 
                 label_names = rep("", length(labels))
+                hex_colors_rgb = rep("#333333", length(labels))
                 nempty = 1;  # There could be more than 1 empty region, and we cannot match all of them to the same name.
                 for (i in 1:length(colortable$struct_names)) {
                     label_code = code[i];
                     label_name = colortable$struct_names[i];
+                    hex_color_string_rgb = rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
                     if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
                         cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
                         label_name = paste(empty_label_name, nempty, sep="");
                         nempty = nempty + 1;
                     }
                     label_names[labels==label_code] = label_name;
+                    hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
                 }
                 return_list$label_names = label_names;
+                return_list$hex_colors_rgb = hex_colors_rgb;
             }
             else {
                 stop(sprintf("Unsupported annotation file version '%d'.", version));

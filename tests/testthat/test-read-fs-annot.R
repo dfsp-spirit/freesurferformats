@@ -51,4 +51,23 @@ test_that("Our demo annotation file can be read", {
     thickness_in_bankssts = thickness[annot$label_names == "bankssts"]
     expect_equal(length(thickness_in_bankssts), 1722)
     expect_equal(mean(thickness_in_bankssts), 2.49, tolerance=1e-2)
+
+    # Test colortable_df
+    cdf = annot$colortable_df;
+    expect_equal(class(cdf), "data.frame");
+    expect_equal(nrow(cdf), 36);
+    expect_equal(ncol(cdf), 8);
+    column_names = colnames(cdf);
+    expect_true("struct_name" %in% column_names);
+    expect_true("r" %in% column_names);
+    expect_true("g" %in% column_names);
+    expect_true("b" %in% column_names);
+    expect_true("a" %in% column_names);
+    expect_true("code" %in% column_names);
+    expect_true("hex_color_string_rgb" %in% column_names);
+    expect_true("hex_color_string_rgba" %in% column_names);
+
+    expect_equal(typeof(annot$hex_colors_rgb), "character")
+    expect_equal(length(annot$hex_colors_rgb), known_vertex_count)
  })
+
