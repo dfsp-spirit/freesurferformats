@@ -1,6 +1,14 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.2
+---------------
+- Add support for reading and writing surface files
+- Hide internal header data in return value of read.fs.mgh
+- Add example surface file
+- Export functions to determine morph file format from file name and vice versa
+
+
 Version 0.1.1
 ------------------
 - Extended read.fs.mgh to support reading MGH header and allow squashing of empty dimensions
