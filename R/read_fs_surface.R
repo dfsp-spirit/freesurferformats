@@ -68,6 +68,7 @@ read.fs.surface <- function(filepath) {
       cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))
       info_text_line = readLines(fh, 1);
       cat(sprintf("info_text_line= '%s'\n", info_text_line));
+      seek(fh, where=1, origin="current")
     } else {
       creation_date_text_line = readBin(fh, character(), endian = "big");
       cat(sprintf("creation_date_text_line= '%s'\n", creation_date_text_line))

@@ -33,10 +33,10 @@ test_that("One can write and re-read triangular surface data", {
 })
 
 test_that("One can read, write and re-read triangular surface data", {
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = FALSE)
+  surface_file = system.file("extdata", "lh.white", package = "freesurferformats", mustWork = FALSE)
   skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
 
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = TRUE)
+  surface_file = system.file("extdata", "lh.white", package = "freesurferformats", mustWork = TRUE)
   surf = read.fs.surface(surface_file)
 
   tmp_file = tempfile(fileext="white");
