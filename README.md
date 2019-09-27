@@ -119,6 +119,8 @@ devtools::check()
 
 Continuous integration is run on travis: [![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats)
 
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
+
 Don't worry if you are using the stable version from CRAN and CI is currently failing, development happens on master.
 
 
