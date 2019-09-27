@@ -1,0 +1,4 @@
+* text=auto
+inst/* binary
+R/* text=lf
+tests/* text=lf
