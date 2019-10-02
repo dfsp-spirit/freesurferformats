@@ -26,11 +26,10 @@ install.packages("freesurferformats")
 
 You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
 
-If you do not have `devtools` installed and loaded yet:
+If you do not have `devtools` and related tools installed yet:
 
 ```r
-install.packages("devtools")
-library("devtools")
+install.packages(c("devtools", "knitr", "testthat"));
 ```
 
 Then:
