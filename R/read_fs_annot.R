@@ -55,8 +55,8 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
                 b = colortable$table[,3];
                 a = colortable$table[,4];
                 code = colortable$table[,5];
-                hex_color_string_rgb = rgb(r/255., g/255., b/255.);
-                hex_color_string_rgba = rgb(r/255., g/255., b/255., a/255);
+                hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
+                hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
                 colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba);
                 colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
                 return_list$colortable_df = colortable_df;
@@ -67,7 +67,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
                 for (i in 1:length(colortable$struct_names)) {
                     label_code = code[i];
                     label_name = colortable$struct_names[i];
-                    hex_color_string_rgb = rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
+                    hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
                     if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
                         cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
                         label_name = paste(empty_label_name, nempty, sep="");
