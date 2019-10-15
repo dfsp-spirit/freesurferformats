@@ -71,7 +71,11 @@ test_that("Our demo annotation file can be read", {
     expect_equal(length(annot$hex_colors_rgb), known_vertex_count)
  })
 
+
 test_that("Annotation files in old format can be read", {
+  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = FALSE)
+  skip_if_not(file.exists(annotfile), message="Test data missing.")
+
   annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = TRUE)
   annot = read.fs.annot(annotfile)
   known_vertex_count = 163842

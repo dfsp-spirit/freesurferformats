@@ -45,9 +45,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
             version = -ctable_num_entries;
             if(version == 2) {
                 ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
-
                 colortable = readcolortable(fh, ctable_num_entries);
-
             }
             else {
                 stop(sprintf("Unsupported annotation file version '%d'.\n", version));
@@ -55,6 +53,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
         }
         return_list$colortable = colortable;
 
+        # Compute convenience information from the data, so the user does not have to do it. This includes the labels and color for each vertex.
         struct_names = colortable$struct_names;
         r = colortable$table[,1];
         g = colortable$table[,2];
@@ -108,14 +107,9 @@ readcolortable_oldformat <- function(fh, ctable_num_entries) {
 
   colortable <- list("num_entries" = ctable_num_entries);
 
-
   num_chars_dev_filepath = readBin(fh, integer(), n = 1, endian = "big");
-  cat(sprintf("###### num_chars_dev_filepath=%d.\n", num_chars_dev_filepath));
   dev_filepath = readChar(fh, num_chars_dev_filepath);
-  #dev_filepath = (fh, character(), n=1, endian = "big");
-  cat(sprintf("###### dev_filepath = '%s'\n", dev_filepath));
 
-  # Read colortable
   colortable$struct_names = rep("", ctable_num_entries);
   colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
 
@@ -134,7 +128,6 @@ readcolortable_oldformat <- function(fh, ctable_num_entries) {
     colortable$table[i,3] = b;
     colortable$table[i,4] = a;
     colortable$table[i,5] = unique_color_label;
-    cat(sprintf("###### ctable (%d/%d): read structure '%s' with %d chars'\n", i, ctable_num_entries, struct_name, num_chars_struct_name));
   }
   return(colortable);
 }
