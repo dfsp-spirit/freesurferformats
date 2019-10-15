@@ -55,16 +55,17 @@ Now you can call the following functions (list reflects the dev version):
 
 
 ```r
-read.fs.mgh() -- read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
-read.fs.curv() -- read morphometry data from 'curv' format files like `surf/lh.area`
-read.fs.morph() -- wrapper that reads any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
-read.fs.annot() -- read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
-read.fs.surface() -- read a surface mesh
+read.fs.mgh()      # read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
+read.fs.curv()     # read morphometry data from 'curv' format files like `surf/lh.area`
+read.fs.morph()    # wrapper that reads any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
+read.fs.annot()    # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
+read.fs.surface()  # read a surface mesh
+read.fs.label()    # read a label file
 
-write.fs.mgh() -- write data with 1 to 4 dimensions to an MGH format file
-write.fs.curv() -- write a data vector to a 'curv' format file
-write.fs.morph() -- wrapper that writes any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
-write.fs.surface() -- write a surface mesh
+write.fs.mgh()     # write data with 1 to 4 dimensions to an MGH format file
+write.fs.curv()    # write a data vector to a 'curv' format file
+write.fs.morph()   # wrapper that writes any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
+write.fs.surface() # write a surface mesh
 ```
 
 The documentation is included in the package and not repeated on this website.
