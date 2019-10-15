@@ -1,6 +1,12 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.3
+--------------
+- Add support for reading label files (like subject/label/lh.cortex.label)
+- Add support for reading annotation files in old format (like fsaverage annot file 'aparc.a2005s.annot')
+
+
 Version 0.1.2
 ---------------
 - Add support for reading and writing surface files
