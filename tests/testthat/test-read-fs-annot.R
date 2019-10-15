@@ -71,3 +71,22 @@ test_that("Our demo annotation file can be read", {
     expect_equal(length(annot$hex_colors_rgb), known_vertex_count)
  })
 
+test_that("Annotation files in old format can be read", {
+  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = TRUE)
+  annot = read.fs.annot(annotfile)
+  known_vertex_count = 163842
+
+  # Test that the number of entries is correct, and that metadata matches data
+  expect_equal(annot$colortable$num_entries, 82);
+  expect_equal(length(annot$colortable$struct_names), 82)
+
+  # Test that structure names are correct
+  expect_equal(annot$colortable$struct_names[1], "Unknown")
+  expect_equal(annot$colortable$struct_names[2], "Corpus_callosum")
+
+  expect_equal(typeof(annot$hex_colors_rgb), "character")
+  expect_equal(length(annot$hex_colors_rgb), known_vertex_count)
+})
+
+
+

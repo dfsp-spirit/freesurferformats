@@ -39,7 +39,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
         ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
 
         if(ctable_num_entries > 0) {
-            stop(sprintf("Unsupported old annotation file version.", version));
+            colortable = readcolortable_oldformat(fh, ctable_num_entries);
         } else {
             # If ctable_num_entries is negative, it is a version code (actually, the abs value is the version).
             version = -ctable_num_entries;
@@ -47,43 +47,43 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
                 ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
 
                 colortable = readcolortable(fh, ctable_num_entries);
-                return_list$colortable = colortable;
 
-                struct_names = colortable$struct_names;
-                r = colortable$table[,1];
-                g = colortable$table[,2];
-                b = colortable$table[,3];
-                a = colortable$table[,4];
-                code = colortable$table[,5];
-                hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
-                hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
-                colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba);
-                colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
-                return_list$colortable_df = colortable_df;
-
-                label_names = rep("", length(labels))
-                hex_colors_rgb = rep("#333333", length(labels))
-                nempty = 1;  # There could be more than 1 empty region, and we cannot match all of them to the same name.
-                for (i in 1:length(colortable$struct_names)) {
-                    label_code = code[i];
-                    label_name = colortable$struct_names[i];
-                    hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
-                    if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
-                        cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
-                        label_name = paste(empty_label_name, nempty, sep="");
-                        nempty = nempty + 1;
-                    }
-                    label_names[labels==label_code] = label_name;
-                    hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
-                }
-                return_list$label_names = label_names;
-                return_list$hex_colors_rgb = hex_colors_rgb;
             }
             else {
                 stop(sprintf("Unsupported annotation file version '%d'.\n", version));
-                # TODO: Turns out this is still in use, so implement this. An example file is fsaverage/label/lh.aparc.a2005s.annot.
             }
         }
+        return_list$colortable = colortable;
+
+        struct_names = colortable$struct_names;
+        r = colortable$table[,1];
+        g = colortable$table[,2];
+        b = colortable$table[,3];
+        a = colortable$table[,4];
+        code = colortable$table[,5];
+        hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
+        hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
+        colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba);
+        colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
+        return_list$colortable_df = colortable_df;
+
+        label_names = rep("", length(labels))
+        hex_colors_rgb = rep("#333333", length(labels))
+        nempty = 1;  # There could be more than 1 empty region, and we cannot match all of them to the same name.
+        for (i in 1:length(colortable$struct_names)) {
+          label_code = code[i];
+          label_name = colortable$struct_names[i];
+          hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
+          if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
+            cat(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
+            label_name = paste(empty_label_name, nempty, sep="");
+            nempty = nempty + 1;
+          }
+          label_names[labels==label_code] = label_name;
+          hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
+        }
+        return_list$label_names = label_names;
+        return_list$hex_colors_rgb = hex_colors_rgb;
 
     }
     close(fh);
@@ -92,6 +92,52 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
 
 
 
+#' @title Read binary colortable in old format.
+#'
+#' @description Read an oldformat colortable from a connection to a binary file.
+#'
+#' @param fh: file handle
+#'
+#' @param ctable_num_entries: number of entries to read
+#'
+#' @return named list: the color table. The named entries are: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code.
+#'
+#'
+#' @keywords internal
+readcolortable_oldformat <- function(fh, ctable_num_entries) {
+
+  colortable <- list("num_entries" = ctable_num_entries);
+
+
+  num_chars_dev_filepath = readBin(fh, integer(), n = 1, endian = "big");
+  cat(sprintf("###### num_chars_dev_filepath=%d.\n", num_chars_dev_filepath));
+  dev_filepath = readChar(fh, num_chars_dev_filepath);
+  #dev_filepath = (fh, character(), n=1, endian = "big");
+  cat(sprintf("###### dev_filepath = '%s'\n", dev_filepath));
+
+  # Read colortable
+  colortable$struct_names = rep("", ctable_num_entries);
+  colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
+
+  for (i in 1:ctable_num_entries) {
+    num_chars_struct_name = readBin(fh, integer(), n = 1, endian = "big");
+    struct_name = readChar(fh, num_chars_struct_name);
+    colortable$struct_names[i] = struct_name;
+    r = readBin(fh, integer(), n = 1, endian = "big");   # red channel of color
+    g = readBin(fh, integer(), n = 1, endian = "big");   # green channel of color
+    b = readBin(fh, integer(), n = 1, endian = "big");   # blue channel of color
+    a = readBin(fh, integer(), n = 1, endian = "big");   # alpha channel of color
+    unique_color_label = r + g*2^8 + b*2^16 + a*2^24;
+
+    colortable$table[i,1] = r;
+    colortable$table[i,2] = g;
+    colortable$table[i,3] = b;
+    colortable$table[i,4] = a;
+    colortable$table[i,5] = unique_color_label;
+    cat(sprintf("###### ctable (%d/%d): read structure '%s' with %d chars'\n", i, ctable_num_entries, struct_name, num_chars_struct_name));
+  }
+  return(colortable);
+}
 
 
 #' @title Read binary colortable in v2 format.
