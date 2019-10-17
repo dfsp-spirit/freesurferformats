@@ -133,3 +133,31 @@ Don't worry if you are using the stable version from CRAN and CI is currently fa
 [MIT](https://opensource.org/licenses/MIT)
 
 Note: The file LICENSE in this repository is a CRAN license template only (as required by CRAN) and does not contain the full MIT  license text. See the file LICENSE_FULL for the full license text.
+
+
+## Citation
+
+You can generate the citation for the version you use by typing the following command in R:
+
+```
+citation("freesurferformats")
+```
+
+This will ouput something like this (but for the version you actually used):
+```
+To cite package ‘freesurferformats’ in publications use:
+
+  Tim Schäfer (2019). freesurferformats: Read and Write 'FreeSurfer'
+  Neuroimaging File Formats. R package version 0.1.3.
+  https://CRAN.R-project.org/package=freesurferformats
+
+A BibTeX entry for LaTeX users is
+
+  @Manual{,
+    title = {freesurferformats: Read and Write 'FreeSurfer' Neuroimaging File Formats},
+    author = {Tim Schäfer},
+    year = {2019},
+    note = {R package version 0.1.3},
+    url = {https://CRAN.R-project.org/package=freesurferformats},
+  }
+```
