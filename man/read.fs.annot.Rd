@@ -26,3 +26,4 @@ Read a data annotation file in FreeSurfer format. Such a file assigns a label an
     annot = read.fs.annot(annot_file);
 
 }
+\concept{atlas functions}

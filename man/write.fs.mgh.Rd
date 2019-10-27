@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_fs_mgh.R
 \name{write.fs.mgh}
 \alias{write.fs.mgh}
-\title{Write file in FreeSurfer MGH format}
+\title{Write file in FreeSurfer MGH or MGZ format}
 \usage{
 write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
   0, 0))
@@ -17,5 +17,13 @@ write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
 \item{mr_params, }{double vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. The unit for the three times is ms, the angle unit is radians. Defaults to c(0, 0, 0, 0) if omitted.}
 }
 \description{
-Write brain data to a file in FreeSurfer binary MGH format.
+Write brain data to a file in FreeSurfer binary MGH or MGZ format.
 }
+\seealso{
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph}}, \code{\link{write.fs.curv}},
+  \code{\link{write.fs.morph}}
+}
+\concept{morphometry functions}

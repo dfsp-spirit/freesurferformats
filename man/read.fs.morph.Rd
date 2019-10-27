@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fs_curv.R
 \name{read.fs.morph}
 \alias{read.fs.morph}
-\title{Read morphometry data file in any FreeSurfer format}
+\title{Read morphometry data file in any FreeSurfer format.}
 \usage{
 read.fs.morph(filepath)
 }
@@ -29,5 +29,12 @@ Read vertex-wise brain surface data from a file. The file can be in any of the s
     cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
                             length(ct), min(ct), mean(ct), max(ct)));
 
-
 }
+\seealso{
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
+  \code{\link{write.fs.morph}}
+}
+\concept{morphometry functions}

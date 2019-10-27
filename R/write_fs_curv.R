@@ -7,6 +7,7 @@
 #'
 #' @param data, vector of floats. The brain morphometry data to write, one value per vertex.
 #'
+#' @family morphometry functions
 #'
 #' @export
 write.fs.curv <- function(filepath, data) {
@@ -60,6 +61,7 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @return format, string. The format that was used to write the data. One of c("mgh", "mgz", "curv").
 #'
+#' @family morphometry functions
 #'
 #' @export
 write.fs.morph <- function(filepath, data) {
@@ -81,6 +83,7 @@ write.fs.morph <- function(filepath, data) {
 #'
 #' @return format, string. The format, one of c("mgz", "mgh", "curv").
 #'
+#' @family morphometry functions
 #'
 #' @export
 fs.get.morph.file.format.from.filename <- function(filepath) {
@@ -108,6 +111,7 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
 #'
 #' @return file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
 #'
+#' @family morphometry functions
 #'
 #' @export
 fs.get.morph.file.ext.for.format <- function(format) {

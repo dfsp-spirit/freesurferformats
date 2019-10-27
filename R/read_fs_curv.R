@@ -1,6 +1,6 @@
 #' @title Read file in FreeSurfer curv format
 #'
-#' @description Read vertex-wise brain surface data from a file in FreeSurfer binary 'curv' format.
+#' @description Read vertex-wise brain mophometry data from a file in FreeSurfer binary 'curv' format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
 #' @param filepath, string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
@@ -13,6 +13,8 @@
 #'     ct = read.fs.curv(curvfile);
 #'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
 #'                             length(ct), min(ct), mean(ct), max(ct)));
+#'
+#' @family morphometry functions
 #'
 #' @export
 read.fs.curv <- function(filepath) {
@@ -56,7 +58,7 @@ fread3 <- function(filehandle) {
 }
 
 
-#' @title Read morphometry data file in any FreeSurfer format
+#' @title Read morphometry data file in any FreeSurfer format.
 #'
 #' @description Read vertex-wise brain surface data from a file. The file can be in any of the supported formats, and the format will be determined from the file extension.
 #'
@@ -78,6 +80,7 @@ fread3 <- function(filehandle) {
 #'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
 #'                             length(ct), min(ct), mean(ct), max(ct)));
 #'
+#' @family morphometry functions
 #'
 #' @export
 read.fs.morph <- function(filepath) {

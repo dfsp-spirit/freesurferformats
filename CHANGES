@@ -1,6 +1,10 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.4
+--------------
+- Docs: link related via families, so they show up in the 'see also' section
+
 Version 0.1.3
 --------------
 - Add support for reading label files (like subject/label/lh.cortex.label)

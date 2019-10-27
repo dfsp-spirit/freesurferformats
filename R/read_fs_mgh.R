@@ -12,6 +12,8 @@
 #'
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.
 #'
+#' @family morphometry functions
+#'
 #' @examples
 #'     brain_image = system.file("extdata", "brain.mgz",
 #'                                package = "freesurferformats",

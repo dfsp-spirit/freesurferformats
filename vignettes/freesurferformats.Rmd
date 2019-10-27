@@ -106,6 +106,7 @@ If all you need is to perform statistical analysis of the data in the MGH file, 
     oro.nifti::orthographic(oro.nifti::nifti(brain))
 ```
 
+If you need advanced visualization, including the option to render morphometry data or annotation on 3D brain surface meshes, you can have a look at the [fsbrain package](https://github.com/dfsp-spirit/fsbrain).
 
 ## Reading 'curv' format files
 
@@ -240,6 +241,19 @@ And also the 3 vertices that make up face 2:
 
 Note that the vertex indices start with 1 in GNU R. The vertex indices in the file are 0-based, but this is handled transparently by the 'read.fs.surface' and 'write.fs.surface' functions.
 
+## Reading labels
+
+A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. An atlas or annotation can be thought of as a list of labels, each of which defines a single brain region (the annotation also contains a colormap for the regions). Labels are useful to extract or mask out certain brain regions. E.g., you may want to exclude the medial wall from your analysis, of you may only be interested in a certain brain region.
+
+The following example reads a label file:
+
+```{r}
+    labelfile = system.file("extdata", "lh.entorhinal_exvivo.label", package = "freesurferformats", mustWork = TRUE);
+    label = read.fs.label(labelfile);
+    cat(sprintf("The label consists of %d vertices, the first one is vertex %d.\n", length(label), label[1]));
+```
+
+
 
 ## References
 * See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format
@@ -248,3 +262,4 @@ Note that the vertex indices start with 1 in GNU R. The vertex indices in the fi
 ## Alternatives, similar and related Packages
 * The [freesurfer package by John Muschelli]( https://CRAN.R-project.org/package=freesurfer) implements an R wrapper around some FreeSurfer command line utilities. This includes functions to read MGH/MGZ files by converting them to NIFTI format using command line utilities that come with FreeSurfer, then loading the resulting NIFTI file with the [oro.nifti package](https://CRAN.R-project.org/package=oro.nifti). As such, the package requires that you have FreeSurfer installed.
 * Several packages exist that read files in NIFTI format, including [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) and [RNifti](https://CRAN.R-project.org/package=RNifti)
+* My [fsbrain package](https://github.com/dfsp-spirit/fsbrain) provides an abstraction layer around fresurferformats. It is desingned to quickly access data from single subjects or groups stored in the standardized output directory structure used by FreeSurfer and recon-all. The package fsbrain also includes advanced visualization functions for surface-based data.

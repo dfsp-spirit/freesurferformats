@@ -20,3 +20,7 @@ string, the format that was written. One of "tris" or "quads". Currently only tr
 Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 }
+\seealso{
+Other mesh functions: \code{\link{read.fs.surface}}
+}
+\concept{mesh functions}

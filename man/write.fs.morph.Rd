@@ -17,3 +17,11 @@ format, string. The format that was used to write the data. One of c("mgh", "mgz
 \description{
 Given data and a morphometry file name, derive the proper format and write the file.
 }
+\seealso{
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph}}, \code{\link{write.fs.curv}},
+  \code{\link{write.fs.mgh}}
+}
+\concept{morphometry functions}

@@ -9,6 +9,8 @@
 #'
 #' @return vector of integers. The vertex indices from the label file. See the parameter 'return_one_based_indices' for important information regarding the start index.
 #'
+#' @family label functions
+#'
 #' @export
 #' @importFrom utils read.table
 read.fs.label <- function(filepath, return_one_based_indices=TRUE) {

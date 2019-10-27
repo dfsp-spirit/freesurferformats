@@ -13,10 +13,7 @@ read.fs.surface(filepath)
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
 }
 \description{
-Read vertex and face data  from a file in FreeSurfer binary surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
-             For a quick preview: library(rgl); mesh = tmesh3d(unlist(surf$vertices), unlist(surf$faces), homogeneous=FALSE); rgl.open(); wire3d(mesh);
-
-             col = rep("red", nrow(surf$vertices)); col[1:20000] = "blue"; wire3d(mesh, col=col, meshcolor="vertices");
+Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 }
 \examples{
     surface_file = system.file("extdata", "lh.tinysurface",
@@ -26,3 +23,7 @@ Read vertex and face data  from a file in FreeSurfer binary surface format. For 
                             nrow(mesh$vertices), nrow(mesh$faces)));
 
 }
+\seealso{
+Other mesh functions: \code{\link{write.fs.surface}}
+}
+\concept{mesh functions}

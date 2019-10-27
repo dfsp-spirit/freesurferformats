@@ -1,6 +1,6 @@
-#' @title Write file in FreeSurfer MGH format
+#' @title Write file in FreeSurfer MGH or MGZ format
 #'
-#' @description Write brain data to a file in FreeSurfer binary MGH format.
+#' @description Write brain data to a file in FreeSurfer binary MGH or MGZ format.
 #'
 #' @param data, matrix of numerical values. The brain data to write. Must be integers or doubles. (The data type is set automatically to MRI_INT for integers and MRI_FLOAT for doubles in the MGH header).
 #'
@@ -10,7 +10,7 @@
 #'
 #' @param mr_params, double vector of length four. The acquisition parameters, in order: tr, flipangle, te, ti. The unit for the three times is ms, the angle unit is radians. Defaults to c(0, 0, 0, 0) if omitted.
 #'
-#'
+#' @family morphometry functions
 #'
 #' @export
 write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0.)) {
