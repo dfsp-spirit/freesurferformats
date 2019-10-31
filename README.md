@@ -6,7 +6,7 @@ GNU R package to read and write FreeSurfer neuroimaging file formats.
 
 ## A note to end users
 
-This low-level package provides file format readers for [FreeSurfer](http://freesurfer.net) neuroimaging data. Typically, you want to access not only individual files, but datasets of subjects stored in the standardized output structure of recon-all (your $SUBJECTS_DIR) when doing neuroimaging research. In that case, I highly recommend to use the high-level functions from the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) instead of re-inventing the wheel.
+This low-level package provides file format readers for [FreeSurfer](http://freesurfer.net) neuroimaging data. Typically, you want to access not only individual files, but datasets of subjects stored in the standardized output structure of recon-all (your $SUBJECTS_DIR) when doing neuroimaging research. In that case, I highly recommend to use the high-level functions from the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) instead of re-inventing the wheel. The fsbrain package is built on top of freesurferformats and provides high-level functions for working with the data of your study, including visualization of results on brain meshes.
 
 
 ## Supported formats
