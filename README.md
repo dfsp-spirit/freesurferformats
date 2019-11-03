@@ -1,7 +1,7 @@
 # freesurferformats
 GNU R package to read and write FreeSurfer neuroimaging file formats.
 
-![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "aparc atlas visualization")
+![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
 
 ## A note to end users
