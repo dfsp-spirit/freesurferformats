@@ -227,7 +227,7 @@ Now we can print the coordinates of vertex 5:
 
 ```{r}
     vertex_index = 5;
-    v5 = surf$vertices[vertex_index];
+    v5 = surf$vertices[vertex_index,];
     cat(sprintf("Vertex %d has coordinates (%f, %f, %f).\n", vertex_index, v5[1], v5[2], v5[3]));
 ```
 
@@ -235,7 +235,7 @@ And also the 3 vertices that make up face 2:
 
 ```{r}
     face_index = 2;
-    f2 = surf$faces[face_index];
+    f2 = surf$faces[face_index,];
     cat(sprintf("Face %d consistes of the vertices %d, %d, and %d.\n", face_index, f2[1], f2[2], f2[3]));
 ```
 
