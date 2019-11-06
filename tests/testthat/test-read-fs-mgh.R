@@ -8,7 +8,7 @@ test_that("The dimensions of our demo 3D MGZ file are read correctly", {
 })
 
 test_that("The data values in the demo 3D MGZ file are read as in the reference implementation", {
-  # Tests that the data read is identical to the values returned by the
+  # Tests that the data read is identical to the values returned by the matlab function $FREESURFER_HOME/matlab/MRIread.m
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   vd = read.fs.mgh(brain_image);
 
