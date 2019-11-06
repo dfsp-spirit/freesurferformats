@@ -7,6 +7,20 @@ test_that("The dimensions of our demo 3D MGZ file are read correctly", {
   expect_equal(dim(vd), c(256, 256, 256, 1));
 })
 
+test_that("The data values in the demo 3D MGZ file are read as in the reference implementation", {
+  # Tests that the data read is identical to the values returned by the
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  vd = read.fs.mgh(brain_image);
+
+  expect_equal(class(vd), "array");
+  expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
+  expect_equal(dim(vd), c(256, 256, 256, 1));
+
+  expect_equal(vd[100, 100, 100, 1], 77);
+  expect_equal(vd[110, 110, 110, 1], 71);
+  expect_equal(vd[1, 1, 1, 1], 0);
+})
+
 
 test_that("The demo 1D MGZ file is read correctly", {
   morph_file = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz", package = "freesurferformats", mustWork = TRUE);
