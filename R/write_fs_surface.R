@@ -13,6 +13,7 @@
 #'
 #' @family mesh functions
 #'
+#' @importFrom gdata unmatrix
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
@@ -50,10 +51,10 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
     writeBin(as.integer(num_faces), fh, size = 4, endian = "big");
 
     # write the data itself: vertex coords
-    writeBin(as.vector(vertex_coords), fh, size = 4, endian = "big");
+    writeBin(gdata::unmatrix(vertex_coords, byrow = TRUE), fh, size = 4, endian = "big");
 
     # write vertex indices making up a face
-    writeBin(as.vector(faces), fh, size = 4, endian = "big");
+    writeBin(gdata::unmatrix(faces, byrow = TRUE), fh, size = 4, endian = "big");
     close(fh);
   } else if (ncol(faces) == 4) {
     MAGIC_FILE_TYPE_NUMBER = QUAD_MAGIC_FILE_TYPE_NUMBER;

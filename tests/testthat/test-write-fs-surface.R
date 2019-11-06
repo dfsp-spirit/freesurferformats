@@ -1,5 +1,5 @@
 test_that("One can write triangular surface data", {
-  vertex_coords = matrix(rep(0.3, 15), nrow=3);
+  vertex_coords = matrix(seq(1, 15)+0.5, nrow=3, byrow=TRUE);
   faces = matrix(c(1L,2L,3L,2L,4L,3L,4L,5L,3L), nrow=3, byrow = TRUE);
 
   format_written = write.fs.surface(tempfile(fileext="white"), vertex_coords, faces);
@@ -7,7 +7,7 @@ test_that("One can write triangular surface data", {
 })
 
 test_that("One can write and re-read triangular surface data", {
-  vertex_coords = matrix(rep(0.3, 15), nrow=5, ncol=3);
+  vertex_coords = matrix(seq(1, 15)+0.5, nrow=5, ncol=3, byrow=TRUE);
   faces = matrix(c(1L,2L,3L,2L,4L,3L,4L,5L,3L), nrow=3, ncol=3, byrow = TRUE);
 
   tmp_file = tempfile(fileext="white");

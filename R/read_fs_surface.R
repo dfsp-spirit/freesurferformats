@@ -45,7 +45,7 @@ read.fs.surface <- function(filepath) {
     num_vertex_coords = num_vertices * 3L;
     vertex_coords = readBin(fh, integer(), size=2L, n = num_vertex_coords, endian = "big");
     vertex_coords = vertex_coords / 100.;
-    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L);
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
 
     if(length(vertex_coords) != num_vertex_coords) {
       stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
@@ -53,7 +53,7 @@ read.fs.surface <- function(filepath) {
 
     num_face_vertex_indices = num_faces * 4L;
     face_vertex_indices = rep(0, num_face_vertex_indices);
-    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L)
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L, byrow = TRUE)
     for (face_idx in 1L:num_faces) {
       for (vertex_idx_in_face in 1L:4L) {
         global_vertex_idx = fread3(fh);
@@ -85,7 +85,7 @@ read.fs.surface <- function(filepath) {
 
     num_vertex_coords = num_vertices * 3L;
     vertex_coords = readBin(fh, numeric(), size = 4L, n = num_vertex_coords, endian = "big");          # a vertex is made up of 3 float coordinates (x,y,z)
-    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L);
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
 
     if(length(vertex_coords) != num_vertex_coords) {
       stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
@@ -93,7 +93,7 @@ read.fs.surface <- function(filepath) {
 
     num_face_vertex_indices = num_faces * 3L;
     face_vertex_indices = readBin(fh, integer(), size = 4L, n = num_face_vertex_indices, endian = "big");   # a face is made of of 3 integers, which are vertex indices
-    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3L);
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=3L, byrow = TRUE);
     faces = faces + 1L;    # Increment indices by 1: GNU R uses 1-based indices.
 
     if(length(face_vertex_indices) != num_face_vertex_indices) {
