@@ -46,6 +46,29 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
   expect_equal(surf$vertices[1000,], c(-5.2788, -103.5765, 19.6616), tolerance=1e-2);
 })
 
+test_that("The vertices of a face are close to each other", {
+  # Checks for bug in issue #8: freesurfer surface import - row-major/column-major order
+
+  freesurferformats::download_optional_data();
+  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
+  skip_if_not(file.exists(surface_file), message="Test data missing.");
+
+  surf = read.fs.surface(surface_file);
+
+  # Test that the distance between the vertices of a face is small. For brain surface meshes, the
+  # coords are given in mm and the resolution is quite high. It is definitely sane to request that
+  # the vertices should not be more than 2 mm apart:
+  test_faces = c(1, 50, 100, 1000, 10000, 42);
+  for(face_idx in test_faces) {
+    vertex_indices_of_face = surf$faces[face_idx,];
+    vertex_coords_of_face = surf$vertices[vertex_indices_of_face,];
+    dist_matrix_face_verts = stats::dist(vertex_coords_of_face);
+    expect_true(max(dist_matrix_face_verts) < 2.0);
+  }
+
+})
+
 
 test_that("The lh.white of Bert can be read using read.fs.surface", {
 
