@@ -156,7 +156,7 @@ This will ouput something like this (but for the version you actually used):
 To cite package ‘freesurferformats’ in publications use:
 
   Tim Schäfer (2019). freesurferformats: Read and Write 'FreeSurfer'
-  Neuroimaging File Formats. R package version 0.1.3.
+  Neuroimaging File Formats. R package version 0.1.4.
   https://CRAN.R-project.org/package=freesurferformats
 
 A BibTeX entry for LaTeX users is
@@ -165,7 +165,7 @@ A BibTeX entry for LaTeX users is
     title = {freesurferformats: Read and Write 'FreeSurfer' Neuroimaging File Formats},
     author = {Tim Schäfer},
     year = {2019},
-    note = {R package version 0.1.3},
+    note = {R package version 0.1.4},
     url = {https://CRAN.R-project.org/package=freesurferformats},
   }
 ```
