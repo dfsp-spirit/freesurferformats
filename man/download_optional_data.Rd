@@ -2,7 +2,7 @@
 % Please edit documentation in R/optdata.R
 \name{download_optional_data}
 \alias{download_optional_data}
-\title{Download optional data for this package if required.}
+\title{Download optional data for the freesurferformats package.}
 \usage{
 download_optional_data()
 }
@@ -10,5 +10,5 @@ download_optional_data()
 Named list. The list has entries: "available": vector of strings. The names of the files that are available in the local file cache. You can access them using get_optional_data_file(). "missing": vector of strings. The names of the files that this function was unable to retrieve.
 }
 \description{
-Ensure that the optioanl data is available locally in the package cache. Will try to download the data only if it is not available. This data is not required for the package to work, but it is used in the examples, in the unit tests and also in the example code from the vignette. Downloading it is highly recommended.
+Ensure that the optional data is available locally in the package cache. Will try to download the data only if it is not available. This data is not required for the package to work, but it is used in the examples, in the unit tests and also in the example code from the vignette. Downloading it is highly recommended.
 }
