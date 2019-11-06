@@ -1,12 +1,13 @@
 test_that("Our demo surface file can be read using read.fs.surface", {
 
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = FALSE)
-  skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
+  freesurferformats::download_optional_data();
+  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
+  skip_if_not(file.exists(surface_file), message="Test data missing.") ;
 
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = TRUE)
-  surf = read.fs.surface(surface_file)
-  known_vertex_count = 149244
-  known_face_count = 298484
+  surf = read.fs.surface(surface_file);
+  known_vertex_count = 149244;
+  known_face_count = 298484;
 
 
   expect_equal(surf$mesh_face_type, "tris");
@@ -28,11 +29,12 @@ test_that("Our demo surface file can be read using read.fs.surface", {
 test_that("Vertex connectivity in the demo surface file is as expected from reference implementation", {
   # Checks for bug in issue #8: freesurfer surface import - row-major/column-major order
   # The vertex connectivities used in this test are known from running the FreeSurfer Matlab function $FREESURFER_HOME/matlab/read_surf.m on the data
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = FALSE)
-  skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
+  freesurferformats::download_optional_data();
+  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
+  skip_if_not(file.exists(surface_file), message="Test data missing.");
 
-  surface_file = system.file("extdata", "lh.white.gz", package = "freesurferformats", mustWork = TRUE)
-  surf = read.fs.surface(surface_file)
+  surf = read.fs.surface(surface_file);
 
   # This test assures that the vertices are connected as defined in the reference implementation.
   expect_equal(surf$faces[1,], c(0, 1, 5) + 1);     # the +1 is because R using 1-based indexing
@@ -48,12 +50,12 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
 test_that("The lh.white of Bert can be read using read.fs.surface", {
 
   surface_file = system.file("extdata", "bert.lh.white", package = "freesurferformats", mustWork = FALSE)
-  skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
+  skip_if_not(file.exists(surface_file), message="Test data missing.");
 
   surface_file = system.file("extdata", "bert.lh.white", package = "freesurferformats", mustWork = TRUE)
   surf = read.fs.surface(surface_file)
-  known_vertex_count_bert = 133083
-  known_face_count_bert = 266162
+  known_vertex_count_bert = 133083;
+  known_face_count_bert = 266162;
 
 
   expect_equal(surf$mesh_face_type, "tris");

@@ -35,11 +35,13 @@ test_that("One can write and re-read triangular surface data", {
 })
 
 test_that("One can read, write and re-read triangular surface data", {
-  surface_file = system.file("extdata", "lh.white", package = "freesurferformats", mustWork = FALSE)
-  skip_if_not(file.exists(surface_file), message="Test data missing.") # skip on travis
+  freesurferformats::download_optional_data();
+  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
 
-  surface_file = system.file("extdata", "lh.white", package = "freesurferformats", mustWork = TRUE)
-  surf = read.fs.surface(surface_file)
+  skip_if_not(file.exists(surface_file), message="Test data missing.");
+
+  surf = read.fs.surface(surface_file);
 
   tmp_file = tempfile(fileext="white");
   format_written = write.fs.surface(tmp_file, surf$vertices, surf$faces);

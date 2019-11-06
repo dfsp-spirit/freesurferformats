@@ -11,7 +11,8 @@ LazyData: true
 URL: https://github.com/dfsp-spirit/freesurferformats
 BugReports: https://github.com/dfsp-spirit/freesurferformats/issues
 Imports:
-    gdata
+    gdata,
+    pkgfilecache (>= 0.1.1)
 Suggests:
     knitr,
     rmarkdown,
