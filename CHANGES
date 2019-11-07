@@ -1,11 +1,16 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.5
+-------------
+
+
 Version 0.1.4
 --------------
 - Docs: link related via families, so they show up in the 'see also' section
-- Fix errors in indexing example of the vignette (PR#7, thanks @AndrewLawrence)
+- Fix errors in indexing example of the vignette (PR #7, thanks @AndrewLawrence)
 - Fix bug in reading faces of surfaces (bug #8, thanks @AndrewLawrence)
+
 
 Version 0.1.3
 --------------
