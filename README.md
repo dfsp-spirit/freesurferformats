@@ -85,7 +85,7 @@ The documentation can be accessed from within an R session after you have loaded
   * learn how to write neuroimaging data: `vignette("freesurferformats_write")` [read online at CRAN](https://cran.r-project.org/web/packages/freesurferformats/vignettes/freesurferformats_write.html) 
 * Help for a specific function can be accessed in the usual R manner: `?<function>`, where you replace `<function>` with a function name. Like this: `?read.fs.mgh`.
 * Run `example(<function>)` to see a live demo that uses the function `<function>`. Like this: `example(read.fs.mgh)`.
-
+* The [unit tests](./tests/testthat/) that come with this package are essentially a list of examples that illustrate how to use the functions.
 
 ## An example R session: Reading Bert's brain
 
@@ -119,7 +119,7 @@ dim(drop(mgh$data))
 ## Unit tests / Continuous integration (CI)
 
 
-In a clean R session:
+This package comes with [lots of unit tests](./tests/testthat/). To run them, in a clean R session:
 
 ```r
 library(devtools)
