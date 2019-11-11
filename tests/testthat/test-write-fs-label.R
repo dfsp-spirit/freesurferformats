@@ -1,4 +1,4 @@
-test_that("A label file can be written", {
+test_that("A label file can be written and read again", {
   output_file = tempfile();
 
   # generate data
