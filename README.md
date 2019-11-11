@@ -151,7 +151,7 @@ You can generate the citation for the version you use by typing the following co
 citation("freesurferformats")
 ```
 
-This will ouput something like this (but for the version you actually used):
+This will ouput something like this (but for the version you actually used, which is important for reproducibility):
 ```
 To cite package ‘freesurferformats’ in publications use:
 
