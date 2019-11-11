@@ -3,9 +3,9 @@
 #' @description Read vertex-wise brain mophometry data from a file in FreeSurfer binary 'curv' format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
-#' @param filepath, string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
+#' @param filepath string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @return data, vector of floats. The brain morphometry data, one value per vertex.
+#' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
 #'     curvfile = system.file("extdata", "lh.thickness",

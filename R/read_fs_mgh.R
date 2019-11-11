@@ -2,13 +2,13 @@
 #'
 #' @description Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH or MGZ format. The MGZ format is just a gzipped version of the MGH format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/mri/T1.mgz', which contains a 3D brain scan of bert.
 #'
-#' @param filepath, string. Full path to the input MGZ or MGH file.
+#' @param filepath string. Full path to the input MGZ or MGH file.
 #'
-#' @param is_gzipped, a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.
+#' @param is_gzipped a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.
 #'
-#' @param flatten, logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
+#' @param flatten logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
 #'
-#' @param with_header, logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1).
+#' @param with_header logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1).
 #'
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.
 #'
@@ -173,9 +173,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 #'
 #' @description Guess whether a file is gzipped, based on the file extension.
 #'
-#' @param filepath, string. Path to a file.
+#' @param filepath string. Path to a file.
 #'
-#' @param gz_entensions, list of strings. A list of suffixes that is considered indicative for the file being gzipped. Defaults to c(".gz", ".mgz"). Case does not matter.
+#' @param gz_entensions list of strings. A list of suffixes that is considered indicative for the file being gzipped. Defaults to c(".gz", ".mgz"). Case does not matter.
 #'
 #' @return logical, whether this function thinks the file is gzipped.
 #'

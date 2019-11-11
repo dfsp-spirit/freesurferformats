@@ -3,13 +3,13 @@
 #' @description Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 #'
-#' @param filepath, string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
+#' @param filepath string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
-#' @param vertex_coords, n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
 #'
-#' @param faces, n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
-#' @return string, the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
 #' @family mesh functions
 #'
