@@ -18,4 +18,13 @@ vector of integers. The vertex indices from the label file. See the parameter 'r
 Read a mask in FreeSurfer label format.
    A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. Label files are ASCII text files, which have 5 columns (vertex index, coord1, coord2, coord3, value), but only the vertex indices are of interest.
 }
+\examples{
+    labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
+      package = "freesurferformats", mustWork = TRUE);
+    label = read.fs.label(labelfile);
+
+}
+\seealso{
+Other label functions: \code{\link{write.fs.label}}
+}
 \concept{label functions}

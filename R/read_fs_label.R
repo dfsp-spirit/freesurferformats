@@ -11,6 +11,11 @@
 #'
 #' @family label functions
 #'
+#' @examples
+#'     labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
+#'       package = "freesurferformats", mustWork = TRUE);
+#'     label = read.fs.label(labelfile);
+#'
 #' @export
 #' @importFrom utils read.table
 read.fs.label <- function(filepath, return_one_based_indices=TRUE) {
