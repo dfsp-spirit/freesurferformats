@@ -3,6 +3,9 @@ freesurferformats Changes
 
 Version 0.1.5
 -------------
+- Add function write.fs.label() to write label files
+- Docs: Remove commas from parameter names in doc strings
+- Infrastructure: Add DOI generation for github releases via zenodo.org
 
 
 Version 0.1.4
