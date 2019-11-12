@@ -22,7 +22,7 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 * FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). Currently only triangular meshes are implemented. An example file would be `surf/lh.white`. This format can be read and written.
 
-* FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. This format can be read.
+* FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. This format can be read and written.
 
 
 ## Installation
@@ -61,7 +61,7 @@ Before using any functions, of course load the package itself:
 library("freesurferformats")
 ```
 
-Now you can call the following functions (list reflects the dev version):
+Now you can call the following functions:
 
 
 ```r
@@ -76,6 +76,7 @@ write.fs.mgh()     # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()    # write a data vector to a 'curv' format file
 write.fs.morph()   # wrapper that writes any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 write.fs.surface() # write a surface mesh
+write.fs.label()   # write a label file
 ```
 
 The documentation is included in the package and not repeated on this website.
@@ -86,7 +87,7 @@ The documentation can be accessed from within an R session after you have loaded
 
 * Detailed vignettes with explanations and examples for the usage of all functions of the package are included, run `browseVignettes("freesurferformats")` to see them. You can also open the vignettes directly:
   * learn how to read neuroimaging data: `vignette("freesurferformats")` [read online at CRAN](https://cran.r-project.org/web/packages/freesurferformats/vignettes/freesurferformats.html)
-  * learn how to write neuroimaging data: `vignette("freesurferformats_write")` [read online at CRAN](https://cran.r-project.org/web/packages/freesurferformats/vignettes/freesurferformats_write.html) 
+  * learn how to write neuroimaging data: `vignette("freesurferformats_write")` [read online at CRAN](https://cran.r-project.org/web/packages/freesurferformats/vignettes/freesurferformats_write.html)
 * Help for a specific function can be accessed in the usual R manner: `?<function>`, where you replace `<function>` with a function name. Like this: `?read.fs.mgh`.
 * Run `example(<function>)` to see a live demo that uses the function `<function>`. Like this: `example(read.fs.mgh)`.
 * The [unit tests](./tests/testthat/) that come with this package are essentially a list of examples that illustrate how to use the functions.
@@ -131,7 +132,7 @@ library(freesurferformats)
 devtools::check()
 ```
 
-Continuous integration results: 
+Continuous integration results:
 
 [![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats) Travis CI under Linux
 
