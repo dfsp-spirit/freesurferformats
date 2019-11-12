@@ -169,3 +169,7 @@ A BibTeX entry for LaTeX users is
     url = {https://CRAN.R-project.org/package=freesurferformats},
   }
 ```
+
+## Contributing
+
+I am very happy to accept [pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request), provided you are fine with publishing your work under the [license of this project](#license). If your PR is not just a fix but changes or adds lots of code, please [get in touch](http://rcmd.org/ts/#contact) before starting the project so we can discuss it first. Development currently happends on master.
