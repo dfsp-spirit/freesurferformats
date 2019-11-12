@@ -4,6 +4,9 @@ GNU R package to read and write FreeSurfer neuroimaging file formats.
 ![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
 
+[Supported Formats](#supported-formats) | [Installation](#installation) | [Documentation](#documentation) | [Unit tests and Continuous integration](#unit-tests-and-continuous-integration) | [License](#license) | [Citation](#citation) | [Contributing](#contributing)
+
+
 ## A note to end users
 
 This low-level package provides file format readers for [FreeSurfer](http://freesurfer.net) neuroimaging data. Typically, you want to access not only individual files, but datasets of subjects stored in the standardized output structure of recon-all (your $SUBJECTS_DIR) when doing neuroimaging research. In that case, I recommend to use the high-level functions from the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) instead of re-inventing the wheel. The *fsbrain* package is built on top of *freesurferformats* and provides functions for working with the data of your study, including visualization of results on brain meshes.
@@ -48,8 +51,9 @@ Then:
 devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
 ```
 
+## Documentation
 
-## Usage
+### Quick Usage
 
 Before using any functions, of course load the package itself:
 
@@ -76,7 +80,7 @@ write.fs.surface() # write a surface mesh
 
 The documentation is included in the package and not repeated on this website.
 
-## Full Documentation
+### Full Documentation
 
 The documentation can be accessed from within an R session after you have loaded the *freesurferformats* package:
 
@@ -87,7 +91,7 @@ The documentation can be accessed from within an R session after you have loaded
 * Run `example(<function>)` to see a live demo that uses the function `<function>`. Like this: `example(read.fs.mgh)`.
 * The [unit tests](./tests/testthat/) that come with this package are essentially a list of examples that illustrate how to use the functions.
 
-## An example R session: Reading Bert's brain
+### An example R session: Reading Bert's brain
 
 One of the example subjects that comes with FreeSurfer is `bert`. The following example shows how to load Bert's brain. If you have FreeSurfer installed, you can start GNU R by typing `R` in your favourite terminal application and run the following commands:
 
@@ -116,7 +120,7 @@ dim(drop(mgh$data))
 
 
 
-## Unit tests / Continuous integration (CI)
+## Unit tests and Continuous integration
 
 
 This package comes with [lots of unit tests](./tests/testthat/). To run them, in a clean R session:
