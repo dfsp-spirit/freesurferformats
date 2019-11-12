@@ -7,14 +7,14 @@
 write.fs.surface(filepath, vertex_coords, faces)
 }
 \arguments{
-\item{filepath, }{string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
+\item{filepath}{string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
 
-\item{vertex_coords, }{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
+\item{vertex_coords}{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
 
-\item{faces, }{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+\item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
 }
 \value{
-string, the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 }
 \description{
 Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.

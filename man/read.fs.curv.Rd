@@ -7,10 +7,10 @@
 read.fs.curv(filepath)
 }
 \arguments{
-\item{filepath, }{string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
+\item{filepath}{string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
 }
 \value{
-data, vector of floats. The brain morphometry data, one value per vertex.
+data vector of floats. The brain morphometry data, one value per vertex.
 }
 \description{
 Read vertex-wise brain mophometry data from a file in FreeSurfer binary 'curv' format.

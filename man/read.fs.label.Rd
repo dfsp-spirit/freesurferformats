@@ -7,9 +7,9 @@
 read.fs.label(filepath, return_one_based_indices = TRUE)
 }
 \arguments{
-\item{filepath, }{string. Full path to the input label file.}
+\item{filepath}{string. Full path to the input label file.}
 
-\item{return_one_based_indices, }{logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them.}
+\item{return_one_based_indices}{logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them.}
 }
 \value{
 vector of integers. The vertex indices from the label file. See the parameter 'return_one_based_indices' for important information regarding the start index.

@@ -7,9 +7,9 @@
 guess.filename.is.gzipped(filepath, gz_entensions = c(".gz", ".mgz"))
 }
 \arguments{
-\item{filepath, }{string. Path to a file.}
+\item{filepath}{string. Path to a file.}
 
-\item{gz_entensions, }{list of strings. A list of suffixes that is considered indicative for the file being gzipped. Defaults to c(".gz", ".mgz"). Case does not matter.}
+\item{gz_entensions}{list of strings. A list of suffixes that is considered indicative for the file being gzipped. Defaults to c(".gz", ".mgz"). Case does not matter.}
 }
 \value{
 logical, whether this function thinks the file is gzipped.
