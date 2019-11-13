@@ -173,7 +173,7 @@ A BibTeX entry for LaTeX users is
     note = {R package version 0.1.5},
     url = {https://CRAN.R-project.org/package=freesurferformats},
     doi = {10.5281/zenodo.3540435},
-    url = {https://dx.doi.org/10.5281/zenodo.3540435}
+    url = {https://dx.doi.org/10.5281/zenodo.3540435},
   }
 ```
 
