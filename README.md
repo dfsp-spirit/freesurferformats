@@ -42,7 +42,7 @@ You can try the development version if you need features which have not been rel
 If you do not have `devtools` and related tools installed yet:
 
 ```r
-install.packages(c("devtools", "knitr", "testthat"));
+install.packages(c("devtools", "knitr", "rmarkdown", "testthat"));
 ```
 
 Then:
