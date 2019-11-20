@@ -1,9 +1,9 @@
 # Functions for writing annotations and related data.
 
 
-#' @title Write colormap file in FreeSurfer ACII LUT format.
+#' @title Write colortable file in FreeSurfer ASCII LUT format.
 #'
-#' @description Write the colormap of an annotation to a text file in FreeSurfer ASCII colormap lookup table (LUT) format.
+#' @description Write the colortable of an annotation to a text file in FreeSurfer ASCII colortable lookup table (LUT) format.
 #'
 #' @param filepath, string. Full path to the output colormap file.
 #'
@@ -14,7 +14,7 @@
 #' @family atlas functions
 #'
 #' @export
-write.fs.colormap <- function(filepath, annot) {
+write.fs.colortable <- function(filepath, annot) {
 
   colortable = annot$colortable;
 
