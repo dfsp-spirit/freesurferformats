@@ -26,4 +26,7 @@ Read a data annotation file in FreeSurfer format. Such a file assigns a label an
     annot = read.fs.annot(annot_file);
 
 }
+\seealso{
+Other atlas functions: \code{\link{write.fs.colormap}}
+}
 \concept{atlas functions}
