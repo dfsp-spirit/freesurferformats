@@ -4,8 +4,13 @@
 \alias{write.fs.label}
 \title{Write vertex indices to file in FreeSurfer label format}
 \usage{
-write.fs.label(filepath, vertex_indices, vertex_coords = NULL,
-  vertex_data = NULL, indices_are_one_based = TRUE)
+write.fs.label(
+  filepath,
+  vertex_indices,
+  vertex_coords = NULL,
+  vertex_data = NULL,
+  indices_are_one_based = TRUE
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the output label file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
@@ -31,6 +36,7 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 
 }
 \seealso{
-Other label functions: \code{\link{read.fs.label}}
+Other label functions: 
+\code{\link{read.fs.label}()}
 }
 \concept{label functions}

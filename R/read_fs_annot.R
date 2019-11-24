@@ -35,9 +35,9 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
 
     return_list = list("vertices" = verts, "label_codes" = labels);
 
-    has_colortable = readBin(fh, logical(), n = 1, endian = "big");
+    has_colortable = readBin(fh, integer(), n = 1, endian = "big");
 
-    if (has_colortable) {
+    if(has_colortable == 1L) {
         ctable_num_entries = readBin(fh, integer(), n = 1, endian = "big");
 
         if(ctable_num_entries > 0) {
@@ -165,10 +165,10 @@ readcolortable <- function(fh, ctable_num_entries) {
       warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));
     }
     for (i in 1:ctable_num_entries) {
-        struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1;
+        struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1L;
 
         # Index must not be negative:
-        if (struct_idx < 0) {
+        if (struct_idx < 0L) {
             stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, struct_idx));
         }
 

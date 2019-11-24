@@ -18,6 +18,7 @@ the data.frame that was written to the LUT file.
 Write the colortable of an annotation to a text file in FreeSurfer ASCII colortable lookup table (LUT) format.
 }
 \seealso{
-Other atlas functions: \code{\link{read.fs.annot}}
+Other atlas functions: 
+\code{\link{read.fs.annot}()}
 }
 \concept{atlas functions}

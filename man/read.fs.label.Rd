@@ -25,6 +25,7 @@ Read a mask in FreeSurfer label format.
 
 }
 \seealso{
-Other label functions: \code{\link{write.fs.label}}
+Other label functions: 
+\code{\link{write.fs.label}()}
 }
 \concept{label functions}
