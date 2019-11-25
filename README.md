@@ -190,4 +190,4 @@ Note that this DOI always points to the latest version, so be sure to still incl
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). If you have any questions or want to contact me, please open an issue here on Github.
+See [CONTRIBUTING.md](CONTRIBUTING.md). If you have any questions or want to contact me, please [open an issue](https://github.com/dfsp-spirit/freesurferformats/issues).
