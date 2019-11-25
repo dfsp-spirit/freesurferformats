@@ -24,7 +24,7 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. This format can be read and written.
 
-* FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns a color value to a number of labels. LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
+* FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and  RGBA color values to a set of labels. LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
 
 
 ## Installation
