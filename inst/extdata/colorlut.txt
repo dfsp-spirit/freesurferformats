@@ -1,0 +1,10 @@
+# This is a test color LUT file. It assigns each label (typically from an annotation) an RGBA color.
+
+#No. Label Name:                            R   G   B   A
+
+0   Unknown                                 0   0   0   0
+1   Left-Cerebral-Exterior                  70  130 180 0
+2   Left-Cerebral-White-Matter              245 245 245 0
+3   Left-Cerebral-Cortex                    205 62  78  0
+4   Left-Lateral-Ventricle                  120 18  134 0
+5   Left-Inf-Lat-Vent                       196 58  250 0

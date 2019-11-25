@@ -73,23 +73,35 @@ test_that("Our demo annotation file can be read", {
 
 
 test_that("Annotation files in old format can be read", {
-  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = FALSE)
-  skip_if_not(file.exists(annotfile), message="Test data missing.")
+  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = FALSE);
+  skip_if_not(file.exists(annotfile), message="Test data missing.");
 
-  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = TRUE)
-  annot = read.fs.annot(annotfile)
-  known_vertex_count = 163842
+  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = TRUE);
+  annot = read.fs.annot(annotfile);
+  known_vertex_count = 163842;
 
   # Test that the number of entries is correct, and that metadata matches data
   expect_equal(annot$colortable$num_entries, 82);
-  expect_equal(length(annot$colortable$struct_names), 82)
+  expect_equal(length(annot$colortable$struct_names), 82);
 
   # Test that structure names are correct
-  expect_equal(annot$colortable$struct_names[1], "Unknown")
-  expect_equal(annot$colortable$struct_names[2], "Corpus_callosum")
+  expect_equal(annot$colortable$struct_names[1], "Unknown");
+  expect_equal(annot$colortable$struct_names[2], "Corpus_callosum");
 
-  expect_equal(typeof(annot$hex_colors_rgb), "character")
-  expect_equal(length(annot$hex_colors_rgb), known_vertex_count)
+  expect_equal(typeof(annot$hex_colors_rgb), "character");
+  expect_equal(length(annot$hex_colors_rgb), known_vertex_count);
+})
+
+
+test_that("A color lookup table (LUT) in ASCII format can be read", {
+  lutfile = system.file("extdata", "colorlut.txt", package = "freesurferformats", mustWork = TRUE);
+  colortable = read.fs.colortable(lutfile);
+
+  expect_equal(nrow(colortable), 6);
+  expect_equal(ncol(colortable), 7);
+  expect_equal(colnames(colortable), c("struct_index", "struct_name", "r", "g", "b", "a", "code"));
+  expect_equal(colortable$struct_index, seq(0, 5));
+  expect_equal(colortable$r, c(0L, 70L, 245L, 205L, 120L, 196L));
 })
 
 
