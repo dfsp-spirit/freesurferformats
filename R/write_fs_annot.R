@@ -120,10 +120,14 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
   }
 
   vertices = seq(0, num_vertices -1);
-  verts_and_labels = c(rbind(vertices, labels));
+  verts_and_labels = as.integer(c(rbind(vertices, labels)));  # indices and label codes are writting in alternating style (vert0, label1, ver1, label1, vert2, ...)
 
-  writeBin(as.integer(num_vertices * 2), fh, endian = "big");
-  writeBin(verts_and_labels, fh, size = 4, endian = "big");
+  if(length(verts_and_labels) != (num_vertices * 2)) {
+    stop(sprintf("Incorrect length of verts_and_labels: expected %d, found %d.\n", (num_vertices * 2), length(verts_and_labels)));
+  }
+
+  writeBin(as.integer(num_vertices), fh, endian = "big");   # write the number of label values that follow. Note that this is 1/2 of the actual data values!
+  writeBin(verts_and_labels, fh, size = 4, endian = "big");     # write the actual data values
   cat(sprintf("Writing %d vertices and labels...\n", length(verts_and_labels)));
 
   if(! is.null(colortable)) {
@@ -133,9 +137,14 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
                                     # the number indicates the file format version number (new format).
 
     writeBin(as.integer(1L), fh, size = 4, endian = "big");  # flag 'has_colortable' = yes
-    writeBin(ctable_format_version, fh, size = 4, endian = "big");
-    writeBin(num_regions, fh, size = 4, endian = "big");
-    writeChar("/tmp/fsbrain/some.lut", fh);    # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
+    writeBin(ctable_format_version, fh, size = 4, endian = "big");     # write version number
+    writeBin(num_regions, fh, size = 4, endian = "big");               # write num entries in ctable
+
+    dev_ct_filename = paste("/tmp/fsbrain/some.lut", as.raw(0), sep="");   # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
+    writeBin(nchar(dev_ct_filename), fh, size = 4, endian = "big");
+    writeChar(dev_ct_filename, fh, eos=NULL);    # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
+    #writeBin(as.character(dev_ct_filename), fh);
+
     writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
 
     cat(sprintf("#######Handling %d regions...\n", num_regions));
