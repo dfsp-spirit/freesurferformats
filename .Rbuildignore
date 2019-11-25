@@ -6,6 +6,7 @@
 .DS_Store$
 ^README_DEVELOPMENT\.md$
 ^README\.md$
+^CONTRIBUTING\.md$
 LICENSE_FULL
 CHANGES
 \.travis\.yml
