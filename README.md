@@ -18,11 +18,13 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 * FreeSurfer 'curv' format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Several versions of this format exist, the supported version is the new, binary one (the only one that is used in current FS versions). An example file would be `surf/lh.area`. This format can be read and written.
 
-* FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can only be read.
+* FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can only be read and written.
 
 * FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). Currently only triangular meshes are implemented. An example file would be `surf/lh.white`. This format can be read and written.
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. This format can be read and written.
+
+* FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns a color value to a number of labels. Such a file can be extracted from an annotation, or a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
 
 
 ## Installation
@@ -65,18 +67,21 @@ Now you can call the following functions:
 
 
 ```r
-read.fs.mgh()      # read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
-read.fs.curv()     # read morphometry data from 'curv' format files like `surf/lh.area`
-read.fs.morph()    # wrapper that reads any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
-read.fs.annot()    # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
-read.fs.surface()  # read a surface mesh
-read.fs.label()    # read a label file
+read.fs.mgh()         # read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
+read.fs.curv()        # read morphometry data from 'curv' format files like `surf/lh.area`
+read.fs.morph()       # read any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
+read.fs.annot()       # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
+read.fs.surface()     # read a surface mesh
+read.fs.label()       # read a label file
+read.fs.colortable()  # read a color lookup table (LUT)
 
-write.fs.mgh()     # write data with 1 to 4 dimensions to an MGH format file
-write.fs.curv()    # write a data vector to a 'curv' format file
-write.fs.morph()   # wrapper that writes any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
-write.fs.surface() # write a surface mesh
-write.fs.label()   # write a label file
+write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
+write.fs.curv()       # write a data vector to a 'curv' format file
+write.fs.morph()      # write any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
+write.fs.surface()    # write a surface mesh
+write.fs.label()      # write a label file
+write.fs.annot()      # write an annotation file
+write.fs.colortable() # write a color lookup table (LUT)
 ```
 
 The documentation is included in the package and not repeated on this website.
