@@ -1,7 +1,7 @@
 # Functions for writing annotations and related data.
 
 
-#' @title Write colortable file in FreeSurfer ASCII LUT format.
+#' @title Write colortable file in FreeSurfer ASCII LUT format from annotation.
 #'
 #' @description Write the colortable of an annotation to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
 #'
@@ -29,6 +29,37 @@ write.fs.colortable.from.annot <- function(filepath, annot) {
 
   write.table(colormap_output_df, file = filepath, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
   return(invisible(colormap_output_df));
+}
+
+
+#' @title Write colortable file in FreeSurfer ASCII LUT format.
+#'
+#' @description Write the colortable to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
+#'
+#' @param filepath, string. Full path to the output colormap file.
+#'
+#' @param colortable data.frame, a colortable as read by [read.fs.colortable()]. Must contain the following columns: 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. Can contain the following column: 'struct_index': integer, index of the struct entry. If this column does not exist, sequential indices starting at zero are created.
+#'
+#' @return the written dataframe, invisible. Note that this is will contain a column named 'struct_index', no matter whether the input colortable contained it or not.
+#'
+#' @family atlas functions
+#' @family colorLUT functions
+#'
+#' @export
+write.fs.colortable <- function(filepath, colortable) {
+
+  if(! is.data.frame(colortable)) {
+    stop("Parameter 'colortable' must be a dataframe.");
+  }
+
+  colortable = annot$colortable;
+
+  if(is.null(colortable$struct_index)) {
+    colortable$struct_index = seq(0, nrow(colortable) - 1);
+  }
+
+  write.table(colortable, file = filepath, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+  return(invisible(colortable));
 }
 
 

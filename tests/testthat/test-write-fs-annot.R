@@ -7,7 +7,7 @@ test_that("An colortable from an annotation can be written to a text file in Fre
   output_file = tempfile();
   write.fs.colortable.from.annot(output_file, annot);
 
-  written_cmap_df = read.table(output_file, sep=" ", stringsAsFactors = FALSE);
+  written_cmap_df = read.fs.colortable(output_file);
   expect_equal(nrow(written_cmap_df), 36);
   expect_equal(ncol(written_cmap_df), 6);
 })

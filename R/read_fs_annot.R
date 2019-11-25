@@ -205,17 +205,21 @@ readcolortable <- function(fh, ctable_num_entries) {
 #'
 #' @param filepath, string. Full path to the output colormap file.
 #'
-#' @return the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. It also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
+#' @param compute_colorcode logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.
+#'
+#' @return the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. If 'compute_colorcode' is TRUE, it also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
 #'
 #' @family atlas functions
 #' @family colorLUT functions
 #'
 #' @importFrom utils read.table
 #' @export
-read.fs.colortable <- function(filepath) {
+read.fs.colortable <- function(filepath, compute_colorcode=FALSE) {
 
   colortable = read.table(filepath, header=FALSE, col.names=c("struct_index", "struct_name", "r", "g", "b", "a"), stringsAsFactors = FALSE);
-  colortable$code = colortable$r + colortable$g*2^8 + colortable$b*2^16 + colortable$a*2^24;
+  if(compute_colorcode) {
+    colortable$code = colortable$r + colortable$g*2^8 + colortable$b*2^16 + colortable$a*2^24;
+  }
 
   return(colortable);
 }

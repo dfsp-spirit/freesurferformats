@@ -4,13 +4,15 @@
 \alias{read.fs.colortable}
 \title{Read colortable file in FreeSurfer ASCII LUT format.}
 \usage{
-read.fs.colortable(filepath)
+read.fs.colortable(filepath, compute_colorcode = FALSE)
 }
 \arguments{
 \item{filepath, }{string. Full path to the output colormap file.}
+
+\item{compute_colorcode}{logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.}
 }
 \value{
-the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. It also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
+the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. If 'compute_colorcode' is TRUE, it also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
 }
 \description{
 Read a colortable of an annotation from a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
@@ -18,10 +20,12 @@ Read a colortable of an annotation from a text file in FreeSurfer ASCII colortab
 \seealso{
 Other atlas functions: 
 \code{\link{read.fs.annot}()},
-\code{\link{write.fs.colortable.from.annot}()}
+\code{\link{write.fs.colortable.from.annot}()},
+\code{\link{write.fs.colortable}()}
 
 Other colorLUT functions: 
-\code{\link{write.fs.colortable.from.annot}()}
+\code{\link{write.fs.colortable.from.annot}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}

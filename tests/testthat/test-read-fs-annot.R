@@ -95,11 +95,23 @@ test_that("Annotation files in old format can be read", {
 
 test_that("A color lookup table (LUT) in ASCII format can be read", {
   lutfile = system.file("extdata", "colorlut.txt", package = "freesurferformats", mustWork = TRUE);
-  colortable = read.fs.colortable(lutfile);
+
+  # Test reading with computation of color code
+  colortable = read.fs.colortable(lutfile, compute_colorcode=TRUE);
 
   expect_equal(nrow(colortable), 6);
   expect_equal(ncol(colortable), 7);
   expect_equal(colnames(colortable), c("struct_index", "struct_name", "r", "g", "b", "a", "code"));
+  expect_equal(colortable$struct_index, seq(0, 5));
+  expect_equal(colortable$r, c(0L, 70L, 245L, 205L, 120L, 196L));
+
+
+  # Test again without computation of color code
+  colortable = read.fs.colortable(lutfile);
+
+  expect_equal(nrow(colortable), 6);
+  expect_equal(ncol(colortable), 6);
+  expect_equal(colnames(colortable), c("struct_index", "struct_name", "r", "g", "b", "a"));
   expect_equal(colortable$struct_index, seq(0, 5));
   expect_equal(colortable$r, c(0L, 70L, 245L, 205L, 120L, 196L));
 })

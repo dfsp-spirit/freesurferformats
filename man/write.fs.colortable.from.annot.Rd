@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_fs_annot.R
 \name{write.fs.colortable.from.annot}
 \alias{write.fs.colortable.from.annot}
-\title{Write colortable file in FreeSurfer ASCII LUT format.}
+\title{Write colortable file in FreeSurfer ASCII LUT format from annotation.}
 \usage{
 write.fs.colortable.from.annot(filepath, annot)
 }
@@ -20,10 +20,12 @@ Write the colortable of an annotation to a text file in FreeSurfer ASCII colorta
 \seealso{
 Other atlas functions: 
 \code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()}
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.colortable}()}
 
 Other colorLUT functions: 
-\code{\link{read.fs.colortable}()}
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}
