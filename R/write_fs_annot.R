@@ -52,8 +52,6 @@ write.fs.colortable <- function(filepath, colortable) {
     stop("Parameter 'colortable' must be a dataframe.");
   }
 
-  colortable = annot$colortable;
-
   if(is.null(colortable$struct_index)) {
     colortable$struct_index = seq(0, nrow(colortable) - 1);
   }
@@ -88,15 +86,20 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
     stop("Exactly one of the parameters 'labels_as_colorcodes' and 'labels_as_indices_into_colortable' must be NULL.");
   }
 
-  for(req_column in c("struct_name", "r", "g", "b", "a")) {
-    if(is.null(colortable[[req_column]])) {
-      stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column));
-    }
-  }
 
   if(is.null(labels_as_colorcodes)) {
     if(length(labels_as_indices_into_colortable) != num_vertices) {
       stop(sprintf("Number of vertices (%d) must match length of parameter 'labels_as_indices_into_colortable' (%d).\n", num_vertices, length(labels_as_indices_into_colortable)));
+    }
+
+    if(is.null(colortable)) {
+      stop("Parameter 'colortable' must not be NULL unless labels are passed as colorcodes via parameter 'labels_as_colorcodes'.");
+    }
+
+    for(req_column in c("struct_name", "r", "g", "b", "a")) {
+      if(is.null(colortable[[req_column]])) {
+        stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column));
+      }
     }
 
     if(is.null(colortable$code)) { # Compute the label codes for the regions of the colortable.
@@ -128,7 +131,6 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
 
   writeBin(as.integer(num_vertices), fh, endian = "big");   # write the number of label values that follow. Note that this is 1/2 of the actual data values!
   writeBin(verts_and_labels, fh, size = 4, endian = "big");     # write the actual data values
-  cat(sprintf("Writing %d vertices and labels...\n", length(verts_and_labels)));
 
   if(! is.null(colortable)) {
     num_regions = nrow(colortable);
@@ -141,18 +143,14 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
     writeBin(num_regions, fh, size = 4, endian = "big");               # write num entries in ctable
 
     dev_ct_filename = "/tmp/fsbrain/some.lut";
-    #dev_ct_filename_term = paste(dev_ct_filename, as.raw(0), sep="");   # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
     writeBin(nchar(dev_ct_filename), fh, size = 4, endian = "big");
     writeChar(dev_ct_filename, fh, eos=NULL);    # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
-    #writeBin(as.character(dev_ct_filename), fh, useBytes = TRUE);
 
     writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
 
-    cat(sprintf("#######Writing %d regions...\n", num_regions));
     for (region_idx in seq_len(num_regions)) {
       writeBin(as.integer(region_idx - 1L), fh, size = 4, endian = "big");
       region_name = as.character(colortable$struct_name[[region_idx]]);
-      cat(sprintf("### writing region %d, name is '%s' with %d chars.\n", region_idx, region_name, nchar(region_name)));
       writeBin(nchar(region_name), fh, size = 4, endian = "big");
       writeChar(region_name, fh, eos=NULL);
 
@@ -161,11 +159,10 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
       writeBin(as.integer(colortable$g[region_idx]), fh, size = 4, endian = "big");
       writeBin(as.integer(colortable$b[region_idx]), fh, size = 4, endian = "big");
       writeBin(as.integer(colortable$a[region_idx]), fh, size = 4, endian = "big");
-      #cat(sprintf("### region %d done\n", region_idx));
     }
 
   } else {
-    stop("Parameter 'colortable' must not be NULL.");
+    writeBin(as.integer(0L), fh, size = 4, endian = "big");  # flag 'has_colortable' = no
   }
 
   close(fh);
