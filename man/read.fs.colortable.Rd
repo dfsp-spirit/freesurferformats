@@ -20,6 +20,7 @@ Read a colortable of an annotation from a text file in FreeSurfer ASCII colortab
 \seealso{
 Other atlas functions: 
 \code{\link{read.fs.annot}()},
+\code{\link{write.fs.annot}()},
 \code{\link{write.fs.colortable.from.annot}()},
 \code{\link{write.fs.colortable}()}
 

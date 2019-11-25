@@ -26,3 +26,11 @@ write.fs.annot(
 \description{
 Write an annotation to a FreeSurfer binary format annotation file in the new format (v2). An annotation (or brain parcellation) assigns each vertex to a label (or region). One of the regions is often called 'unknown' or similar and all vertices which are not relevant for the parcellation are assigned this label.
 }
+\seealso{
+Other atlas functions: 
+\code{\link{read.fs.annot}()},
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.colortable.from.annot}()},
+\code{\link{write.fs.colortable}()}
+}
+\concept{atlas functions}

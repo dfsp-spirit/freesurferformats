@@ -21,6 +21,7 @@ Write the colortable of an annotation to a text file in FreeSurfer ASCII colorta
 Other atlas functions: 
 \code{\link{read.fs.annot}()},
 \code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot}()},
 \code{\link{write.fs.colortable}()}
 
 Other colorLUT functions: 

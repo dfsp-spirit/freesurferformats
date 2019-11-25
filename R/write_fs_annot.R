@@ -75,6 +75,7 @@ write.fs.colortable <- function(filepath, colortable) {
 #'
 #' @param labels_as_indices_into_colortable vector of *n* integers, the second way to specify the labels. Each integer is an index into the rows of the colortable. Indices start with 1. This parameter and labels_as_colorcodes are mutually exclusive, but required.
 #'
+#' @family atlas functions
 #' @export
 write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorcodes=NULL, labels_as_indices_into_colortable=NULL) {
 
