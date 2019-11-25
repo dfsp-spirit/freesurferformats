@@ -154,7 +154,7 @@ readcolortable <- function(fh, ctable_num_entries) {
 
     # Orginial filename of the colortable file that was used to create the atlas colortable (on the dev machine).
     ctab_orig_dev_filename = readChar(fh, ctab_orig_dev_filename_length);
-    #cat(sprintf("Filename of dev version with %d chars was '%s'.\n", ctab_orig_dev_filename_length, ctab_orig_dev_filename));
+    cat(sprintf("Filename of dev version with %d chars was '%s'.\n", ctab_orig_dev_filename_length, ctab_orig_dev_filename));
 
     colortable$struct_names = rep("", ctable_num_entries);
     colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
@@ -164,7 +164,8 @@ readcolortable <- function(fh, ctable_num_entries) {
     if(ctable_num_entries != ctable_num_entries_2nd) {
       warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));
     }
-    for (i in 1:ctable_num_entries) {
+    cat(sprintf("Reading ctable with %d entries.\n", ctable_num_entries));
+    for (i in seq_len(ctable_num_entries)) {
         struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1L;
 
         # Index must not be negative:
@@ -173,11 +174,12 @@ readcolortable <- function(fh, ctable_num_entries) {
         }
 
         name_so_far = colortable$struct_names[struct_idx];
-        # The same structure must not occur more than once:
+        # The same structure must not occur more than once (so the name should still be the empty string from the initialization when setting it):
         if (!identical(name_so_far, "")) {
             warning(sprintf("Annotation file entry #%d struct index %d: entry with identical name '%s' already hit, this must not happen. Brain structure names must be unique.\n", i, struct_idx, name_so_far));
         }
         entry_num_chars = readBin(fh, integer(), n = 1, endian = "big");
+        cat(sprintf("  ###About to read region entry #%d with idx %d and  %d chars.\n", i, struct_idx, entry_num_chars));
 
         brain_structure_name = readChar(fh, entry_num_chars);
         colortable$struct_names[i] = brain_structure_name;

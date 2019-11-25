@@ -140,20 +140,21 @@ write.fs.annot <- function(filepath, num_vertices, colortable, labels_as_colorco
     writeBin(ctable_format_version, fh, size = 4, endian = "big");     # write version number
     writeBin(num_regions, fh, size = 4, endian = "big");               # write num entries in ctable
 
-    dev_ct_filename = paste("/tmp/fsbrain/some.lut", as.raw(0), sep="");   # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
+    dev_ct_filename = "/tmp/fsbrain/some.lut";
+    #dev_ct_filename_term = paste(dev_ct_filename, as.raw(0), sep="");   # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
     writeBin(nchar(dev_ct_filename), fh, size = 4, endian = "big");
     writeChar(dev_ct_filename, fh, eos=NULL);    # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
-    #writeBin(as.character(dev_ct_filename), fh);
+    #writeBin(as.character(dev_ct_filename), fh, useBytes = TRUE);
 
     writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
 
-    cat(sprintf("#######Handling %d regions...\n", num_regions));
+    cat(sprintf("#######Writing %d regions...\n", num_regions));
     for (region_idx in seq_len(num_regions)) {
       writeBin(as.integer(region_idx - 1L), fh, size = 4, endian = "big");
       region_name = as.character(colortable$struct_name[[region_idx]]);
-      #cat(sprintf("### region %d name is '%s'\n", region_idx, region_name));
-      writeBin(as.integer(nchar(region_name)), fh, size = 4, endian = "big");
-      writeChar(region_name, fh);
+      cat(sprintf("### writing region %d, name is '%s' with %d chars.\n", region_idx, region_name, nchar(region_name)));
+      writeBin(nchar(region_name), fh, size = 4, endian = "big");
+      writeChar(region_name, fh, eos=NULL);
 
       # write colors
       writeBin(as.integer(colortable$r[region_idx]), fh, size = 4, endian = "big");
