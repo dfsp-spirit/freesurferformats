@@ -1,4 +1,4 @@
-#' @title Read file in FreeSurfer labelformat
+#' @title Read file in FreeSurfer label format
 #'
 #' @description Read a mask in FreeSurfer label format.
 #'    A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. Label files are ASCII text files, which have 5 columns (vertex index, coord1, coord2, coord3, value), but only the vertex indices are of interest.
