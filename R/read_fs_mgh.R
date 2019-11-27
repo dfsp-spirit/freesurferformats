@@ -94,7 +94,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$M = M;
         header$internal$Mdc = Mdc;
 
-        header$vox2ras_matrix = M;
+        header$vox2ras_matrix = as.matrix(M);
         header$ras_xform = ras_xform;
 
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes

@@ -32,9 +32,12 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     if(length(vox2ras_matrix) == 0) {
         ras_flag = 0;
     } else {
-        if (class(vox2ras_matrix) != "matrix") {
+        if(class(vox2ras_matrix) != "matrix") {
+            cat(sprintf("The class of the 'vox2ras_matrix' argument is '%s'.", class(vox2ras_matrix)));
+            print(vox2ras_matrix);
             stop("The 'vox2ras_matrix' argument must be a matrix.");
         }
+
         if(length(vox2ras_matrix) != 16 || nrow(vox2ras_matrix) != 4) {
             stop(sprintf("The 'vox2ras_matrix' argument must be a 4x4 matrix of length 16, but length is %d and nrow is %d.", length(vox2ras_matrix), nrow(vox2ras_matrix)));
         }
