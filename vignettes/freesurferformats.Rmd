@@ -254,6 +254,30 @@ The following example reads a label file:
 ```
 
 
+## Reading color lookup tables (LUT files)
+
+A colortable assigns a name and an RGBA color to a set of labels. Such a colortable is included in an annotation (brain atlas), but there also is a separate ASCII text file format for these LUTs. An example file in the format is `FREESURFER_HOME/FreeSurferColorLUT.txt`. To read such a file:
+
+```{r}
+lutfile = system.file("extdata", "colorlut.txt", package = "freesurferformats", mustWork = TRUE);
+colortable = read.fs.colortable(lutfile, compute_colorcode=TRUE);
+head(colortable);
+```
+
+You can also extract such a colortable from an annotation:
+
+```{r}
+annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+annot = read.fs.annot(annotfile);
+colortable = colortable.from.annot(annot);
+head(colortable);
+```
+
+
+### Computing the unique color codes
+
+Some functions in FreeSurfer identify the regions by an internal code code that is computed from the RGBA values of the colors. These values are *not* included in the colortable, they need to be computed. You can pass the optional argument `compute_colorcode=TRUE` to the LUT functions if you want them to compute the color codes and add the colorcode to the returned dataframe in a column named 'code'.
+
 
 ## References
 * See [the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat) for details on the MGH format
@@ -261,5 +285,6 @@ The following example reads a label file:
 
 ## Alternatives, similar and related Packages
 * The [freesurfer package by John Muschelli]( https://CRAN.R-project.org/package=freesurfer) implements an R wrapper around some FreeSurfer command line utilities. This includes functions to read MGH/MGZ files by converting them to NIFTI format using command line utilities that come with FreeSurfer, then loading the resulting NIFTI file with the [oro.nifti package](https://CRAN.R-project.org/package=oro.nifti). As such, the package requires that you have FreeSurfer installed.
-* Several packages exist that read files in NIFTI format, including [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) and [RNifti](https://CRAN.R-project.org/package=RNifti)
+* Several packages exist that read files in NIFTI format, including [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) and [RNifti](https://CRAN.R-project.org/package=RNifti).
 * My [fsbrain package](https://github.com/dfsp-spirit/fsbrain) provides an abstraction layer around fresurferformats. It is desingned to quickly access data from single subjects or groups stored in the standardized output directory structure used by FreeSurfer and recon-all. The package fsbrain also includes advanced visualization functions for surface-based data.
+* GIFTI files can be read with the [gitfti package by John Muschelli](https://cran.r-project.org/package=gifti).

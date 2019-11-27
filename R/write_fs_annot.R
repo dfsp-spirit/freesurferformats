@@ -1,35 +1,6 @@
 # Functions for writing annotations and related data.
 
 
-#' @title Write colortable file in FreeSurfer ASCII LUT format from annotation.
-#'
-#' @description Write the colortable of an annotation to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
-#'
-#' @param filepath, string. Full path to the output colormap file.
-#'
-#' @param annot An annotation, as returned by [read.fs.annot()]. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.
-#'
-#' @return the data.frame that was written to the LUT file.
-#'
-#' @family atlas functions
-#' @family colorLUT functions
-#'
-#' @export
-write.fs.colortable.from.annot <- function(filepath, annot) {
-
-  colortable = annot$colortable;
-
-  if(is.null(annot$colortable_df$struct_index)) {
-    struct_index = seq(0, colortable$num_entries - 1);
-  } else {
-    struct_index = annot$colortable_df$struct_index;
-  }
-
-  colormap_output_df = data.frame("struct_index"=struct_index, "struct_name"=colortable$struct_names, "r"=colortable$table[,1], "g"=colortable$table[,2], "b"=colortable$table[,3], "a"=colortable$table[,4]);
-
-  write.table(colormap_output_df, file = filepath, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
-  return(invisible(colormap_output_df));
-}
 
 
 #' @title Write colortable file in FreeSurfer ASCII LUT format.
@@ -50,6 +21,12 @@ write.fs.colortable <- function(filepath, colortable) {
 
   if(! is.data.frame(colortable)) {
     stop("Parameter 'colortable' must be a dataframe.");
+  }
+
+  for(req_column in c("struct_name", "r", "g", "b", "a")) {
+    if(is.null(colortable[[req_column]])) {
+      stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column));
+    }
   }
 
   if(is.null(colortable$struct_index)) {

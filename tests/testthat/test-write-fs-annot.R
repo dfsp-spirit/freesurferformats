@@ -5,7 +5,7 @@ test_that("A colortable from an annotation can be written to a text file in Free
   annot = read.fs.annot(annotfile);
 
   output_file = tempfile(fileext = ".txt");
-  write.fs.colortable.from.annot(output_file, annot);
+  write.fs.colortable(output_file, colortable.from.annot(annot));
 
   written_colortable = read.fs.colortable(output_file);
   expect_equal(nrow(written_colortable), 36);

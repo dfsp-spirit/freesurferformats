@@ -163,7 +163,7 @@ readcolortable <- function(fh, ctable_num_entries) {
     if(ctable_num_entries != ctable_num_entries_2nd) {
       warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));
     }
-    cat(sprintf("Reading ctable with %d entries.\n", ctable_num_entries));
+
     for (i in seq_len(ctable_num_entries)) {
         struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1L;
 
@@ -201,13 +201,18 @@ readcolortable <- function(fh, ctable_num_entries) {
 
 #' @title Read colortable file in FreeSurfer ASCII LUT format.
 #'
-#' @description Read a colortable of an annotation from a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
+#' @description Read a colortable from a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
 #'
 #' @param filepath, string. Full path to the output colormap file.
 #'
 #' @param compute_colorcode logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.
 #'
 #' @return the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. If 'compute_colorcode' is TRUE, it also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
+#'
+#' @examples
+#'    lutfile = system.file("extdata", "colorlut.txt", package = "freesurferformats", mustWork = TRUE);
+#'    colortable = read.fs.colortable(lutfile, compute_colorcode=TRUE);
+#'    head(colortable);
 #'
 #' @family atlas functions
 #' @family colorLUT functions
@@ -223,3 +228,48 @@ read.fs.colortable <- function(filepath, compute_colorcode=FALSE) {
 
   return(colortable);
 }
+
+
+#' @title Extract color lookup table (LUT) from annotation.
+#'
+#' @description Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also be read from files like `FREESURFER_HOME/FreeSurferColorLUT.txt` or saved as a file, check the 'See Also' section below.
+#'
+#' @param annot An annotation, as returned by [read.fs.annot()]. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.
+#'
+#' @param compute_colorcode logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.
+#'
+#' @return the colortable data.frame extracted from the annotation.
+#'
+#' @examples
+#'     annotfile = system.file("extdata", "lh.aparc.annot.gz",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     annot = read.fs.annot(annotfile);
+#'     colortable = colortable.from.annot(annot);
+#'     head(colortable);
+#'
+#' @family atlas functions
+#' @family colorLUT functions
+#'
+#' @export
+colortable.from.annot <- function(annot, compute_colorcode=FALSE) {
+
+  if(is.null(annot$colortable$table)) {
+    stop("The annotation 'annot' must have a non-null annot$colortable$table matrix.");
+  }
+
+  colortable = annot$colortable;
+
+  if(is.null(annot$colortable_df$struct_index)) {
+    struct_index = seq(0, colortable$num_entries - 1);
+  } else {
+    struct_index = annot$colortable_df$struct_index;
+  }
+
+  colortable = data.frame("struct_index"=struct_index, "struct_name"=colortable$struct_names, "r"=colortable$table[,1], "g"=colortable$table[,2], "b"=colortable$table[,3], "a"=colortable$table[,4]);
+  if(compute_colorcode) {
+    colortable$code = colortable$r + colortable$g*2^8 + colortable$b*2^16 + colortable$a*2^24;
+  }
+  return(invisible(colortable));
+}
+
+

@@ -94,3 +94,34 @@ You can use `write.fs.surface` to write triangular meshes in binary surface form
 ```
 
 The vertex indices used to define the faces should be 1-based, as used in R. They will be written 0-based to the file.
+
+
+## Writing label files
+
+Labels can be written with the `write.fs.label` function. A label is nothing but a list of vertex indices.
+
+```{r, eval = FALSE}
+output_file = tempfile();
+
+# generate data
+vertex_indices = seq(from = 10000, to=20000);
+
+# write label to file
+write.fs.label(output_file, vertex_indices);
+```
+
+
+
+## Writing color lookup table (LUT) files in ASCII format
+
+The following example uses the `write.fs.colortable` function to write a colortable:
+
+```{r, eval = FALSE}
+colortable_df = data.frame("struct_index"=c(0, 1), "struct_name"=c("struct1", "struct2"),
+                  "r"=c(80, 100), "g"=c(50, 40), "b"=c(250, 200), "a"=c(0, 0), stringsAsFactors = FALSE);
+
+output_file = tempfile(fileext = ".txt");
+write.fs.colortable(output_file, colortable_df);
+```
+
+

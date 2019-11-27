@@ -15,18 +15,22 @@ read.fs.colortable(filepath, compute_colorcode = FALSE)
 the data.frame that was read from the LUT file. It contains the following columns that were read from the file: 'struct_index': integer, index of the struct entry. 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. If 'compute_colorcode' is TRUE, it also contains the following columns which were computed from the color values: 'code': integer, unique color identifier computed from the RGBA values.
 }
 \description{
-Read a colortable of an annotation from a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
+Read a colortable from a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
+}
+\examples{
+   lutfile = system.file("extdata", "colorlut.txt", package = "freesurferformats", mustWork = TRUE);
+   colortable = read.fs.colortable(lutfile, compute_colorcode=TRUE);
+   head(colortable);
+
 }
 \seealso{
-Other atlas functions: 
-\code{\link{read.fs.annot}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.colortable.from.annot}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions: \code{\link{colortable.from.annot}},
+  \code{\link{read.fs.annot}},
+  \code{\link{write.fs.annot}},
+  \code{\link{write.fs.colortable}}
 
-Other colorLUT functions: 
-\code{\link{write.fs.colortable.from.annot}()},
-\code{\link{write.fs.colortable}()}
+Other colorLUT functions: \code{\link{colortable.from.annot}},
+  \code{\link{write.fs.colortable}}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}
