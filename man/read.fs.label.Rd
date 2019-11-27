@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fs_label.R
 \name{read.fs.label}
 \alias{read.fs.label}
-\title{Read file in FreeSurfer labelformat}
+\title{Read file in FreeSurfer label format}
 \usage{
 read.fs.label(filepath, return_one_based_indices = TRUE)
 }
