@@ -13,7 +13,7 @@ write.fs.annot(filepath, num_vertices, colortable,
 
 \item{num_vertices}{integer, the number of vertices of the surface}
 
-\item{colortable}{dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by [read.fs.annot()] as 'colortable_df'.}
+\item{colortable}{dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by \code{\link[freesurferformats]{read.fs.annot}} as 'colortable_df'.}
 
 \item{labels_as_colorcodes}{vector of *n* integers. The first way to specify the labels. Each integer is a colorcode, that has been computed from the RGBA color values of the regions in the colortable as \code{r + g*2^8 + b*2^16 + a*2^24}. If you do not already have these color codes, it is way easier to set this to NULL and define the labels as indices into the colortable, see parameter labels_as_indices_into_colortable.}
 

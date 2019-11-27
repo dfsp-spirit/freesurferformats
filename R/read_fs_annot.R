@@ -234,7 +234,7 @@ read.fs.colortable <- function(filepath, compute_colorcode=FALSE) {
 #'
 #' @description Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also be read from files like `FREESURFER_HOME/FreeSurferColorLUT.txt` or saved as a file, check the 'See Also' section below.
 #'
-#' @param annot An annotation, as returned by [read.fs.annot()]. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.
+#' @param annot An annotation, as returned by \code{\link[freesurferformats]{read.fs.annot}}. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.
 #'
 #' @param compute_colorcode logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.
 #'

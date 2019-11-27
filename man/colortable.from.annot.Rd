@@ -7,7 +7,7 @@
 colortable.from.annot(annot, compute_colorcode = FALSE)
 }
 \arguments{
-\item{annot}{An annotation, as returned by [read.fs.annot()]. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.}
+\item{annot}{An annotation, as returned by \code{\link[freesurferformats]{read.fs.annot}}. If you want to assign specific indices, you can add a column named 'struct_index' to the data.frame \code{annot$colortable_df}. If there is no such columns, the indices will be created automatically in the order of the regions, starting at zero.}
 
 \item{compute_colorcode}{logical, indicates whether the unique color codes should be computed and added to the returned data.frame as an extra integer column named 'code'. Defaults to FALSE.}
 }

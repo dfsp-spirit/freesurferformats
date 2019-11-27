@@ -9,7 +9,7 @@
 #'
 #' @param filepath, string. Full path to the output colormap file.
 #'
-#' @param colortable data.frame, a colortable as read by [read.fs.colortable()]. Must contain the following columns: 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. Can contain the following column: 'struct_index': integer, index of the struct entry. If this column does not exist, sequential indices starting at zero are created.
+#' @param colortable data.frame, a colortable as read by \code{\link[freesurferformats]{read.fs.colortable}}. Must contain the following columns: 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. Can contain the following column: 'struct_index': integer, index of the struct entry. If this column does not exist, sequential indices starting at zero are created.
 #'
 #' @return the written dataframe, invisible. Note that this is will contain a column named 'struct_index', no matter whether the input colortable contained it or not.
 #'
@@ -46,7 +46,7 @@ write.fs.colortable <- function(filepath, colortable) {
 #'
 #' @param num_vertices integer, the number of vertices of the surface
 #'
-#' @param colortable dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by [read.fs.annot()] as 'colortable_df'.
+#' @param colortable dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by \code{\link[freesurferformats]{read.fs.annot}} as 'colortable_df'.
 #'
 #' @param labels_as_colorcodes vector of *n* integers. The first way to specify the labels. Each integer is a colorcode, that has been computed from the RGBA color values of the regions in the colortable as \code{r + g*2^8 + b*2^16 + a*2^24}. If you do not already have these color codes, it is way easier to set this to NULL and define the labels as indices into the colortable, see parameter labels_as_indices_into_colortable.
 #'

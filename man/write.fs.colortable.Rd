@@ -9,7 +9,7 @@ write.fs.colortable(filepath, colortable)
 \arguments{
 \item{filepath, }{string. Full path to the output colormap file.}
 
-\item{colortable}{data.frame, a colortable as read by [read.fs.colortable()]. Must contain the following columns: 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. Can contain the following column: 'struct_index': integer, index of the struct entry. If this column does not exist, sequential indices starting at zero are created.}
+\item{colortable}{data.frame, a colortable as read by \code{\link[freesurferformats]{read.fs.colortable}}. Must contain the following columns: 'struct_name': character string, the label name. 'r': integer in range 0-255, the RGBA color value for the red channel. 'g': same for green channel. 'b': same for blue channel. 'a': same for alpha (transparency) channel. Can contain the following column: 'struct_index': integer, index of the struct entry. If this column does not exist, sequential indices starting at zero are created.}
 }
 \value{
 the written dataframe, invisible. Note that this is will contain a column named 'struct_index', no matter whether the input colortable contained it or not.

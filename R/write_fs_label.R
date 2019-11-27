@@ -5,7 +5,7 @@
 #'
 #' @param filepath string. Full path to the output label file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
-#' @param vertex_indices integer vector, the label. The vertex indices included in the label. As returned by [freesurferformats::read.fs.label].
+#' @param vertex_indices integer vector, the label. The vertex indices included in the label. As returned by \code{\link[freesurferformats]{read.fs.label}}.
 #'
 #' @param vertex_coords an *n* x 3 float matrix of vertex coordinates, where *n* is the number of 'vertex_indices'. Optional, defaults to NULL, which will write placeholder data. The vertex coordinates are not used by any software I know (you should get them from the surface file).
 #'
