@@ -77,7 +77,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
         blah = Mdc %*% D;
         M = matrix(rep(0, 16), nrow=4);
-        M[1:3,1:3] = blah;
+        M[1:3,1:3] = as.matrix(blah);
         M[4,1:4] = c(0,0,0,1);
         M[1:3,4] = Pxyz_0;
 
