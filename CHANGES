@@ -3,9 +3,9 @@ freesurferformats Changes
 
 Version 0.1.6
 -------------
-- Add support for reading color lookup table (LUT) files, like FREESURFER_HOME/FreeSurferColorLUT.txt
+- Add support for reading color lookup table (LUT) files, like FREESURFER_HOME/FreeSurferColorLUT.txt: read.fs.colortable
 - Add support for writing LUTs: write.fs.colortable
-- Add support for extracting a LUT from an annotation and writing it: write.fs.colortable.from.annot
+- Add support for extracting a LUT from an annotation: colortable.from.annot
 - Add support for writing annotations: write.fs.annot
 
 
