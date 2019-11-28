@@ -29,7 +29,6 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 ## Installation
 
-### Recommended: Installing the stable version from CRAN
 
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
 
@@ -37,25 +36,9 @@ The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), 
 install.packages("freesurferformats")
 ```
 
-[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
+Downloads of freesurferformats on CRAN: [!](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
-### Installing the Development version (from GitHub)
 
-You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
-
-If you do not have `devtools` and related tools installed yet:
-
-```r
-install.packages(c("devtools", "knitr", "rmarkdown", "testthat"));
-```
-
-Then:
-
-```r
-devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
-```
-
-While the development version may have new features, you should not consider their API stable. Better wait for the next release if you are not fine with adapting your code to API changes later. 
 
 ## Documentation
 
@@ -173,9 +156,9 @@ Note that this DOI always points to the latest version, so be sure to still incl
 
 ## Development
 
-### Installing the Development version of freesurferformats (from GitHub)
+### Installing the development version
 
-You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
+You can install the latest development version directly from Github if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
 
 If you do not have `devtools` and related tools installed yet:
 
