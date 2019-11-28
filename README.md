@@ -147,11 +147,9 @@ A BibTeX entry for LaTeX users is
   }
 ```
 
-The Digital Object Identifier (DOI) for *freesurferformats* is: [10.5281/zenodo.3540435](https://dx.doi.org/10.5281/zenodo.3540435)
+The Digital Object Identifier (DOI) for *freesurferformats* is: [10.5281/zenodo.3540434](https://dx.doi.org/10.5281/zenodo.3540434)
 
-[![DOI](https://zenodo.org/badge/203574524.svg)](https://zenodo.org/badge/latestdoi/203574524)
-
-Note that this DOI always points to the latest version, so be sure to still include the version in the citation.
+Note that this DOI always points to the latest version, so be sure to still include the version in the citation. 
 
 ## Development
 
