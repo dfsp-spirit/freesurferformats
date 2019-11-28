@@ -131,7 +131,7 @@ This will ouput something like this (but for the version you actually used, whic
 To cite package ‘freesurferformats’ in publications use:
 
   Tim Schäfer (2019). freesurferformats: Read and Write 'FreeSurfer'
-  Neuroimaging File Formats. R package version 0.1.5.
+  Neuroimaging File Formats. R package version 0.1.6.
   https://CRAN.R-project.org/package=freesurferformats
 
 A BibTeX entry for LaTeX users is
@@ -140,16 +140,16 @@ A BibTeX entry for LaTeX users is
     title = {freesurferformats: Read and Write 'FreeSurfer' Neuroimaging File Formats},
     author = {Tim Schäfer},
     year = {2019},
-    note = {R package version 0.1.5},
+    note = {R package version 0.1.6},
     url = {https://CRAN.R-project.org/package=freesurferformats},
-    doi = {10.5281/zenodo.3540435},
-    url = {https://dx.doi.org/10.5281/zenodo.3540435},
+    doi = {10.5281/zenodo.3540434},
+    url = {https://dx.doi.org/10.5281/zenodo.3540434},
   }
 ```
 
 The Digital Object Identifier (DOI) for *freesurferformats* is: [10.5281/zenodo.3540434](https://dx.doi.org/10.5281/zenodo.3540434)
 
-Note that this DOI always points to the latest version, so be sure to still include the version in the citation. 
+Note that this DOI always points to the latest version, so be sure to still include the package version in the citation. 
 
 ## Development
 
