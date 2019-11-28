@@ -4,7 +4,7 @@ GNU R package to read and write FreeSurfer neuroimaging file formats.
 ![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
 
-[Supported formats](#supported-formats) | [Installation](#installation) | [Documentation](#documentation) | [Unit tests](#unit-tests-and-continuous-integration) | [License](#license) | [Citation](#citation) | [Contributing](#contributing)
+[Supported formats](#supported-formats) | [Installation](#installation) | [Documentation](#documentation) | [License](#license) | [Citation](#citation) | [Development](#development)
 
 
 ## A note to end users
@@ -29,7 +29,7 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 ## Installation
 
-### Recommended: install the stable version from CRAN
+### Recommended: Installing the stable version from CRAN
 
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
 
@@ -37,7 +37,9 @@ The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), 
 install.packages("freesurferformats")
 ```
 
-### Development version (from GitHub)
+[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
+
+### Installing the Development version (from GitHub)
 
 You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
 
@@ -52,6 +54,8 @@ Then:
 ```r
 devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
 ```
+
+While the development version may have new features, you should not consider their API stable. Better wait for the next release if you are not fine with adapting your code to API changes later. 
 
 ## Documentation
 
@@ -125,27 +129,6 @@ dim(drop(mgh$data))
 ```
 
 
-
-## Unit tests and Continuous integration
-
-
-This package comes with [lots of unit tests](./tests/testthat/). To run them, in a clean R session:
-
-```r
-library(devtools)
-library(freesurferformats)
-devtools::check()
-```
-
-Continuous integration results:
-
-[![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats) Travis CI under Linux
-
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats) AppVeyor CI under Windows
-
-The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing, development happens on master.
-
-
 ## License
 
 The *freesurferformats* package is [free software](https://en.wikipedia.org/wiki/Free_software), published under the [MIT license](https://opensource.org/licenses/MIT).
@@ -188,7 +171,47 @@ The Digital Object Identifier (DOI) for *freesurferformats* is: [10.5281/zenodo.
 
 Note that this DOI always points to the latest version, so be sure to still include the version in the citation.
 
-## Contributing
+## Development
+
+### Installing the Development version of freesurferformats (from GitHub)
+
+You can try the development version if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
+
+If you do not have `devtools` and related tools installed yet:
+
+```r
+install.packages(c("devtools", "knitr", "rmarkdown", "testthat"));
+```
+
+Then:
+
+```r
+devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
+```
+
+While the development version may have new features, you should not consider their API stable. Better wait for the next release if you are not fine with adapting your code to API changes later. 
+
+
+### Unit tests and Continuous integration
+
+
+This package comes with [lots of unit tests](./tests/testthat/). To run them, in a clean R session:
+
+```r
+library(devtools)
+library(freesurferformats)
+devtools::check()
+```
+
+Continuous integration results:
+
+[![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats) Travis CI under Linux
+
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats) AppVeyor CI under Windows
+
+The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing, development happens on master.
+
+### Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). 
 
