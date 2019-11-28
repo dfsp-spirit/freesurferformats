@@ -36,8 +36,7 @@ The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), 
 install.packages("freesurferformats")
 ```
 
-Downloads of freesurferformats on CRAN: [!](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
-
+[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
 
 ## Documentation
