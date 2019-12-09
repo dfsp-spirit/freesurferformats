@@ -16,8 +16,8 @@
 write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0.)) {
 
     # Sanity checks for arguments
-    if (class(data) != "array") {
-        if(class(data) == "numeric" || class(data) == "matrix") {
+    if (! is.array(data)) {
+        if(is.vector(data) || is.matrix(data)) {
             # it is a vector, reshape to array
             data = array(data, dim=c(length(data), 1, 1, 1));
         } else {
