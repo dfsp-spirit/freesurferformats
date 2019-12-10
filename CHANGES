@@ -3,7 +3,8 @@ freesurferformats Changes
 
 Version 0.1.7
 -------------
-- Support cortex_only parameter also in concatination functions
+- Fix input data check in write.fs.mgh
+
 
 Version 0.1.6
 -------------
