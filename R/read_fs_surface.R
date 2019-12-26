@@ -109,6 +109,18 @@ read.fs.surface <- function(filepath) {
   ret_list$vertices = vertices;
   ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
+  class(ret_list) = "fs.surface";
   return(ret_list);
 }
 
+
+#' @title Print description of a brain surface.
+#'
+#' @param x brain surface with class `fs.surface`.
+#'
+#' @param ... further arguments passed to or from other methods
+#'
+#' @export
+print.fs.surface <- function(x, ...) {
+  print(sprintf("Brain surface trimesh with %d vertices and %d faces.", nrow(x$vertices), nrow(x$faces)));
+}

@@ -27,9 +27,10 @@ Read a data annotation file in FreeSurfer format. Such a file assigns a label an
 
 }
 \seealso{
-Other atlas functions: \code{\link{colortable.from.annot}},
-  \code{\link{read.fs.colortable}},
-  \code{\link{write.fs.annot}},
-  \code{\link{write.fs.colortable}}
+Other atlas functions: 
+\code{\link{colortable.from.annot}()},
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}
