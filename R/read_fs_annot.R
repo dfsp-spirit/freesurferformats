@@ -106,11 +106,20 @@ print.fs.annot <- function(x, ...) {
   } else {
     cat(sprintf("Brain surface annotation assigning %d vertices to %d brain regions.\n", length(x$vertices), nrow(x$colortable_df)));
     for(region_idx in seq_len(nrow(x$colortable_df))) {
-      cat(sprintf("region #%d '%s': size %d vertices\n", region_idx, as.character(x$colortable_df$struct_name[[region_idx]]), sum(x$label_codes == x$colortable_df$code[[region_idx]])));
+      cat(sprintf(" - region #%d '%s': size %d vertices\n", region_idx, as.character(x$colortable_df$struct_name[[region_idx]]), sum(x$label_codes == x$colortable_df$code[[region_idx]])));
     }
   }
 }
 
+
+#' @title Check whether object is an fs.annot
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is a brain surface annotation (that is, has "fs.annot" amongst its classes) and FALSE otherwise.
+#'
+#' @export
+is.fs.annot <- function(x) inherits(x, "fs.annot")
 
 
 #' @title Read binary colortable in old format.

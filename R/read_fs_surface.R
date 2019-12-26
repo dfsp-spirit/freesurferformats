@@ -124,3 +124,14 @@ read.fs.surface <- function(filepath) {
 print.fs.surface <- function(x, ...) {
   print(sprintf("Brain surface trimesh with %d vertices and %d faces.", nrow(x$vertices), nrow(x$faces)));
 }
+
+
+#' @title Check whether object is an fs.surface
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is a brain surface (that is, has "fs.surface" amongst its classes) and FALSE otherwise.
+#'
+#' @export
+is.fs.surface <- function(x) inherits(x, "fs.surface")
+
