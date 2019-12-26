@@ -1,6 +1,11 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.7
+-------------
+- Fix input data check in write.fs.mgh
+
+
 Version 0.1.6
 -------------
 - Add support for reading color lookup table (LUT) files, like FREESURFER_HOME/FreeSurferColorLUT.txt: read.fs.colortable
