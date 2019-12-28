@@ -4,15 +4,17 @@
 \alias{read.fs.label}
 \title{Read file in FreeSurfer label format}
 \usage{
-read.fs.label(filepath, return_one_based_indices = TRUE)
+read.fs.label(filepath, return_one_based_indices = TRUE, full = FALSE)
 }
 \arguments{
 \item{filepath}{string. Full path to the input label file.}
 
 \item{return_one_based_indices}{logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them.}
+
+\item{full}{logical, whether to return a full object of class 'fs.label' instead of only a vector containing the vertex indices. If TRUE, a named list with the single entry 'vertexdata' is returned. The entry contains a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.}
 }
 \value{
-vector of integers. The vertex indices from the label file. See the parameter 'return_one_based_indices' for important information regarding the start index.
+vector of integers or 'fs.label' instance (see parameter 'full'). The vertex indices from the label file. See the parameter 'return_one_based_indices' for important information regarding the start index.
 }
 \description{
 Read a mask in FreeSurfer label format.
