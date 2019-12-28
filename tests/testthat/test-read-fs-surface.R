@@ -77,8 +77,8 @@ test_that("The lh.white of Bert can be read using read.fs.surface", {
 
   surface_file = system.file("extdata", "bert.lh.white", package = "freesurferformats", mustWork = TRUE)
   surf = read.fs.surface(surface_file)
-  known_vertex_count_bert = 133083;
-  known_face_count_bert = 266162;
+  known_vertex_count_bert = 133176;
+  known_face_count_bert = 266348;
 
 
   expect_equal(surf$mesh_face_type, "tris");
@@ -97,11 +97,10 @@ test_that("The lh.white of Bert can be read using read.fs.surface", {
 
   # This test assures that the vertices are connected as defined in the reference implementation.
   expect_equal(surf$faces[1,], c(0, 1, 3) + 1);     # the +1 is because R using 1-based indexing
-  expect_equal(surf$faces[100,], c(148, 39, 138) + 1);
-  expect_equal(surf$faces[1000,], c(641, 448, 631) + 1);
+  expect_equal(surf$faces[100,], c(140, 36, 139) + 1);
+  expect_equal(surf$faces[1000,], c(440, 454, 441) + 1);
 
   expect_equal(surf$vertices[1,], c(-12.6998, -102.2399, -10.0076), tolerance=1e-2);
-  expect_equal(surf$vertices[100,], c(-11.3364, -100.8537, 0.0620), tolerance=1e-2);
-  expect_equal(surf$vertices[1000,], c(-11.1358, -96.5182, 13.6962), tolerance=1e-2);
-
+  expect_equal(surf$vertices[100,], c(-12.234, -100.672, 0.129), tolerance=1e-2);
+  expect_equal(surf$vertices[1000,], c(-18.8, -97.6, -16.8), tolerance=1e-2);
 })

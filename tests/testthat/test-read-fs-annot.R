@@ -80,6 +80,9 @@ test_that("Annotation files in old format can be read", {
   annot = read.fs.annot(annotfile);
   known_vertex_count = 163842;
 
+  expect_true(is.annot(annot));
+  expect_false(is.annot(list("a"=5)));
+
   # Test that the number of entries is correct, and that metadata matches data
   expect_equal(annot$colortable$num_entries, 82);
   expect_equal(length(annot$colortable$struct_names), 82);
