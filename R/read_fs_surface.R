@@ -109,6 +109,29 @@ read.fs.surface <- function(filepath) {
   ret_list$vertices = vertices;
   ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
+  class(ret_list) = "fs.surface";
   return(ret_list);
 }
+
+
+#' @title Print description of a brain surface.
+#'
+#' @param x brain surface with class `fs.surface`.
+#'
+#' @param ... further arguments passed to or from other methods
+#'
+#' @export
+print.fs.surface <- function(x, ...) {
+  print(sprintf("Brain surface trimesh with %d vertices and %d faces.", nrow(x$vertices), nrow(x$faces)));
+}
+
+
+#' @title Check whether object is an fs.surface
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is a brain surface (that is, has "fs.surface" amongst its classes) and FALSE otherwise.
+#'
+#' @export
+is.fs.surface <- function(x) inherits(x, "fs.surface")
 
