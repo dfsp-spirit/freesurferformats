@@ -83,6 +83,9 @@ test_that("The lh.white of Bert can be read using read.fs.surface", {
 
   expect_equal(surf$mesh_face_type, "tris");
 
+  expect_true(is.fs.surface(surf));
+  expect_false(is.fs.surface(list("whatever"=6)));
+
   expect_equal(nrow(surf$vertices), known_vertex_count_bert);
   expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
   expect_equal(typeof(surf$vertices), "double");
