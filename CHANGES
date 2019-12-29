@@ -4,6 +4,10 @@ freesurferformats Changes
 Version 0.1.7
 -------------
 - Fix input data check in write.fs.mgh
+- Turn return value data structure of read.fs.annot into 'fs.annot' class and implement 'print' and 'is' S3 methods
+- Turn return value data structure of read.fs.label into 'fs.label' class and implement 'print' and 'is' S3 methods
+- Support 'fs.label' instances as parameter for 'write.fs.label'
+- Turn return value data structure of read.fs.surface into 'fs.surface' class and implement 'print' and 'is' S3 methods
 
 
 Version 0.1.6
