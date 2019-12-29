@@ -7,9 +7,9 @@
 #'
 #' @param return_one_based_indices logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them.
 #'
-#' @param full logical, whether to return a full object of class 'fs.label' instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.
+#' @param full logical, whether to return a full object of class `fs.label` instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.
 #'
-#' @return vector of integers or 'fs.label' instance (see parameter 'full'). The vertex indices from the label file. See the parameter 'return_one_based_indices' for important information regarding the start index.
+#' @return vector of integers or `fs.label` instance (see parameter `full`). The vertex indices from the label file. See the parameter `return_one_based_indices` for important information regarding the start index.
 #'
 #' @family label functions
 #'
@@ -55,7 +55,7 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE) {
 
 #' @title Print description of a brain surface label.
 #'
-#' @param x brain surface label with class `fs.annot`.
+#' @param x brain surface label with class `fs.label`.
 #'
 #' @param ... further arguments passed to or from other methods
 #'
@@ -63,7 +63,13 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE) {
 print.fs.label <- function(x, ...) {
   if(nrow(x$vertexdata) > 0L) {
     vertex_data_range = range(x$vertexdata$value);
-    cat(sprintf("Brain surface label containing %d vertices, vertex data values are in range (%.3f, %.3f).\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
+    cat(sprintf("Brain surface label containing %d vertices, vertex data values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
+    print(summary(x$vertexdata$value));
+    if(x$one_based_indices) {
+      cat(sprintf("Vertex indices start at: 1\n"));
+    } else {
+      cat(sprintf("Vertex indices start at: 0\n"));
+    }
     cat(sprintf("Label vertex coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertexdata$coord1), min(x$vertexdata$coord2), min(x$vertexdata$coord3), max(x$vertexdata$coord1), max(x$vertexdata$coord2), max(x$vertexdata$coord3)));
   } else {
     cat(sprintf("Brain surface label containing %d vertices.\n", nrow(x$vertexdata)));
@@ -75,7 +81,7 @@ print.fs.label <- function(x, ...) {
 #'
 #' @param x any `R` object
 #'
-#' @return TRUE if its argument is a brain surface label (that is, has "fs.label" amongst its classes) and FALSE otherwise.
+#' @return TRUE if its argument is a brain surface label (that is, has `fs.label` amongst its classes) and FALSE otherwise.
 #'
 #' @export
 is.fs.label <- function(x) inherits(x, "fs.label")
