@@ -18,8 +18,17 @@
 #' @family label functions
 #'
 #' @examples
+#' \donttest{
+#'     # Write a simple label containing only vertex indices:
 #'     label_vertices = c(1,2,3,4,5,1000,2000,2323,34,34545,42);
 #'     write.fs.label(tempfile(fileext=".label"), label_vertices);
+#'
+#'     # Load a full label, write it back to a file:
+#'     labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     label = read.fs.label(labelfile, full=TRUE);
+#'     write.fs.label(tempfile(fileext=".label"), label);
+#' }
 #'
 #' @importFrom utils write.table
 #' @export
