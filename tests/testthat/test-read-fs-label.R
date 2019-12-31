@@ -26,7 +26,7 @@ test_that("Our demo label file can be read with one-based R indices", {
   labelfile = system.file("extdata", "lh.entorhinal_exvivo.label", package = "freesurferformats", mustWork = TRUE);
 
   label = read.fs.label(labelfile, return_one_based_indices=TRUE);
-  known_vertex_count_label = 1085
+  known_vertex_count_label = 1085;
 
   # These are the indices from the file, i.e., they are zero-based. We add 1 below.
   v1 = 88791;

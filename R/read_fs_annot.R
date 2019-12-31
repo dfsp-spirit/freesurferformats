@@ -17,6 +17,7 @@
 #'                                package = "freesurferformats",
 #'                                mustWork = TRUE);
 #'     annot = read.fs.annot(annot_file);
+#'     print(annot);
 #'
 #' @importFrom grDevices rgb
 #' @export

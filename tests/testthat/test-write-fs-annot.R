@@ -47,3 +47,17 @@ test_that("An annotation can be written in binary v2 format and read again.", {
   expect_equal(annot$vertices, annot2$vertices);
   expect_equal(annot, annot2);
 })
+
+
+test_that("An annotation can be written in binary v2 format and read again based on the class method.", {
+  annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+  annot = read.fs.annot(annotfile);
+
+  output_file = tempfile(fileext = ".annot");
+  write.fs.annot(output_file, fs.annot=annot);
+
+  annot2 = read.fs.annot(output_file);
+
+  expect_equal(annot$vertices, annot2$vertices);
+  expect_equal(annot, annot2);
+})

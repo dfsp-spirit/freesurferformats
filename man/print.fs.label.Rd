@@ -7,7 +7,7 @@
 \method{print}{fs.label}(x, ...)
 }
 \arguments{
-\item{x}{brain surface label with class `fs.annot`.}
+\item{x}{brain surface label with class `fs.label`.}
 
 \item{...}{further arguments passed to or from other methods}
 }

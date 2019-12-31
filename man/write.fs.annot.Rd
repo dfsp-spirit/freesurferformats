@@ -4,28 +4,53 @@
 \alias{write.fs.annot}
 \title{Write annotation to binary file.}
 \usage{
-write.fs.annot(filepath, num_vertices, colortable,
+write.fs.annot(
+  filepath,
+  num_vertices = NULL,
+  colortable = NULL,
   labels_as_colorcodes = NULL,
-  labels_as_indices_into_colortable = NULL)
+  labels_as_indices_into_colortable = NULL,
+  fs.annot = NULL
+)
 }
 \arguments{
 \item{filepath}{string, path to the output file}
 
-\item{num_vertices}{integer, the number of vertices of the surface}
+\item{num_vertices}{integer, the number of vertices of the surface. Must be given unless parameter `fs.annot` is not NULL.}
 
-\item{colortable}{dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by \code{\link[freesurferformats]{read.fs.annot}} as 'colortable_df'.}
+\item{colortable}{dataframe that contains one region per row. Required columns are: 'struct_name': character string, the region name. 'r': integer in range 0-255, the RGB color value for the red channel. 'g': same for the green channel. 'b': same for the blue channel. 'a': the alpha (transparency) channel value. Optional columns are: 'code': the color code. Will be computed if not set. Note that you can pass the dataframe returned by \code{\link[freesurferformats]{read.fs.annot}} as 'colortable_df'. Only required if `labels_as_indices_into_colortable` is used.}
 
-\item{labels_as_colorcodes}{vector of *n* integers. The first way to specify the labels. Each integer is a colorcode, that has been computed from the RGBA color values of the regions in the colortable as \code{r + g*2^8 + b*2^16 + a*2^24}. If you do not already have these color codes, it is way easier to set this to NULL and define the labels as indices into the colortable, see parameter labels_as_indices_into_colortable.}
+\item{labels_as_colorcodes}{vector of *n* integers. The first way to specify the labels. Each integer is a colorcode, that has been computed from the RGBA color values of the regions in the colortable as \code{r + g*2^8 + b*2^16 + a*2^24}. If you do not already have these color codes, it is way easier to set this to NULL and define the labels as indices into the colortable, see parameter `labels_as_indices_into_colortable`.}
 
-\item{labels_as_indices_into_colortable}{vector of *n* integers, the second way to specify the labels. Each integer is an index into the rows of the colortable. Indices start with 1. This parameter and labels_as_colorcodes are mutually exclusive, but required.}
+\item{labels_as_indices_into_colortable}{vector of *n* integers, the second way to specify the labels. Each integer is an index into the rows of the colortable. Indices start with 1. This parameter and `labels_as_colorcodes` are mutually exclusive, but required.}
+
+\item{fs.annot}{instance of class `fs.annot`. If passed, this takes precedence over all other parameters and they should all be NULL (with the exception of `filepath`).}
 }
 \description{
 Write an annotation to a FreeSurfer binary format annotation file in the new format (v2). An annotation (or brain parcellation) assigns each vertex to a label (or region). One of the regions is often called 'unknown' or similar and all vertices which are not relevant for the parcellation are assigned this label.
 }
+\examples{
+\donttest{
+   # Load annotation
+   annot_file = system.file("extdata", "lh.aparc.annot.gz",
+                               package = "freesurferformats",
+                               mustWork = TRUE);
+   annot = read.fs.annot(annot_file);
+
+   # New method: write the annotation instance:
+   write.fs.annot(tempfile(fileext=".annot"), fs.annot=annot);
+
+   # Old method: write it from its parts:
+   write.fs.annot(tempfile(fileext=".annot"), length(annot$vertices),
+    annot$colortable_df, labels_as_colorcodes=annot$label_codes);
+}
+
+}
 \seealso{
-Other atlas functions: \code{\link{colortable.from.annot}},
-  \code{\link{read.fs.annot}},
-  \code{\link{read.fs.colortable}},
-  \code{\link{write.fs.colortable}}
+Other atlas functions: 
+\code{\link{colortable.from.annot}()},
+\code{\link{read.fs.annot}()},
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}
