@@ -4,12 +4,14 @@
 \alias{read.fs.annot}
 \title{Read file in FreeSurfer annotation format}
 \usage{
-read.fs.annot(filepath, empty_label_name = "unknown")
+read.fs.annot(filepath, empty_label_name = "unknown", metadata = list())
 }
 \arguments{
 \item{filepath}{string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
 
 \item{empty_label_name}{string. The region name to assign to regions with empty name. Defaults to 'unknown'. Set to NULL if you want to keep the empty region name.}
+
+\item{metadata}{named list of arbitrary metadata to store in the instance.}
 }
 \value{
 named list, entries are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code. "hex_colors_rgb": Vector of hex color for each vertex.

@@ -4,6 +4,8 @@
 #'
 #' @param filepath string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
+#' @param metadata named list of arbitrary metadata to store in the instance.
+#'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
 #'
 #' @family mesh functions
@@ -16,7 +18,7 @@
 #'                             nrow(mesh$vertices), nrow(mesh$faces)));
 #'
 #' @export
-read.fs.surface <- function(filepath) {
+read.fs.surface <- function(filepath, metadata=list()) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
   QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
 
@@ -26,7 +28,7 @@ read.fs.surface <- function(filepath) {
     fh = file(filepath, "rb");
   }
 
-  ret_list = list();
+  ret_list = list("metadata"=metadata);
 
   magic_byte = fread3(fh);
   if (magic_byte == QUAD_MAGIC_FILE_TYPE_NUMBER) {
@@ -135,4 +137,5 @@ print.fs.surface <- function(x, ...) {
 #'
 #' @export
 is.fs.surface <- function(x) inherits(x, "fs.surface")
+
 

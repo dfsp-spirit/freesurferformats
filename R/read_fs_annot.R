@@ -7,6 +7,8 @@
 #'
 #' @param empty_label_name string. The region name to assign to regions with empty name. Defaults to 'unknown'. Set to NULL if you want to keep the empty region name.
 #'
+#' @param metadata named list of arbitrary metadata to store in the instance.
+#'
 #' @return named list, entries are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code. "hex_colors_rgb": Vector of hex color for each vertex.
 #'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code. "colortable_df": The same information as a dataframe. Contains the extra columns "hex_color_string_rgb" and "hex_color_string_rgba" that hold the color as an RGB(A) hex string, like "#rrggbbaa".
 #'
@@ -21,7 +23,7 @@
 #'
 #' @importFrom grDevices rgb
 #' @export
-read.fs.annot <- function(filepath, empty_label_name="unknown") {
+read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list()) {
 
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
@@ -35,7 +37,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown") {
     verts = verts_and_labels[seq(1L, length(verts_and_labels), 2L)];
     labels = verts_and_labels[seq(2L, length(verts_and_labels), 2L)];
 
-    return_list = list("vertices" = verts, "label_codes" = labels);
+    return_list = list("vertices" = verts, "label_codes" = labels, "metadata"=metadata);
 
     has_colortable = readBin(fh, integer(), n = 1, endian = "big");
 

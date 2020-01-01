@@ -9,6 +9,8 @@
 #'
 #' @param full logical, whether to return a full object of class `fs.label` instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.
 #'
+#' @param metadata named list of arbitrary metadata to store in the instance, ignored unless the paramter `full` is TRUE.
+#'
 #' @return vector of integers or `fs.label` instance (see parameter `full`). The vertex indices from the label file. See the parameter `return_one_based_indices` for important information regarding the start index.
 #'
 #' @family label functions
@@ -20,7 +22,7 @@
 #'
 #' @export
 #' @importFrom utils read.table
-read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE) {
+read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, metadata=list()) {
 
     # The first line is a comment, and the 2nd one contains a single number: the number of vertex lines following.
     num_verts_df = read.table(filepath, skip=1L, nrows=1L, col.names = c('num_verts'), colClasses = c("integer"));
@@ -38,7 +40,7 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE) {
       vertices_df$vertex_index = vertices;
     }
     if(full) {
-      ret_list = list("vertexdata"=vertices_df);
+      ret_list = list("vertexdata"=vertices_df, "metadata"=metadata);
       if(return_one_based_indices) {
         ret_list$one_based_indices = TRUE;
       } else {

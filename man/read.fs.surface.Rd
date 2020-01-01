@@ -4,10 +4,12 @@
 \alias{read.fs.surface}
 \title{Read file in FreeSurfer surface format}
 \usage{
-read.fs.surface(filepath)
+read.fs.surface(filepath, metadata = list())
 }
 \arguments{
 \item{filepath}{string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
+
+\item{metadata}{named list of arbitrary metadata to store in the instance.}
 }
 \value{
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
