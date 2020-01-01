@@ -30,7 +30,7 @@ read.fs.surface <- function(filepath) {
 
   magic_byte = fread3(fh);
   if (magic_byte == QUAD_MAGIC_FILE_TYPE_NUMBER) {
-    warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once the code has unit tests.")
+    warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once we have an example input file and the code has unit tests.")
     ret_list$mesh_face_type = "quads";
 
     num_vertices = fread3(fh);
@@ -122,7 +122,8 @@ read.fs.surface <- function(filepath) {
 #'
 #' @export
 print.fs.surface <- function(x, ...) {
-  print(sprintf("Brain surface trimesh with %d vertices and %d faces.", nrow(x$vertices), nrow(x$faces)));
+  cat(sprintf("Brain surface trimesh with %d vertices and %d faces.\n", nrow(x$vertices), nrow(x$faces)));
+  cat(sprintf("-Surface coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertices[,1]), min(x$vertices[,2]), min(x$vertices[,3]), max(x$vertices[,1]), max(x$vertices[,2]), max(x$vertices[,3])));
 }
 
 

@@ -13,6 +13,17 @@
 #'
 #' @family mesh functions
 #'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface(tempfile(), mesh$vertices, mesh$faces);
+#' }
+#'
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;

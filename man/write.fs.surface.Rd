@@ -20,6 +20,18 @@ string the format that was written. One of "tris" or "quads". Currently only tri
 Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 }
+\examples{
+\donttest{
+    # Read a surface from a file:
+    surface_file = system.file("extdata", "lh.tinysurface",
+     package = "freesurferformats", mustWork = TRUE);
+    mesh = read.fs.surface(surface_file);
+
+    # Now save it:
+    write.fs.surface(tempfile(), mesh$vertices, mesh$faces);
+}
+
+}
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface}()}
