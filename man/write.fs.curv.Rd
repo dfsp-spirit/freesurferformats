@@ -16,13 +16,10 @@ Write vertex-wise brain surface data to a file in FreeSurfer binary 'curv' forma
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()}
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph}}, \code{\link{write.fs.mgh}},
+  \code{\link{write.fs.morph}}
 }
 \concept{morphometry functions}

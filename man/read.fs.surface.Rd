@@ -26,7 +26,6 @@ Read a brain surface mesh consisting of vertex and face data from a file in Free
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}

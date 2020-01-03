@@ -10,6 +10,8 @@
 #'
 #' @param with_header logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1).
 #'
+#' @param drop_empty_dims logical, whether to drop empty dimensions of the returned data
+#'
 #' @return data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is TRUE, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is TRUE, see parameter description.
 #'
 #' @family morphometry functions
@@ -23,7 +25,7 @@
 #'                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
 #'
 #' @export
-read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE) {
+read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE) {
 
 
     header = list();
@@ -159,6 +161,11 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     close(fh);
+
+    if(drop_empty_dims) {
+      data = drop(data);
+    }
+
     if(with_header) {
         return_list = list();
         return_list$header = header;
