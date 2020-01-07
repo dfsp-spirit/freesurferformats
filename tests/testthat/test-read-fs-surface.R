@@ -1,5 +1,10 @@
+
+
+
+
 test_that("Our demo surface file can be read using read.fs.surface", {
 
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_optional_data();
   subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
@@ -29,6 +34,9 @@ test_that("Our demo surface file can be read using read.fs.surface", {
 test_that("Vertex connectivity in the demo surface file is as expected from reference implementation", {
   # Checks for bug in issue #8: freesurfer surface import - row-major/column-major order
   # The vertex connectivities used in this test are known from running the FreeSurfer Matlab function $FREESURFER_HOME/matlab/read_surf.m on the data
+
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+
   freesurferformats::download_optional_data();
   subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
@@ -48,6 +56,8 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
 
 test_that("The vertices of a face are close to each other", {
   # Checks for bug in issue #8: freesurfer surface import - row-major/column-major order
+
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
 
   freesurferformats::download_optional_data();
   subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
