@@ -195,4 +195,4 @@ The displayed status represents the development version. Don't worry if you are 
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). 
 
-If you have any questions or want to contact me, please [open an issue](https://github.com/dfsp-spirit/freesurferformats/issues).
+If you have any question, suggestion or comment on freesurferformats, please [open an issue](https://github.com/dfsp-spirit/freesurferformats/issues). If you want to contact me via email, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
