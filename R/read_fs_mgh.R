@@ -23,6 +23,10 @@
 #'     vd = read.fs.mgh(brain_image);
 #'     cat(sprintf("Read voxel data with dimensions %s. Values: min=%d, mean=%f, max=%d.\n",
 #'                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
+#'     # Read it again with full header data:
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     # Use the vox2ras matrix from the header to compute RAS coordinates at volume center:
+#'     vdh$header$vox2ras_matrix %*% c(0,0,0,1);
 #'
 #' @export
 read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE) {
