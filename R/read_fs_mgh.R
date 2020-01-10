@@ -25,7 +25,7 @@
 #'                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
 #'     # Read it again with full header data:
 #'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
-#'     # Use the vox2ras matrix from the header to compute RAS coordinates at volume center:
+#'     # Use the vox2ras matrix from the header to compute RAS coordinates at CRS voxel (0, 0, 0):
 #'     vdh$header$vox2ras_matrix %*% c(0,0,0,1);
 #'
 #' @export
