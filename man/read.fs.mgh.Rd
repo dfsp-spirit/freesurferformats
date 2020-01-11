@@ -4,8 +4,13 @@
 \alias{read.fs.mgh}
 \title{Read file in FreeSurfer MGH or MGZ format}
 \usage{
-read.fs.mgh(filepath, is_gzipped = "AUTO", flatten = FALSE,
-  with_header = FALSE, drop_empty_dims = FALSE)
+read.fs.mgh(
+  filepath,
+  is_gzipped = "AUTO",
+  flatten = FALSE,
+  with_header = FALSE,
+  drop_empty_dims = FALSE
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the input MGZ or MGH file.}
@@ -31,13 +36,20 @@ Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH o
     vd = read.fs.mgh(brain_image);
     cat(sprintf("Read voxel data with dimensions \%s. Values: min=\%d, mean=\%f, max=\%d.\\n",
                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
+    # Read it again with full header data:
+    vdh = read.fs.mgh(brain_image, with_header = TRUE);
+    # Use the vox2ras matrix from the header to compute RAS coordinates at CRS voxel (0, 0, 0):
+    vdh$header$vox2ras_matrix \%*\% c(0,0,0,1);
 
 }
 \seealso{
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.morph}},
-  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
-  \code{\link{write.fs.morph}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.morph}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph}()}
 }
 \concept{morphometry functions}

@@ -174,6 +174,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         return_list = list();
         return_list$header = header;
         return_list$data = data;
+        class(return_list) = 'fs.volume';
         return(return_list);
     }
     return(data);
@@ -203,4 +204,72 @@ guess.filename.is.gzipped <- function(filepath, gz_entensions=c(".gz", ".mgz")) 
         }
     }
     return(FALSE);
+}
+
+
+#' @title Translate between code and name of MRI data types.
+#'
+#' @param dtype character string (one of c('MRI_FLOAT') or integer, one of c(0L, 1L, 3L, 4L). Numeric values will be converted to integer.
+#'
+#' @return if `dtype` is a character string, the respective integer code. If it is numeric, the respective character string.
+#'
+#' @keywords internal
+translate.mri.dtype <- function(dtype) {
+  s2i = list("MRI_UCHAR"=0L, "MRI_INT"=1L, "MRI_FLOAT"=3L, "MRI_SHORT"=4L);
+  if(is.numeric(dtype)) {
+    dtype = as.integer(dtype);
+    if(dtype == 0L) {
+      return("MRI_UCHAR");
+    } else if(dtype == 1L) {
+      return("MRI_INT");
+    } else if(dtype == 3L) {
+      return("MRI_FLOAT");
+    } else if(dtype == 4L) {
+      return("MRI_SHORT");
+    } else {
+      stop(sprintf("Invalid MRI data type code '%d'.\n", dtype));
+    }
+  } else {
+    if(dtype %in% names(s2i)) {
+      return(s2i[[dtype]]);
+    } else {
+      stop(sprintf("Invalid MRI data type string '%s'.\n", dtype));
+    }
+  }
+}
+
+#' @title Check whether object is an fs.volume
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is a brain volume (that is, has "fs.volume" amongst its classes) and FALSE otherwise.
+#'
+#' @export
+is.fs.volume <- function(x) inherits(x, "fs.volume")
+
+
+#' @title Print description of a brain volume.
+#'
+#' @param x brain volume with class `fs.volume`.
+#'
+#' @param ... further arguments passed to or from other methods
+#'
+#' @export
+print.fs.volume <- function(x, ...) {
+  cat(sprintf("Brain volume with %d dimensions '%s' and %d voxels.\n", length(dim(x$data)), paste(dim(x$data), collapse="x"), prod(dim(x$data))));
+  cat(sprintf(" - Datatype according to header is %d ('%s'), values are in range [%.2f, %.2f].\n", x$header$dtype, translate.mri.dtype(x$header$dtype), min(x$data), max(x$data)));
+
+  # vox2ras
+  if(x$header$ras_good_flag == 1) {
+    cat(sprintf(" - Header contains vox2ras transformation information.\n"));
+  } else {
+    cat(sprintf(" - Header does not contain vox2ras transformation information.\n"));
+  }
+
+  # mr_params
+  if(x$header$has_mr_params == 1) {
+    cat(sprintf(" - Header contains MR acquisition parameters.\n"));
+  } else {
+    cat(sprintf(" - Header does not contain MR acquisition parameters.\n"));
+  }
 }

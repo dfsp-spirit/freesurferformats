@@ -33,6 +33,7 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface}}
+Other mesh functions: 
+\code{\link{read.fs.surface}()}
 }
 \concept{mesh functions}

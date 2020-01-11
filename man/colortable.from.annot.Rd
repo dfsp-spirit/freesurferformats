@@ -26,13 +26,15 @@ Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also 
 
 }
 \seealso{
-Other atlas functions: \code{\link{read.fs.annot}},
-  \code{\link{read.fs.colortable}},
-  \code{\link{write.fs.annot}},
-  \code{\link{write.fs.colortable}}
+Other atlas functions: 
+\code{\link{read.fs.annot}()},
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot}()},
+\code{\link{write.fs.colortable}()}
 
-Other colorLUT functions: \code{\link{read.fs.colortable}},
-  \code{\link{write.fs.colortable}}
+Other colorLUT functions: 
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}
