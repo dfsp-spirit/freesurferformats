@@ -8,7 +8,7 @@
 #'
 #' @param flatten logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.
 #'
-#' @param with_header logical. Whether to return the header as well. If TRUE, return a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1).
+#' @param with_header logical. Whether to return the header as well. If TRUE, return an instance of class `fs.volume` for data with at least 3 dimensions, a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1).
 #'
 #' @param drop_empty_dims logical, whether to drop empty dimensions of the returned data
 #'
@@ -257,6 +257,14 @@ is.fs.volume <- function(x) inherits(x, "fs.volume")
 #' @export
 print.fs.volume <- function(x, ...) {
   cat(sprintf("Brain volume with %d dimensions '%s' and %d voxels.\n", length(dim(x$data)), paste(dim(x$data), collapse="x"), prod(dim(x$data))));
+  cat(sprintf(" - Data dimensions according to header: '%s'.\n", paste(x$header$voldim_orig, collapse="x")));
+  if(x$header$voldim_orig[2] == 1L) {
+    if(x$header$voldim_orig[1] == 163842L) {
+      cat(sprintf(" - Note: This looks like standard space morphometry data, length of first dimension matches fsaverage surface vertex count (163842).\n"));
+    } else {
+      cat(sprintf(" - Note: This looks like morphometry data (2nd dimension is 1, so this is not a volume).\n"));
+    }
+  }
   cat(sprintf(" - Datatype according to header is %d ('%s'), values are in range [%.2f, %.2f].\n", x$header$dtype, translate.mri.dtype(x$header$dtype), min(x$data), max(x$data)));
 
   # vox2ras
@@ -268,7 +276,7 @@ print.fs.volume <- function(x, ...) {
 
   # mr_params
   if(x$header$has_mr_params == 1) {
-    cat(sprintf(" - Header contains MR acquisition parameters.\n"));
+    cat(sprintf(" - Header contains MR acquisition parameters: '%s'.\n", paste(x$header$mr_params, collapse=" ")));
   } else {
     cat(sprintf(" - Header does not contain MR acquisition parameters.\n"));
   }
