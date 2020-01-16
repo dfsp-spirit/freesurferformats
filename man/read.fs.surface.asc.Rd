@@ -20,6 +20,7 @@ Read FreeSurfer ASCII format surface.
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
 \code{\link{read_nisurface}()},
 \code{\link{write.fs.surface}()}
 }

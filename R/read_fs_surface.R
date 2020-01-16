@@ -1,6 +1,36 @@
+#' @title Read a surface, based on the file path without extension.
+#'
+#' @description Tries to read all files which can be constructed from the base path and the given extensions.
+#'
+#' @param filepath_noext character string, the full path to the input surface file without file extension.
+#'
+#' @param extensions vector of character strings, the file extensions to try.
+#'
+#' @param ... parameters passed on to \code{\link[freesurferformats]{read_nisurfacefile}}. Allows you to set the `methods`.
+#'
+#' @return an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
+#'
+#' @family mesh functions
+#'
+#' @examples
+#' \donttest{
+#'     surface_filepath_noext =
+#'      paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
+#'      'lh.white', sep="");
+#'     mesh = read_nisurface(surface_filepath_noext);
+#'     mesh;
+#'  }
+#'
+#' @export
+read_nisurface <- function(filepath_noext, extensions=c('', '.asc', '.gii'), ...) {
+  surffile = readable.files(filepath_noext, precedence=extensions);
+  return(read_nisurfacefile(surffile, ...));
+}
+
+
 #' @title S3 method to read a neuroimaging surface file.
 #'
-#' @description Tries to read the file with all implemented surface format reader methods. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
+#' @description Tries to read the file with all implemented surface format reader methods. The file must exist. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
 #'
 #' @param filepath character string, the full path to the input surface file.
 #'
@@ -19,13 +49,13 @@
 #'     mesh;
 #'
 #' @export
-read_nisurface <- function(filepath, methods=c('fsnative', 'fsascii', 'gifti'), ...) {
+read_nisurfacefile <- function(filepath, methods=c('fsnative', 'fsascii', 'gifti'), ...) {
   if(!file.exists(filepath)) {
     stop(sprintf("Cannot read neuroimaging surface, file '%s' does not exist.\n", filepath));
   }
 
   class(filepath) <- c(methods, class(filepath));
-  UseMethod('read_nisurface', object = filepath);
+  UseMethod('read_nisurfacefile', object = filepath);
 }
 
 
@@ -38,7 +68,7 @@ read_nisurface <- function(filepath, methods=c('fsnative', 'fsascii', 'gifti'), 
 #' @return an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 #'
 #' @export
-read_nisurface.fsnative <- function(filepath, ...) {
+read_nisurfacefile.fsnative <- function(filepath, ...) {
   # try to read via read.fs.surface
   res <- tryCatch({
     freesurferformats::read.fs.surface(filepath, ...);
@@ -52,7 +82,7 @@ read_nisurface.fsnative <- function(filepath, ...) {
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurface');
+  NextMethod('read_nisurfacefile');
 }
 
 
@@ -65,7 +95,7 @@ read_nisurface.fsnative <- function(filepath, ...) {
 #' @return an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 #'
 #' @export
-read_nisurface.fsascii <- function(filepath, ...) {
+read_nisurfacefile.fsascii <- function(filepath, ...) {
   res <- tryCatch({
     freesurferformats::read.fs.surface.asc(filepath, ...);
   }, error = function(e) {
@@ -78,7 +108,7 @@ read_nisurface.fsascii <- function(filepath, ...) {
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurface');
+  NextMethod('read_nisurfacefile');
 }
 
 
@@ -91,7 +121,7 @@ read_nisurface.fsascii <- function(filepath, ...) {
 #' @return an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 #'
 #' @export
-read_nisurface.gifti <- function(filepath, ...) {
+read_nisurfacefile.gifti <- function(filepath, ...) {
   if (requireNamespace("gifti", quietly = TRUE)) {
     # Try to read via gifti package
     res <- tryCatch({
@@ -112,7 +142,7 @@ read_nisurface.gifti <- function(filepath, ...) {
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurface');
+  NextMethod('read_nisurfacefile');
 }
 
 

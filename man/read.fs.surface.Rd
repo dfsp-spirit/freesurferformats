@@ -28,6 +28,7 @@ Read a brain surface mesh consisting of vertex and face data from a file in Free
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read_nisurfacefile}()},
 \code{\link{read_nisurface}()},
 \code{\link{write.fs.surface}()}
 }

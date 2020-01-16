@@ -2,34 +2,38 @@
 % Please edit documentation in R/read_fs_surface.R
 \name{read_nisurface}
 \alias{read_nisurface}
-\title{S3 method to read a neuroimaging surface file.}
+\title{Read a surface, based on the file path without extension.}
 \usage{
-read_nisurface(filepath, methods = c("fsnative", "fsascii", "gifti"), ...)
+read_nisurface(filepath_noext, extensions = c("", ".asc", ".gii"), ...)
 }
 \arguments{
-\item{filepath}{character string, the full path to the input surface file.}
+\item{filepath_noext}{character string, the full path to the input surface file without file extension.}
 
-\item{methods}{list of character strings, the formats to try. Each of these must have a function called \code{read_nisurface.<method>}, which must return an `fs.surface` instance on success.}
+\item{extensions}{vector of character strings, the file extensions to try.}
 
-\item{...}{parameters passed on to the individual methods}
+\item{...}{parameters passed on to \code{\link[freesurferformats]{read_nisurfacefile}}. Allows you to set the `methods`.}
 }
 \value{
 an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 }
 \description{
-Tries to read the file with all implemented surface format reader methods. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
+Tries to read all files which can be constructed from the base path and the given extensions.
 }
 \examples{
-    surface_file = system.file("extdata", "lh.tinysurface",
-                            package = "freesurferformats", mustWork = TRUE);
-    mesh = read_nisurface(surface_file);
+\donttest{
+    surface_filepath_noext =
+     paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
+     'lh.white', sep="");
+    mesh = read_nisurface(surface_filepath_noext);
     mesh;
+ }
 
 }
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.asc}()},
 \code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
 \code{\link{write.fs.surface}()}
 }
 \concept{mesh functions}
