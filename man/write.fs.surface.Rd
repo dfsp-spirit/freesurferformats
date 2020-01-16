@@ -34,6 +34,8 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 }
 \seealso{
 Other mesh functions: 
-\code{\link{read.fs.surface}()}
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurface}()}
 }
 \concept{mesh functions}
