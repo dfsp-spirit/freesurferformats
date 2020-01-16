@@ -107,12 +107,11 @@ read.fs.surface <- function(filepath, metadata=list()) {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));
   }
 
-  #close(fh);
 
   ret_list$vertices = vertices;
   ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
-  class(ret_list) = "fs.surface";
+  class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
 }
 

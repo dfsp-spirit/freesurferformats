@@ -25,6 +25,7 @@ read.fs.curv <- function(filepath) {
     } else {
         fh = file(filepath, "rb");
     }
+    on.exit({ close(fh) }, add=TRUE);
 
     magic_byte = fread3(fh);
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
@@ -34,7 +35,6 @@ read.fs.curv <- function(filepath) {
     num_faces = readBin(fh, integer(), n = 1, size = 4, endian = "big");
     values_per_vertex = readBin(fh, integer(), n = 1, endian = "big");
     data = readBin(fh, numeric(), size = 4, n = num_verts, endian = "big");
-    close(fh);
     return(data);
 }
 

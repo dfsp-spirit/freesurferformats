@@ -47,7 +47,7 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, m
         ret_list$one_based_indices = FALSE;
       }
 
-      class(ret_list) = 'fs.label';
+      class(ret_list) = c('fs.label', class(ret_list));
       return(ret_list);
     } else {
       return(vertices);
