@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fs_surface.R
 \name{read_nisurface}
 \alias{read_nisurface}
-\title{S3 method to read a surface file, tries all surface formats.}
+\title{S3 method to read a neuroimaging surface file.}
 \usage{
 read_nisurface(filepath, methods = c("fsnative", "fsascii", "gifti"), ...)
 }
@@ -17,7 +17,7 @@ read_nisurface(filepath, methods = c("fsnative", "fsascii", "gifti"), ...)
 an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 }
 \description{
-With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
+Tries to read the file with all implemented surface format reader methods. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
 }
 \examples{
     surface_file = system.file("extdata", "lh.tinysurface",
