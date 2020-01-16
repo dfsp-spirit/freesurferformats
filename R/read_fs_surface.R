@@ -128,6 +128,8 @@ read_nisurfacefile.gifti <- function(filepath, ...) {
       gifti::read_gifti(filepath);
     }, error = function(e) {
       NULL;
+    }, warning = function(w) {
+      NULL
     });
 
   } else {   # Won't work without the 'gifti' package
@@ -143,6 +145,11 @@ read_nisurfacefile.gifti <- function(filepath, ...) {
 
   # Failed, use the next read.ni.surface.* method
   NextMethod('read_nisurfacefile');
+}
+
+#' @export
+read_nisurfacefile.default <- function(filepath, ...) {
+  stop(sprintf("Surface file '%s' could not be read with any of the available methods, format invalid or not supported.\n", filepath));
 }
 
 
@@ -205,6 +212,10 @@ read.fs.surface.asc <- function(filepath, metadata=list()) {
 read.fs.surface <- function(filepath, metadata=list()) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
   QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
+
+  if(guess.filename.is.gzipped(filepath, gz_entensions=c(".asc"))) {
+    return(read.fs.surface.asc(filepath, metadata));
+  }
 
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
