@@ -122,7 +122,7 @@ read_nisurface.gifti <- function(filepath, ...) {
 #'
 #' @param metadata named list of arbitrary metadata to store in the instance.
 #'
-#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @family mesh functions
 #'
@@ -138,7 +138,6 @@ read.fs.surface.asc <- function(filepath, metadata=list()) {
 
   ret_list = list();
   ret_list$vertices = data.matrix(vertices_df[1:3]);
-  ret_list$vertex_indices_fs = 0L:(nrow(ret_list$vertices)-1);
   ret_list$faces = data.matrix(faces_df[1:3]) + 1;  # the +1 is because the surface should use R indices (one-based)
   class(ret_list) = c("fs.surface", class(ret_list));
 
@@ -161,7 +160,7 @@ read.fs.surface.asc <- function(filepath, metadata=list()) {
 #'
 #' @param metadata named list of arbitrary metadata to store in the instance.
 #'
-#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @family mesh functions
 #'
@@ -264,7 +263,6 @@ read.fs.surface <- function(filepath, metadata=list()) {
 
 
   ret_list$vertices = vertices;
-  ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
   class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
