@@ -1,4 +1,4 @@
-#' @title Write mesh to file in FreeSurfer surface format
+#' @title Write mesh to file in FreeSurfer binary surface format
 #'
 #' @description Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
@@ -74,5 +74,60 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
     format_written = NULL;
     stop(sprintf("Each face must be made up of exactly 3 vertices (for triangular meshes) or 4 vertices (for quads), but found %d columns in matrix 'faces'.", ncol(faces)));
   }
-  return(format_written);
+  return(invisible(format_written));
+}
+
+
+#' @title Write mesh to file in FreeSurfer ASCII surface format
+#'
+#' @description Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer ASCII surface format.
+#'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white.asc'.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.asc', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.asc(tempfile(fileext=".asc"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @export
+write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
+  # Write the first comment line and the 2nd line containing the number of vertices in the label
+  fh =  file(filepath);
+  writeLines(c("#!ascii version of surface", sprintf("%d %d", nrow(vertex_coords), nrow(faces))), fh);
+  close(fh);
+
+  if(ncol(vertex_coords) == 3) {
+    format_written = 'tris';
+    vertex_coords = cbind(vertex_coords, 0L);
+  } else {
+    format_written = 'quads';
+  }
+
+  faces = faces - 1L;
+  if(ncol(faces) == 3) {
+    faces = cbind(faces, 0L);
+  }
+
+  # Append the vertex data
+  write.table(vertex_coords, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  # Append the face data
+  write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  return(invisible(format_written));
 }
