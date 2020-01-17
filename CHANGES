@@ -3,8 +3,9 @@ freesurferformats Changes
 
 Version 0.1.8
 -------------
-- Add support for reading surfaces in FreeSurfer ASCII surface format
+- Add support for reading surfaces in FreeSurfer ASCII surface format 
 - Add high-level functions 'read_nisurface' and 'read_nisurfacefile' to read surface files in different formats
+- Add support for writing surfaces in FreeSurfer ASCII surface format: 'write.fs.surface.asc'
 
 
 Version 0.1.7
