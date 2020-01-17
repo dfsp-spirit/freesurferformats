@@ -112,15 +112,12 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
   close(fh);
 
   if(ncol(vertex_coords) == 3) {
-    format_written = 'tris';
-    vertex_coords = cbind(vertex_coords, 0L);
-  } else {
-    format_written = 'quads';
+    vertex_coords = cbind(vertex_coords, 0L);   # add isInPatch flag (can be 0 or 1), aka 'ripflag'
   }
 
   faces = faces - 1L;
   if(ncol(faces) == 3) {
-    faces = cbind(faces, 0L);
+    faces = cbind(faces, 0L);   # add isInPatch flag (can be 0 or 1)
   }
 
   # Append the vertex data
@@ -129,5 +126,5 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
   # Append the face data
   write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
 
-  return(invisible(format_written));
+  return(invisible('tris'));
 }
