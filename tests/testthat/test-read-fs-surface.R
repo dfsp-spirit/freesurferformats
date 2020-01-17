@@ -18,6 +18,7 @@ test_that("Our demo surface file can be read using read.fs.surface", {
   skip_if_not(file.exists(surface_file), message="Test data missing.") ;
 
   surf = read.fs.surface(surface_file);
+  expect_true(is.fs.surface(surf));
   known_vertex_count = 149244;
   known_face_count = 298484;
 
@@ -50,6 +51,7 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
   skip_if_not(file.exists(surface_file), message="Test data missing.");
 
   surf = read.fs.surface(surface_file);
+  expect_true(is.fs.surface(surf));
 
   # This test assures that the vertices are connected as defined in the reference implementation.
   expect_equal(surf$faces[1,], c(0, 1, 5) + 1);     # the +1 is because R using 1-based indexing
@@ -60,6 +62,7 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
   expect_equal(surf$vertices[100,], c(-4.3814, -107.6495, 24.0106), tolerance=1e-2);
   expect_equal(surf$vertices[1000,], c(-5.2788, -103.5765, 19.6616), tolerance=1e-2);
 })
+
 
 test_that("The vertices of a face are close to each other", {
   # Checks for bug in issue #8: freesurfer surface import - row-major/column-major order
@@ -72,6 +75,8 @@ test_that("The vertices of a face are close to each other", {
   skip_if_not(file.exists(surface_file), message="Test data missing.");
 
   surf = read.fs.surface(surface_file);
+
+  expect_true(is.fs.surface(surf));
 
   # Test that the distance between the vertices of a face is small. For brain surface meshes, the
   # coords are given in mm and the resolution is quite high. It is definitely sane to request that
@@ -93,7 +98,8 @@ test_that("The lh.white of Bert can be read using read.fs.surface", {
   skip_if_not(file.exists(surface_file), message="Test data missing.");
 
   surface_file = system.file("extdata", "bert.lh.white", package = "freesurferformats", mustWork = TRUE)
-  surf = read.fs.surface(surface_file)
+  surf = read.fs.surface(surface_file);
+  expect_true(is.fs.surface(surf));
   known_vertex_count_bert = 133176;
   known_face_count_bert = 266348;
 
@@ -130,6 +136,7 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read.fs.s
 
   fsasc_surface_file = system.file("extdata", "lh.tinysurface.asc", package = "freesurferformats", mustWork = TRUE);
   surf = read.fs.surface(fsasc_surface_file);
+  expect_true(is.fs.surface(surf));
   known_vertex_count = 5L;
   known_face_count = 3L;
 
