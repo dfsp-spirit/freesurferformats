@@ -57,9 +57,9 @@ read.fs.mgh()         # read volume or morphometry data from files in MGH or MGZ
 read.fs.curv()        # read morphometry data from 'curv' format files like `surf/lh.area`
 read.fs.morph()       # read any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 read.fs.annot()       # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
-read.fs.surface()     # read a surface mesh
-read.fs.label()       # read a label file
-read.fs.colortable()  # read a color lookup table (LUT)
+read.fs.surface()     # read a surface mesh, like `surf/lh.white`
+read.fs.label()       # read a label file, like `label/lh.cortex.label`
+read.fs.colortable()  # read a color lookup table (LUT), like `$FREESURFER_HOME/FreeSurferColorLUT.txt`
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
