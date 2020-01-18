@@ -30,6 +30,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
     } else {
         fh = file(filepath, "rb");
     }
+    on.exit({ close(fh) }, add=TRUE);
 
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
     verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");
@@ -91,8 +92,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
         return_list$hex_colors_rgb = hex_colors_rgb;
 
     }
-    close(fh);
-    class(return_list) = "fs.annot";
+    class(return_list) = c("fs.annot", class(return_list));
     return(return_list);
 }
 

@@ -1,12 +1,49 @@
+
+#' @title Read FreeSurfer ASCII format surface.
+#'
+#' @param filepath string. Full path to the input surface file in ASCII surface format.
+#'
+#' @param metadata named list of arbitrary metadata to store in the instance.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @family mesh functions
+#'
+#' @export
+read.fs.surface.asc <- function(filepath, metadata=list()) {
+  num_verts_and_faces_df = read.table(filepath, skip=1L, nrows=1L, col.names = c('num_verts', 'num_faces'), colClasses = c("integer", "integer"));
+  num_verts = num_verts_and_faces_df$num_verts[1];
+  num_faces = num_verts_and_faces_df$num_faces[1];
+
+  vertices_df = read.table(filepath, skip=2L, col.names = c('coord1', 'coord2', 'coord3', 'value'), colClasses = c("numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
+
+  faces_df = read.table(filepath, skip=2L + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
+
+  ret_list = list();
+  ret_list$vertices = data.matrix(vertices_df[1:3]);
+  ret_list$faces = data.matrix(faces_df[1:3]) + 1L;  # the +1 is because the surface should use R indices (one-based)
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  if(nrow(ret_list$vertices) != num_verts) {
+    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+  }
+  if(nrow(ret_list$faces) != num_faces) {
+    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+  }
+
+  return(ret_list);
+}
+
+
 #' @title Read file in FreeSurfer surface format
 #'
 #' @description Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 #'
-#' @param filepath string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
+#' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
 #' @param metadata named list of arbitrary metadata to store in the instance.
 #'
-#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software. "vertex_indices_fs": list of n integers, where n is the number of vertices. The FreeSurfer vertex indices for the vertices.
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @family mesh functions
 #'
@@ -22,11 +59,16 @@ read.fs.surface <- function(filepath, metadata=list()) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
   QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
 
+  if(guess.filename.is.gzipped(filepath, gz_entensions=c(".asc"))) {
+    return(read.fs.surface.asc(filepath, metadata));
+  }
+
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
   } else {
     fh = file(filepath, "rb");
   }
+  on.exit({ close(fh) }, add=TRUE);
 
   ret_list = list("metadata"=metadata);
 
@@ -106,12 +148,10 @@ read.fs.surface <- function(filepath, metadata=list()) {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));
   }
 
-  close(fh);
 
   ret_list$vertices = vertices;
-  ret_list$vertex_indices_fs = 0L:(nrow(vertices)-1);
   ret_list$faces = faces;
-  class(ret_list) = "fs.surface";
+  class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
 }
 

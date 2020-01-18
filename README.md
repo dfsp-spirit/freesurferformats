@@ -14,6 +14,8 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 ## Supported formats
 
+You do **not** need to have FreeSurfer installed to use this package. It implements its own readers and writers for the following file formats:
+
 * MGH/MGZ: FreeSurfer n-dimensional brain images or arbitrary other data. Typically a single 3D brain MRI scan or a time series of scans, or morphometry data for brain surfaces. The format is named after the Massachusetts General Hospital, and the specs are given (rather implicitely) [here in the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat). MGZ is just a gzipped version of MGH. An example file would be `mri/T1.mgz` (containing a 3D brain volume), but also `surf/lh.area.fwhm15.fsaverage.mgh` (containing surface data mapped to standard space). This format can be read and written. Reading and writing header data is also supported, and the ras2vox matrix is computed from the header data.
 
 * FreeSurfer 'curv' format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Several versions of this format exist, the supported version is the new, binary one (the only one that is used in current FS versions). An example file would be `surf/lh.area`. This format can be read and written.
@@ -57,9 +59,9 @@ read.fs.mgh()         # read volume or morphometry data from files in MGH or MGZ
 read.fs.curv()        # read morphometry data from 'curv' format files like `surf/lh.area`
 read.fs.morph()       # read any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 read.fs.annot()       # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
-read.fs.surface()     # read a surface mesh
-read.fs.label()       # read a label file
-read.fs.colortable()  # read a color lookup table (LUT)
+read.fs.surface()     # read a surface mesh, like `surf/lh.white`
+read.fs.label()       # read a label file, like `label/lh.cortex.label`
+read.fs.colortable()  # read a color lookup table (LUT), like `$FREESURFER_HOME/FreeSurferColorLUT.txt`
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
@@ -110,6 +112,11 @@ dim(drop(mgh$data))
 # [1] 256 256 256
 ```
 
+If you do not have FreeSurfer installed and thus don't have Bert, feel free to use the example brain that comes with freesurferformats instead:
+
+```r
+fsf_brain = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+```
 
 ## License
 
