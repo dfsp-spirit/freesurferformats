@@ -150,6 +150,11 @@ And here is an example for an MGZ file:
 ```  
 
 
+## Reading morphometry data for a subset of vertices from weight, paint or w files
+
+Sometimes, vertex-wise data is stored in so-called `weight` files, which are also known as `paint` files or simply as `w` files. They do not simply contain a list of data values, but pairs of *(vertex index, value)*. The format is useful when you have data only for a subset of the vertices of a surface. It seems to be less used these days. Use the *read.fs.weight* function to read w files.
+
+
 
 ## Reading annotation files
 

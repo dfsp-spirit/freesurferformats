@@ -19,7 +19,8 @@ Write vertex-wise brain surface data to a file in FreeSurfer binary 'curv' forma
 Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
   \code{\link{fs.get.morph.file.format.from.filename}},
   \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
-  \code{\link{read.fs.morph}}, \code{\link{write.fs.mgh}},
+  \code{\link{read.fs.morph}},
+  \code{\link{read.fs.weight}}, \code{\link{write.fs.mgh}},
   \code{\link{write.fs.morph}}
 }
 \concept{morphometry functions}
