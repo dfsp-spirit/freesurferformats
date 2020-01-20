@@ -28,7 +28,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and  RGBA color values to a set of labels. LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
 
-* FreeSurfer weight format file: Contains one value per vertex, but not for all vertices of a surface, but for a (sub)set of vertices defined by their index. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
+* FreeSurfer weight file format: Contains one value per vertex, but not for all vertices of a surface, but for a (sub)set of vertices defined by their index. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
 
 
 ## Installation
