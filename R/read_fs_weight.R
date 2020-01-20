@@ -38,6 +38,8 @@ read.fs.weight <- function(filepath, format='auto') {
   latency = readBin(fh, integer(), size = 2L, n = 1, endian = "big");
   num_vertex_value_pairs = fread3(fh);
 
+  #message(sprintf("Latency=%d, about to read data for %d vertices.\n", latency, num_vertex_value_pairs));
+
   vertex_index = rep(0L, num_vertex_value_pairs);
   vertex_value = rep(0.0, num_vertex_value_pairs);
 
@@ -65,8 +67,8 @@ read.fs.weight.asc <- function(filepath) {
 
   pairs_df = read.table(filepath, skip=2L, col.names = c('vertex_index', 'value'), colClasses = c("integer", "numeric"), nrows=num_pairs);
 
-  if(nrows(pairs_df) != num_pairs) {
-    stop(sprintf("Expected %d vertex values from ASCII weight file header, but received %d.\n", num_pairs, nrows(pairs_df)));
+  if(nrow(pairs_df) != num_pairs) {
+    stop(sprintf("Expected %d vertex values from ASCII weight file header, but received %d.\n", num_pairs, nrow(pairs_df)));
   }
   return(list("vertex_indices"=pairs_df$vertex_index + 1, "values"=pairs_df$value));
 }

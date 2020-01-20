@@ -36,6 +36,7 @@ Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
   \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
   \code{\link{read.fs.weight}},
   \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
-  \code{\link{write.fs.morph}}
+  \code{\link{write.fs.morph}},
+  \code{\link{write.fs.weight}}
 }
 \concept{morphometry functions}
