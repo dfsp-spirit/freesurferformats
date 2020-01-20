@@ -3,10 +3,11 @@ freesurferformats Changes
 
 Version 0.1.8
 -------------
-- Add support for reading surfaces in FreeSurfer ASCII surface format 
+- Add support for reading surfaces in FreeSurfer ASCII surface format (integrated into read.fs.surface)
 - Add high-level functions 'read_nisurface' and 'read_nisurfacefile' to read surface files in different formats
 - Add support for writing surfaces in FreeSurfer ASCII surface format: 'write.fs.surface.asc'
 - Turn return value data structure of read.fs.mgh into 'fs.volume' class and implement 'print' and 'is' S3 methods
+- Support reading the ASCII version of FreeSurfer curv format files (integrated into read.fs.curv)
 
 
 Version 0.1.7

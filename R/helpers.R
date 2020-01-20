@@ -32,3 +32,27 @@ readable.files <- function(filepath, precedence=c('.mgh', '.mgz'), error_if_none
     return(readable_files);
   }
 }
+
+
+#' @title Check whether filepath ends with extension.
+#'
+#' @param filepath string. Path to a file, including filename and extension.
+#'
+#' @param extensions list of strings. A list of suffixes to check. Case does not matter. Example: \code{extensions=c('.gz', '.mgz')}.
+#'
+#' @return logical, whether the filepath end with one of the extensions.
+#'
+#' @keywords internal
+filepath.ends.with <- function(filepath, extensions) {
+  nc = nchar(filepath);
+  for (ext in extensions) {
+    num_chars_to_inspect = nchar(ext);
+    if(nc >= num_chars_to_inspect) {
+      this_file_ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
+      if(tolower(this_file_ext) == tolower(ext)) {
+        return(TRUE);
+      }
+    }
+  }
+  return(FALSE);
+}

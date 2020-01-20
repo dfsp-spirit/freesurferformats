@@ -1,9 +1,11 @@
 #' @title Read file in FreeSurfer curv format
 #'
-#' @description Read vertex-wise brain mophometry data from a file in FreeSurfer binary 'curv' format.
+#' @description Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Bboth binary and ASCII versions are supported.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
-#' @param filepath string. Full path to the input curv file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
+#' @param filepath string. Full path to the input curv file. Note: gzipped binary curv files are supported and gz binary format is assumed if the filepath ends with ".gz".
+#'
+#' @param format one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
@@ -17,8 +19,16 @@
 #' @family morphometry functions
 #'
 #' @export
-read.fs.curv <- function(filepath) {
+read.fs.curv <- function(filepath, format='auto') {
     MAGIC_FILE_TYPE_NUMBER = 16777215;
+
+    if(!(format %in% c('auto', 'bin', 'asc'))) {
+      stop("Format must be one of c('auto', 'bin', 'asc').");
+    }
+
+    if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
+      return(read.fs.curv.asc(filepath));
+    }
 
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
@@ -36,6 +46,19 @@ read.fs.curv <- function(filepath) {
     values_per_vertex = readBin(fh, integer(), n = 1, endian = "big");
     data = readBin(fh, numeric(), size = 4, n = num_verts, endian = "big");
     return(data);
+}
+
+
+#' @title Read morphometry data from ASCII curv format file
+#'
+#' @param filepath path to a file in FreeSurfer ASCII curv format. Such a file contains, on each line, the following fields, separated by spaces: vertex_index, vertex_coord_x,  vertex_coord_y,  vertex_coord_z,  morph_data_value.
+#'
+#' @return numneric vector, the curv data
+#'
+#' @keywords internal
+read.fs.curv.asc <- function(filepath) {
+  curv_df = read.table(filepath, header=FALSE, col.names=c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
+  return(curv_df$morph_data);
 }
 
 

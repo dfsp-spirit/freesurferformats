@@ -4,12 +4,10 @@
 \alias{read.fs.surface.asc}
 \title{Read FreeSurfer ASCII format surface.}
 \usage{
-read.fs.surface.asc(filepath, metadata = list())
+read.fs.surface.asc(filepath)
 }
 \arguments{
 \item{filepath}{string. Full path to the input surface file in ASCII surface format.}
-
-\item{metadata}{named list of arbitrary metadata to store in the instance.}
 }
 \value{
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
@@ -18,11 +16,10 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 Read FreeSurfer ASCII format surface.
 }
 \seealso{
-Other mesh functions: 
-\code{\link{read.fs.surface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{read_nisurface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{read.fs.surface}},
+  \code{\link{read_nisurfacefile}},
+  \code{\link{read_nisurface}},
+  \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}

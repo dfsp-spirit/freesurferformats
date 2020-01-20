@@ -117,7 +117,7 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
     stop(sprintf("The number of vertices (%d) does not match the number of labels (%d). Each vertex must be assigned to a label.\n", num_vertices, length(labels)));
   }
 
-  if(guess.filename.is.gzipped(filepath, gz_entensions=c(".gz"))) {
+  if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
     fh = gzfile(filepath, "wb");
   } else {
     fh = file(filepath, "wb", blocking = TRUE);

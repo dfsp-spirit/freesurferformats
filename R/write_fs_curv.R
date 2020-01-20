@@ -16,7 +16,7 @@ write.fs.curv <- function(filepath, data) {
     num_faces = length(data);   # Has no meaning.
     values_per_vert = 1;
 
-    if(guess.filename.is.gzipped(filepath, gz_entensions=c(".gz"))) {
+    if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
         fh = gzfile(filepath, "wb");
     } else {
         fh = file(filepath, "wb", blocking = TRUE);

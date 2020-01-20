@@ -42,7 +42,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
         ras_flag = 1;
     }
 
-    if(guess.filename.is.gzipped(filepath, gz_entensions=c(".mgz"))) {
+    if(guess.filename.is.gzipped(filepath, gz_extensions=c(".mgz"))) {
         fh = gzfile(filepath, "wb");
     } else {
         fh = file(filepath, "wb", blocking = TRUE);

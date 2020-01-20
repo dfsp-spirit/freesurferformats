@@ -46,7 +46,7 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
     num_verts = nrow(vertex_coords);
     num_faces = nrow(faces);
 
-    if(guess.filename.is.gzipped(filepath, gz_entensions=c(".gz"))) {
+    if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
       fh = gzfile(filepath, "wb");
     } else {
       fh = file(filepath, "wb", blocking = TRUE);
