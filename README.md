@@ -67,6 +67,7 @@ read.fs.surface()     # read a surface mesh, like `surf/lh.white`
 read.fs.label()       # read a label file, like `label/lh.cortex.label`
 read.fs.colortable()  # read a color lookup table (LUT), like `$FREESURFER_HOME/FreeSurferColorLUT.txt`
 read.fs.weight()      # read scalar data for a subset of vertices, defined by index. Known as `weight`, `paint` or simply `w` format.
+read.fs.patch()       # read a surface patch, which is a part of a surface.
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
@@ -118,7 +119,7 @@ dim(drop(mgh$data))
 # [1] 256 256 256
 ```
 
-If you do not have FreeSurfer installed and thus don't have Bert, feel free to use the example brain that comes with freesurferformats instead:
+If you do not have FreeSurfer installed and thus don't have Bert, replace `berts_brain` with the example brain that comes with freesurferformats:
 
 ```r
 fsf_brain = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
