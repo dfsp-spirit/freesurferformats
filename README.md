@@ -119,7 +119,7 @@ dim(drop(mgh$data))
 # [1] 256 256 256
 ```
 
-If you do not have FreeSurfer installed and thus don't have Bert, feel free to use the example brain that comes with freesurferformats instead:
+If you do not have FreeSurfer installed and thus don't have Bert, replace `berts_brain` with the example brain that comes with freesurferformats:
 
 ```r
 fsf_brain = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
