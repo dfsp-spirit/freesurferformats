@@ -9,6 +9,7 @@ Version 0.1.8
 - Turn return value data structure of read.fs.mgh into 'fs.volume' class and implement 'print' and 'is' S3 methods
 - Support reading the ASCII version of FreeSurfer curv format files (integrated into read.fs.curv)
 - Support reading the FreeSurfer weight or 'w' format files (read.fs.weight), both ASCII and binary subtypes are supported
+- Add support for reading binary patch files
 
 
 Version 0.1.7
