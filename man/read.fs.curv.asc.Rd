@@ -10,7 +10,7 @@ read.fs.curv.asc(filepath)
 \item{filepath}{path to a file in FreeSurfer ASCII curv format. Such a file contains, on each line, the following fields, separated by spaces: vertex_index, vertex_coord_x,  vertex_coord_y,  vertex_coord_z,  morph_data_value.}
 }
 \value{
-numneric vector, the curv data
+numeric vector, the curv data
 }
 \description{
 Read morphometry data from ASCII curv format file
