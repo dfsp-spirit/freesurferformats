@@ -67,9 +67,6 @@ read.fs.surface <- function(filepath, format='auto') {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
   QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
 
-  if(filepath.ends.with(filepath, c(".asc"))) {
-    return(read.fs.surface.asc(filepath));
-  }
 
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
