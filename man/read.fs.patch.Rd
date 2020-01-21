@@ -19,6 +19,7 @@ A patch is a subset of a surface. Note that the contents of ASCII and binary pat
 }
 \seealso{
 Other patch functions: 
-\code{\link{read.fs.patch.asc}()}
+\code{\link{read.fs.patch.asc}()},
+\code{\link{write.fs.patch}()}
 }
 \concept{patch functions}

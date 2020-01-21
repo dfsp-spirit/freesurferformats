@@ -54,6 +54,7 @@ read.fs.patch <- function(filepath, format='auto') {
   ret_list$vertices = points;
   ret_list$faces = NULL;    # binary patch file contains no face information
 
+  class(ret_list) = c("fs.patch", class(ret_list));
   return(ret_list);
 }
 
@@ -159,6 +160,7 @@ read.fs.patch.asc <- function(filepath) {
   }
 
   ret_list$faces = faces;
+  class(ret_list) = c("fs.patch", class(ret_list));
 
   return(ret_list);
 }
