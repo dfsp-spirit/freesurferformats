@@ -17,6 +17,7 @@ An ASCII format patch is a part of a brain surface mesh, and is a mesh itself. I
 }
 \seealso{
 Other patch functions: 
+\code{\link{fs.patch}()},
 \code{\link{read.fs.patch}()},
 \code{\link{write.fs.patch}()}
 }

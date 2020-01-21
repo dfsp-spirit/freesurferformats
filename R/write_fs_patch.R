@@ -4,7 +4,7 @@
 #'
 #' @param filepath string. Full path to the output patch file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
-#' @param patch an instance of class `fs.patch`, see
+#' @param patch an instance of class `fs.patch`, see \code{\link[freesurferformats]{read.fs.patch}}.
 #'
 #' @return the patch, invisible
 #'
@@ -46,14 +46,16 @@ write.fs.patch <- function(filepath, patch) {
 #' @return instance of class `fs.patch`
 #'
 #' @examples
-#'     num_vertices = 6L;   # tiny patch
+#'     num_vertices = 6L;   # a tiny patch
 #'     vertices = matrix(rep(0., num_vertices*5), ncol=5);
 #'     vertices[,1] = seq.int(num_vertices);  # 1-based vertex indices
 #'     vertices[,2:4] = matrix(rnorm(num_vertices*3, 8, 2), ncol=3);  # vertex coords
 #'     vertices[,5] = rep(0L, num_vertices);  # is_border
 #'     vertices[3,5] = 1L;  # set a vertex to be a border vertex
 #'     patch = fs.patch(vertices);
+#'     patch;
 #'
+#' @family patch functions
 #' @export
 fs.patch <- function(vertices, faces=NULL) {
   ret_list = list();

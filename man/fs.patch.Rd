@@ -18,12 +18,20 @@ instance of class `fs.patch`
 Constructor for fs.patch
 }
 \examples{
-    num_vertices = 6L;   # tiny patch
+    num_vertices = 6L;   # a tiny patch
     vertices = matrix(rep(0., num_vertices*5), ncol=5);
     vertices[,1] = seq.int(num_vertices);  # 1-based vertex indices
     vertices[,2:4] = matrix(rnorm(num_vertices*3, 8, 2), ncol=3);  # vertex coords
     vertices[,5] = rep(0L, num_vertices);  # is_border
     vertices[3,5] = 1L;  # set a vertex to be a border vertex
     patch = fs.patch(vertices);
+    patch;
 
 }
+\seealso{
+Other patch functions: 
+\code{\link{read.fs.patch.asc}()},
+\code{\link{read.fs.patch}()},
+\code{\link{write.fs.patch}()}
+}
+\concept{patch functions}
