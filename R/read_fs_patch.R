@@ -1,15 +1,25 @@
-#' @title Read FreeSurfer binary patch file.
+#' @title Read FreeSurfer binary or ASCII patch file.
 #'
-#' @description A binary format patch contains vertices only, without connection (face) information. **Note:** The contents of ASCII and binary patch format files is different.
+#' @description A patch is a subset of a surface. Note that the contents of ASCII and binary patch format files is different. A binary format patch contains vertices only, without connection (face) information. ASCII patch files can also contain face data. See the return value description for details.
 #'
 #' @param filepath string. Full path to the input patch file. An example file is `FREESURFER_HOME/subjects/fsaverage/surf/lh.cortex.patch.3d`.
 #'
-#' @return named list with entry: "vertices": numerical *n*x7 matrix. The columns are named, and appear in the following order: 'vert_index1': the one-based (R-style) vertex index. 'x', 'y', 'z': float vertex coordinates. 'is_border': integer, 1 if the vertex lies on the patch border, 0 otherwise (treat as logical). 'raw_vtx': integer, the raw vtx value encoding index and border. 'vert_index0': the zero-based (C-style) vertex index.
+#' @param format one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#'
+#' @return named list with 2 entries: "faces": can be NULL, only available if the format is ASCII, see return value of \code{\link[freesurferformats]{read.fs.patch.asc}}. "vertices": numerical *n*x7 matrix. The columns are named, and appear in the following order: 'vert_index1': the one-based (R-style) vertex index. 'x', 'y', 'z': float vertex coordinates. 'is_border': integer, 1 if the vertex lies on the patch border, 0 otherwise (treat as logical). 'raw_vtx': integer, the raw vtx value encoding index and border. 'vert_index0': the zero-based (C-style) vertex index.
 #'
 #' @family patch functions
 #'
 #' @export
-read.fs.patch <- function(filepath) {
+read.fs.patch <- function(filepath, format='auto') {
+
+  if(!(format %in% c('auto', 'bin', 'asc'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc').");
+  }
+
+  if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
+    return(read.fs.patch.asc(filepath));
+  }
 
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
@@ -28,7 +38,7 @@ read.fs.patch <- function(filepath) {
 
   num_points = readBin(fh, integer(), size = 4, endian = "big");  # the 'points' are actually vertex coordinates
 
-  message(sprintf("About to read %d points from version %d binary patch file.\n", num_points, version));
+  #message(sprintf("About to read %d points from version %d binary patch file.\n", num_points, version));
 
   points = matrix(rep(0., num_points*7), ncol=7);
   colnames(points) = c("vert_index1", "x", "y", "z", "is_border", "vtx_raw", "vert_index0");
@@ -59,7 +69,7 @@ read.fs.patch <- function(filepath) {
 #'
 #' @param filepath string. Full path to the input patch file in ASCII patch format.
 #'
-#' @return named list. The list has the following named entries: "vertices": see read.fs.colortable. "faces": numerical *n*x5 matrix. The columns are named, and appear in the following order: 'face_index1': the one-based (R-style) face index. 'vert1_index1', 'vert2_index1', 'vert3_index1': integer vertex indices of the face, they are one-based (R-style). 'face_index0': the zero-based (C-style) face index.
+#' @return named list. The list has the following named entries: "vertices": see return value of \code{\link[freesurferformats]{read.fs.patch}}. "faces": numerical *n*x5 matrix. The columns are named, and appear in the following order: 'face_index1': the one-based (R-style) face index. 'vert1_index1', 'vert2_index1', 'vert3_index1': integer vertex indices of the face, they are one-based (R-style). 'face_index0': the zero-based (C-style) face index.
 #'
 #' @family patch functions
 #'
