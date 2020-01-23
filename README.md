@@ -32,6 +32,8 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
 
+The list reflects the development version.
+
 
 ## Installation
 
