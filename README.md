@@ -30,7 +30,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer *weight* file format: Contains one value per listed vertex. In contrast to curv files, weight files contain values not for all vertices of a surface, but only for a (sub)set of vertices defined by their indices. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
 
-* FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read.
+* FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
 
 
 ## Installation
@@ -77,6 +77,7 @@ write.fs.label()      # write a label file
 write.fs.annot()      # write an annotation file
 write.fs.colortable() # write a color lookup table (LUT)
 write.fs.weight()     # write scalar vertex data in weight or w format
+write.fs.patch()      # write a surface patch, which is a part of a surface.
 ```
 
 The documentation is included in the package and not repeated on this website.
