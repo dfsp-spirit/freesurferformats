@@ -186,7 +186,7 @@ Then:
 devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
 ```
 
-While the development version may have new features, you should not consider their API stable. Better wait for the next release if you are not fine with adapting your code to API changes later. 
+While the development versions may have new features, you should not consider their API stable. Wait for the next release if you are not fine with adapting your code to API changes later. If in doubt, do **not** use the dev version, just wait for the next release.
 
 
 ### Unit tests and Continuous integration
