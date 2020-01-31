@@ -56,7 +56,7 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     dim3 = ifelse(num_dim >= 3, d[3], 1);
     num_frames = ifelse(num_dim >= 4, d[4], 1);
 
-    writeBin(as.integer(1), fh, size = 4, endian = "big");
+    writeBin(as.integer(1), fh, size = 4, endian = "big"); # version code, must be 1
     writeBin(as.integer(dim1), fh, size = 4, endian = "big");
     writeBin(as.integer(dim2), fh, size = 4, endian = "big");
     writeBin(as.integer(dim3), fh, size = 4, endian = "big");
@@ -73,12 +73,14 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     MRI_SHORT = 4L;
 
     if(typeof(data)=="integer") {
-        writeBin(as.integer(MRI_INT), fh, size = 4,  endian = "big");
+        dtype = MRI_INT;
     } else if(typeof(data)=="double") {
-        writeBin(as.integer(MRI_FLOAT), fh, size = 4,  endian = "big");
+      dtype = MRI_FLOAT;
     } else {
-        stop(sprintf("Data type '%s' not supported. Try integer or double.", typeof(data)));
+        stop(sprintf("Data type '%s' not supported. Try integer or double.\n", typeof(data)));
     }
+
+    writeBin(as.integer(dtype), fh, size = 4,  endian = "big");  # write dtype code
 
     dof = 0;    # Unused, ignore
     writeBin(as.integer(dof), fh, size = 4, endian = "big");
@@ -110,7 +112,9 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     writeBin(as.integer(rep.int(0, space_to_fill)), fh, size = 1, endian = "big");
 
     # Write the data:
-    writeBin(as.vector(data), fh, size = 4, endian = "big");
+    dtype_bytes = 4L; # All currently supported data types (see 'dtype') have length 4, so this is always correct.
+    #cat(sprintf("Writing %d values of datatype with dtype code '%d' (%d bytes per value).\n", length(data), dtype, dtype_bytes));
+    writeBin(as.vector(data), fh, size = dtype_bytes, endian = "big");
 
     # A footer follows the data, it contains the MR acquisition parameters
     writeBin(mr_params, fh, size = 4, endian = "big");

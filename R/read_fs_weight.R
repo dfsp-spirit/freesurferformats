@@ -55,7 +55,7 @@ read.fs.weight <- function(filepath, format='auto') {
 #'
 #' @description Called by \code{\link[freesurferformats]{read.fs.weight}} if parameter `format` is set to 'asc'.
 #'
-#' @param filepath string. Full path to the input weight file.
+#' @param filepath string. Full path to the input weight file, must be in ASCII weight format.
 #'
 #' @return the indices and weight data, as a named list. Entries: "vertex_indices": vector of *n* vertex indices. They are stored zero-based in the file, but are returned one-based (R-style). "value": double vector of length *n*, the morphometry data for the vertices. The data can be whatever you want.
 #'

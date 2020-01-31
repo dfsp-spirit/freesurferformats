@@ -35,13 +35,13 @@ test_that("An one-dimensional MGH file of integer values can be written", {
   output_file = tempfile();
 
   # generate data
-  data_length = 149244;
-  data = rep(1L, data_length);
-  data_array = array(data);
-  expect_equal(typeof(data_array), "integer");
+  data_length = 111111;
+  data = rep.int(1L, data_length);
+  data[10000:20000] = 0L;         # Set some of the values to zero.
+  expect_true(is.integer(data));
 
   # write data to file
-  write.fs.mgh(output_file, data_array);
+  write.fs.mgh(output_file, data);
 
   # load data again and check it
   mgh = read.fs.mgh(output_file, with_header=TRUE);
@@ -89,3 +89,4 @@ test_that("A three-dimensional MGH file with realistic size can be written", {
   expect_equal(length(data_array), length(read_data));
   expect_equal(data_array, read_data[,,,1]);
 })
+
