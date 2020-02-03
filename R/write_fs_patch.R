@@ -96,7 +96,7 @@ fs.patch <- function(vertices, faces=NULL) {
 #'
 #' @export
 print.fs.patch <- function(x, ...) {
-  cat(sprintf("Brain surface patch with %d vertices, %d on patch border.\n", nrow(x$vertices), sum(as.integer(patch$vertices[,5]))));
+  cat(sprintf("Brain surface patch with %d vertices, %d on patch border.\n", nrow(x$vertices), sum(as.integer(x$vertices[,5]))));
   if(is.null(x$faces)) {
     cat(sprintf("Patch contains no face information.\n"));
   } else {

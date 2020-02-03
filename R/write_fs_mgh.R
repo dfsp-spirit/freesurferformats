@@ -136,11 +136,10 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
 
     # Write the data:
     dtype_bytes = mri_dtype_numbytes(dtype);
-    #cat(sprintf("Writing %d values of datatype with dtype code '%d' (%d bytes per value).\n", length(data), dtype, dtype_bytes));
 
     ret_list$data = data;
     data_vector = as.vector(data);
-    cat(sprintf("Writing data vector of length %d, range=[%.3f, %.3f].\n", length(data_vector), range(data_vector)[1], range(data_vector)[2]));
+
     writeBin(data_vector, fh, size = dtype_bytes, endian = "big");
 
     # A footer follows the data, it contains the MR acquisition parameters

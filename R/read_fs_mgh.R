@@ -143,8 +143,6 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
     header$nbytespervox = nbytespervox;
 
-    cat(sprintf("Read %d data values of type '%d' (%s), %d bytes per value.\n", nv, dtype, translate.mri.dtype(dtype), nbytespervox));
-    cat(sprintf("Data is in range [%f, %f].\n", min(data), max(data)));
 
     num_read = prod(length(data));
     if (num_read != nv) {
