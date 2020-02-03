@@ -10,7 +10,8 @@ Version 0.1.8
 - Support reading the ASCII version of FreeSurfer curv format files (integrated into read.fs.curv)
 - Support reading the FreeSurfer weight or 'w' format files (read.fs.weight), both ASCII and binary subtypes are supported
 - Add support for reading binary patch files
-- Add support for reading ASCII patch files (slow)
+- Add support for reading ASCII patch files
+- Fix skipping header bytes while reading mgz files (issue #10)
 
 
 Version 0.1.7
