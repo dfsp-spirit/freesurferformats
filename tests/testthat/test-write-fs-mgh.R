@@ -32,21 +32,22 @@ test_that("An one-dimensional MGH file of double values can be written", {
 })
 
 test_that("An one-dimensional MGH file of integer values can be written", {
-  output_file = tempfile();
+  output_file = tempfile(fileext = ".mgh");
 
   # generate data
-  data_length = 111111;
+  data_length = 111111L;
   data = rep.int(1L, data_length);
   data[10000:20000] = 0L;         # Set some of the values to zero.
   expect_true(is.integer(data));
+  expect_equal(range(data), c(0L, 1L));
 
   # write data to file
   write.fs.mgh(output_file, data);
 
   # load data again and check it
   mgh = read.fs.mgh(output_file, with_header=TRUE);
-  read_data = mgh$data
-  header = mgh$header
+  read_data = mgh$data;
+  header = mgh$header;
   expect_equal(header$mr_params, c(0,0,0,0));
   expect_equal(header$dtype, 1); #MRI_INT
   expect_equal(header$ras_good_flag, 0L);
@@ -63,6 +64,7 @@ test_that("An one-dimensional MGH file of integer values can be written", {
   expect_equal(length(data), length(as.vector(read_data)));
   expect_equal(data_length, length(as.vector(read_data)));
   expect_equal(data, as.vector(read_data));
+  expect_equal(range(read_data), c(0L, 1L));
 })
 
 

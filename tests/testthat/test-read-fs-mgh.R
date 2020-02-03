@@ -19,6 +19,9 @@ test_that("The dimensions of our demo 3D MGZ file are read correctly", {
 
 test_that("The data values in the demo 3D MGZ file are read as in the reference implementation", {
   # Tests that the data read is identical to the values returned by the matlab function $FREESURFER_HOME/matlab/MRIread.m
+  # You can also check with the `mri_info` command line tool, just be sure to shift the
+  # vertex indices (zero-based for mri_info, one-based in R). See comment below for an example.
+
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   vd = read.fs.mgh(brain_image);
 
@@ -26,7 +29,7 @@ test_that("The data values in the demo 3D MGZ file are read as in the reference 
   expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
   expect_equal(dim(vd), c(256, 256, 256, 1));
 
-  expect_equal(vd[100, 100, 100, 1], 77);
+  expect_equal(vd[100, 100, 100, 1], 77);      # try on command line: mri_info --voxel 99 99 99 inst/extdata/brain.mgz
   expect_equal(vd[110, 110, 110, 1], 71);
   expect_equal(vd[1, 1, 1, 1], 0);
 })

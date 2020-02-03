@@ -53,38 +53,39 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         fh = file(filepath, "rb");
     }
 
-    v = readBin(fh, integer(), n = 1, endian = "big");
+    v = readBin(fh, integer(), n = 1, endian = "big");  # mgh version
     if(v!=1L) {
         stop("File not in MGH/MGZ format.");
     }
-    ndim1 = readBin(fh, integer(), n = 1, endian = "big");
-    ndim2 = readBin(fh, integer(), n = 1, endian = "big");
-    ndim3  = readBin(fh, integer(), n = 1, endian = "big");
-    nframes = readBin(fh, integer(), n = 1, endian = "big");
-    dtype = readBin(fh, integer(), n = 1, endian = "big");
-    dof = readBin(fh, integer(), n = 1, endian = "big");
+    ndim1 = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    ndim2 = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    ndim3  = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    nframes = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    dtype = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+    dof = readBin(fh, integer(), n = 1, size = 4, endian = "big");
 
     header$dtype = dtype;
     header$dof = dof;
     header$internal = list();
 
-    unused_header_space_size_left = 256;
+    unused_header_space_size_left = 256L;
 
-    header$ras_good_flag = readBin(fh, integer(), size = 2, n = 1, endian = "big");
-    if(header$ras_good_flag == 1) {
+    ras_flag_size = 2L;
+    header$ras_good_flag = readBin(fh, integer(), size = ras_flag_size, n = 1, endian = "big");
+    if(header$ras_good_flag == 1L) {
         delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
         Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
         Mdc = matrix(Mdc, nrow=3, byrow = FALSE);
         Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
 
         D = diag(delta);
-        Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2);
+        Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS of the center voxel
         Pxyz_0 = Pxyz_c - ((Mdc %*% D) %*% Pcrs_c);
 
         blah = Mdc %*% D;
         M = matrix(rep(0, 16), nrow=4);
         M[1:3,1:3] = as.matrix(blah);
-        M[4,1:4] = c(0,0,0,1);
+        M[4,1:4] = c(0,0,0,1); # affine row
         M[1:3,4] = Pxyz_0;
 
         ras_xform = matrix(rep(0, 16), nrow=4);
@@ -108,7 +109,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     # Skip to end of header/beginning of data
-    seek(fh, where = unused_header_space_size_left - 2, origin = "current");
+    seek(fh, where = unused_header_space_size_left - ras_flag_size, origin = "current");
 
     nv = ndim1 * ndim2 * ndim3 * nframes;   # number of voxels
     volsz = c(ndim1, ndim2, ndim3, nframes);
@@ -122,24 +123,22 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     MRI_SHORT = 4L;
 
     dt_explanation = "0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT";
+    dtype_name = translate.mri.dtype(dtype); # Validate that the dtype. Will stop if not.
 
     # Determine number of bytes per voxel
+    nbytespervox = mri_dtype_numbytes(dtype);
     if(dtype == MRI_FLOAT) {
-        nbytespervox = 4L;
         data = readBin(fh, numeric(), size = nbytespervox, n = nv, endian = "big");
     } else if(dtype == MRI_UCHAR) {
-        nbytespervox = 1L;
         data = readBin(fh, integer(), size = nbytespervox, n = nv, signed = FALSE, endian = "big");
-    } else if (dtype == MRI_SHORT) {
-        nbytespervox = 2L;
-        data = readBin(fh, integer(), size = nbytespervox, n = nv, endian = "big");
-    } else if (dtype == MRI_INT) {
-        nbytespervox = 4L;
-        data = readBin(fh, integer(), size = nbytespervox, n = nv, endian = "big");
     } else {
-       stop(sprintf(" ERROR: Unexpected data type found in header. Expected one of {0, 1, 3, 4} (%s) but got %d.\n", dt_explanation, dtype));
+        # Fine for both MRI_INT and MRI_SHORT
+        data = readBin(fh, integer(), size = nbytespervox, n = nv, endian = "big");
     }
     header$nbytespervox = nbytespervox;
+
+    cat(sprintf("Read %d data values of type '%d' (%s), %d bytes per value.\n", nv, dtype, translate.mri.dtype(dtype), nbytespervox));
+    cat(sprintf("Data is in range [%f, %f].\n", min(data), max(data)));
 
     num_read = prod(length(data));
     if (num_read != nv) {
