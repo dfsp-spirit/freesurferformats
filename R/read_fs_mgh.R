@@ -47,6 +47,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     if (is_gz) {
+        cat(sprintf("Reading gzip version: MGZ.\n"));
         fh = gzfile(filepath, "rb");
     }
     else {
@@ -72,6 +73,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     ras_flag_size = 2L;
     header$ras_good_flag = readBin(fh, integer(), size = ras_flag_size, n = 1, endian = "big");
+    unused_header_space_size_left = unused_header_space_size_left - ras_flag_size;
     if(header$ras_good_flag == 1L) {
         delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
         Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
@@ -109,7 +111,11 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     # Skip to end of header/beginning of data
-    seek(fh, where = unused_header_space_size_left - ras_flag_size, origin = "current");
+    if(is_gz) {   # Cannot seek in a gzip stream
+      discarded = readBin(fh, integer(), n = unused_header_space_size_left, size = 1L, endian = "big");
+    } else {
+      seek(fh, where = unused_header_space_size_left, origin = "current");
+    }
 
     nv = ndim1 * ndim2 * ndim3 * nframes;   # number of voxels
     volsz = c(ndim1, ndim2, ndim3, nframes);
