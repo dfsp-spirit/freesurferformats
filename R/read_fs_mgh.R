@@ -47,7 +47,6 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     }
 
     if (is_gz) {
-        cat(sprintf("Reading gzip version: MGZ.\n"));
         fh = gzfile(filepath, "rb");
     }
     else {
@@ -133,6 +132,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
     # Determine number of bytes per voxel
     nbytespervox = mri_dtype_numbytes(dtype);
+    #cat(sprintf("Reading dtype %d '%s' with %d bytes per value.\n", dtype, dtype_name, nbytespervox));
     if(dtype == MRI_FLOAT) {
         data = readBin(fh, numeric(), size = nbytespervox, n = nv, endian = "big");
     } else if(dtype == MRI_UCHAR) {
