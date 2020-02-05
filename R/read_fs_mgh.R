@@ -139,6 +139,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         zfov = header$internal$zend - header$internal$zstart;
 
 
+        orientation_info = get.slice.orientation(Mdc);
+        header$internal$slice_orientation_string = orientation_info$orientation_string;
+        header$internal$slice_direction_name = orientation_info$direction_name;
 
         header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
 
@@ -147,6 +150,8 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
+    } else {
+      header$internal$orientation_string = '???';
     }
 
     # Skip to end of header/beginning of data
@@ -237,6 +242,48 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 #' @keywords internal
 guess.filename.is.gzipped <- function(filepath, gz_extensions=c(".gz", ".mgz")) {
     return(filepath.ends.with(filepath, extensions=gz_extensions));
+}
+
+
+
+#' @title Compute MGH orientation string and direction
+#'
+#' @param Mdc numeric 3x3 matrix
+#'
+#' @return named list with entries: `orientation_string`: character string of length 3, one uppercase letter per axis. `direction_name`: slice direction, character string, one of 'sagittal', 'coronal', 'axial' or 'unknown'.
+#'
+#' @keywords internal
+get.slice.orientation <- function(Mdc) {
+
+
+  if(is.null(Mdc)) {
+    return(list('orientation_string'='???', 'direction_name'='unknown'));
+  }
+
+  orientation = c("?", "?", "?");
+  for (char_idx in seq.int(3)) {
+    sagittal = Mdc[1, char_idx];   # LR axis
+    coronal = Mdc[2, char_idx];    # PA axis
+    axial = Mdc[3, char_idx];      # IS axis
+
+    if ((abs(sagittal) > abs(coronal)) & (abs(sagittal) > abs(axial))) {
+      orientation[char_idx] = ifelse(sagittal > 0, 'R', 'L');
+      next;
+    }
+    if (abs(coronal) > abs(axial)) {
+      orientation[char_idx] = ifelse(coronal > 0, 'A', 'P');
+      next;
+    }
+    orientation[char_idx] = ifelse(axial > 0, 'S', 'I');
+  }
+  orientation_string = paste(orientation, collapse="");
+
+  direction_name = 'unknown';
+  if(orientation[3] %in% c('R', 'L')) { direction_name = 'sagittal'; }
+  if(orientation[3] %in% c('P', 'A')) { direction_name = 'coronal'; }
+  if(orientation[3] %in% c('I', 'S')) { direction_name = 'axial'; }
+
+  return(list('orientation_string'=orientation_string, 'direction_name'=direction_name));
 }
 
 
