@@ -34,12 +34,12 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
           stop(sprintf("The mr_params must be a double vector of length 4 but length is %d.", length(mr_params)));
       }
       if(! is.double(mr_params)) {
-        stop("The mr_params but be a double vector.");
+        stop("The mr_params must be a double vector.");
       }
     }
 
     if(length(vox2ras_matrix) == 0) {
-        ras_flag = 0L;
+        ras_flag = -1L;
     } else {
         if(! is.matrix(vox2ras_matrix)) {
             stop("The 'vox2ras_matrix' argument must be a matrix.");

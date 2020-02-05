@@ -74,14 +74,32 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     header$ras_good_flag = readBin(fh, integer(), size = ras_flag_size, n = 1, endian = "big");
     unused_header_space_size_left = unused_header_space_size_left - ras_flag_size;
     if(header$ras_good_flag == 1L) {
-        delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
-        Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
-        Mdc = matrix(Mdc, nrow=3, byrow = FALSE);
-        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big");
+        delta = readBin(fh, numeric(), n = 3, size = 4, endian = "big");  # xsize, ysize, zsize (voxel size along dimensions)
+        header$internal$xsize = delta[1];   # voxel size in mm
+        header$internal$ysize = delta[2];
+        header$internal$zsize = delta[3];
+
+        Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");    # vector of length 9:  x_r, x_a, x_s, y_r, y_a, y_s, z_r, z_a, z_s. Note: gets turned into 3x3 matrix below
+        header$internal$x_r = Mdc[1];
+        header$internal$x_a = Mdc[2];
+        header$internal$x_s = Mdc[3];
+        header$internal$y_r = Mdc[4];
+        header$internal$y_a = Mdc[5];
+        header$internal$y_s = Mdc[6];
+        header$internal$z_r = Mdc[7];
+        header$internal$z_a = Mdc[8];
+        header$internal$z_s = Mdc[9];
+
+        Mdc = matrix(Mdc, nrow=3, byrow = FALSE); # turn Mdc into 3x3 matrix
+
+        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big"); # 1x3 vector:  c_r, c_a, c_s
+        header$internal$c_r = Pxyz_c[1];
+        header$internal$c_a = Pxyz_c[2];
+        header$internal$c_s = Pxyz_c[3];
 
         D = diag(delta);
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS of the center voxel
-        Pxyz_0 = Pxyz_c - ((Mdc %*% D) %*% Pcrs_c);
+        Pxyz_0 = Pxyz_c - ((Mdc %*% D) %*% Pcrs_c); # the x,y,z location at CRS=0
 
         blah = Mdc %*% D;
         M = matrix(rep(0, 16), nrow=4);
@@ -101,6 +119,28 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$Pxyz_0 = Pxyz_0;
         header$internal$M = M;
         header$internal$Mdc = Mdc;
+
+        header$internal$width = ndim1;   # size in number of voxels in that dimensions (256 for conformed volumes)
+        header$internal$height = ndim2;
+        header$internal$depth = ndim3;
+
+        x_half_length = header$internal$width / 2.0 * header$internal$xsize;
+        y_half_length = header$internal$height / 2.0 * header$internal$ysize;
+        z_half_length = header$internal$depth / 2.0 * header$internal$zsize;
+        header$internal$xstart = - x_half_length;
+        header$internal$xend = x_half_length;
+        header$internal$ystart = - y_half_length;
+        header$internal$yend = y_half_length;
+        header$internal$zstart = - z_half_length;
+        header$internal$zend = z_half_length;
+
+        xfov = header$internal$xend - header$internal$xstart;
+        yfov = header$internal$yend - header$internal$ystart;
+        zfov = header$internal$zend - header$internal$zstart;
+
+
+
+        header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
 
         header$vox2ras_matrix = as.matrix(M);
         header$ras_xform = ras_xform;

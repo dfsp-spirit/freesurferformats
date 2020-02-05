@@ -15,7 +15,7 @@ test_that("An one-dimensional MGH file of double values can be written", {
   header = mgh$header
   expect_equal(header$mr_params, c(0,0,0,0));
   expect_equal(header$dtype, 3); #MRI_FLOAT
-  expect_equal(header$ras_good_flag, 0L);
+  expect_equal(header$ras_good_flag, -1L);
 
   # Check data dimensions: we should get 4 dimensions back. Since we wrote a vector of data only, the last 3 should be 1.
   expect_equal(typeof(read_data), "double");
@@ -76,7 +76,7 @@ test_that("An one-dimensional uncompressed MGH file of integer values can be wri
   header = mgh$header;
   expect_equal(header$mr_params, c(0,0,0,0));
   expect_equal(header$dtype, 1); #MRI_INT
-  expect_equal(header$ras_good_flag, 0L);
+  expect_equal(header$ras_good_flag, -1L);
 
   # Check data dimensions: we should get 4 dimensions back. Since we wrote a vector of data only, the last 3 should be 1.
   expect_equal(length(dim(read_data)), 4L);
@@ -114,7 +114,7 @@ test_that("An one-dimensional compressed MGZ file of integer values can be writt
   header = mgh$header;
   expect_equal(header$mr_params, c(0,0,0,0));
   expect_equal(header$dtype, 1); #MRI_INT
-  expect_equal(header$ras_good_flag, 0L);
+  expect_equal(header$ras_good_flag, -1L);
 
   # Check data dimensions: we should get 4 dimensions back. Since we wrote a vector of data only, the last 3 should be 1.
   expect_equal(length(dim(read_data)), 4L);
