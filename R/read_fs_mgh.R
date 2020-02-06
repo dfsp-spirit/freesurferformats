@@ -145,13 +145,18 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
         header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
 
+
         header$vox2ras_matrix = as.matrix(M);
         header$ras_xform = ras_xform;
+
+        header$internal$is_conformed = as.integer(mgh.is.conformed(header));
 
         RAS_space_size = (3*4 + 4*3*4);    # 60 bytes
         unused_header_space_size_left = unused_header_space_size_left - RAS_space_size;
     } else {
-      header$internal$orientation_string = '???';
+      header$internal$slice_orientation_string = '???';
+      header$internal$slice_direction_name = 'unknown';
+      header$internal$is_conformed = 0L;
     }
 
     # Skip to end of header/beginning of data
@@ -248,7 +253,7 @@ guess.filename.is.gzipped <- function(filepath, gz_extensions=c(".gz", ".mgz")) 
 
 #' @title Compute MGH orientation string and direction
 #'
-#' @param Mdc numeric 3x3 matrix
+#' @param Mdc numeric 3x3 matrix, typically from the \code{header$internal$Mdc} field as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
 #'
 #' @return named list with entries: `orientation_string`: character string of length 3, one uppercase letter per axis. `direction_name`: slice direction, character string, one of 'sagittal', 'coronal', 'axial' or 'unknown'.
 #'
@@ -284,6 +289,38 @@ get.slice.orientation <- function(Mdc) {
   if(orientation[3] %in% c('I', 'S')) { direction_name = 'axial'; }
 
   return(list('orientation_string'=orientation_string, 'direction_name'=direction_name));
+}
+
+
+#' @title Determine whether an MGH volume is conformed.
+#'
+#' @description In the FreeSurfer sense, *conformed* means that the volume is in coronal primary slice direction, has dimensions 256x256x256 and a voxel size of 1 mm in all 3 directions. The slice direction can only be determined if the header contains RAS information, if it does not, the volume is not conformed.
+#'
+#' @param mgh_header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
+#'
+#' @param voxel_size_tolerance double, the tolerance to accept when comparing the voxel size to the required value of `1.0`. Defaults to `1e-4`. Leave this alone unless you know what you are doing.
+#'
+#' @return logical, whether the volume is *conformed*.
+#'
+#' @keywords internal
+mgh.is.conformed <- function(mgh_header, voxel_size_tolerance=1e-4) {
+  if(is.null(mgh_header)) {
+    stop("Parameter 'mgh_header' must not be NULL.");
+  }
+  if(is.null(mgh_header$ras_good_flag) | mgh_header$ras_good_flag < 1L) {
+    return(FALSE);
+  }
+  if(mgh_header$internal$slice_direction_name != "coronal") {
+    return(FALSE);
+  }
+
+  required_voxel_size = 1.0;
+  if(mgh_header$internal$width == 256L & mgh_header$internal$height == 256L & mgh_header$internal$depth == 256L) {
+    if(abs(required_voxel_size - mgh_header$internal$xsize) <= voxel_size_tolerance & abs(required_voxel_size - mgh_header$internal$ysize) <= voxel_size_tolerance & abs(required_voxel_size - mgh_header$internal$zsize) <= voxel_size_tolerance) {
+      return(TRUE);
+    }
+  }
+  return(FALSE);
 }
 
 
@@ -349,7 +386,9 @@ print.fs.volume <- function(x, ...) {
 
   # vox2ras
   if(x$header$ras_good_flag == 1) {
-    cat(sprintf(" - Header contains vox2ras transformation information.\n"));
+    cat(sprintf(" - Header contains vox2ras transformation information. Voxel size is %.2f x %.2f x %.2f mm.\n", x$header$internal$xsize, x$header$internal$ysize, x$header$internal$zsize));
+    info_conformed = ifelse(x$header$internal$is_conformed == 1L, "is conformed", "is not conformed");
+    cat(sprintf(" - Volume %s, pimary slice direction is '%s', orientation is '%s'.\n", info_conformed, x$header$internal$slice_direction_name, x$header$internal$slice_orientation_string));
   } else {
     cat(sprintf(" - Header does not contain vox2ras transformation information.\n"));
   }
