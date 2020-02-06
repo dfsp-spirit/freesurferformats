@@ -12,6 +12,8 @@ Version 0.1.8
 - Add support for reading binary patch files
 - Add support for reading ASCII patch files
 - Fix skipping header bytes while reading mgz files (issue #10)
+- Read fov MR acquisition parameter from MGH header, make mr_params parameter of write.fs.mgh length 5 from 4
+- Compute dof and various other header fields from MGH header data
 
 
 Version 0.1.7
