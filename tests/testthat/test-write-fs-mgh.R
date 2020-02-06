@@ -13,7 +13,7 @@ test_that("An one-dimensional MGH file of double values can be written", {
   mgh = read.fs.mgh(output_file, with_header=TRUE);
   read_data = mgh$data
   header = mgh$header
-  expect_equal(header$mr_params, c(0,0,0,0));
+  expect_equal(header$mr_params, c(0,0,0,0,0));
   expect_equal(header$dtype, 3); #MRI_FLOAT
   expect_equal(header$ras_good_flag, -1L);
 
@@ -74,7 +74,7 @@ test_that("An one-dimensional uncompressed MGH file of integer values can be wri
   mgh = read.fs.mgh(output_file, with_header=TRUE);
   read_data = mgh$data;
   header = mgh$header;
-  expect_equal(header$mr_params, c(0,0,0,0));
+  expect_equal(header$mr_params, c(0,0,0,0,0));
   expect_equal(header$dtype, 1); #MRI_INT
   expect_equal(header$ras_good_flag, -1L);
 
@@ -112,7 +112,7 @@ test_that("An one-dimensional compressed MGZ file of integer values can be writt
   mgh = read.fs.mgh(output_file, with_header=TRUE);
   read_data = mgh$data;
   header = mgh$header;
-  expect_equal(header$mr_params, c(0,0,0,0));
+  expect_equal(header$mr_params, c(0,0,0,0,0));
   expect_equal(header$dtype, 1); #MRI_INT
   expect_equal(header$ras_good_flag, -1L);
 
