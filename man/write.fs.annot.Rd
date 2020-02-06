@@ -4,14 +4,9 @@
 \alias{write.fs.annot}
 \title{Write annotation to binary file.}
 \usage{
-write.fs.annot(
-  filepath,
-  num_vertices = NULL,
-  colortable = NULL,
+write.fs.annot(filepath, num_vertices = NULL, colortable = NULL,
   labels_as_colorcodes = NULL,
-  labels_as_indices_into_colortable = NULL,
-  fs.annot = NULL
-)
+  labels_as_indices_into_colortable = NULL, fs.annot = NULL)
 }
 \arguments{
 \item{filepath}{string, path to the output file}
@@ -47,10 +42,9 @@ Write an annotation to a FreeSurfer binary format annotation file in the new for
 
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions: \code{\link{colortable.from.annot}},
+  \code{\link{read.fs.annot}},
+  \code{\link{read.fs.colortable}},
+  \code{\link{write.fs.colortable}}
 }
 \concept{atlas functions}

@@ -24,15 +24,13 @@ Read a colortable from a text file in FreeSurfer ASCII colortable lookup table (
 
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.annot}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions: \code{\link{colortable.from.annot}},
+  \code{\link{read.fs.annot}},
+  \code{\link{write.fs.annot}},
+  \code{\link{write.fs.colortable}}
 
-Other colorLUT functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{write.fs.colortable}()}
+Other colorLUT functions: \code{\link{colortable.from.annot}},
+  \code{\link{write.fs.colortable}}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}

@@ -212,8 +212,15 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     if(with_header) {
         # Read the mr_params footer behind the data. The mr_params footer is optional, so we do not care if reading it fails.
         ignored = tryCatch({
-            header$mr_params  = readBin(fh, numeric(), n = 4, size = 4, endian = "big");
+            header$mr_params  = readBin(fh, numeric(), n = 5, size = 4, endian = "big");
             header$has_mr_params = 1;
+            header$mr = list();
+            header$mr$tr = header$mr_params[1];           # repetition time [ms]
+            header$mr$flip_angle_radians = header$mr_params[2];   # flip angle [radians]
+            header$mr$flip_angle_degrees = header$mr_params[2] * (180./pi);   # flip angle [degrees]
+            header$mr$te = header$mr_params[3];           # echo time [ms]
+            header$mr$ti = header$mr_params[4];           # inversion time [ms]
+            header$mr$fov = header$mr_params[5];          # field-of-view
         }, error=function(e){}, warning=function(w){});
     }
 
@@ -395,7 +402,7 @@ print.fs.volume <- function(x, ...) {
 
   # mr_params
   if(x$header$has_mr_params == 1) {
-    cat(sprintf(" - Header contains MR acquisition parameters: '%s'.\n", paste(x$header$mr_params, collapse=" ")));
+    cat(sprintf(" - Header contains MR acquisition parameters: TR: %.2f msec, TE: %.2f msec, TI: %.2f msec, flip angle: %.2f degrees, fov = %.3f.\n", x$header$mr$tr, x$header$mr$te, x$header$mr$ti, x$header$mr$flip_angle_degrees, x$header$mr$fov));
   } else {
     cat(sprintf(" - Header does not contain MR acquisition parameters.\n"));
   }

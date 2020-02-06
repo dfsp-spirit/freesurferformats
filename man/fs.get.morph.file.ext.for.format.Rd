@@ -16,15 +16,12 @@ file ext, string. The standard file extension for the format. (May be an empty s
 Given a morphometry file format, derive the proper file extension.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.weight}()}
+Other morphometry functions: \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph}},
+  \code{\link{read.fs.weight}},
+  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
+  \code{\link{write.fs.morph}},
+  \code{\link{write.fs.weight}}
 }
 \concept{morphometry functions}
