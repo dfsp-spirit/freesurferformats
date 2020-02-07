@@ -65,7 +65,8 @@ read.fs.surface <- function(filepath, format='auto') {
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
-  QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
+  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
+  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213;
 
 
   if(guess.filename.is.gzipped(filepath)) {
@@ -78,13 +79,14 @@ read.fs.surface <- function(filepath, format='auto') {
   ret_list = list();
 
   magic_byte = fread3(fh);
-  if (magic_byte == QUAD_MAGIC_FILE_TYPE_NUMBER) {
+  if (magic_byte == OLD_QUAD_MAGIC_FILE_TYPE_NUMBER | magic_byte == NEW_QUAD_MAGIC_FILE_TYPE_NUMBER) {
     warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once we have an example input file and the code has unit tests.")
     ret_list$mesh_face_type = "quads";
 
     num_vertices = fread3(fh);
-    num_faces = fread3(fh);
-    cat(sprintf("Reading surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
+    num_faces = fread3(fh);    # These are QUAD faces
+    num_tris_faces = num_faces * 2L;   # There are twice as many tris faces
+    cat(sprintf("Reading quad surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
 
     ret_list$internal = list();
     ret_list$internal$num_vertices_expected = num_vertices;
@@ -92,8 +94,13 @@ read.fs.surface <- function(filepath, format='auto') {
 
 
     num_vertex_coords = num_vertices * 3L;
-    vertex_coords = readBin(fh, integer(), size=2L, n = num_vertex_coords, endian = "big");
-    vertex_coords = vertex_coords / 100.;
+    if (magic_byte == OLD_QUAD_MAGIC_FILE_TYPE_NUMBER) {
+      vertex_coords = readBin(fh, integer(), size=2L, n = num_vertex_coords, endian = "big");
+      vertex_coords = vertex_coords / 100.;
+    } else {
+      # NEW_QUAD_MAGIC_FILE_TYPE_NUMBER
+      vertex_coords = readBin(fh, numeric(), size=4L, n = num_vertex_coords, endian = "big");
+    }
     vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
 
     if(length(vertex_coords) != num_vertex_coords) {
@@ -102,13 +109,24 @@ read.fs.surface <- function(filepath, format='auto') {
 
     num_face_vertex_indices = num_faces * 4L;
     face_vertex_indices = rep(0, num_face_vertex_indices);
-    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L, byrow = TRUE)
+    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L, byrow = TRUE);
     for (face_idx in 1L:num_faces) {
       for (vertex_idx_in_face in 1L:4L) {
         global_vertex_idx = fread3(fh);
         faces[face_idx, vertex_idx_in_face] = global_vertex_idx;
       }
     }
+
+    # We can compute the tris-faces from the quad faces:
+    # 'To create triangles, use in consistent order: (v0, v1, v2) and (v2, v3, v0).' -- G. Wideman
+    tris_faces = matrix(rep(0L, num_tris_faces*3L), nrow=num_tris_faces, ncol=3L);
+    for (quad_face_idx in 1L:num_faces) {
+        tris_face_2_index = quad_face_idx * 2L;
+        tris_face_1_index = tris_face_2_index - 1L;
+        tris_faces[tris_face_1_index,] = faces[quad_face_idx, c(1,2,3)];
+        tris_faces[tris_face_2_index,] = faces[quad_face_idx, c(3,4,1)];
+    }
+
 
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
     ret_list$mesh_face_type = "tris";
