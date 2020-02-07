@@ -99,11 +99,11 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
         D = diag(delta);
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS of the center voxel
-        Pxyz_0 = Pxyz_c - ((Mdc %*% D) %*% Pcrs_c); # the x,y,z location at CRS=0
+        Mdc_scaled = Mdc %*% D;
+        Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0
 
-        blah = Mdc %*% D;
         M = matrix(rep(0, 16), nrow=4);
-        M[1:3,1:3] = as.matrix(blah);
+        M[1:3,1:3] = as.matrix(Mdc_scaled);
         M[4,1:4] = c(0,0,0,1); # affine row
         M[1:3,4] = Pxyz_0;
 
@@ -238,6 +238,72 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         return(return_list);
     }
     return(data);
+}
+
+
+#' @title  Compute vox2ras matrix from basic MGH header fields.
+#'
+#' @description This is also known as the 'scanner' vox2ras.
+#'
+#' @param header the MGH header
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     brain_image = system.file("extdata", "brain.mgz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     mghheader.vox2ras(vdh$header);
+#'
+#' @export
+mghheader.vox2ras <- function(header) {
+  delta = c(header$internal$xsize, header$internal$ysize, header$internal$zsize);
+  D = diag(delta);
+  Mdc = matrix(c(header$internal$x_r, header$internal$x_a, header$internal$x_s, header$internal$y_r, header$internal$y_a, header$internal$y_s, header$internal$z_r, header$internal$z_a, header$internal$z_s), nrow=3, byrow = FALSE);
+  Pcrs_c = c(header$internal$width/2, header$internal$height/2, header$internal$depth/2); # CRS of the center of the volume
+  Pxyz_c = c(header$internal$c_r, header$internal$c_a, header$internal$c_s); # x,y,z at center of the volume
+  Mdc_scaled = Mdc %*% D;
+  Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0
+  M = matrix(rep(0, 16), nrow=4);
+  M[1:3,1:3] = as.matrix(Mdc_scaled);
+  M[4,1:4] = c(0,0,0,1); # affine row
+  M[1:3,4] = Pxyz_0;
+  return(M);
+}
+
+
+#' @title  Compute vox2ras tkreg matrix from basic MGH header fields.
+#'
+#' @description This is also known as the 'tkreg' vox2ras.
+#'
+#' @param header the MGH header
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     brain_image = system.file("extdata", "brain.mgz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     mghheader.vox2rastkreg(vdh$header);
+#'
+#' @export
+mghheader.vox2rastkreg <- function(header) {
+  header_copy = header;
+  header_copy$internal$x_r = -1;
+  header_copy$internal$y_r = 0;
+  header_copy$internal$z_r = 0;
+  header_copy$internal$c_r = 0.0;
+  header_copy$internal$x_a = 0;
+  header_copy$internal$y_a = 0;
+  header_copy$internal$z_a = 1;
+  header_copy$internal$c_a = 0.0;
+  header_copy$internal$x_s = 0;
+  header_copy$internal$y_s = 0;
+  header_copy$internal$z_s = -1;
+  header_copy$internal$c_s = 0.0;
+  return(mghheader.vox2ras(header_copy));
 }
 
 
