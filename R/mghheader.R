@@ -23,7 +23,7 @@ mghheader.vox2ras <- function(header) {
   }
 
   if(!(mghheader.is.ras.valid(header))) {
-    stop('MGH header does not contain valid RAS information. Cannot derive vo2ras matrix');
+    stop('MGH header does not contain valid RAS information. Cannot derive vox2ras matrix.');
   }
 
   delta = c(header$internal$xsize, header$internal$ysize, header$internal$zsize);
@@ -53,6 +53,10 @@ mghheader.is.ras.valid <- function(header) {
   }
 
   if(is.null(header)) {
+    return(FALSE);
+  }
+
+  if(is.null(header$ras_good_flag)) {
     return(FALSE);
   }
 
@@ -86,7 +90,7 @@ mghheader.ras2vox <- function(header) {
   }
 
   if(!(mghheader.is.ras.valid(header))) {
-    stop('MGH header does not contain valid RAS information. Cannot derive vo2ras matrix');
+    stop('MGH header does not contain valid RAS information. Cannot derive ras2vox matrix.');
   }
 
   return(solve(mghheader.vox2ras(header)));
@@ -112,6 +116,15 @@ mghheader.ras2vox <- function(header) {
 #'
 #' @export
 mghheader.vox2ras.tkreg <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    stop('MGH header does not contain valid RAS information. Cannot derive vox2ras.tkreg matrix.');
+  }
+
   header_copy = header; # copy the xsize, ysize, zsize
 
   # now set tkreg default orientation
@@ -124,8 +137,8 @@ mghheader.vox2ras.tkreg <- function(header) {
   header_copy$internal$z_a = 1;
   header_copy$internal$c_a = 0.0;
   header_copy$internal$x_s = 0;
-  header_copy$internal$y_s = 0;
-  header_copy$internal$z_s = -1;
+  header_copy$internal$y_s = -1;
+  header_copy$internal$z_s = 0;
   header_copy$internal$c_s = 0.0;
   return(mghheader.vox2ras(header_copy));
 }
@@ -148,6 +161,15 @@ mghheader.vox2ras.tkreg <- function(header) {
 #'
 #' @export
 mghheader.ras2vox.tkreg <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    stop('MGH header does not contain valid RAS information. Cannot derive ras2vox.tkreg matrix.');
+  }
+
   return(solve(mghheader.vox2ras.tkreg(header)));
 }
 
