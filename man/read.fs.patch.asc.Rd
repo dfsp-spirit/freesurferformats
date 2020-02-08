@@ -16,7 +16,9 @@ named list. The list has the following named entries: "vertices": see return val
 An ASCII format patch is a part of a brain surface mesh, and is a mesh itself. It consists of vertices and faces. The ASCII patch format is very similar to the ASCII surface format. **Note:** The contents of ASCII and binary patch format files is different. The ASCII patch format is not ideal for parsing, and loading such files is currently quite slow.
 }
 \seealso{
-Other patch functions: \code{\link{fs.patch}},
-  \code{\link{read.fs.patch}}, \code{\link{write.fs.patch}}
+Other patch functions: 
+\code{\link{fs.patch}()},
+\code{\link{read.fs.patch}()},
+\code{\link{write.fs.patch}()}
 }
 \concept{patch functions}

@@ -17,12 +17,15 @@ write.fs.weight(filepath, vertex_indices, values)
 Write vertex-wise brain data for a set of vertices to a binary file in *weight* format. This format is also known as *paint* format or simply as *w* format.
 }
 \seealso{
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
-  \code{\link{read.fs.morph}},
-  \code{\link{read.fs.weight}},
-  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
-  \code{\link{write.fs.morph}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph}()},
+\code{\link{read.fs.weight}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph}()}
 }
 \concept{morphometry functions}

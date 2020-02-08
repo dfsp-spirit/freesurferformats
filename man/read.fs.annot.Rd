@@ -4,8 +4,7 @@
 \alias{read.fs.annot}
 \title{Read file in FreeSurfer annotation format}
 \usage{
-read.fs.annot(filepath, empty_label_name = "unknown",
-  metadata = list())
+read.fs.annot(filepath, empty_label_name = "unknown", metadata = list())
 }
 \arguments{
 \item{filepath}{string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
@@ -31,9 +30,10 @@ Read a data annotation file in FreeSurfer format. Such a file assigns a label an
 
 }
 \seealso{
-Other atlas functions: \code{\link{colortable.from.annot}},
-  \code{\link{read.fs.colortable}},
-  \code{\link{write.fs.annot}},
-  \code{\link{write.fs.colortable}}
+Other atlas functions: 
+\code{\link{colortable.from.annot}()},
+\code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot}()},
+\code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}

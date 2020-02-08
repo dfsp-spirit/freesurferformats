@@ -16,10 +16,11 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 Read FreeSurfer ASCII format surface.
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface}}
+Other mesh functions: 
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh functions}
