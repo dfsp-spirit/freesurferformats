@@ -9,6 +9,9 @@ mghheader.ras2vox(header)
 \arguments{
 \item{header}{the MGH header}
 }
+\value{
+4x4 numerical matrix, the tranformation matrix
+}
 \description{
 This is also known as the 'scanner' or 'native' ras2vox. It is the inverse of the respective vox2ras, see \code{\link[freesurferformats]{mghheader.vox2ras}}.
 }
@@ -23,6 +26,8 @@ This is also known as the 'scanner' or 'native' ras2vox. It is the inverse of th
 \seealso{
 Other header coordinate space: 
 \code{\link{mghheader.ras2vox.tkreg}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras.tkreg}()},
 \code{\link{mghheader.vox2ras}()}
 }

@@ -9,6 +9,9 @@ mghheader.vox2ras.tkreg(header)
 \arguments{
 \item{header}{the MGH header}
 }
+\value{
+4x4 numerical matrix, the tranformation matrix
+}
 \description{
 This is also known as the 'tkreg' vox2ras. It is the inverse of the respective ras2vox, see \code{\link[freesurferformats]{mghheader.ras2vox.tkreg}}.
 }
@@ -24,6 +27,8 @@ This is also known as the 'tkreg' vox2ras. It is the inverse of the respective r
 Other header coordinate space: 
 \code{\link{mghheader.ras2vox.tkreg}()},
 \code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras}()}
 }
 \concept{header coordinate space}

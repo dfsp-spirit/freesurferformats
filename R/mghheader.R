@@ -6,6 +6,8 @@
 #'
 #' @param header the MGH header
 #'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
 #' @family header coordinate space
 #'
 #' @examples
@@ -73,6 +75,8 @@ mghheader.is.ras.valid <- function(header) {
 #'
 #' @param header the MGH header
 #'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
 #' @family header coordinate space
 #'
 #' @examples
@@ -104,6 +108,8 @@ mghheader.ras2vox <- function(header) {
 #' @description This is also known as the 'tkreg' vox2ras. It is the inverse of the respective ras2vox, see \code{\link[freesurferformats]{mghheader.ras2vox.tkreg}}.
 #'
 #' @param header the MGH header
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -150,6 +156,8 @@ mghheader.vox2ras.tkreg <- function(header) {
 #'
 #' @param header the MGH header
 #'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
 #' @family header coordinate space
 #'
 #' @examples
@@ -171,5 +179,133 @@ mghheader.ras2vox.tkreg <- function(header) {
   }
 
   return(solve(mghheader.vox2ras.tkreg(header)));
+}
+
+
+#' @title  Compute tkreg-RAS to scanner-RAS matrix from basic MGH header fields.
+#'
+#' @description This is also known as the 'tkreg2scanner' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'scanner2tkreg' matrix, see \code{\link[freesurferformats]{mghheader.scanner2tkreg}}.
+#'
+#' @param header the MGH header
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     brain_image = system.file("extdata", "brain.mgz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     mghheader.tkreg2scanner(vdh$header);
+#'
+#' @export
+mghheader.tkreg2scanner <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    stop('MGH header does not contain valid RAS information. Cannot derive tkreg2scanner matrix.');
+  }
+
+  vox2ras_native = mghheader.vox2ras(header);
+  ras2vox_tkreg = mghheader.ras2vox.tkreg(header);
+  tkreg2scanner = vox2ras_native %*% ras2vox_tkreg;
+  return(tkreg2scanner);
+}
+
+
+#' @title  Compute scanner-RAS 2 tkreg-RAS matrix from basic MGH header fields.
+#'
+#' @description This is also known as the 'scanner2tkreg' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'tkreg2scanner' matrix, see \code{\link[freesurferformats]{mghheader.tkreg2scanner}}.
+#'
+#' @param header the MGH header
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     brain_image = system.file("extdata", "brain.mgz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     mghheader.scanner2tkreg(vdh$header);
+#'
+#' @export
+mghheader.scanner2tkreg <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    stop('MGH header does not contain valid RAS information. Cannot derive scanner2tkreg matrix.');
+  }
+
+  ras2vox = mghheader.ras2vox(header);
+  vox2tkras = mghheader.vox2ras.tkreg(header);
+  scanner2tkreg = vox2tkras %*% ras2vox;
+  return(scanner2tkreg);
+}
+
+
+#' @title Compute vox2ras xform
+#'
+#' @param header the MGH header
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
+#' @export
+mghheader.vox2ras.xform <- function(header) {
+  stop("not implemented yet")
+}
+
+
+#' @title Compute ras2vox xform
+#'
+#' @param header the MGH header
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
+#' @export
+mghheader.ras2vox.xform <- function(header) {
+  stop("not implemented yet")
+}
+
+
+#' @title Compute vox2vox matrix between two volumes.
+#'
+#' @param header_from the MGH header of the source volume
+#'
+#' @param header_to the MGH header of the target volume
+#'
+#' @return 4x4 numerical matrix, the tranformation matrix
+#'
+#' @export
+mghheader.vox2vox <- function(header_from, header_to) {
+
+  if(is.fs.volume(header_from)) {
+    header_from = header_from$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header_from))) {
+    stop("MGH header of parameter 'header_from' does not contain valid RAS information. Cannot derive vox2vox matrix.");
+  }
+
+  if(is.fs.volume(header_to)) {
+    header_to = header_to$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header_to))) {
+    stop("MGH header of parameter 'header_to' does not contain valid RAS information. Cannot derive vox2vox matrix.");
+  }
+
+  vox2ras_xf_from = mghheader.vox2ras.xform(header_from);
+  ras2vox_xf_to = mghheader.ras2vox.xform(header_to);
+  vox2vox = ras2vox_xf_to %*% vox2ras_xf_from;
+  return(vox2vox);
 }
 

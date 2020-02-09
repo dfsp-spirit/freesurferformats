@@ -9,8 +9,11 @@ mghheader.scanner2tkreg(header)
 \arguments{
 \item{header}{the MGH header}
 }
+\value{
+4x4 numerical matrix, the tranformation matrix
+}
 \description{
-This is also known as the 'scanner2tkreg' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'tkreg2scanner' matrix, see \code{\link[freesurferformats]{tkreg2scanner}}.
+This is also known as the 'scanner2tkreg' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'tkreg2scanner' matrix, see \code{\link[freesurferformats]{mghheader.tkreg2scanner}}.
 }
 \examples{
     brain_image = system.file("extdata", "brain.mgz",
