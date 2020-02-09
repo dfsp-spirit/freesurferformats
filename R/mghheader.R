@@ -252,30 +252,6 @@ mghheader.scanner2tkreg <- function(header) {
 }
 
 
-#' @title Compute vox2ras xform
-#'
-#' @param header the MGH header
-#'
-#' @return 4x4 numerical matrix, the tranformation matrix
-#'
-#' @export
-mghheader.vox2ras.xform <- function(header) {
-  stop("not implemented yet")
-}
-
-
-#' @title Compute ras2vox xform
-#'
-#' @param header the MGH header
-#'
-#' @return 4x4 numerical matrix, the tranformation matrix
-#'
-#' @export
-mghheader.ras2vox.xform <- function(header) {
-  stop("not implemented yet")
-}
-
-
 #' @title Compute vox2vox matrix between two volumes.
 #'
 #' @param header_from the MGH header of the source volume
@@ -303,9 +279,9 @@ mghheader.vox2vox <- function(header_from, header_to) {
     stop("MGH header of parameter 'header_to' does not contain valid RAS information. Cannot derive vox2vox matrix.");
   }
 
-  vox2ras_xf_from = mghheader.vox2ras.xform(header_from);
-  ras2vox_xf_to = mghheader.ras2vox.xform(header_to);
-  vox2vox = ras2vox_xf_to %*% vox2ras_xf_from;
+  vox2ras_from = mghheader.vox2ras(header_from);
+  ras2vox_to = mghheader.ras2vox(header_to);
+  vox2vox = ras2vox_to %*% vox2ras_from;
   return(vox2vox);
 }
 
