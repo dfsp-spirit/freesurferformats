@@ -1,7 +1,7 @@
 #' @title Write mesh to file in FreeSurfer binary surface format
 #'
 #' @description Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
-#'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
+#'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'. This function writes the triangle version of the surface file format.
 #'
 #' @param filepath string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
@@ -27,7 +27,8 @@
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces) {
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
-  QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
+  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
+  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213;
 
   num_faces_with_index_zero = sum(faces==0);
   if(num_faces_with_index_zero > 0) {
@@ -67,7 +68,7 @@ write.fs.surface <- function(filepath, vertex_coords, faces) {
     writeBin(c(t(faces)), fh, size = 4, endian = "big");
     close(fh);
   } else if (ncol(faces) == 4) {
-    MAGIC_FILE_TYPE_NUMBER = QUAD_MAGIC_FILE_TYPE_NUMBER;
+    MAGIC_FILE_TYPE_NUMBER = OLD_QUAD_MAGIC_FILE_TYPE_NUMBER;
     format_written = "quads";
     stop("Sorry, writing QUAD files not implemented yet. Use TRIS instead (3 vertex indices per face instead of 4).")
   } else {

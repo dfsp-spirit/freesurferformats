@@ -18,7 +18,7 @@ string the format that was written. One of "tris" or "quads". Currently only tri
 }
 \description{
 Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
-   For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
+   For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'. This function writes the triangle version of the surface file format.
 }
 \examples{
 \donttest{

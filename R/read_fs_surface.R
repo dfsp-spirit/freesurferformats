@@ -84,13 +84,13 @@ read.fs.surface <- function(filepath, format='auto') {
     ret_list$mesh_face_type = "quads";
 
     num_vertices = fread3(fh);
-    num_faces = fread3(fh);    # These are QUAD faces
-    num_tris_faces = num_faces * 2L;   # There are twice as many tris faces
-    cat(sprintf("Reading quad surface file, expecting %d vertices and %d faces.\n", num_vertices, num_faces));
+    num_quad_faces = fread3(fh);    # These are QUAD faces
+    num_tris_faces = num_quad_faces * 2L;   # There are twice as many tris faces
+    cat(sprintf("Reading quad surface file, expecting %d vertices and %d quad faces.\n", num_vertices, num_quad_faces));
 
     ret_list$internal = list();
     ret_list$internal$num_vertices_expected = num_vertices;
-    ret_list$internal$num_faces_expected = num_faces;
+    ret_list$internal$num_faces_expected = num_quad_faces;
 
 
     num_vertex_coords = num_vertices * 3L;
@@ -107,25 +107,19 @@ read.fs.surface <- function(filepath, format='auto') {
       stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
     }
 
-    num_face_vertex_indices = num_faces * 4L;
+    num_face_vertex_indices = num_quad_faces * 4L;
     face_vertex_indices = rep(0, num_face_vertex_indices);
-    faces = matrix(face_vertex_indices, nrow=num_faces, ncol=4L, byrow = TRUE);
-    for (face_idx in 1L:num_faces) {
+    quad_faces = matrix(face_vertex_indices, nrow=num_quad_faces, ncol=4L, byrow = TRUE);
+    for (face_idx in 1L:num_quad_faces) {
       for (vertex_idx_in_face in 1L:4L) {
         global_vertex_idx = fread3(fh);
-        faces[face_idx, vertex_idx_in_face] = global_vertex_idx;
+        quad_faces[face_idx, vertex_idx_in_face] = global_vertex_idx;
       }
     }
+    ret_list$internal$quad_faces = quad_faces;
 
-    # We can compute the tris-faces from the quad faces:
-    # 'To create triangles, use in consistent order: (v0, v1, v2) and (v2, v3, v0).' -- G. Wideman
-    tris_faces = matrix(rep(0L, num_tris_faces*3L), nrow=num_tris_faces, ncol=3L);
-    for (quad_face_idx in 1L:num_faces) {
-        tris_face_2_index = quad_face_idx * 2L;
-        tris_face_1_index = tris_face_2_index - 1L;
-        tris_faces[tris_face_1_index,] = faces[quad_face_idx, c(1,2,3)];
-        tris_faces[tris_face_2_index,] = faces[quad_face_idx, c(3,4,1)];
-    }
+    # Compute the tris-faces from the quad faces:
+    faces = faces.quad.to.tris(quad_faces);
 
 
   } else if(magic_byte == TRIS_MAGIC_FILE_TYPE_NUMBER) {
@@ -189,6 +183,55 @@ read.fs.surface <- function(filepath, format='auto') {
 print.fs.surface <- function(x, ...) {
   cat(sprintf("Brain surface trimesh with %d vertices and %d faces.\n", nrow(x$vertices), nrow(x$faces)));
   cat(sprintf("-Surface coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertices[,1]), min(x$vertices[,2]), min(x$vertices[,3]), max(x$vertices[,1]), max(x$vertices[,2]), max(x$vertices[,3])));
+}
+
+
+#' Convert quad faces to tris faces.
+#'
+#' @param quad_faces nx4 integer matrix, the indices of the vertices making up the *n* quad faces
+#'
+#' @return *2nx3* integer matrix, the indices of the vertices making up the *2n* tris faces
+#'
+#' @keywords internal
+faces.quad.to.tris <- function(quad_faces) {
+  num_quad_faces = nrow(quad_faces);
+  num_tris_faces = num_quad_faces * 2L;
+  tris_faces = matrix(rep(0L, num_tris_faces*3L), nrow=num_tris_faces, ncol=3L);
+  for (quad_face_idx in 1L:num_quad_faces) {
+    tris_face_2_index = quad_face_idx * 2L;
+    tris_face_1_index = tris_face_2_index - 1L;
+    tris_faces[tris_face_1_index,] = quad_faces[quad_face_idx, c(1,2,3)];
+    tris_faces[tris_face_2_index,] = quad_faces[quad_face_idx, c(3,4,1)];
+  }
+  return(tris_faces);
+}
+
+
+#' Convert tris faces to quad faces.
+#'
+#' @description This is experimental. Note that it can only work if the number of 'tris_faces' is even, as two consecutive tris-faces will be merged into one quad face. We could set the index to NA in that case, but I do not know how FreeSurfer handles this, so we do not guess.
+#'
+#' @param tris_faces *nx3* integer matrix, the indices of the vertices making up the *n* tris faces.
+#'
+#' @return n/2x4 integer matrix, the indices of the vertices making up the *n* quad faces.
+#'
+#' @keywords internal
+faces.tris.to.quad <- function(tris_faces) {
+  num_tris_faces = nrow(tris_faces);
+  if(num_tris_faces %% 2 != 0L) {
+    stop("Number of tris faces must be even.");
+  }
+  num_quad_faces = num_tris_faces / 2L;
+
+  quad_faces = matrix(rep(0L, num_quad_faces*4L), nrow=num_quad_faces, ncol=4L);
+  for (tris_face_idx in seq.int(1L, num_tris_faces, 2L)) {
+    tris_face_1_index = tris_face_idx;
+    tris_face_2_index = tris_face_idx + 1L;
+    quad_face_index = tris_face_2_index / 2L;
+
+    quad_faces[quad_face_index,] = c(tris_faces[tris_face_1_index, c(1,2,3)], tris_faces[tris_face_2_index, 2]);
+  }
+  return(quad_faces);
 }
 
 
