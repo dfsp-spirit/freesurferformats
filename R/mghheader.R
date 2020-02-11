@@ -58,6 +58,10 @@ mghheader.is.ras.valid <- function(header) {
     return(FALSE);
   }
 
+  if(!is.list(header)) {
+    return(FALSE); # most likely someone passed the raw volume data array instead of the volume.
+  }
+
   if(is.null(header$ras_good_flag)) {
     return(FALSE);
   }
