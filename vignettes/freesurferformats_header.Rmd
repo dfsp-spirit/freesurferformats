@@ -1,0 +1,97 @@
+---
+title: "Computing volume header data with freesurferformats"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Computing volume header data with freesurferformats}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+  In this document, we show how to derive various data from the header of [FreeSurfer](https://surfer.nmr.mgh.harvard.edu) brain volume files.
+
+# Computing brain volume header data
+
+## About the MGH header
+
+The header of MGH (or MGZ) brain volume files can contain important information on the volume data, including orientation, slice thickness, MR acquisition parameters. Some of this has to be computed from the header fields. The *freesurferformats* package provides functions to compute important properties from the header.
+
+## Getting access to the header data in MGH or MGZ files
+
+When reading a brain volume, make sure you explicitely request the full data, including the header:
+
+```{r, eval = FALSE}
+    library("freesurferformats");
+    mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+    brain = read.fs.mgh(mgh_file, with_header = TRUE);
+```
+
+
+This will give you an `fs.volume` instance, which is very handy. To see the header information, just type the variable name to print it:
+
+```
+brain
+Brain volume with 4 dimensions '256x256x256x1' and 16777216 voxels.
+ - Data dimensions according to header: '256x256x256x1'.
+ - Datatype according to header is 0 ('MRI_UCHAR'), values are in range [0.00, 156.00].
+ - Header contains vox2ras transformation information. Voxel size is 1.00 x 1.00 x 1.00 mm.
+ - Volume is conformed, pimary slice direction is 'coronal', orientation is 'LIA'.
+ - Header contains MR acquisition parameters: TR: 2300.00 msec, TE: 2.01 msec, TI: 900.00 msec, flip angle: 9.00 degrees, fov = 256.000.
+```
+
+You can access the volume data in `brain$data` and the header in `brain$header` now.
+
+## Computing more information from the header
+
+Not all MGH files contain a valid header that can be used to compute more information. To check your data, use the `mghheader.is.ras.valid` function:
+
+```{r, eval = FALSE}
+mghheader.is.ras.valid(brain$header);
+```
+
+
+If the header is valid, it can be used to compute various transformation matrices. Here is an example that computes the `vox2ras` matrix and then uses it to get the *right, anterior, superior* (RAS) coordinates of the voxel at *column, row, slice* (CRS) index `(128, 128, 128)`:
+
+```{r, eval = FALSE}
+voxel = c(128, 128, 128);
+vox2ras = mghheader.vox2ras(brain);
+ras_coords = vox2ras %*% c(voxel, 1);  # the 1 is because we use homogeneous coordinates
+```
+
+### Transformation matrices
+
+You can use the following functions in the same way to compute various matrices:
+
+* `mghheader.vox2ras` -- CRS voxel index to RAS coordinate matrix (compute the position of a voxel).
+* `mghheader.ras2vox` -- RAS coordinate to CRS voxel index matrix (compute the voxel at a position).
+* `mghheader.vox2ras.tkr` -- like vox2ras above, but uses tkregister space.
+* `mghheader.ras2vox.tkr` -- like ras2vox above, but uses tkregister space.
+* `mghheader.tkreg2scanner` -- RAS to RAS transform between tkregister space and scanner space.
+* `mghheader.scanner2tkreg` -- RAS to RAS transform between scanner space and tkregister space.
+
+
+### Primary slice direction and volume CRS orientation
+
+To get the primary slice direction:
+
+```{r, eval = FALSE}
+mghheader.primary.slice.direction(brain);
+```
+
+
+To get the orientation string for the 3 axes:
+
+```{r, eval = FALSE}
+mghheader.crs.orientation(brain);
+```
+
+### Check whether the volume is conformed
+
+To check whether the volume is conformed:
+
+```{r, eval = FALSE}
+mghheader.is.conformed(brain);
+```
+
+A volume is considered *conformed* if it is in coronal primary slice direction, has CRS dimensions 256x256x256 and a voxel size of 1 mm in all 3 directions.
+
+
