@@ -51,3 +51,13 @@ test_that("The tkregister ras2vox matrix can be computed from a conformed volume
   expect_equal(ras2vox_tkr, known_ras2vox_tkr, tolerance=1e-4);
 })
 
+
+test_that("The slice direction and orientation can be computed", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  expect_true(mghheader.is.conformed(mgh));
+  expect_equal(mghheader.primary.slice.direction(mgh), 'coronal');
+  expect_equal(mghheader.crs.orientation(mgh), 'LIA');
+})
+
+
