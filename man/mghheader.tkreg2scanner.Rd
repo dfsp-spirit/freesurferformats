@@ -10,7 +10,7 @@ mghheader.tkreg2scanner(header)
 \item{header}{the MGH header}
 }
 \value{
-4x4 numerical matrix, the tranformation matrix
+4x4 numerical matrix, the transformation matrix
 }
 \description{
 This is also known as the 'tkreg2scanner' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'scanner2tkreg' matrix, see \code{\link[freesurferformats]{mghheader.scanner2tkreg}}.
@@ -25,6 +25,7 @@ This is also known as the 'tkreg2scanner' matrix. Note that this is a RAS-to-RAS
 }
 \seealso{
 Other header coordinate space: 
+\code{\link{mghheader.is.ras.valid}()},
 \code{\link{mghheader.ras2vox.tkreg}()},
 \code{\link{mghheader.ras2vox}()},
 \code{\link{mghheader.scanner2tkreg}()},

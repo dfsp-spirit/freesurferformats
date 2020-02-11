@@ -15,3 +15,21 @@ logical, whether header contains valid ras information (according to the `ras_go
 \description{
 Check whether header contains valid ras information
 }
+\examples{
+    brain_image = system.file("extdata", "brain.mgz",
+                               package = "freesurferformats",
+                               mustWork = TRUE);
+    vdh = read.fs.mgh(brain_image, with_header = TRUE);
+    mghheader.is.ras.valid(vdh$header);
+
+}
+\seealso{
+Other header coordinate space: 
+\code{\link{mghheader.ras2vox.tkreg}()},
+\code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.tkreg2scanner}()},
+\code{\link{mghheader.vox2ras.tkreg}()},
+\code{\link{mghheader.vox2ras}()}
+}
+\concept{header coordinate space}

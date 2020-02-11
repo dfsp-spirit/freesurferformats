@@ -6,7 +6,7 @@
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -42,11 +42,21 @@ mghheader.vox2ras <- function(header) {
   return(M);
 }
 
+
 #' @title Check whether header contains valid ras information
 #'
 #' @param header mgh header or `fs.volume` instance with header
 #'
 #' @return logical, whether header contains valid ras information (according to the `ras_good_flag`).
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     brain_image = system.file("extdata", "brain.mgz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
+#'     mghheader.is.ras.valid(vdh$header);
 #'
 #' @export
 mghheader.is.ras.valid <- function(header) {
@@ -79,7 +89,7 @@ mghheader.is.ras.valid <- function(header) {
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -113,7 +123,7 @@ mghheader.ras2vox <- function(header) {
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -160,7 +170,7 @@ mghheader.vox2ras.tkreg <- function(header) {
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -192,7 +202,7 @@ mghheader.ras2vox.tkreg <- function(header) {
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -227,7 +237,7 @@ mghheader.tkreg2scanner <- function(header) {
 #'
 #' @param header the MGH header
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @family header coordinate space
 #'
@@ -262,7 +272,7 @@ mghheader.scanner2tkreg <- function(header) {
 #'
 #' @param header_to the MGH header of the target volume
 #'
-#' @return 4x4 numerical matrix, the tranformation matrix
+#' @return 4x4 numerical matrix, the transformation matrix
 #'
 #' @export
 mghheader.vox2vox <- function(header_from, header_to) {
@@ -287,5 +297,72 @@ mghheader.vox2vox <- function(header_from, header_to) {
   ras2vox_to = mghheader.ras2vox(header_to);
   vox2vox = ras2vox_to %*% vox2ras_from;
   return(vox2vox);
+}
+
+
+#' @title Determine whether an MGH volume is conformed.
+#'
+#' @description In the FreeSurfer sense, *conformed* means that the volume is in coronal primary slice direction, has dimensions 256x256x256 and a voxel size of 1 mm in all 3 directions. The slice direction can only be determined if the header contains RAS information, if it does not, the volume is not conformed.
+#'
+#' @param mgh_header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
+#'
+#' @return logical, whether the volume is *conformed*.
+#'
+#' @export
+mghheader.is.conformed <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    return(FALSE);
+  }
+
+  return(mgh.is.conformed(header));
+}
+
+
+#' @title Compute MGH primary slice direction
+#'
+#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
+#'
+#' @return character string, the slice direction. One of 'sagittal', 'coronal', 'axial' or 'unknown'.
+#'
+#' @export
+mghheader.primary.slice.direction <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    return('unknown');
+  }
+
+  mdc = header$internal$Mdc;
+  return(get.slice.orientation(mdc)$direction_name);
+}
+
+
+#' @title Compute MGH volume orientation string.
+#'
+#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
+#'
+#' @return character string of length 3, one uppercase letter per axis. Each of the three position is a letter from the alphabet: `LRISAP?`. The meaning is `L` for left, `R` for right, `I` for inferior, `S` for superior, `P` for posterior, `A` for anterior. If the direction cannot be computed, all three characters are `?` for unknown. Of course, each axis (`L/R`, `I/S`, `A/P`) is only represented once in the string.
+#'
+#' @export
+mghheader.crs.orientation <- function(header) {
+
+  if(is.fs.volume(header)) {
+    header = header$header;
+  }
+
+  if(!(mghheader.is.ras.valid(header))) {
+    return('???');
+  }
+
+  mdc = header$internal$Mdc;
+  return(get.slice.orientation(mdc)$orientation_string);
 }
 

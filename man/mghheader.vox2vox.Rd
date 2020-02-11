@@ -12,7 +12,7 @@ mghheader.vox2vox(header_from, header_to)
 \item{header_to}{the MGH header of the target volume}
 }
 \value{
-4x4 numerical matrix, the tranformation matrix
+4x4 numerical matrix, the transformation matrix
 }
 \description{
 Compute vox2vox matrix between two volumes.

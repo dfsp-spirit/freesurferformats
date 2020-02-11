@@ -8,7 +8,7 @@
 #'
 #' @param vox2ras_matrix 4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1]. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.
 #'
-#' @param mr_params double vector of length five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.
+#' @param mr_params double vector of length four (without fov) or five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.
 #'
 #' @param mri_dtype character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte singed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. Leave this alone if in doubt.
 #'
@@ -30,8 +30,11 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     }
 
     if(! is.null(mr_params)) {
+      if(length(mr_params) == 4L) {
+          mr_params = c(mr_params, 0.0); # Append zero for FOV. We support this version to keep the API stable. This may get deprecated at some point.
+      }
       if(length(mr_params) != 5L) {
-          stop(sprintf("The mr_params must be a double vector of length 5 but length is %d.", length(mr_params)));
+        stop(sprintf("The mr_params must be a double vector of length 4 or 5 but length is %d.", length(mr_params)));
       }
       if(! is.double(mr_params)) {
         stop("The mr_params must be a double vector.");
