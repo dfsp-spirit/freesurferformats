@@ -9,11 +9,9 @@ vignette: >
 
   In this document, we show how to derive various data from the header of [FreeSurfer](https://surfer.nmr.mgh.harvard.edu) brain volume files.
 
-# Computing brain volume header data
-
 ## About the MGH header
 
-The header of MGH (or MGZ) brain volume files can contain important information on the volume data, including orientation, slice thickness, MR acquisition parameters. Some of this has to be computed from the header fields. The *freesurferformats* package provides functions to compute important properties from the header.
+The header of MGH (or MGZ) brain volume files can contain important information on the volume data, including orientation, slice thickness, and MR acquisition parameters. The *freesurferformats* package provides functions to compute important properties from the header.
 
 ## Getting access to the header data in MGH or MGZ files
 
