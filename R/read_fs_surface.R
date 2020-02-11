@@ -200,8 +200,8 @@ faces.quad.to.tris <- function(quad_faces) {
   for (quad_face_idx in 1L:num_quad_faces) {
     tris_face_2_index = quad_face_idx * 2L;
     tris_face_1_index = tris_face_2_index - 1L;
-    tris_faces[tris_face_1_index,] = quad_faces[quad_face_idx, c(1,2,3)];
-    tris_faces[tris_face_2_index,] = quad_faces[quad_face_idx, c(3,4,1)];
+    tris_faces[tris_face_1_index,] = quad_faces[quad_face_idx, c(1,2,3)];  # c(1,2,4)];
+    tris_faces[tris_face_2_index,] = quad_faces[quad_face_idx, c(3,4,1)];  # c(3,4,2)];
   }
   return(tris_faces);
 }

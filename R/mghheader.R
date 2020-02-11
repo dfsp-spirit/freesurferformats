@@ -46,9 +46,9 @@ mghheader.vox2ras <- function(header) {
 #'
 #' @param header mgh header or `fs.volume` instance with header
 #'
-#' @return logical, whether header contains valid ras information
+#' @return logical, whether header contains valid ras information (according to the `ras_good_flag`).
 #'
-#' @keywords internal
+#' @export
 mghheader.is.ras.valid <- function(header) {
   if(is.fs.volume(header)) {
     header = header$header;

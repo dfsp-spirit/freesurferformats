@@ -10,9 +10,8 @@ mghheader.is.ras.valid(header)
 \item{header}{mgh header or `fs.volume` instance with header}
 }
 \value{
-logical, whether header contains valid ras information
+logical, whether header contains valid ras information (according to the `ras_good_flag`).
 }
 \description{
 Check whether header contains valid ras information
 }
-\keyword{internal}
