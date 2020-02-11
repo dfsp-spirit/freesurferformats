@@ -7,7 +7,7 @@
 mghheader.is.conformed(header)
 }
 \arguments{
-\item{mgh_header}{Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.}
+\item{header}{Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.}
 }
 \value{
 logical, whether the volume is *conformed*.
