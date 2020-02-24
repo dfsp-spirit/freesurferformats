@@ -430,6 +430,8 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   sx = vox2ras[1, 3];
   sy = vox2ras[2, 3];
   sz = vox2ras[3, 3];
+
+  # The next 3 values encode the RAS coordinate of the first voxel, i.e., the voxel at CRS=c(1,1,1) in R-indexing or (0,0,0 in C-indexing).
   P0r = vox2ras[1, 4];
   P0a = vox2ras[2, 4];
   P0s = vox2ras[3, 4];
@@ -450,11 +452,49 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   updated_header$internal$z_a = az / zsize;
   updated_header$internal$z_s = sz / zsize;
 
-  # TODO: Compute and set the following values from P0r/a/s
-  warning("mghheader.update.from.vox2ras: defunct: c_r, c_a, and c_s not set yet.");
-  #updated_header$internal$c_r =
-  #updated_header$internal$c_a =
-  #updated_header$internal$c_s =
+  # Compute and set the RAS coordinates of the center voxel, given the RAS coorindates of the first voxel.
+  updated_header$ras_good_flag = 1L;
+  center_voxel_ras_coords = mghheader.centervoxelRAS.from.firstvoxelRAS(updated_header, c(P0r, P0a, P0s));
+  updated_header$internal$c_r = center_voxel_ras_coords[1];
+  updated_header$internal$c_a = center_voxel_ras_coords[2];
+  updated_header$internal$c_s = center_voxel_ras_coords[3];
 
   return(updated_header);
+}
+
+
+#' @title Compute RAS coords of center voxel.
+#'
+#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}. The `c_r`, `c_a` and `c_s` values in do not matter of course, they are what is computed by this function.
+#'
+#' @param first_voxel_RAS numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1`.
+#'
+#' @return numerical vector of length 3, the RAS coordinate of the center voxel
+#'
+#' @keywords internal
+mghheader.centervoxelRAS.from.firstvoxelRAS <- function(header, first_voxel_RAS) {
+
+  if(length(first_voxel_RAS) != 3L) {
+    stop("Parameter 'first_voxel_RAS' must be a numerical vector of length 3.");
+  }
+
+  # Set the missing header values to arbitrary values for now, if needed.
+  if(is.null(header$internal$c_r)) {
+    header$internal$c_r = 0.0;
+  }
+  if(is.null(header$internal$c_a)) {
+    header$internal$c_a = 0.0;
+  }
+  if(is.null(header$internal$c_s)) {
+    header$internal$c_s = 0.0;
+  }
+
+  incomplete_vox2ras = mghheader.vox2ras(header);
+  incomplete_vox2ras[1, 4] = first_voxel_RAS[1];
+  incomplete_vox2ras[2, 4] = first_voxel_RAS[2];
+  incomplete_vox2ras[3, 4] = first_voxel_RAS[3];
+
+  center_voxel_CRS = c(header$internal$width / 2.0, header$internal$height / 2.0, header$internal$depth / 2.0, 1.0);
+  center_voxel_RAS = incomplete_vox2ras %*% center_voxel_CRS;
+  return(center_voxel_RAS);
 }
