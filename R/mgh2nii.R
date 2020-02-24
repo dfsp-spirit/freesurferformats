@@ -49,7 +49,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 
   ## ----- Check image dimensions -----
   # If the image has only 3 dimensions, set slice count to 1.
-  num_slices = ifelse(nifti_img@dim_[1] < 4L, 1L, nifti_img@dim_[5]); # Note difference between @dim and @dim_. The latter contains the number of "used" dimensions at the first position.
+  num_frames = ifelse(nifti_img@dim_[1] < 4L, 1L, nifti_img@dim_[5]); # Note difference between @dim and @dim_. The latter contains the number of "used" dimensions at the first position.
 
   # If the image has more than 4 dimensions, we do not support it yet.
   if(nifti_img@dim_[1] > 4L) {
@@ -79,10 +79,20 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 
   if(nifti_img@sform_code == 1L) { # Means that the sform is present.
     vox2ras = rbind(nifti_img@srow_x, nifti_img@srow_y, nifti_img@srow_z, c(0, 0, 0, 1));
+    print(vox2ras)
     header = mghheader.update.from.vox2ras(header, vox2ras);
     header$ras_good_flag = 1L;
   } else {
     stop("Nifti images without valid sform not supported yet.");
   }
 
+  fsvol_data = nifti_img@.Data;  # TODO: Check in which ordering the data is saved in the NIFTI image and rotate/permute the array accordingly.
+  if(length(dim(fsvol_data)) != 4) {
+    # Most likely the 4th dimension of size 1 is missing, reshape it.
+    dim(fsvol_data) = c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], nifti_img@dim_[5]);
+  }
+
+  fsvol = list("header"=header, "data"=fsvol_data);
+  class(fsvol) = 'fs.volume';
+  return(fsvol);
 }

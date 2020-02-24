@@ -7,13 +7,13 @@
 fs.volume.from.oro.nifti(nifti_img)
 }
 \arguments{
-\item{nifti_img}{instance of class}
+\item{nifti_img}{instance of class `nifti` from the `oro.nifti` package}
 }
 \value{
-an fs.volume instance
+an `fs.volume` instance
 }
 \description{
-This is work in progress.
+This is work in progress. Currently only few datatypes are supported, and the sform needs to be present in the nifti instance.
 }
 \examples{
 \dontrun{

@@ -384,7 +384,8 @@ mghheader <- function(dims, mri_dtype_code) {
   if(! is.integer(mri_dtype_code)) {
     stop("Parameter 'mri_dtype_code' must be an integer.");
   }
-  dtype_name = translate.mri.dtype(mri_dtype_code); # Abused as check, value not used.
+
+  dtype_name = translate.mri.dtype(mri_dtype_code); # The function is (ab)used to check the passed value, the return value is not used.
 
   header = list();
   header$internal = list();
@@ -395,6 +396,11 @@ mghheader <- function(dims, mri_dtype_code) {
   header$internal$height = dims[2];
   header$internal$depth = dims[3];
   header$internal$nframes = dims[4];
+
+  header$voldim = c(dims[1], dims[2], dims[3], dims[4]);
+  header$voldim_orig = header$voldim;
+
+  header$has_mr_params = 0L;
   return(header);
 }
 
@@ -407,7 +413,7 @@ mghheader <- function(dims, mri_dtype_code) {
 #'
 #' @return a named list representing the header
 #'
-#' @keywords internal
+#' @export
 mghheader.update.from.vox2ras <- function(header, vox2ras) {
   updated_header = header;
 
@@ -445,7 +451,7 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   updated_header$internal$z_s = sz / zsize;
 
   # TODO: Compute and set the following values from P0r/a/s
-  warning("mghheader.update.from.vox2ras: ERROR: c_r c_a c_s not set yet.");
+  warning("mghheader.update.from.vox2ras: defunct: c_r, c_a, and c_s not set yet.");
   #updated_header$internal$c_r =
   #updated_header$internal$c_a =
   #updated_header$internal$c_s =
