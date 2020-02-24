@@ -78,7 +78,8 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
   header$internal$tr = nifti_img@pixdim[5];    # TR
 
   if(nifti_img@sform_code == 1L) { # Means that the sform is present.
-    vox2ras = rbind(nifti_img@srow_x, nifti_img@srow_y, nifti_img@srow_z, c(0, 0, 0, 1));
+    # see niftiSformToMri in mriio
+    vox2ras = rbind(nifti_img@srow_x, nifti_img@srow_y, nifti_img@srow_z, c(0, 0, 0, 1)); # TODO: doublecheck this
     print(vox2ras)
     header = mghheader.update.from.vox2ras(header, vox2ras);
     header$ras_good_flag = 1L;
