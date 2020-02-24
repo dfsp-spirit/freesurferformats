@@ -126,6 +126,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$width = ndim1;   # size in number of voxels in that dimensions (256 for conformed volumes)
         header$internal$height = ndim2;
         header$internal$depth = ndim3;
+        header$internal$nframes = nframes;
 
         x_half_length = header$internal$width / 2.0 * header$internal$xsize;
         y_half_length = header$internal$height / 2.0 * header$internal$ysize;
@@ -174,10 +175,10 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     header$voldim = volsz;   # May change later due to drop or flatten parameters
 
     # Determine size of voxel data, depending on dtype from header above
-    MRI_UCHAR = 0L;
-    MRI_INT = 1L;
-    MRI_FLOAT = 3L;
-    MRI_SHORT = 4L;
+    MRI_UCHAR = translate.mri.dtype("MRI_UCHAR");
+    MRI_INT = translate.mri.dtype("MRI_INT");
+    MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
+    MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
     dt_explanation = "0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT";
     dtype_name = translate.mri.dtype(dtype); # Validate that the dtype. Will stop if not.

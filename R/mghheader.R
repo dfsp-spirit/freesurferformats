@@ -366,3 +366,89 @@ mghheader.crs.orientation <- function(header) {
   return(get.slice.orientation(mdc)$orientation_string);
 }
 
+
+#' @title Constructor to init MGH header instance.
+#'
+#' @param dims integer vector of length 4, the header dimensions. Example: \code{c(256L, 256L, 256L, 1L)}.
+#'
+#' @param mri_dtype_code integer, a valid MRI datatype. See \code{\link[freesurferformats]{translate.mri.dtype}}.
+#'
+#' @return a named list representing the header
+#'
+#' @keywords internal
+mghheader <- function(dims, mri_dtype_code) {
+  if(length(dims) != 4L) {
+    stop("Parameter dims must have length 4.");
+  }
+
+  if(! is.integer(mri_dtype_code)) {
+    stop("Parameter 'mri_dtype_code' must be an integer.");
+  }
+  dtype_name = translate.mri.dtype(mri_dtype_code); # Abused as check, value not used.
+
+  header = list();
+  header$internal = list();
+  header$dtype = mri_dtype_code;
+  header$nbytespervox = mri_dtype_numbytes(mri_dtype_code);
+  header$ras_good_flag = 0L;
+  header$internal$width = dims[1];
+  header$internal$height = dims[2];
+  header$internal$depth = dims[3];
+  header$internal$nframes = dims[4];
+  return(header);
+}
+
+
+#' @title Update mghheader fields from vox2ras matrix.
+#'
+#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.
+#'
+#' @param vox2ras 4x4 numerical matrix, the vox2ras transformation matrix.
+#'
+#' @return a named list representing the header
+#'
+#' @keywords internal
+mghheader.update.from.vox2ras <- function(header, vox2ras) {
+  updated_header = header;
+
+  if(! is.matrix(vox2ras)) {
+    stop("Parameter 'vox2ras' must be a numerical 4x4 matrix.");
+  }
+
+  rx = vox2ras[1, 1];
+  ry = vox2ras[2, 1];
+  rz = vox2ras[3, 1];
+  ax = vox2ras[1, 2];
+  ay = vox2ras[2, 2];
+  az = vox2ras[3, 2];
+  sx = vox2ras[1, 3];
+  sy = vox2ras[2, 3];
+  sz = vox2ras[3, 3];
+  P0r = vox2ras[1, 4];
+  P0a = vox2ras[2, 4];
+  P0s = vox2ras[3, 4];
+
+  xsize = sqrt(rx * rx + ax * ax + sx * sx);
+  ysize = sqrt(ry * ry + ay * ay + sy * sy);
+  zsize = sqrt(rz * rz + az * az + sz * sz);
+
+  updated_header$internal$x_r = rx / xsize;
+  updated_header$internal$x_a = ax / xsize;
+  updated_header$internal$x_s = sx / xsize;
+
+  updated_header$internal$y_r = ry / ysize;
+  updated_header$internal$y_a = ay / ysize;
+  updated_header$internal$y_s = sy / ysize;
+
+  updated_header$internal$z_r = rz / zsize;
+  updated_header$internal$z_a = az / zsize;
+  updated_header$internal$z_s = sz / zsize;
+
+  # TODO: Compute and set the following values from P0r/a/s
+  warning("mghheader.update.from.vox2ras: ERROR: c_r c_a c_s not set yet.");
+  #updated_header$internal$c_r =
+  #updated_header$internal$c_a =
+  #updated_header$internal$c_s =
+
+  return(updated_header);
+}

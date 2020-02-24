@@ -84,10 +84,10 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     }
 
     # write data type
-    MRI_UCHAR = 0L;
-    MRI_INT = 1L;
-    MRI_FLOAT = 3L;
-    MRI_SHORT = 4L;
+    MRI_UCHAR = translate.mri.dtype("MRI_UCHAR");
+    MRI_INT = translate.mri.dtype("MRI_INT");
+    MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
+    MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
     if(mri_dtype == 'auto') {
       if(is.integer(data)) {
