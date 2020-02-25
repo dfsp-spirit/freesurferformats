@@ -84,7 +84,7 @@ test_that("The mgh header fields can be initialized from a vox2ras matrix", {
 })
 
 
-test_that("The RAS coordinate of the center voxel can be computed from the RAS coordinate for the first voxel.", {
+test_that("The RAS coordinate of the center voxel (CRAS) can be computed from the RAS coordinate for the first voxel (P0 RAS).", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   mgh = read.fs.mgh(brain_image, with_header=TRUE);
   header = mgh$header;

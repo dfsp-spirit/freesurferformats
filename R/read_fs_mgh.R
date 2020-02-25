@@ -92,17 +92,28 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$z_a = Mdc[8];
         header$internal$z_s = Mdc[9];
 
+        # The vox2ras matrix is:
+        #
+        #  x_r*xs y_r*ys  z_r*zs  c_r
+        #  x_a*xs y_a*ys  z_a*zs  c_a
+        #  x_s*xs y_s*ys  z_s*zs  c_s
+        #  0      0       0       1
+        #
+        # ...where:
+        #   * c_r, c_a, c_s are the coordinates of the (center of the) voxel at CRS=0,0,0.
+        #   * xs, ys, zs are the xsize, ysize and zsize of the voxels
+
         Mdc = matrix(Mdc, nrow=3, byrow = FALSE); # turn Mdc into 3x3 matrix
 
-        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big"); # 1x3 vector:  c_r, c_a, c_s
+        Pxyz_c = readBin(fh, numeric(), n = 3, size = 4, endian = "big"); # 1x3 vector:  c_r, c_a, c_s. This is the RAS coordinate at the center voxel, also known as CRAS.
         header$internal$c_r = Pxyz_c[1];
         header$internal$c_a = Pxyz_c[2];
         header$internal$c_s = Pxyz_c[3];
 
         D = diag(delta);
-        Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS of the center voxel
-        Mdc_scaled = Mdc %*% D;
-        Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0
+        Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS indices of the center voxel
+        Mdc_scaled = Mdc %*% D; # Scaled by the voxel dimensions (xsize, ysize, zsize)
+        Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0,0,0 (also known as P0 RAS or 'first voxel RAS'). Note: in R, it's actually CRS=1,1,1.
 
         M = matrix(rep(0, 16), nrow=4);
         M[1:3,1:3] = as.matrix(Mdc_scaled);
