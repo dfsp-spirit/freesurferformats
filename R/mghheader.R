@@ -400,6 +400,8 @@ mghheader <- function(dims, mri_dtype_code) {
   header$voldim = c(dims[1], dims[2], dims[3], dims[4]);
   header$voldim_orig = header$voldim;
 
+  cat(sprintf("Created MGH header with dimensions %s.\n", paste(header$voldim, collapse="x")))
+
   header$has_mr_params = 0L;
   return(header);
 }
@@ -458,6 +460,8 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   updated_header$internal$z_r = rz / zsize;
   updated_header$internal$z_a = az / zsize;
   updated_header$internal$z_s = sz / zsize;
+
+  updated_header$internal$Mdc = matrix(c(updated_header$internal$x_r, updated_header$internal$x_a, updated_header$internal$x_s, updated_header$internal$y_r, updated_header$internal$y_a, updated_header$internal$y_s, updated_header$internal$z_r, updated_header$internal$z_a, updated_header$internal$z_s), nrow = 3, byrow = FALSE);
 
   # Compute and set the RAS coordinates of the center voxel, given the RAS coordinates of the first voxel.
   updated_header$ras_good_flag = 1L;

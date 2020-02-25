@@ -154,13 +154,13 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         xfov = header$internal$xend - header$internal$xstart;
         yfov = header$internal$yend - header$internal$ystart;
         zfov = header$internal$zend - header$internal$zstart;
-
+        header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
 
         orientation_info = get.slice.orientation(Mdc);
         header$internal$slice_orientation_string = orientation_info$orientation_string;
         header$internal$slice_direction_name = orientation_info$direction_name;
 
-        header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
+
 
 
         header$vox2ras_matrix = as.matrix(M);
