@@ -292,7 +292,7 @@ get.slice.orientation <- function(Mdc) {
   for (char_idx in seq.int(3)) {
     sagittal = Mdc[1, char_idx];   # LR axis
     coronal = Mdc[2, char_idx];    # PA axis
-    axial = Mdc[3, char_idx];      # IS axis
+    axial = Mdc[3, char_idx];      # IS  axis
 
     if ((abs(sagittal) > abs(coronal)) & (abs(sagittal) > abs(axial))) {
       orientation[char_idx] = ifelse(sagittal > 0, 'R', 'L');

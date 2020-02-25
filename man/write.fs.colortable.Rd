@@ -18,15 +18,13 @@ the written dataframe, invisible. Note that this is will contain a column named 
 Write the colortable to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.annot}()}
+Other atlas functions: \code{\link{colortable.from.annot}},
+  \code{\link{read.fs.annot}},
+  \code{\link{read.fs.colortable}},
+  \code{\link{write.fs.annot}}
 
-Other colorLUT functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.colortable}()}
+Other colorLUT functions: \code{\link{colortable.from.annot}},
+  \code{\link{read.fs.colortable}}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}

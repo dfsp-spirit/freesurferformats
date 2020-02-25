@@ -2,7 +2,7 @@
 % Please edit documentation in R/mgh2nii.R
 \name{fs.volume.from.oro.nifti}
 \alias{fs.volume.from.oro.nifti}
-\title{Turn an oro.nifti instance into an fs.volume instance.}
+\title{Turn an `oro.nifti` instance into an `fs.volume` instance.}
 \usage{
 fs.volume.from.oro.nifti(nifti_img)
 }
@@ -19,6 +19,7 @@ This is work in progress. Currently only few datatypes are supported, and the sf
 \dontrun{
    nii_file = "~/data/tim_only/tim/mri/brain.nii";  # mri_convert brain.mgz brain.nii
    nii_img = oro.nifti::readNIfTI(nii_file);
+   fsvolume = fs.volume.from.oro.nifti(nii_img);
 }
 
 }

@@ -18,9 +18,8 @@ the patch, invisible
 Write a surface patch, i.e. a set of vertices and patch border information, to a binary patch file.
 }
 \seealso{
-Other patch functions: 
-\code{\link{fs.patch}()},
-\code{\link{read.fs.patch.asc}()},
-\code{\link{read.fs.patch}()}
+Other patch functions: \code{\link{fs.patch}},
+  \code{\link{read.fs.patch.asc}},
+  \code{\link{read.fs.patch}}
 }
 \concept{patch functions}

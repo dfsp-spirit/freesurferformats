@@ -24,12 +24,11 @@ Check whether header contains valid ras information
 
 }
 \seealso{
-Other header coordinate space: 
-\code{\link{mghheader.ras2vox.tkreg}()},
-\code{\link{mghheader.ras2vox}()},
-\code{\link{mghheader.scanner2tkreg}()},
-\code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{mghheader.vox2ras}()}
+Other header coordinate space: \code{\link{mghheader.ras2vox.tkreg}},
+  \code{\link{mghheader.ras2vox}},
+  \code{\link{mghheader.scanner2tkreg}},
+  \code{\link{mghheader.tkreg2scanner}},
+  \code{\link{mghheader.vox2ras.tkreg}},
+  \code{\link{mghheader.vox2ras}}
 }
 \concept{header coordinate space}

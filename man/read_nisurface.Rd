@@ -30,11 +30,10 @@ Tries to read all files which can be constructed from the base path and the give
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{read.fs.surface.asc}},
+  \code{\link{read.fs.surface}},
+  \code{\link{read_nisurfacefile}},
+  \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}

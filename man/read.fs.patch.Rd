@@ -18,9 +18,8 @@ named list with 2 entries: "faces": can be NULL, only available if the format is
 A patch is a subset of a surface. Note that the contents of ASCII and binary patch format files is different. A binary format patch contains vertices only, without connection (face) information. ASCII patch files can also contain face data. See the return value description for details.
 }
 \seealso{
-Other patch functions: 
-\code{\link{fs.patch}()},
-\code{\link{read.fs.patch.asc}()},
-\code{\link{write.fs.patch}()}
+Other patch functions: \code{\link{fs.patch}},
+  \code{\link{read.fs.patch.asc}},
+  \code{\link{write.fs.patch}}
 }
 \concept{patch functions}
