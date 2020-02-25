@@ -58,8 +58,12 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 
     ## ----- Check image dimensions -----
     num_used_dimensions = nifti_img@dim_[1];
-    if(num_used_dimensions < 1L) {
-      stop("Nifti images without any used dimension not supported. Check image file.");
+    byte_swap = FALSE;
+    if(num_used_dimensions < 1L | num_used_dimensions > 7L) {
+      # If the first field is outside the range 1-7, it means that the data has opposite endianness and must be byte-swapped.
+      # The oro.nifti library most likely handles this just fine, but I did not check that yet.
+      byte_swap = TRUE;
+      stop(sprintf("Byte-swapped Nifti images not supported yet.\n"));
     }
 
     # If the image has only 3 dimensions, set slice count to 1.
@@ -87,9 +91,14 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     cat(sprintf("Nifti header: Image has %d used dimensions. It %s ico7 morphometry data.\n", nifti_img@dim_[1], ico7_state_string));
 
     ## TODO: Compute space and time unit factors from @xyzt_units
-    warning("Using fixed space_unit_factor of 1.0 and time_unit_factor of 1.0. These values are wrong: computation from header not implemented yet.");
-    space_unit_factor = 1.0; # TODO: adapt to unit from header: meters vs. mm vs. mum
-    time_unit_factor = 1.0;  # TODO: adapt to unit from header:sec vs. msec vs. usec
+    space_info = nifti.space.info(nii@xyzt_units);
+    space_unit_factor = space_info$scaling;
+
+    time_info = nifti.time.info(nii@xyzt_units);
+    time_unit_factor = time_info$scaling;
+
+    cat(sprintf("Space data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", space_info$name, space_info$scaling));
+    cat(sprintf("Time data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", time_info$name, time_info$scaling));
 
     header = mghheader(c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], nifti_img@dim_[5]), dtype);
     header$internal$xsize = nifti_img@pixdim[2]; # voxel size in x direction. Still needs scaling by space_unit_factor, see below.
@@ -154,4 +163,40 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
   } else {
     stop("The 'oro.nifti' package is required to use this functionality.");
   }
+}
+
+
+#' @title Compute NIFTI space unit info from xyzt_units header field.
+#'
+#' @param xyzt_units a single character, the `xyzt_units` NIFTI header field
+#'
+#' @return named list with entries: `code`: the NIFTI unit code as a decimal integer, `name`: character string, the unit name, `scaling`: float, the scaling factor for the unit, relative to the FreeSurfer space unit (`mm`).
+#'
+#' @keywords internal
+nifti.space.info <- function(xyzt_units) {
+  nifti_unit_code = bitwAnd(nii@xyzt_units, 0x07);
+  nifti_unit_name = "unknown";
+  scaling = 1.0;
+  if(nifti_unit_code == 1L) { nifti_unit_name = "m"; scaling = 1000.0; }
+  if(nifti_unit_code == 2L) { nifti_unit_name = "mm"; scaling = 1.0; }
+  if(nifti_unit_code == 3L) { nifti_unit_name = "mum";  scaling = 0.001; }
+  return(list("code"=nifti_unit_code, "name"=nifti_unit_name, "scaling"=scaling));
+}
+
+
+#' @title Compute NIFTI time unit info from xyzt_units header field.
+#'
+#' @param xyzt_units a single character, the `xyzt_units` NIFTI header field
+#'
+#' @return named list with entries: `code`: the NIFTI unit code as a decimal integer, `name`: character string, the unit name, `scaling`: float, the scaling factor for the unit, relative to the FreeSurfer time unit  (`ms`).
+#'
+#' @keywords internal
+nifti.time.info <- function(xyzt_units) {
+  nifti_unit_code = bitwAnd(nii@xyzt_units, 0x38);
+  nifti_unit_name = "unknown";
+  scaling = 1.0;
+  if(nifti_unit_code == 8L) { nifti_unit_name = "s"; scaling = 1000.0; }
+  if(nifti_unit_code == 16L) { nifti_unit_name = "ms"; scaling = 1.0; }
+  if(nifti_unit_code == 24L) { nifti_unit_name = "mus"; scaling = 0.001; }
+  return(list("code"=nifti_unit_code, "name"=nifti_unit_name, "scaling"=scaling));
 }

@@ -1,5 +1,5 @@
 # Tests for mgh2nii
-# These tests are currenlty deactivated because they require the 'oro.nifti' and 'fsbrain' packages.
+# These tests are currently deactivated because they require the 'oro.nifti' and 'fsbrain' packages.
 
 # test_that("An oro.nifti instance can be converted into an fs.volume instance", {
 #   mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
