@@ -333,6 +333,9 @@ mgh.is.conformed <- function(mgh_header, voxel_size_tolerance=1e-4) {
   if(is.null(mgh_header$ras_good_flag) | mgh_header$ras_good_flag < 1L) {
     return(FALSE);
   }
+
+  mgh_header$internal$slice_direction_name = mghheader.primary.slice.direction(mgh_header);
+
   if(mgh_header$internal$slice_direction_name != "coronal") {
     return(FALSE);
   }
@@ -410,7 +413,7 @@ print.fs.volume <- function(x, ...) {
   # vox2ras
   if(x$header$ras_good_flag == 1) {
     cat(sprintf(" - Header contains vox2ras transformation information. Voxel size is %.2f x %.2f x %.2f mm.\n", x$header$internal$xsize, x$header$internal$ysize, x$header$internal$zsize));
-    info_conformed = ifelse(x$header$internal$is_conformed == 1L, "is conformed", "is not conformed");
+    info_conformed = ifelse(mghheader.is.conformed(x$header), "is conformed", "is not conformed");
     cat(sprintf(" - Volume %s, pimary slice direction is '%s', orientation is '%s'.\n", info_conformed, x$header$internal$slice_direction_name, x$header$internal$slice_orientation_string));
   } else {
     cat(sprintf(" - Header does not contain vox2ras transformation information.\n"));
