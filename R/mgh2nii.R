@@ -29,7 +29,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     # mriio.cpp 9400
 
     ## --------------------- Perform some basic sanity checks on the Nifti header. ---------------------
-    scale_data = FALSE; # whether data scaling is required.
+    scale_data = FALSE; # whether data scaling is required. This is scaling based on the scaling part in the header, not to be confused with scaling due to time/space units.
     if(nifti_img@scl_slope != 0.0) {
       if(!(nifti_img@scl_slope == 1.0 & nifti_img@.scl_inter == 0.0)) {
         scale_data = TRUE;
@@ -48,11 +48,15 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 
     if(nifti_img@datatype == 2L & nifti_img@bitpix == 8L) {
       dtype = MRI_UCHAR;
+    } else if(nifti_img@datatype == 8L & nifti_img@bitpix == 32L) {
+      dtype = MRI_INT;
+    } else if(nifti_img@datatype == 16L & nifti_img@bitpix == 32L) {
+      dtype = MRI_FLOAT;
     } else {
       stop(sprintf("Nifti images with @datatype=%d and @bitpix=%d not supported yet.\n", nifti_img@datatype, nifti_img@bitpix));
     }
 
-    bytes_per_voxel = mri_dtype_numbytes(dtype); # Note that we store **bytes** per voxel, while the Nifti header uses **bits**.
+    bytes_per_voxel = mri_dtype_numbytes(dtype); # Note that we store the size in **bytes** per voxel, while the Nifti header uses **bits**.
 
     cat(sprintf("Nifti header: Nifti datatype=%d with %d bitpix. MRI datatype '%s' (code %d), with %d bytes per voxel.\n", nifti_img@datatype, nifti_img@bitpix, translate.mri.dtype(dtype), dtype, bytes_per_voxel));
 
@@ -61,7 +65,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     byte_swap = FALSE;
     if(num_used_dimensions < 1L | num_used_dimensions > 7L) {
       # If the first field is outside the range 1-7, it means that the data has opposite endianness and must be byte-swapped.
-      # The oro.nifti library most likely handles this just fine, but I did not check that yet.
+      # The oro.nifti library most likely handles this just fine, but I did not check that yet, so we assume its not okay for now.
       byte_swap = TRUE;
       stop(sprintf("Byte-swapped Nifti images not supported yet.\n"));
     }
@@ -90,15 +94,14 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     ico7_state_string = ifelse(is_ico7, "looks like", "does NOT look like");
     cat(sprintf("Nifti header: Image has %d used dimensions. It %s ico7 morphometry data.\n", nifti_img@dim_[1], ico7_state_string));
 
-    ## TODO: Compute space and time unit factors from @xyzt_units
-    space_info = nifti.space.info(nii@xyzt_units);
+    ## Compute space and time unit factors from @xyzt_units.
+    space_info = nifti.space.info(nifti_img@xyzt_units);
     space_unit_factor = space_info$scaling;
-
-    time_info = nifti.time.info(nii@xyzt_units);
+    time_info = nifti.time.info(nifti_img@xyzt_units);
     time_unit_factor = time_info$scaling;
-
     cat(sprintf("Space data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", space_info$name, space_info$scaling));
     cat(sprintf("Time data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", time_info$name, time_info$scaling));
+
 
     header = mghheader(c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], nifti_img@dim_[5]), dtype);
     header$internal$xsize = nifti_img@pixdim[2]; # voxel size in x direction. Still needs scaling by space_unit_factor, see below.
@@ -174,7 +177,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 #'
 #' @keywords internal
 nifti.space.info <- function(xyzt_units) {
-  nifti_unit_code = bitwAnd(nii@xyzt_units, 0x07);
+  nifti_unit_code = bitwAnd(xyzt_units, 0x07);
   nifti_unit_name = "unknown";
   scaling = 1.0;
   if(nifti_unit_code == 1L) { nifti_unit_name = "m"; scaling = 1000.0; }
@@ -192,7 +195,7 @@ nifti.space.info <- function(xyzt_units) {
 #'
 #' @keywords internal
 nifti.time.info <- function(xyzt_units) {
-  nifti_unit_code = bitwAnd(nii@xyzt_units, 0x38);
+  nifti_unit_code = bitwAnd(xyzt_units, 0x38);
   nifti_unit_name = "unknown";
   scaling = 1.0;
   if(nifti_unit_code == 8L) { nifti_unit_name = "s"; scaling = 1000.0; }
