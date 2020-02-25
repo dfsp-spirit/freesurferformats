@@ -452,7 +452,7 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   updated_header$internal$z_a = az / zsize;
   updated_header$internal$z_s = sz / zsize;
 
-  # Compute and set the RAS coordinates of the center voxel, given the RAS coorindates of the first voxel.
+  # Compute and set the RAS coordinates of the center voxel, given the RAS coordinates of the first voxel.
   updated_header$ras_good_flag = 1L;
   center_voxel_ras_coords = mghheader.centervoxelRAS.from.firstvoxelRAS(updated_header, c(P0r, P0a, P0s));
   updated_header$internal$c_r = center_voxel_ras_coords[1];

@@ -84,4 +84,25 @@ test_that("The mgh header fields can be initialized from a vox2ras matrix", {
 })
 
 
+test_that("The RAS coordinate of the center voxel can be computed from the RAS coordinate for the first voxel.", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  header = mgh$header;
+
+  vox2ras = mghheader.vox2ras(header);
+  first_voxel_CRS = c(1L, 1L, 1L);
+  first_voxel_RAS = vox2ras[,4][0:3];  # the P0 RAS
+  known_first_voxel_RAS = c(127.5, -98.6273, 79.0953);   # known from: `mri_info --p0  path/to/brain.mgz` (in system shell)
+  expect_equal(first_voxel_RAS, known_first_voxel_RAS, tolerance=1e-2);
+
+  center_RAS = mghheader.centervoxelRAS.from.firstvoxelRAS(header, first_voxel_RAS);  # center RAS is also known as 'CRAS'.
+  center_RAS = center_RAS[1:3];   # remove homogenous part
+
+  known_center_RAS = c(-0.499954, 29.3727, -48.9047);     # known from: `mri_info --cras  path/to/brain.mgz` (in system shell)
+
+  expect_equal(center_RAS, known_center_RAS, tolerance=1e-2);
+})
+
+
+
 
