@@ -415,6 +415,9 @@ mghheader <- function(dims, mri_dtype_code) {
 #'
 #' @export
 mghheader.update.from.vox2ras <- function(header, vox2ras) {
+
+  # see mri.cpp MRIsetVox2RASFromMatrix
+
   updated_header = header;
 
   if(! is.matrix(vox2ras)) {
@@ -422,13 +425,13 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   }
 
   rx = vox2ras[1, 1];
-  ry = vox2ras[2, 1];
-  rz = vox2ras[3, 1];
-  ax = vox2ras[1, 2];
+  ry = vox2ras[1, 2];
+  rz = vox2ras[1, 3];
+  ax = vox2ras[2, 1];
   ay = vox2ras[2, 2];
-  az = vox2ras[3, 2];
-  sx = vox2ras[1, 3];
-  sy = vox2ras[2, 3];
+  az = vox2ras[2, 3];
+  sx = vox2ras[3, 1];
+  sy = vox2ras[3, 2];
   sz = vox2ras[3, 3];
 
   # The next 3 values encode the RAS coordinate of the first voxel, i.e., the voxel at CRS=c(1,1,1) in R-indexing or (0,0,0 in C-indexing).
@@ -439,6 +442,10 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
   xsize = sqrt(rx * rx + ax * ax + sx * sx);
   ysize = sqrt(ry * ry + ay * ay + sy * sy);
   zsize = sqrt(rz * rz + az * az + sz * sz);
+
+  if(any(abs(c(xsize, ysize, zsize) - c(updated_header$internal$xsize, updated_header$internal$ysize, updated_header$internal$zsize)) > 0.001)) {
+    message(sprintf("mghheader.update.from.vox2ras: Voxel sizes inconsistent, matrix may contain shear, which is not supported."));
+  }
 
   updated_header$internal$x_r = rx / xsize;
   updated_header$internal$x_a = ax / xsize;
@@ -467,11 +474,11 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
 #'
 #' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}. The `c_r`, `c_a` and `c_s` values in do not matter of course, they are what is computed by this function.
 #'
-#' @param first_voxel_RAS numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1`.
+#' @param first_voxel_RAS numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1` in R, or `CRS=0,0,0` in C/FreeSurfer. This value is also known as *P0 RAS*.
 #'
-#' @return numerical vector of length 3, the RAS coordinate of the center voxel
+#' @return numerical vector of length 3, the RAS coordinate of the center voxel. Also known as *CRAS* or *center RAS*.
 #'
-#' @keywords internal
+#' @export
 mghheader.centervoxelRAS.from.firstvoxelRAS <- function(header, first_voxel_RAS) {
 
   if(length(first_voxel_RAS) != 3L) {
@@ -496,5 +503,5 @@ mghheader.centervoxelRAS.from.firstvoxelRAS <- function(header, first_voxel_RAS)
 
   center_voxel_CRS = c(header$internal$width / 2.0, header$internal$height / 2.0, header$internal$depth / 2.0, 1.0);
   center_voxel_RAS = incomplete_vox2ras %*% center_voxel_CRS;
-  return(center_voxel_RAS);
+  return(center_voxel_RAS[1:3]);
 }

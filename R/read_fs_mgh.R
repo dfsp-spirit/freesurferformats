@@ -81,7 +81,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$ysize = delta[2];
         header$internal$zsize = delta[3];
 
-        Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");    # vector of length 9:  x_r, x_a, x_s, y_r, y_a, y_s, z_r, z_a, z_s. Note: gets turned into 3x3 matrix below
+        # Mdc is the 'matrix of direction cosines'.
+        # When read, it is a vector of length 9:  x_r, x_a, x_s, y_r, y_a, y_s, z_r, z_a, z_s. Note: gets turned into 3x3 matrix below.
+        Mdc = readBin(fh, numeric(), n = 9, size = 4, endian = "big");
         header$internal$x_r = Mdc[1];
         header$internal$x_a = Mdc[2];
         header$internal$x_s = Mdc[3];
@@ -110,7 +112,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         header$internal$c_a = Pxyz_c[2];
         header$internal$c_s = Pxyz_c[3];
 
-        D = diag(delta);
+        D = diag(delta);   # D is the matrix of voxel sizes. Note that delta=(xsize, ysize, zsize).
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS indices of the center voxel
         Mdc_scaled = Mdc %*% D; # Scaled by the voxel dimensions (xsize, ysize, zsize)
         Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0,0,0 (also known as P0 RAS or 'first voxel RAS'). Note: in R, it's actually CRS=1,1,1.

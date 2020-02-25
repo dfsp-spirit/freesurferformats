@@ -96,7 +96,6 @@ test_that("The RAS coordinate of the center voxel (CRAS) can be computed from th
   expect_equal(first_voxel_RAS, known_first_voxel_RAS, tolerance=1e-2);
 
   center_RAS = mghheader.centervoxelRAS.from.firstvoxelRAS(header, first_voxel_RAS);  # center RAS is also known as 'CRAS'.
-  center_RAS = center_RAS[1:3];   # remove homogenous part
 
   known_center_RAS = c(-0.499954, 29.3727, -48.9047);     # known from: `mri_info --cras  path/to/brain.mgz` (in system shell)
 

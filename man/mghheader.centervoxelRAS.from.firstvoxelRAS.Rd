@@ -9,12 +9,11 @@ mghheader.centervoxelRAS.from.firstvoxelRAS(header, first_voxel_RAS)
 \arguments{
 \item{header}{Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}. The `c_r`, `c_a` and `c_s` values in do not matter of course, they are what is computed by this function.}
 
-\item{first_voxel_RAS}{numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1`.}
+\item{first_voxel_RAS}{numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1` in R, or `CRS=0,0,0` in C/FreeSurfer. This value is also known as *P0 RAS*.}
 }
 \value{
-numerical vector of length 3, the RAS coordinate of the center voxel
+numerical vector of length 3, the RAS coordinate of the center voxel. Also known as *CRAS* or *center RAS*.
 }
 \description{
 Compute RAS coords of center voxel.
 }
-\keyword{internal}
