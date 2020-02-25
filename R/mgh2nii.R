@@ -132,6 +132,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
   yfov = header$internal$yend - header$internal$ystart;
   zfov = header$internal$zend - header$internal$zstart;
   header$internal$fov = ifelse(xfov > yfov, ifelse(xfov > zfov, xfov, zfov), ifelse(yfov > zfov, yfov, zfov));
+  header$mr$fov = header$internal$fov;
   orientation_info = get.slice.orientation(header$internal$Mdc);
   header$internal$slice_orientation_string = orientation_info$orientation_string;
   header$internal$slice_direction_name = orientation_info$direction_name;

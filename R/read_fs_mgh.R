@@ -421,7 +421,12 @@ print.fs.volume <- function(x, ...) {
 
   # mr_params
   if(x$header$has_mr_params == 1) {
-    cat(sprintf(" - Header contains MR acquisition parameters: TR: %.2f msec, TE: %.2f msec, TI: %.2f msec, flip angle: %.2f degrees, fov = %.3f.\n", x$header$mr$tr, x$header$mr$te, x$header$mr$ti, x$header$mr$flip_angle_degrees, x$header$mr$fov));
+    tr = ifelse(is.null(x$header$mr$tr), NA, x$header$mr$tr);
+    te = ifelse(is.null(x$header$mr$te), NA, x$header$mr$te);
+    ti = ifelse(is.null(x$header$mr$ti), NA, x$header$mr$ti);
+    flip_angle_degrees = ifelse(is.null(x$header$mr$flip_angle_degrees), NA, x$header$mr$flip_angle_degrees);
+    fov = ifelse(is.null(x$header$mr$fov), NA, x$header$mr$fov);
+    cat(sprintf(" - Header contains MR acquisition parameters: TR: %.2f msec, TE: %.2f msec, TI: %.2f msec, flip angle: %.2f degrees, fov = %.3f.\n", tr, te, ti, flip_angle_degrees, fov));
   } else {
     cat(sprintf(" - Header does not contain MR acquisition parameters.\n"));
   }
