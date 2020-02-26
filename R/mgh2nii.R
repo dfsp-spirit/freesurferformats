@@ -1,13 +1,13 @@
-# Functions for converting between Nifti and fs.volume instances.
+# Functions for converting between NIFTI and fs.volume instances. (Despite the file name, the other way around is not implemented yet.)
 
 
-#' @title Turn an `oro.nifti` instance into an `fs.volume` instance.
+#' @title Turn an `oro.nifti` instance into an `fs.volume` instance with complete header.
 #'
-#' @description This is work in progress. Currently only few datatypes are supported, and the sform needs to be present in the nifti instance.
+#' @description This is work in progress. This function takes an `oro.nifti` instance and computes the MGH header fields from the NIFTI header data, allowing for proper orientation of the contained image data (see \code{\link[freesurferformats]{mghheader.vox2ras}} and related functions). Currently only few datatypes are supported, and the `sform` header field needs to be present in the NIFTI instance.
 #'
 #' @param nifti_img instance of class `nifti` from the `oro.nifti` package
 #'
-#' @return an `fs.volume` instance
+#' @return an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
 #'
 #' @examples
 #' \dontrun{
@@ -28,15 +28,27 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     # nifti_img@pixdim;
     # mriio.cpp 9400
 
+    if(nifti_img@magic != "n+1") {
+      stop(sprintf("Invalid NIFTI magic code '%s', file format not supported. Expected magic code 'n+1'.\n", nifti_img@magic));
+    }
+
     ## --------------------- Perform some basic sanity checks on the Nifti header. ---------------------
     scale_data = FALSE; # whether data scaling is required. This is scaling based on the scaling part in the header, not to be confused with scaling due to time/space units.
     if(nifti_img@scl_slope != 0.0) {
-      if(!(nifti_img@scl_slope == 1.0 & nifti_img@.scl_inter == 0.0)) {
+      if(!(nifti_img@scl_slope == 1.0 & nifti_img@scl_inter == 0.0)) {
         scale_data = TRUE;
       }
     }
     if(scale_data) {
+      # Most likely, data scaling is handled by oro.nifti, but I did not check it yet.
       stop(sprintf("Detected that Nifti data needs scaling (@scl_slope=%.2f, @scl_inter=%.2f), but scaling not implemented yet.\n", nifti_img@scl_slope, nifti_img@scl_inter));
+    }
+
+    # The intent code describes how to interprete the data (e.g., that the values describe a certain distribution or whatever).
+    # See https://brainder.org/2012/09/23/the-nifti-file-format/ or the NIFTI spec for details.
+    # There is no field for this in MGH header afaict, so we ignore it.
+    if(nii@intent_code != 0L) {
+      warning("NIFTI intent_code '%d' ignored.\n", nii@intent_code);
     }
 
     ## -----Check the datatype ------
@@ -46,11 +58,13 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
 
-    if(nifti_img@datatype == 2L & nifti_img@bitpix == 8L) {
+    if(nifti_img@datatype == 2L & nifti_img@bitpix == 8L) {   # NIFTI: 'unsigned char'
       dtype = MRI_UCHAR;
-    } else if(nifti_img@datatype == 8L & nifti_img@bitpix == 32L) {
+    } else if(nifti_img@datatype == 4L & nifti_img@bitpix == 16L) {  # NIFTI: 'signed short'
+      dtype = MRI_SHORT;
+    } else if(nifti_img@datatype == 8L & nifti_img@bitpix == 32L) {  # NIFTI: 'signed int'
       dtype = MRI_INT;
-    } else if(nifti_img@datatype == 16L & nifti_img@bitpix == 32L) {
+    } else if(nifti_img@datatype == 16L & nifti_img@bitpix == 32L) {  # NIFTI: 'float'
       dtype = MRI_FLOAT;
     } else {
       stop(sprintf("Nifti images with @datatype=%d and @bitpix=%d not supported yet.\n", nifti_img@datatype, nifti_img@bitpix));
@@ -70,18 +84,19 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       stop(sprintf("Byte-swapped Nifti images not supported yet.\n"));
     }
 
-    # If the image has only 3 dimensions, set slice count to 1.
+    # If the image has only 3 dimensions, set frame count to 1.
     num_frames = ifelse(num_used_dimensions < 4L, 1L, nifti_img@dim_[5]); # Note difference between @dim and @dim_. The latter contains the number of "used" dimensions at the first position.
 
+
     # If the image has more than 4 dimensions, we do not support it yet.
-    if(num_used_dimensions > 4L) {
+    if(num_used_dimensions > 4L & nifti_img@dim_[6] > 1L) {
       stop("Nifti images with more than 4 used dimensions not supported yet.");
     }
 
     # Check for FreeSurfer hack in number of columns (negative column count, true column count stored in @glmin field).
-    # This requires special handling later, which is not supported yet.
+    # Loading these non-standard NIFTI files will not work anyways with oro.nifti I guess, so this may never happen.
     if(nifti_img@dim_[2] < 0L) {
-      stop("Nifti image with FreeSurfer hack detected.");
+      message(sprintf("Nifti image with FreeSurfer hack detected, assuming %d columns.\n", nifti_img@glmin));
       ncols = nifti_img@glmin;
     } else {
       ncols = nifti_img@dim_[2];
@@ -95,19 +110,21 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     cat(sprintf("Nifti header: Image has %d used dimensions. It %s ico7 morphometry data.\n", nifti_img@dim_[1], ico7_state_string));
 
     ## Compute space and time unit factors from @xyzt_units.
+    # NIFTI can store in different units, while MGH uses fixed units. Depending on the unit used in the NIFTI, we may need to
+    # rescale the values to match the MGH unit. (This is not to be confused with the data scaling fields in the NIFTI header, see scl_slope and scl_inter handling above).
     space_info = nifti.space.info(nifti_img@xyzt_units);
     space_unit_factor = space_info$scaling;
     time_info = nifti.time.info(nifti_img@xyzt_units);
     time_unit_factor = time_info$scaling;
-    cat(sprintf("Space data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", space_info$name, space_info$scaling));
-    cat(sprintf("Time data in NIFTI file is stored in unit '%s', using scaling factor %f.\n", time_info$name, time_info$scaling));
+    cat(sprintf("Space data in NIFTI file is stored in unit '%s', using scaling factor %f to match FreeSurfer unit 'mm'.\n", space_info$name, space_info$scaling));
+    cat(sprintf("Time data in NIFTI file is stored in unit '%s', using scaling factor %f to match FreeSurfer unit 'ms'.\n", time_info$name, time_info$scaling));
 
 
-    header = mghheader(c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], nifti_img@dim_[5]), dtype);
+    header = mghheader(c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], num_frames), dtype);
     header$internal$xsize = nifti_img@pixdim[2]; # voxel size in x direction. Still needs scaling by space_unit_factor, see below.
     header$internal$ysize = nifti_img@pixdim[3]; # voxel size in y direction. Still needs scaling by space_unit_factor, see below.
     header$internal$zsize = nifti_img@pixdim[4]; # voxel size in z direction. Still needs scaling by space_unit_factor, see below.
-    header$internal$tr = nifti_img@pixdim[5];    # TR. Still needs scaling by time__unit_factor, see below.
+    header$internal$tr = nifti_img@pixdim[5];    # TR. Still needs scaling by time_unit_factor, see below.
 
     if(nifti_img@sform_code != 0L) { # Means that the sform is present.
       # Extract vox2ras matrix from NIFTI sform, then init the MGH header from the vox2ras matrix.
@@ -117,7 +134,20 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     } else if(nifti_img@qform_code != 0L) {
       stop("Nifti images without valid sform not supported yet. (Your image has a qform, but using it is not implemented yet.)");
     } else {
-      stop("Nifti images without valid sform or qform not supported, orientation cannot be derived. Just extract the @.Data manually.");
+      warning("Nifti image does not contain valid sform or qform, orientation cannot be derived and is arbitrary.");
+      header$internal$x_r = -1.0;
+      header$internal$x_a = 0.0;
+      header$internal$x_s = 0.0;
+      header$internal$y_r = 0.0;
+      header$internal$y_a = 1.0;
+      header$internal$y_s = 0.0;
+      header$internal$z_r = 0.0;
+      header$internal$z_a = 0.0;
+      header$internal$z_s = 1.0;
+      header$internal$c_r = header$internal$xsize * header$internal$width / 2.0;
+      header$internal$c_a = header$internal$ysize * header$internal$height / 2.0;
+      header$internal$c_s = header$internal$zsize * header$internal$depth / 2.0;
+      header$ras_good_flag = 0L;
     }
 
     header$internal$xsize = header$internal$xsize * space_unit_factor;
@@ -152,12 +182,12 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     header$internal$slice_direction_name = orientation_info$direction_name;
 
     fsvol_data = nifti_img@.Data;
-    # TODO: Check in which ordering the data is saved in the NIFTI image and rotate/permute the array accordingly.
+    # TODO: Check in which storage ordering the data is saved in the NIFTI image and rotate/permute the array accordingly.
     # See https://brainder.org/2012/09/23/the-nifti-file-format/ and the official NIFTI standard.
 
     if(length(dim(fsvol_data)) != 4) {
       # Most likely the 4th dimension of size 1 is missing, reshape it.
-      dim(fsvol_data) = c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], nifti_img@dim_[5]);
+      dim(fsvol_data) = c(ncols, nifti_img@dim_[3], nifti_img@dim_[4], num_frames);
     }
 
     fsvol = list("header"=header, "data"=fsvol_data);
