@@ -135,6 +135,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       stop("Nifti images without valid sform not supported yet. (Your image has a qform, but using it is not implemented yet.)");
     } else {
       warning("Nifti image does not contain valid sform or qform, orientation cannot be derived and is arbitrary.");
+      # Fill in more or less random values.
       header$internal$x_r = -1.0;
       header$internal$x_a = 0.0;
       header$internal$x_s = 0.0;
@@ -147,6 +148,8 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       header$internal$c_r = header$internal$xsize * header$internal$width / 2.0;
       header$internal$c_a = header$internal$ysize * header$internal$height / 2.0;
       header$internal$c_s = header$internal$zsize * header$internal$depth / 2.0;
+
+      # Indicate missing RAS info:
       header$ras_good_flag = 0L;
     }
 
