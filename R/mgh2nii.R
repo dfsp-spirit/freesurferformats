@@ -140,9 +140,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       cat(sprintf("Computed transformation matrix into '%s' using sform header data.\n", nifti.transform.type.name(nifti_img@sform_code)));
       header$ras_good_flag = 1L;
     } else if(nifti_img@qform_code != 0L) {
-      stop("Nifti images without valid sform not supported yet. (Your image has a qform, but using it is not implemented yet.)");
-
-      # The qform transform is based on 4 quaternions. 3 of them are in the following header fields, the 4th one needs to be
+      # The qform transform is based on the 3 qoffset fields, qfac, and 4 quaternions. 3 of them are in the following header fields, the 4th one needs to be
       # computed from the other 3.
       qb = nifti_img@quatern_b;
       qc = nifti_img@quatern_c;
@@ -175,7 +173,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       # Now use voxel sizes and translation vector to compute final transform
       qfac = nifti_img@pixdim[1];
       if(!(qfac == -1 | qfac == 1)) {     # We're in the dangerous world of floating point comparison here.
-        warning("");                      # R is good at it, but I would rather let the user know if anything looks suspicious.
+        warning(sprintf("Treating non-standard qfac value '%f' as 1.0\n.", qfac));  # R is good at it, but I would rather let the user know if anything looks suspicious.
         qfac = 1;
       }
       rot_mat[1,3] = rot_mat[1,3] * qfac;
