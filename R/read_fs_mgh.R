@@ -115,7 +115,11 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         D = diag(delta);   # D is the matrix of voxel sizes. Note that delta=(xsize, ysize, zsize).
         Pcrs_c = c(ndim1/2, ndim2/2, ndim3/2); # CRS indices of the center voxel
         Mdc_scaled = Mdc %*% D; # Scaled by the voxel dimensions (xsize, ysize, zsize)
-        Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0,0,0 (also known as P0 RAS or 'first voxel RAS'). Note: in R, it's actually CRS=1,1,1.
+        Pxyz_0 = Pxyz_c - (Mdc_scaled %*% Pcrs_c); # the x,y,z location at CRS=0,0,0 (also known as P0 RAS or 'first voxel RAS').
+        # Note: in R, it's actually CRS=1,1,1.
+        # Good to know: The 3 voxel indices of the CRS are often called 'i, j, k'. (While this is true for
+        # indices in general, in the context of MRI transformation matrices, you can assume that 'CRS' is meant when some comment
+        # or function states that data is 'transformed from ijk to RAS' or talks about 'the voxel at ijk=0').
 
         M = matrix(rep(0, 16), nrow=4);
         M[1:3,1:3] = as.matrix(Mdc_scaled);

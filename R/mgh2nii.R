@@ -1,6 +1,10 @@
 # Functions for converting between NIFTI and fs.volume instances. (Despite the file name, the other way around is not implemented yet.)
 
 
+# A note on the NIFTI coordinate system, from: 'Orientation informtion' on https://brainder.org/2012/09/23/the-nifti-file-format/
+# "The world coordinate system is assumed to be ras: +x is Right, +y is Anterior and +z is Superior"
+
+
 #' @title Turn an `oro.nifti` instance into an `fs.volume` instance with complete header.
 #'
 #' @description This is work in progress. This function takes an `oro.nifti` instance and computes the MGH header fields from the NIFTI header data, allowing for proper orientation of the contained image data (see \code{\link[freesurferformats]{mghheader.vox2ras}} and related functions). Currently only few datatypes are supported, and the `sform` header field needs to be present in the NIFTI instance.
@@ -126,16 +130,88 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     header$internal$zsize = nifti_img@pixdim[4]; # voxel size in z direction. Still needs scaling by space_unit_factor, see below.
     header$internal$tr = nifti_img@pixdim[5];    # TR. Still needs scaling by time_unit_factor, see below.
 
-    if(nifti_img@sform_code != 0L) { # Means that the sform is present.
+    # Compute the vox2ras transformation. This is the crucial part.
+    # See the 'Orientation information' section on https://brainder.org/2012/09/23/the-nifti-file-format/ for interpretation
+    # and a good overview.
+    if(nifti_img@sform_code != 0L) { # Means that the sform is present in slots srow_x, srow_y and srow_z.
       # Extract vox2ras matrix from NIFTI sform, then init the MGH header from the vox2ras matrix.
       vox2ras = rbind(nifti_img@srow_x, nifti_img@srow_y, nifti_img@srow_z, c(0, 0, 0, 1));
       header = mghheader.update.from.vox2ras(header, vox2ras);
+      cat(sprintf("Computed transformation matrix into '%s' using sform header data.\n", nifti.transform.type.name(nifti_img@sform_code)));
       header$ras_good_flag = 1L;
     } else if(nifti_img@qform_code != 0L) {
       stop("Nifti images without valid sform not supported yet. (Your image has a qform, but using it is not implemented yet.)");
+
+      # The qform transform is based on 4 quaternions. 3 of them are in the following header fields, the 4th one needs to be
+      # computed from the other 3.
+      qb = nifti_img@quatern_b;
+      qc = nifti_img@quatern_c;
+      qd = nifti_img@quatern_d;
+
+      # Compute qa
+      qa = 1.0 - (qb*qb + qc*qc + qd*qd);
+      if (qa < 1.0e-7) {
+        qa = 1.0 / sqrt(qb*qb + qc*qc + qd*qd);
+        qb = qa*qb;
+        qc = qa*qc;
+        qd = qa*qd;
+        qa = 0.0;
+      } else {
+        qa = sqrt(qa);
+      }
+
+      # Now construct the 3x3 rotation matrix.
+      rot_mat = matrix(rep(0., 9), nrow=3L);
+      rot_mat[1,1] = qa*qa + qb*qb - qc*qc - qd*qd;
+      rot_mat[1,2] = 2.0 * qb * qc - 2.0 * qa * qd;
+      rot_mat[1,3] = 2.0 * qb * qd + 2.0 * qa * qc;
+      rot_mat[2,1] = 2.0 * qb * qc + 2.0 * qa * qd;
+      rot_mat[2,2] = qa*qa + qc*qc - qb*qb - qd*qd;
+      rot_mat[2,3] = 2.0 * qc * qd - 2.0 * qa * qb;
+      rot_mat[3,1] = 2.0 * qb * qd - 2.0 * qa * qc;
+      rot_mat[3,2] = 2.0 * qc * qd + 2.0 * qa * qb;
+      rot_mat[3,3] = qa*qa + qd*qd - qc*qc - qb*qb;
+
+      # Now use voxel sizes and translation vector to compute final transform
+      qfac = nifti_img@pixdim[1];
+      if(!(qfac == -1 | qfac == 1)) {     # We're in the dangerous world of floating point comparison here.
+        warning("");                      # R is good at it, but I would rather let the user know if anything looks suspicious.
+        qfac = 1;
+      }
+      rot_mat[1,3] = rot_mat[1,3] * qfac;
+      rot_mat[2,3] = rot_mat[2,3] * qfac;
+      rot_mat[3,3] = rot_mat[3,3] * qfac;
+
+      # Fill in header fields.
+      header$internal$x_r = rot_mat[1,1];
+      header$internal$y_r = rot_mat[1,2];
+      header$internal$z_r = rot_mat[1,3];
+      header$internal$x_a = rot_mat[2,1];
+      header$internal$y_a = rot_mat[2,2];
+      header$internal$z_a = rot_mat[2,3];
+      header$internal$x_s = rot_mat[3,1];
+      header$internal$y_s = rot_mat[3,2];
+      header$internal$z_s = rot_mat[3,3];
+
+      # Compute and set center RAS
+      header$internal$c_r = (header$internal$xsize * header$internal$x_r) * (header$internal$width / 2.0) +
+                            (header$internal$ysize * header$internal$y_r) * (header$internal$height / 2.0) +
+                            (header$internal$zsize * header$internal$z_r) * (header$internal$depth / 2.0) + nifti_img@qoffset_x;
+
+      header$internal$c_a = (header$internal$xsize * header$internal$x_a) * (header$internal$width / 2.0) +
+                            (header$internal$ysize * header$internal$y_a) * (header$internal$height / 2.0) +
+                            (header$internal$zsize * header$internal$z_a) * (header$internal$depth / 2.0) + nifti_img@qoffset_y;
+
+      header$internal$c_s = (header$internal$xsize * header$internal$x_s) * (header$internal$width / 2.0) +
+                            (header$internal$ysize * header$internal$y_s) * (header$internal$height / 2.0) +
+                            (header$internal$zsize * header$internal$z_s) * (header$internal$depth / 2.0) + nifti_img@qoffset_z;
+      header$ras_good_flag = 1L;
+
+
+      cat(sprintf("Computed transformation matrix into '%s' using qform header data.\n", nifti.transform.type.name(nifti_img@qform_code)));
     } else {
       warning("Nifti image does not contain valid sform or qform, orientation cannot be derived and is arbitrary.");
-      # Fill in more or less random values.
+      # Fill in more or less random orientation values, scale voxel values by xsize, ysize, zsize.
       header$internal$x_r = -1.0;
       header$internal$x_a = 0.0;
       header$internal$x_s = 0.0;
@@ -148,7 +224,6 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
       header$internal$c_r = header$internal$xsize * header$internal$width / 2.0;
       header$internal$c_a = header$internal$ysize * header$internal$height / 2.0;
       header$internal$c_s = header$internal$zsize * header$internal$depth / 2.0;
-
       # Indicate missing RAS info:
       header$ras_good_flag = 0L;
     }
@@ -217,6 +292,24 @@ nifti.space.info <- function(xyzt_units) {
   if(nifti_unit_code == 2L) { nifti_unit_name = "mm"; scaling = 1.0; }
   if(nifti_unit_code == 3L) { nifti_unit_name = "mum";  scaling = 0.001; }
   return(list("code"=nifti_unit_code, "name"=nifti_unit_name, "scaling"=scaling));
+}
+
+
+#' @title Get the name of the transform type from a form code.
+#'
+#' @description The form code is a code stored in the `sform_code` and/or `qform_code` NIFTI header fields.
+#'
+#' @param form_code integer, the value retrieved from the `sform_code` or the `qform_code` NIFTI header fields
+#'
+#' @return character string, the meaning of the code. Usually this expresses to what the data will be aligned after application of the vox2ras transformation method. (The type of transformation to perform in order to achieve this alignment depends on whether the value was retrieved from the `sform` or the `qform` field and does not matter here.)
+#'
+#' @keywords internal
+nifti.transform.type.name <- function(form_code) {
+  if(form_code == 1L) { return("scanner_anatomical"); }
+  if(form_code == 2L) { return("reference"); }
+  if(form_code == 3L) { return("talairach_space"); }
+  if(form_code == 4L) { return("MNI152_space"); }
+  return("unknown");
 }
 
 
