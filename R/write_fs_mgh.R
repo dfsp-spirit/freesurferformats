@@ -112,6 +112,8 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
       dtype = translate.mri.dtype(mri_dtype); # convert string to integer dtype code. Will fail for invalid strings.
     }
 
+    check.dtype.for.data(data, dtype);
+
     ret_list$header$dtype = dtype;
 
     writeBin(as.integer(dtype), fh, size = 4,  endian = "big");  # write dtype code
@@ -183,4 +185,71 @@ mri_dtype_numbytes <- function(mri_dtype_code) {
   } else {
     stop("Invalid mri_dtype_code parameter.")
   }
+}
+
+
+#' @title Check whether the dtype is suitable for the data.
+#'
+#' @description This function provides an educated guess on whether the given dtype is suitable for the data. It is usually called for the site effect of printing warnings in case something seems off.
+#'
+#' @param data the data to check, a vector, matrix or array typically
+#'
+#' @param mri_dtype_code integer, the MRI data type code. See \code{\link[freesurferformats]{translate.mri.dtype}}.
+#'
+#' @param silent logical, whether to suppress warning messages if the dtype seems unsuitable
+#'
+#' @return logical, whether the dtype could be suitable. This is only a guess, as the checks are in no way complete.
+#'
+#' @keywords internal
+check.dtype.for.data <- function(data, mri_dtype_code) {
+  could_be_okay = TRUE;
+  mri_dtype_name = translate.mri.dtype(mri_dtype_code);
+
+  if(mri_dtype_name == "MRI_UCHAR") {
+    dtype_min_value = 0L;
+    dtype_max_value = 255L;
+    if(is.integer(data)) {
+      if(min(data) < dtype_min_value | max(data) > dtype_max_value) {
+        warning(sprintf("Data type '%s' cannot store data outside of range [%d, %d], but your data has range [%d, %d]. Output will be wrong, check datatype.\n", mri_dtype_name, dtype_min_value, dtype_max_value, min(data), max(data)));
+        could_be_okay = FALSE;
+      }
+
+    } else {
+      warning(sprintf("Data type '%s' requires 'integer' data, found type '%s'.\n", mri_dtype_name, typeof(data)));
+      could_be_okay = FALSE;
+    }
+  }
+
+  if(mri_dtype_name == "MRI_SHORT") {
+    dtype_min_value = 0L;
+    dtype_max_value = 65535L;
+    if(is.integer(data)) {
+      if(min(data) < dtype_min_value | max(data) > dtype_max_value) {
+        warning(sprintf("Data type '%s' cannot store data outside of range [%d, %d], but your data has range [%d, %d]. Output will be wrong, check datatype.\n", mri_dtype_name, dtype_min_value, dtype_max_value, min(data), max(data)));
+        could_be_okay = FALSE;
+      }
+
+    } else {
+      warning(sprintf("Data type '%s' requires 'integer' data, found type '%s'.\n", mri_dtype_name, typeof(data)));
+      could_be_okay = FALSE;
+    }
+  }
+
+
+  if(mri_dtype_name == "MRI_INT") {
+    if(!is.integer(data)) {
+      warning(sprintf("Data type '%s' requires 'integer' data, found type '%s'.\n", mri_dtype_name, typeof(data)));
+      could_be_okay = FALSE;
+    }
+  }
+
+  if(mri_dtype_name == "MRI_FLOAT") {
+    if(!is.double(data)) {
+      warning(sprintf("Data type '%s' requires 'double' data, found type '%s'.\n", mri_dtype_name, typeof(data)));
+      could_be_okay = FALSE;
+    }
+  }
+
+
+  return(invisible(could_be_okay));
 }
