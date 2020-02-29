@@ -130,3 +130,26 @@ test_that("An one-dimensional compressed MGZ file of integer values can be writt
   expect_equal(data, as.vector(read_data));
   expect_equal(range(read_data), c(0L, 1L));
 })
+
+
+test_that("Logical data can be written and re-read from MGH and MGZ files", {
+  # This test is very similar to the last one, but it uses MGZ instead of MGH.
+  output_file_mgh = tempfile(fileext = ".mgh");
+  output_file_mgz = tempfile(fileext = ".mgz");
+
+  # generate data
+  data_int = sample(0:1, 2000, replace=TRUE);
+  data_logical = as.logical(data_int);
+
+  # write data to files, re-read and check
+  write.fs.mgh(output_file_mgh, data_logical);
+  mgh = read.fs.mgh(output_file_mgh, with_header = TRUE, drop_empty_dims = TRUE);
+  expect_equal(mgh$data, data_int);
+  expect_equal(mgh$header$dtype, translate.mri.dtype("MRI_UCHAR"));
+
+
+  write.fs.mgh(output_file_mgz, data_logical);
+  mgz = read.fs.mgh(output_file_mgz, with_header = TRUE, drop_empty_dims = TRUE);
+  expect_equal(mgz$data, data_int);
+  expect_equal(mgz$header$dtype, translate.mri.dtype("MRI_UCHAR"));
+})

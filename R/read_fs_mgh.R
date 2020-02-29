@@ -33,6 +33,10 @@
 #' @export
 read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE) {
 
+    if(! is.character(filepath)) {
+      stop("Parameter 'filepath' msut be a character string.")
+    }
+
 
     header = list();
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mgh2nii.R
 \name{fs.volume.from.oro.nifti}
 \alias{fs.volume.from.oro.nifti}
-\title{Turn an `oro.nifti` instance into an `fs.volume` instance.}
+\title{Turn an `oro.nifti` instance into an `fs.volume` instance with complete header.}
 \usage{
 fs.volume.from.oro.nifti(nifti_img)
 }
@@ -10,10 +10,10 @@ fs.volume.from.oro.nifti(nifti_img)
 \item{nifti_img}{instance of class `nifti` from the `oro.nifti` package}
 }
 \value{
-an `fs.volume` instance
+an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
 }
 \description{
-This is work in progress. Currently only few datatypes are supported, and the sform needs to be present in the nifti instance.
+This is work in progress. This function takes an `oro.nifti` instance and computes the MGH header fields from the NIFTI header data, allowing for proper orientation of the contained image data (see \code{\link[freesurferformats]{mghheader.vox2ras}} and related functions). Currently only few datatypes are supported, and the `sform` header field needs to be present in the NIFTI instance.
 }
 \examples{
 \dontrun{
