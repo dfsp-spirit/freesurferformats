@@ -10,7 +10,7 @@
 #'
 #' @param mr_params double vector of length four (without fov) or five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.
 #'
-#' @param mri_dtype character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte singed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. Leave this alone if in doubt.
+#' @param mri_dtype character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte singed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.
 #'
 #' @family morphometry functions
 #'
@@ -89,19 +89,23 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
     MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
-    if(mri_dtype == 'auto') {
+    if(mri_dtype == 'auto' | mri_dtype == 'AUTO') {
       if(is.integer(data)) {
           dtype = MRI_INT;
+      } else if(is.logical(data)) {
+        # We convert logical data to integer and save it as MRI_UCHAR
+        data = as.integer(data);
+        dtype = MRI_UCHAR;
       } else if(is.double(data)) {
         dtype = MRI_FLOAT;
       } else {
-          stop(sprintf("Data type '%s' not supported. Try integer or double.\n", typeof(data)));
+          stop(sprintf("Data type of the contents of the parameter 'data', '%s', not supported. Try integer, logical or double data.\n", typeof(data)));
       }
     } else {
       if(!is.character(mri_dtype)) {
         stop("Parameter 'mri_dtype' must be a character string.");
       }
-      dtype = translate.mri.dtype(mri_dtype); # convert string to integer dtype code
+      dtype = translate.mri.dtype(mri_dtype); # convert string to integer dtype code. Will fail for invalid strings.
     }
 
     ret_list$header$dtype = dtype;
