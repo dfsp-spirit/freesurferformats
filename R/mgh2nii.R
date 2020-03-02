@@ -32,8 +32,8 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     # nifti_img@pixdim;
     # mriio.cpp 9400
 
-    if(nifti_img@magic != "n+1") {
-      stop(sprintf("Invalid NIFTI magic code '%s', file format not supported. Expected magic code 'n+1'.\n", nifti_img@magic));
+    if(!(nifti_img@magic == "n+1" | nifti_img@magic == "ni1")) {
+      stop(sprintf("Unknown NIFTI magic code '%s', file format not supported. Expected magic code 'n+1' or 'ni1'.\n", nifti_img@magic));
     }
 
     ## --------------------- Perform some basic sanity checks on the Nifti header. ---------------------
