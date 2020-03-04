@@ -177,16 +177,16 @@ mri_dtype_numbytes <- function(mri_dtype_code) {
   if(is.character(mri_dtype_code)) {
     mri_dtype_code = translate.mri.dtype(mri_dtype_code);
   }
-  if(mri_dtype_code == 0L) {# MRI_UCHAR
+  if(mri_dtype_code == 0L) {# MRI_UCHAR: 1 byte (=8 bit) unsigned integer
     return(1L);
-  } else if(mri_dtype_code == 1L) { # MRI_INT
+  } else if(mri_dtype_code == 1L) { # MRI_INT: 4 byte (=32 bit) signed integer
     return(4L);
-  } else if(mri_dtype_code == 3L) { # MRI_FLOAT
+  } else if(mri_dtype_code == 3L) { # MRI_FLOAT:  4 byte (=32 bit) signed floating point
     return(4L);
-  } else if(mri_dtype_code == 4L) { # MRI_SHORT
+  } else if(mri_dtype_code == 4L) { # MRI_SHORT: 2 byte (=16 bit) signed integer
     return(2L);
   } else {
-    stop("Invalid mri_dtype_code parameter.")
+    stop("Invalid 'mri_dtype_code' parameter.")
   }
 }
 
