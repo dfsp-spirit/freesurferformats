@@ -24,11 +24,12 @@ This is also known as the 'scanner' or 'native' vox2ras.  It is the inverse of t
 
 }
 \seealso{
-Other header coordinate space: \code{\link{mghheader.is.ras.valid}},
-  \code{\link{mghheader.ras2vox.tkreg}},
-  \code{\link{mghheader.ras2vox}},
-  \code{\link{mghheader.scanner2tkreg}},
-  \code{\link{mghheader.tkreg2scanner}},
-  \code{\link{mghheader.vox2ras.tkreg}}
+Other header coordinate space: 
+\code{\link{mghheader.is.ras.valid}()},
+\code{\link{mghheader.ras2vox.tkreg}()},
+\code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.tkreg2scanner}()},
+\code{\link{mghheader.vox2ras.tkreg}()}
 }
 \concept{header coordinate space}

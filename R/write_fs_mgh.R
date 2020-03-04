@@ -10,7 +10,7 @@
 #'
 #' @param mr_params double vector of length four (without fov) or five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.
 #'
-#' @param mri_dtype character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte singed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.
+#' @param mri_dtype character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte signed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.
 #'
 #' @family morphometry functions
 #'
@@ -18,7 +18,7 @@
 write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0., 0., 0., 0., 0.), mri_dtype='auto') {
 
     if(! is.character(filepath)) {
-      stop("Parameter 'filepath' msut be a character string.")
+      stop("Parameter 'filepath' must be a character string.")
     }
 
     ret_list = list("header"=list());
@@ -71,9 +71,9 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     num_dim = length(d);
 
     dim1 = d[1];
-    dim2 = ifelse(num_dim >= 2, d[2], 1);
-    dim3 = ifelse(num_dim >= 3, d[3], 1);
-    num_frames = ifelse(num_dim >= 4, d[4], 1);
+    dim2 = ifelse(num_dim >= 2L, d[2], 1L);
+    dim3 = ifelse(num_dim >= 3L, d[3], 1L);
+    num_frames = ifelse(num_dim >= 4L, d[4], 1L);
 
     writeBin(as.integer(1), fh, size = 4, endian = "big"); # version code, must be 1
     writeBin(as.integer(dim1), fh, size = 4, endian = "big");
@@ -127,18 +127,18 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     writeBin(as.integer(ras_flag), fh, size = ras_flag_size, endian = "big");
     if(ras_flag == 1L) {
         MdcD = vox2ras_matrix[1:3, 1:3];   # The upper left 3x3 part of the 4x4 vox2ras matrix
-        delta = sqrt(colSums(MdcD ** 2));    # a 3x1 vector
+        delta = sqrt(colSums(MdcD ** 2));    # a 3x1 vector, the x,y,z voxel sizes
 
         delta_tvec = rep(delta, 3);  # 3x3 matrix
         Mdc = as.vector(MdcD / delta_tvec);
-        Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);
-        Pxyz_c = vox2ras_matrix %*% Pcrs_c;
+        Pcrs_c = c(dim1/2, dim2/2, dim3/2, 1);    # center voxel index
+        Pxyz_c = vox2ras_matrix %*% Pcrs_c;       # RAS coord of center voxel
         Pxyz_c = Pxyz_c[1:3];
 
-        writeBin(delta, fh, size = 4, endian = "big"); # 3x1 vector => 3x4 = 12 bytes
-        writeBin(Mdc, fh, size = 4, endian = "big");  # 3x3matrix => 9x4 = 36 bytes
-        writeBin(Pxyz_c, fh, size = 4, endian = "big"); # 3x1 matrix => 3x4 = 12 bytes
-        used_space_RAS = as.integer(3*4 + 4*3*4); # 12 + 36 + 12 = 60 bytes
+        writeBin(delta, fh, size = 4, endian = "big");   # 3x1 vector => 3x4 = 12 bytes
+        writeBin(Mdc, fh, size = 4, endian = "big");     # 3x3 matrix => 9x4 = 36 bytes
+        writeBin(Pxyz_c, fh, size = 4, endian = "big");  # 3x1 matrix => 3x4 = 12 bytes
+        used_space_RAS = as.integer(3*4 + 4*3*4);        # 12 + 36 + 12 = 60 bytes
     } else {
         used_space_RAS = 0L;
     }
@@ -159,6 +159,9 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     if(! is.null(mr_params)) {
       writeBin(mr_params, fh, size = 4, endian = "big");
     }
+
+    # We do not write any tags.
+
     close(fh);
 }
 

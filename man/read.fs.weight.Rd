@@ -18,11 +18,15 @@ the indices and weight data, as a named list. Entries: "vertex_indices": vector 
 Read morphometry data in weight format (aka `w` files). A weight format file contains morphometry data for a set of vertices, defined by their index in a surface. This can be only a **subset** of the surface vertices.
 }
 \seealso{
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
-  \code{\link{read.fs.morph}}, \code{\link{write.fs.curv}},
-  \code{\link{write.fs.mgh}}, \code{\link{write.fs.morph}},
-  \code{\link{write.fs.weight}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph}()},
+\code{\link{write.fs.weight}()}
 }
 \concept{morphometry functions}

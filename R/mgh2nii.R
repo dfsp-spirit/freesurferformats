@@ -13,6 +13,10 @@
 #'
 #' @return an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
 #'
+#' @seealso \code{\link[oro.nifti]{readNIfTI}}, \code{\link[freesurferformats]{read.fs.mgh}}
+#'
+#' @references \href{https://nifti.nimh.nih.gov/nifti-1/}{NIfTI-1 data format spec}
+#'
 #' @examples
 #' \dontrun{
 #'    nii_file = "~/data/tim_only/tim/mri/brain.nii";  # mri_convert brain.mgz brain.nii
@@ -28,9 +32,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     if(! oro.nifti::is.nifti(nifti_img)) {
       stop("Parameter 'nifti_img' is not a nifti instance from oro.nifti.");
     }
-    # slotNames(nifti_img);
-    # nifti_img@pixdim;
-    # mriio.cpp 9400
+
 
     if(!(nifti_img@magic == "n+1" | nifti_img@magic == "ni1")) {
       stop(sprintf("Unknown NIFTI magic code '%s', file format not supported. Expected magic code 'n+1' or 'ni1'.\n", nifti_img@magic));
@@ -51,8 +53,8 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
     # The intent code describes how to interprete the data (e.g., that the values describe a certain distribution or whatever).
     # See https://brainder.org/2012/09/23/the-nifti-file-format/ or the NIFTI spec for details.
     # There is no field for this in MGH header afaict, so we ignore it.
-    if(nii@intent_code != 0L) {
-      warning("NIFTI intent_code '%d' ignored.\n", nii@intent_code);
+    if(nifti_img@intent_code != 0L) {
+      warning("NIFTI intent_code '%d' ignored.\n", nifti_img@intent_code);
     }
 
     ## -----Check the datatype ------

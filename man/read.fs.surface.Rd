@@ -12,7 +12,7 @@ read.fs.surface(filepath, format = "auto")
 \item{format}{one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.}
 }
 \value{
-named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 }
 \description{
 Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary or ASCII surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
@@ -26,10 +26,11 @@ Read a brain surface mesh consisting of vertex and face data from a file in Free
 
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface.asc}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface}}
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh functions}

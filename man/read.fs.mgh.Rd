@@ -4,13 +4,18 @@
 \alias{read.fs.mgh}
 \title{Read file in FreeSurfer MGH or MGZ format}
 \usage{
-read.fs.mgh(filepath, is_gzipped = "AUTO", flatten = FALSE,
-  with_header = FALSE, drop_empty_dims = FALSE)
+read.fs.mgh(
+  filepath,
+  is_gzipped = "AUTO",
+  flatten = FALSE,
+  with_header = FALSE,
+  drop_empty_dims = FALSE
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the input MGZ or MGH file.}
 
-\item{is_gzipped}{a logical value (TRUE or FALSE) or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.}
+\item{is_gzipped}{a logical value or the string 'AUTO'. Whether to treat the input file as gzipped, i.e., MGZ instead of MGH format. Defaults to 'AUTO', which tries to determine this from the last three characters of the 'filepath' parameter. Files with extensions 'mgz' and '.gz' (in arbitrary case) are treated as MGZ format, all other files are treated as MGH. In the special case that 'filepath' has less than three characters, MGH is assumed.}
 
 \item{flatten}{logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.}
 
@@ -40,12 +45,15 @@ Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH o
 \seealso{
 To derive more information from the header, see the `mghheader.*` functions, like \code{\link[freesurferformats]{mghheader.vox2ras.tkreg}}.
 
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.morph}},
-  \code{\link{read.fs.weight}},
-  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
-  \code{\link{write.fs.morph}},
-  \code{\link{write.fs.weight}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.morph}()},
+\code{\link{read.fs.weight}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph}()},
+\code{\link{write.fs.weight}()}
 }
 \concept{morphometry functions}

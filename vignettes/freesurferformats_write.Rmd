@@ -65,8 +65,32 @@ Here is an example that writes a file in MGH format including custom header data
 ```
 
 
-Note that *if and only if* you provide a `ras2vox_matrix`, the *ras_good* flag will be set to TRUE in the file header. If you do not provide `mr_params`, they default to all zero.
+Note that *if and only if* you provide a `ras2vox_matrix`, the *ras_good* flag will be set to `TRUE` in the file header. If you do not provide `mr_params`, they default to all zero.
 
+### MGH data types
+
+Data can be stored in the following data types in MGH files:
+
+* 'MRI_UCHAR' : 1 byte unsigned integer
+* 'MRI_SHORT' : 2 byte signed integer
+* 'MRI_INT'   : 4 byte signed integer
+* 'MRI_FLOAT' : 4 byte signed floating point
+
+One can control the data type that is used through the `dtype` parameter. The default value, 'auto', will determine the MRI data type from the R data type of the `data` parameter. The following rules are applied for R data types:
+
+* *logical* : the data gets coerced to integer, it is written as 'MRI_UCHAR'
+* *integer* : written as 'MRI_INT' (no matter the range of values)
+* *double*  : written as 'MRI_FLOAT'
+
+You can manually set the 'dtype' parameter to force a certain MRI data type. E.g., you could force 'MRI_SHORT' for your integer data if you are sure that the supported value range of that data type is enough for the values contained in your data. Be aware though that chosing an unsuitable MRI data type for your data will lead to an MGH file with incorrect data.
+
+*Hint*: If you need to save data in a certain data type, cast your data before passing them to the `write.fs.mgh` function. E.g., if you have integers but want to store them as 'MRI_FLOAT', do the following:
+
+```{r, eval = FALSE}
+    some_surface_mask = rep(1L, 163842);    
+    some_surface_mask[30000:45000] = 0L;
+    write.fs.mgh("regionmask_stored_as_MRI_FLOAT.mgh", as.double(some_surface_mask));
+```
 
 ## Writing 'curv' format files
 

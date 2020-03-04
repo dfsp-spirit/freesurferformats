@@ -4,8 +4,13 @@
 \alias{write.fs.mgh}
 \title{Write file in FreeSurfer MGH or MGZ format}
 \usage{
-write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
-  0, 0, 0), mri_dtype = "auto")
+write.fs.mgh(
+  filepath,
+  data,
+  vox2ras_matrix = NULL,
+  mr_params = c(0, 0, 0, 0, 0),
+  mri_dtype = "auto"
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the output curv file. If this ends with ".mgz", the file will be written gzipped (i.e., in MGZ instead of MGH format).}
@@ -16,19 +21,21 @@ write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
 
 \item{mr_params}{double vector of length four (without fov) or five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.}
 
-\item{mri_dtype}{character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte singed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.}
+\item{mri_dtype}{character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte signed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.}
 }
 \description{
 Write brain data to a file in FreeSurfer binary MGH or MGZ format.
 }
 \seealso{
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
-  \code{\link{read.fs.morph}},
-  \code{\link{read.fs.weight}},
-  \code{\link{write.fs.curv}},
-  \code{\link{write.fs.morph}},
-  \code{\link{write.fs.weight}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph}()},
+\code{\link{read.fs.weight}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.morph}()},
+\code{\link{write.fs.weight}()}
 }
 \concept{morphometry functions}

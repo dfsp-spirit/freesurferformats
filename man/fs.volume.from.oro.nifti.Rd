@@ -23,3 +23,9 @@ This is work in progress. This function takes an `oro.nifti` instance and comput
 }
 
 }
+\references{
+\href{https://nifti.nimh.nih.gov/nifti-1/}{NIfTI-1 data format spec}
+}
+\seealso{
+\code{\link[oro.nifti]{readNIfTI}}, \code{\link[freesurferformats]{read.fs.mgh}}
+}
