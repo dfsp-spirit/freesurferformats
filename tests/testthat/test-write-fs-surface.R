@@ -74,3 +74,18 @@ test_that("One can read, write and re-read triangular surface data", {
   expect_equal(surf$vertices, surf_re$vertices);
   expect_equal(surf$faces, surf_re$faces);
 })
+
+
+test_that("Surface files in VTK format can be read and written", {
+
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  tmp_vtk_file = tempfile(fileext=".vtk");
+  write.fs.surface.vtk(tmp_vtk_file, surf$vertices, surf$faces);
+
+  surf_re = read.fs.surface(tmp_vtk_file);
+  expect_equal(surf$vertices, surf_re$vertices);
+  expect_equal(surf$faces, surf_re$faces);
+})
+

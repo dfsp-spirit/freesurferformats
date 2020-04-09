@@ -19,8 +19,8 @@ read.fs.surface.asc <- function(filepath) {
   faces_df = read.table(filepath, skip=2L + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
 
   ret_list = list();
-  ret_list$vertices = data.matrix(vertices_df[1:3]);
-  ret_list$faces = data.matrix(faces_df[1:3]) + 1L;  # the +1 is because the surface should use R indices (one-based)
+  ret_list$vertices = unname(data.matrix(vertices_df[1:3]));
+  ret_list$faces = unname(data.matrix(faces_df[1:3])) + 1L;  # the +1 is because the surface should use R indices (one-based)
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
@@ -92,8 +92,8 @@ read.fs.surface.vtk <- function(filepath) {
 
 
   ret_list = list();
-  ret_list$vertices = data.matrix(vertices_df[1:3]);
-  ret_list$faces = data.matrix(faces_df[2:4]) + 1L;  # the +1 is because the surface should use R indices (one-based)
+  ret_list$vertices = unname(data.matrix(vertices_df[1:3]));
+  ret_list$faces = unname(data.matrix(faces_df[2:4])) + 1L;  # the +1 is because the surface should use R indices (one-based)
   class(ret_list) = c("fs.surface", class(ret_list));
 
   return(ret_list);
