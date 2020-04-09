@@ -20,7 +20,7 @@ an instance of `fs.surface`, read from the file. See \code{\link[freesurferforma
 Tries to read all files which can be constructed from the base path and the given extensions.
 }
 \examples{
-\donttest{
+\dontrun{
     surface_filepath_noext =
      paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
      'lh.white', sep="");

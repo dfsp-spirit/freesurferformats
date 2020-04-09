@@ -17,7 +17,7 @@
 #' @family mesh functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     surface_filepath_noext =
 #'      paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
 #'      'lh.white', sep="");
