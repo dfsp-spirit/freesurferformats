@@ -35,6 +35,7 @@ Other mesh functions: \code{\link{read.fs.surface.asc}},
   \code{\link{read.fs.surface}},
   \code{\link{read_nisurfacefile}},
   \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface.vtk}},
   \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}
