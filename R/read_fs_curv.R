@@ -5,7 +5,7 @@
 #'
 #' @param filepath string. Full path to the input curv file. Note: gzipped binary curv files are supported and gz binary format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'bin', or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.
 #'
 #' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
@@ -20,14 +20,18 @@
 #'
 #' @export
 read.fs.curv <- function(filepath, format='auto') {
-    MAGIC_FILE_TYPE_NUMBER = 16777215;
+    MAGIC_FILE_TYPE_NUMBER = 16777215L;
 
-    if(!(format %in% c('auto', 'bin', 'asc'))) {
-      stop("Format must be one of c('auto', 'bin', 'asc').");
+    if(!(format %in% c('auto', 'bin', 'asc', 'txt'))) {
+      stop("Format must be one of c('auto', 'bin', 'asc', 'txt').");
     }
 
     if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
       return(read.fs.curv.asc(filepath));
+    }
+
+    if(format == 'txt' | (format == 'auto' & filepath.ends.with(filepath, c('.txt')))) {
+      return(read.fs.curv.txt(filepath));
     }
 
     if(guess.filename.is.gzipped(filepath)) {
@@ -58,6 +62,19 @@ read.fs.curv <- function(filepath, format='auto') {
 #' @keywords internal
 read.fs.curv.asc <- function(filepath) {
   curv_df = read.table(filepath, header=FALSE, col.names=c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
+  return(curv_df$morph_data);
+}
+
+
+#' @title Read morphometry data from plain text file
+#'
+#' @param filepath path to a file in plain text format. Such a file contains, on each line, a single float value. This very simply and limited *format* is used by the LGI tool by Lyu et al., and easy to generate in shell scripts.
+#'
+#' @return numeric vector, the curv data
+#'
+#' @keywords internal
+read.fs.curv.txt <- function(filepath) {
+  curv_df = read.table(filepath, header=FALSE, col.names=c("morph_data"), colClasses = c("numeric"));
   return(curv_df$morph_data);
 }
 

@@ -34,13 +34,79 @@ read.fs.surface.asc <- function(filepath) {
 }
 
 
+#' @title Read VTK ASCII format mesh as surface.
+#'
+#' @description This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
+#'
+#' @param filepath string. Full path to the input surface file in VTK ASCII format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @family mesh functions
+#'
+#' @export
+read.fs.surface.vtk <- function(filepath) {
+
+  all_lines = readLines(filepath);
+  if(length(all_lines) < 5L) {
+    stop("The file is not a valid VTK ASCII file: it does not contain the 4 header lines and a data line.");
+  }
+  if(! startsWith(all_lines[1], "# vtk DataFile Version")) {
+    stop("The file is not a valid VTK ASCII file: first line is not a proper VTK file version descriptor.");
+  }
+  # line 2 is a freeform description, we do not check it
+  if(all_lines[3] !=  "ASCII") {
+    stop("The file is not a valid VTK ASCII file: third line does not read 'ASCII'.");
+  }
+  if(all_lines[4] !=  "DATASET POLYDATA") {
+    stop("The file is not a VTK ASCII mesh file: forth line does not read 'DATASET POLYDATA'. Only mesh data is supported by this function.");
+  }
+
+  # Starting from here, several data sections may follow.
+  vertices_df = NULL;
+  faces_df = NULL;
+
+  current_line_idx = 5L;
+  while(current_line_idx <= length(all_lines)) {
+    data_section_header_line_words = strsplit(all_lines[current_line_idx], " ")[[1]];
+    data_type = data_section_header_line_words[1];
+    num_elements = as.integer(data_section_header_line_words[2]);
+    if(data_type == "POINTS") {
+      vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_elements);
+    } else if(data_type == "POLYGONS") {
+      faces_df = read.table(filepath, skip=current_line_idx, col.names = c('num_verts', 'vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer", "integer"), nrows=num_elements);
+    } else {
+      warning(sprintf("Unsupported data type in section staring at line %d: '%s'. Only 'POINTS' and 'POLYGONS' are supported. Skipping section.\n", current_line_idx, data_type));
+    }
+    current_line_idx = current_line_idx + num_elements + 1L;   # the +1L is for the section header line
+  }
+
+
+  if(is.null(vertices_df) | is.null(faces_df)) {
+    stop("VTK file did not contain a complete mesh dataset (POINTS and POLYGONS sections).");
+  }
+
+  if(any(faces_df$num_verts != 3L)) {
+    stop("The mesh in the VTK file contains POLYGONS with are not triangles. Only triangular meshes are supported by this function.");
+  }
+
+
+  ret_list = list();
+  ret_list$vertices = data.matrix(vertices_df[1:3]);
+  ret_list$faces = data.matrix(faces_df[2:4]) + 1L;  # the +1 is because the surface should use R indices (one-based)
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  return(ret_list);
+}
+
+
 #' @title Read file in FreeSurfer surface format
 #'
 #' @description Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary or ASCII surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -64,9 +130,13 @@ read.fs.surface <- function(filepath, format='auto') {
     return(read.fs.surface.asc(filepath));
   }
 
-  TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
-  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
-  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213;
+  if(format == 'vtk' | (format == 'auto' & filepath.ends.with(filepath, c('.vtk')))) {
+    return(read.fs.surface.vtk(filepath));
+  }
+
+  TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
+  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215L;
+  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213L;
 
 
   if(guess.filename.is.gzipped(filepath)) {
