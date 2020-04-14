@@ -5,7 +5,11 @@ freesurferformats Changes
 Version 0.1.9
 -------------
 - Add support for reading brain surface meshes in VTK ASCII file format
-- Add support for reading morph data from text files with one value per line
+- Add support for writing brain surface meshes in VTK ASCII file format
+- Add 'format' parameter to write.fs.surface, the function can now derive the format from the filename like similar functions
+- Add support for reading morph data from text files with one numeric value per line (.txt format)
+- Minor improvements to the vignette
+
 
 Version 0.1.8
 -------------

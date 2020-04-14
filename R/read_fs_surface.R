@@ -122,7 +122,7 @@ read.fs.surface.vtk <- function(filepath) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc'))) {
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk'))) {
     stop("Format must be one of c('auto', 'bin', 'asc').");
   }
 

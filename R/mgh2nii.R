@@ -24,7 +24,7 @@
 #'    fsvolume = fs.volume.from.oro.nifti(nii_img);
 #' }
 #'
-#'@export
+#' @keywords internal
 fs.volume.from.oro.nifti <- function(nifti_img) {
 
   if (requireNamespace("oro.nifti", quietly = TRUE)) {
@@ -110,6 +110,7 @@ fs.volume.from.oro.nifti <- function(nifti_img) {
 
     ico7_num_vertices = 163842L; # Vertex count of ICO 7 meshes, like fsaverage. If the dimensions match this, the file is assumed to
     #                              contain morphometry data stored with the FreeSurfer hack.
+    # It is very unlikely though that oro.nifti would accept such data, so this will most likely never happen.
     is_ico7 = (ncols * nifti_img@dim_[3] * nifti_img@dim_[4] == ico7_num_vertices);
 
     ico7_state_string = ifelse(is_ico7, "looks like", "does NOT look like");

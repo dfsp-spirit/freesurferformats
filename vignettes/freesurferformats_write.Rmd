@@ -92,9 +92,11 @@ You can manually set the 'dtype' parameter to force a certain MRI data type. E.g
     write.fs.mgh("regionmask_stored_as_MRI_FLOAT.mgh", as.double(some_surface_mask));
 ```
 
-## Writing 'curv' format files
+Notice: That was an example only. For a label, storing the indices as MRI_FLOAT makes little sense (you could use `as.logical()` instead to store them as as 'MRI_UCHAR').
 
-You can use `write.fs.curv` to write arbitrary data in binary curv format. The result is identical to using `write.fs.morph` with any filename that does not end in `mgh` or `mgz` instead.)
+## Writing 'curv' format files (morphometry data)
+
+You can use `write.fs.curv` to write arbitrary data in binary curv format. The result is identical to using `write.fs.morph` with any filename that does not end in `mgh` or `mgz`.)
 
 ```{r, eval = FALSE}
     data = rnorm(120000, 2.0, 1.0);
@@ -103,12 +105,12 @@ You can use `write.fs.curv` to write arbitrary data in binary curv format. The r
 ```
 
 
-It's worth knowing the if your filename ends with `.gz`, the file will be written in gzip format.
+It's worth knowing the if your filename ends with `.gz`, the file will be written compressed.
 
 
 ## Writing surface format files
 
-You can use `write.fs.surface` to write triangular meshes in binary surface format (the format used for files like 'surf/lh.white' or 'surf/rh.pial'). A mesh is defined by a list of vertices and a list of faces.
+You can use `write.fs.surface` to write triangular meshes in binary surface format (the format used for files like 'surf/lh.white' or 'surf/rh.pial'). A mesh is defined by a list of vertices and a list of faces as indices into the latter, knows as an *indexed face-set*.
 
 ```{r, eval = FALSE}
     vertices = matrix(rep(0.3, 15), nrow=3);     # 5 vertices
@@ -119,10 +121,12 @@ You can use `write.fs.surface` to write triangular meshes in binary surface form
 
 The vertex indices used to define the faces should be 1-based, as used in R. They will be written 0-based to the file.
 
+You can also use this function to write meshes in FreeSurfer ASCII format (`.asc`) or in VTK ASCII format (`.vtk`), see the parameter `format` for details. 
+
 
 ## Writing label files
 
-Labels can be written with the `write.fs.label` function. A label is nothing but a list of vertex indices.
+Labels can be written with the `write.fs.label` function. A label is nothing but a list of vertex indices. These indices should be passed 1-based, as they are used in `R`.
 
 ```{r, eval = FALSE}
 output_file = tempfile();
@@ -134,6 +138,8 @@ vertex_indices = seq(from = 10000, to=20000);
 write.fs.label(output_file, vertex_indices);
 ```
 
+
+You can attach a single floating point value to each vertex of the label, see the parameter 'vertex_data' for details.
 
 
 ## Writing color lookup table (LUT) files in ASCII format
@@ -148,4 +154,4 @@ output_file = tempfile(fileext = ".txt");
 write.fs.colortable(output_file, colortable_df);
 ```
 
-
+A colortable is a table that contains one structure per row, and assigns each structure an RGBA color. Colortables are typically used to color the different brain regions of the segmented brain volume. The file 'FreeSurferColorLUT.txt' that comes with FreeSurfer is an example for a colortable.

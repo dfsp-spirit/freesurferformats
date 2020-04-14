@@ -4,7 +4,7 @@
 \alias{write.fs.surface}
 \title{Write mesh to file in FreeSurfer binary surface format}
 \usage{
-write.fs.surface(filepath, vertex_coords, faces)
+write.fs.surface(filepath, vertex_coords, faces, format = "auto")
 }
 \arguments{
 \item{filepath}{string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
@@ -12,6 +12,8 @@ write.fs.surface(filepath, vertex_coords, faces)
 \item{vertex_coords}{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
 
 \item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+
+\item{format}{character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and everything else as 'bin'.}
 }
 \value{
 string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
@@ -33,12 +35,13 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface.asc}},
-  \code{\link{read.fs.surface.vtk}},
-  \code{\link{read.fs.surface}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface.vtk}}
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.vtk}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.vtk}()}
 }
 \concept{mesh functions}

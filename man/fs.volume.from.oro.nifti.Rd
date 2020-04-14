@@ -29,3 +29,4 @@ This is work in progress. This function takes an `oro.nifti` instance and comput
 \seealso{
 \code{\link[oro.nifti]{readNIfTI}}, \code{\link[freesurferformats]{read.fs.mgh}}
 }
+\keyword{internal}

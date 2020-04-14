@@ -9,6 +9,8 @@
 #'
 #' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
+#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and everything else as 'bin'.
+#'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
 #' @family mesh functions
@@ -25,10 +27,23 @@
 #' }
 #'
 #' @export
-write.fs.surface <- function(filepath, vertex_coords, faces) {
-  TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214;
-  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215;
-  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213;
+write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
+
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk').");
+  }
+
+  if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
+    return(write.fs.surface.asc(filepath, vertex_coords, faces));
+  }
+
+  if(format == 'vtk' | (format == 'auto' & filepath.ends.with(filepath, c('.vtk')))) {
+    return(write.fs.surface.vtk(filepath, vertex_coords, faces));
+  }
+
+  TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
+  OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215L;
+  NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213L;
 
   num_faces_with_index_zero = sum(faces==0);
   if(num_faces_with_index_zero > 0) {
