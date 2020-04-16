@@ -157,8 +157,8 @@ A BibTeX entry for LaTeX users is
   @Manual{,
     title = {freesurferformats: Read and Write 'FreeSurfer' Neuroimaging File Formats},
     author = {Tim Schäfer},
-    year = {2019},
-    note = {R package version 0.1.6},
+    year = {2020},
+    note = {R package version 0.1.9,
     url = {https://CRAN.R-project.org/package=freesurferformats},
     doi = {10.5281/zenodo.3540434},
     url = {https://dx.doi.org/10.5281/zenodo.3540434},
@@ -173,7 +173,7 @@ Note that this DOI always points to the latest version, so be sure to still incl
 
 ### Installing the development version
 
-You can install the latest development version directly from Github if you need features which have not been released yet. Use at your own risk though, development is currently happending on master and the chance of grabbing a broken version is real. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
+You can install the latest development version directly from Github if you need features which have not been released yet. Please run the tests before using the dev version (see the *Unit tests / CI* section below).
 
 If you do not have `devtools` and related tools installed yet:
 
@@ -207,7 +207,7 @@ Continuous integration results:
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats) AppVeyor CI under Windows
 
-The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing, development happens on master.
+The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing.
 
 ### Contributing
 
