@@ -1,6 +1,6 @@
 #' @title Read file in FreeSurfer curv format
 #'
-#' @description Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Bboth binary and ASCII versions are supported.
+#' @description Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Both the binary and ASCII versions are supported.
 #'    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 #'
 #' @param filepath string. Full path to the input curv file. Note: gzipped binary curv files are supported and gz binary format is assumed if the filepath ends with ".gz".
