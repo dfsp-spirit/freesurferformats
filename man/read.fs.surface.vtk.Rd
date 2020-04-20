@@ -16,13 +16,12 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
 }
 \seealso{
-Other mesh functions: 
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{read_nisurface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.vtk}()},
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{read.fs.surface.asc}},
+  \code{\link{read.fs.surface}},
+  \code{\link{read_nisurfacefile}},
+  \code{\link{read_nisurface}},
+  \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface.vtk}},
+  \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}

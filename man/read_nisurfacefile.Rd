@@ -4,7 +4,8 @@
 \alias{read_nisurfacefile}
 \title{S3 method to read a neuroimaging surface file.}
 \usage{
-read_nisurfacefile(filepath, methods = c("fsnative", "fsascii", "gifti"), ...)
+read_nisurfacefile(filepath, methods = c("fsnative", "fsascii", "gifti"),
+  ...)
 }
 \arguments{
 \item{filepath}{character string, the full path to the input surface file.}
@@ -27,13 +28,12 @@ Tries to read the file with all implemented surface format reader methods. The f
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read_nisurface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.vtk}()},
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{read.fs.surface.asc}},
+  \code{\link{read.fs.surface.vtk}},
+  \code{\link{read.fs.surface}},
+  \code{\link{read_nisurface}},
+  \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface.vtk}},
+  \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}

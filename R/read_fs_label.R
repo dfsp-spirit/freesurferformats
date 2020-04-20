@@ -34,8 +34,14 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, m
       stop(sprintf("Expected %d vertex rows in label file '%s' from header, but received %d.\n", num_verts, filepath, length(vertices)));
     }
 
+    if(any(vertices < 0L)) {
+      label_type = 'volume_label';
+    } else {
+      label_type = 'surface_label';
+    }
+
     if(return_one_based_indices) {
-      if(! any(vertices < 0L)) {
+      if(label_type == 'surface_label') {
         vertices = vertices + 1L;
         vertices_df$vertex_index = vertices;
       }
@@ -48,6 +54,8 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, m
       } else {
         ret_list$one_based_indices = FALSE;
       }
+
+      ret_list$label_type = label_type;
 
       class(ret_list) = c('fs.label', class(ret_list));
       return(ret_list);
