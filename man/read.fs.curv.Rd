@@ -15,7 +15,7 @@ read.fs.curv(filepath, format = "auto")
 data vector of floats. The brain morphometry data, one value per vertex.
 }
 \description{
-Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Bboth binary and ASCII versions are supported.
+Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Both the binary and ASCII versions are supported.
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 }
 \examples{

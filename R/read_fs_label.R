@@ -1,11 +1,10 @@
 #' @title Read file in FreeSurfer label format
 #'
-#' @description Read a mask in FreeSurfer label format.
-#'    A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. Label files are ASCII text files, which have 5 columns (vertex index, coord1, coord2, coord3, value), but only the vertex indices are of interest.
+#' @description Read a mask in FreeSurfer label format. A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. Label files are ASCII text files, which have 5 columns (vertex index, coord1, coord2, coord3, value), but only the vertex indices are of interest. A label can also contain voxels, in that case the indices are -1 and the coordinates are important.
 #'
 #' @param filepath string. Full path to the input label file.
 #'
-#' @param return_one_based_indices logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them.
+#' @param return_one_based_indices logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them. Notice that for volume labels, the indices are neative (-1). If a file contains negative indices, they will NOT be incremented, no matter what this is set to.
 #'
 #' @param full logical, whether to return a full object of class `fs.label` instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.
 #'
@@ -36,8 +35,11 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, m
     }
 
     if(return_one_based_indices) {
-      vertices = vertices + 1L;
-      vertices_df$vertex_index = vertices;
+      if(! any(vertices < 0L)) {
+        vertices = vertices + 1L;
+        vertices_df$vertex_index = vertices;
+      }
+
     }
     if(full) {
       ret_list = list("vertexdata"=vertices_df, "metadata"=metadata);
@@ -65,16 +67,24 @@ read.fs.label <- function(filepath, return_one_based_indices=TRUE, full=FALSE, m
 print.fs.label <- function(x, ...) {
   if(nrow(x$vertexdata) > 0L) {
     vertex_data_range = range(x$vertexdata$value);
-    cat(sprintf("Brain surface label containing %d vertices, vertex data values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
-    print(summary(x$vertexdata$value));
-    if(x$one_based_indices) {
-      cat(sprintf("Vertex indices start at: 1\n"));
+
+    if(any(x$vertexdata$vertex_index < 0L)) {
+      # It's a volume label (not a surface label).
+      cat(sprintf("Brain volume label containing %d voxels, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
+      print(summary(x$vertexdata$value));
     } else {
-      cat(sprintf("Vertex indices start at: 0\n"));
+      cat(sprintf("Brain surface label containing %d vertices, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
+      print(summary(x$vertexdata$value));
+      if(x$one_based_indices) {
+        cat(sprintf("Vertex indices start at: 1\n"));
+      } else {
+        cat(sprintf("Vertex indices start at: 0\n"));
+      }
     }
-    cat(sprintf("Label vertex coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertexdata$coord1), min(x$vertexdata$coord2), min(x$vertexdata$coord3), max(x$vertexdata$coord1), max(x$vertexdata$coord2), max(x$vertexdata$coord3)));
+
+    cat(sprintf("Label coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertexdata$coord1), min(x$vertexdata$coord2), min(x$vertexdata$coord3), max(x$vertexdata$coord1), max(x$vertexdata$coord2), max(x$vertexdata$coord3)));
   } else {
-    cat(sprintf("Brain surface label containing %d vertices.\n", nrow(x$vertexdata)));
+    cat(sprintf("Brain label containing %d entries.\n", nrow(x$vertexdata)));
   }
 }
 
