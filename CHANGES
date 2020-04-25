@@ -5,6 +5,9 @@ freesurferformats Changes
 Version 0.1.10
 --------------
 - read.fs.label improvement: do not increment indices for volume labels, better print support for them
+- support exporting surface meshes in Stanford triangle format (.ply)
+- support exporting surface meshes in Wavefront object format (.obj)
+- support exporting surface meshes in Object File Format (.off)
 
 
 Version 0.1.9
