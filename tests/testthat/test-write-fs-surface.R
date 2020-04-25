@@ -81,3 +81,26 @@ test_that("Surface files in VTK format can be read and written", {
   expect_equal(surf$faces, surf_re$faces);
 })
 
+
+test_that("One can export surface meshes in OFF, OBJ and PLY formats", {
+
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  mesh = read.fs.surface(surface_file);
+
+  # Standford PLY format without vertex colors
+  write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices, mesh$faces);
+
+  # PLY with vertex colors
+  vertex_colors = matrix(rep(82L, 5*4), ncol=4);    # the mesh contains 5 verts
+  write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices, mesh$faces, vertex_colors=vertex_colors);
+
+  # OFF, the Object File Format
+  write.fs.surface.off(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+
+  # Wavefront OBJ format
+  write.fs.surface.obj(tempfile(fileext=".obj"), mesh$vertices, mesh$faces);
+
+  # currently this test only ensures that the functions run without error, the output is not checked in detail yet.
+  # You can import the PLY and OBJ files into Blender, btw.
+  expect_equal(1L, 1L);
+})

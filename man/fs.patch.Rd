@@ -29,7 +29,9 @@ Constructor for fs.patch
 
 }
 \seealso{
-Other patch functions: \code{\link{read.fs.patch.asc}},
-  \code{\link{read.fs.patch}}, \code{\link{write.fs.patch}}
+Other patch functions: 
+\code{\link{read.fs.patch.asc}()},
+\code{\link{read.fs.patch}()},
+\code{\link{write.fs.patch}()}
 }
 \concept{patch functions}

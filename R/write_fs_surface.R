@@ -197,3 +197,195 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 
   return(invisible('tris'));
 }
+
+
+#' @title Write mesh to file in Wavefront object (.obj) format
+#'
+#' @description The wavefront object format is a simply ASCII format for storing meshes.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.vtk', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh export functions
+#'
+#' @note Do not confuse the Wavefront object file format (.obj) with the OFF format (.off), they are not identical.
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.obj(tempfile(fileext=".obj"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @export
+write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
+
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+
+  # Write the vertex data
+  vs = matrix(rep('v', num_verts), ncol=1L);
+  verts = cbind(vs, vertex_coords);
+  write.table(verts, file = filepath, append = FALSE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  # Append the face data
+  # Note that we do not shift the index, the format uses 1-based indices like R
+  fs = matrix(rep('f', num_faces), ncol=1L);
+  faces = cbind(fs, faces);
+  write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  return(invisible('tris'));
+}
+
+
+#' @title Write mesh to file in Object File Format (.off)
+#'
+#' @description The Object File Format is a simply ASCII format for storing meshes.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.vtk', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @note Do not confuse the OFF format (.off) with the Wavefront object file format (.obj), they are not identical.
+#'
+#' @family mesh export functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.off(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @export
+write.fs.surface.off <- function(filepath, vertex_coords, faces) {
+
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+
+  fh = file(filepath, "w");
+
+  # write header
+  count_line = sprintf("%d %d %d", num_verts, num_faces, 0L);
+  writeLines(c("# OFF", count_line), fh);
+  close(fh);
+
+  # Append the vertex data
+  write.table(vertex_coords, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  # Append the face data
+  faces = faces - 1L;   # shift index to 0-based
+  faces = cbind(3L, faces);   # each line starts with the number of verts in the face
+  write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  return(invisible('tris'));
+}
+
+
+#' @title Write mesh to file in PLY format (.ply)
+#'
+#' @description The PLY format is a versatile ASCII format for storing meshes. Also known as Polygon File Format or Stanford Triangle Format.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.vtk', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @param vertex_colors optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @references http://paulbourke.net/dataformats/ply/
+#'
+#' @family mesh export functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices, mesh$faces);
+#'
+#'     # save a version with RGBA vertex colors
+#'     vertex_colors = matrix(rep(82L, 5*4), ncol=4);
+#'     write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices,
+#'      mesh$faces, vertex_colors=vertex_colors);
+#' }
+#'
+#' @export
+write.fs.surface.ply <- function(filepath, vertex_coords, faces, vertex_colors=NULL) {
+
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+
+  fh = file(filepath, "w");
+
+  use_vertex_colors = !is.null(vertex_colors);
+
+  # write header
+  header_lines = ply.header.lines(num_verts, num_faces, use_vertex_colors);
+  writeLines(header_lines, fh);
+  close(fh);
+
+  # Append the vertex data
+  if(use_vertex_colors) {
+    if((! is.integer(vertex_colors)) | ncol(vertex_colors) != 4L) {
+      stop("Parameter 'vertex_colors' must be a matrix of integers with 4 columns (RGBA) in range 0-255.");
+    }
+    vertex_data = data.frame(vertex_coords);
+    vertex_colors_df = data.frame(vertex_colors);
+    colnames(vertex_colors_df) = c('r', 'g', 'b', 'a');
+    vertex_data = cbind(vertex_data, vertex_colors_df);
+    write.table(vertex_data, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+  } else {
+    write.table(vertex_coords, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+  }
+
+
+  # Append the face data
+  faces = faces - 1L;   # shift index to 0-based
+  faces = cbind(3L, faces);   # each line starts with the number of verts in the face
+  write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
+
+  return(invisible('tris'));
+}
+
+
+#' @title Generate PLY format header lines
+#' @keywords internal
+ply.header.lines <- function(num_verts, num_faces, use_vertex_colors) {
+
+    header_top = c("ply", "format ascii 1.0");
+    header_verts = c(sprintf("element vertex %d", num_verts), "property float x",  "property float y", "property float z");
+    header_vertex_colors = c("property uchar red", "property uchar green", "property uchar blue", "property uchar alpha");
+
+    header_faces = c(sprintf("element face %d", num_faces), "property list uchar int vertex_indices");
+    header_end = "end_header";
+
+    if(use_vertex_colors) {
+      return(c(header_top, header_verts, header_vertex_colors, header_faces, header_end));
+    } else {
+      return(c(header_top, header_verts, header_faces, header_end));
+    }
+}

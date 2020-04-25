@@ -4,8 +4,12 @@
 \alias{readable.files}
 \title{Find files with the given base name and extensions that exist.}
 \usage{
-readable.files(filepath, precedence = c(".mgh", ".mgz"),
-  error_if_none = TRUE, return_all = FALSE)
+readable.files(
+  filepath,
+  precedence = c(".mgh", ".mgz"),
+  error_if_none = TRUE,
+  return_all = FALSE
+)
 }
 \arguments{
 \item{filepath}{character string, path to a file without extension}
