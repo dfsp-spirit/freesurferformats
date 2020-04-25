@@ -44,6 +44,7 @@ http://paulbourke.net/dataformats/ply/
 \seealso{
 Other mesh export functions: 
 \code{\link{write.fs.surface.obj}()},
-\code{\link{write.fs.surface.off}()}
+\code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh export functions}
