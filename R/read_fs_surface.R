@@ -89,7 +89,7 @@ read.fs.surface.vtk <- function(filepath) {
   }
 
   if(any(faces_df$num_verts != 3L)) {
-    stop("The mesh in the VTK file contains POLYGONS with are not triangles. Only triangular meshes are supported by this function.");
+    stop("The mesh in the VTK file contains POLYGONS which are not triangles. Only triangular meshes are supported by this function.");
   }
 
 
@@ -154,7 +154,7 @@ read.fs.surface.ply <- function(filepath) {
   }
 
   if(any(faces_df$num_verts != 3L)) {
-    stop("The mesh in the PLY file contains POLYGONS with are not triangles. Only triangular meshes are supported by this function.");
+    stop("The mesh in the PLY file contains faces which are not triangles. Only triangular meshes are supported by this function.");
   }
 
 
