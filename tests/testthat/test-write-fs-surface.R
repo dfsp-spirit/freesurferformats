@@ -104,3 +104,27 @@ test_that("One can export surface meshes in OFF, OBJ and PLY formats", {
   # You can import the PLY and OBJ files into Blender, btw.
   expect_equal(1L, 1L);
 })
+
+
+test_that("One can export and re-read surface meshes in PLY format", {
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  mesh = read.fs.surface(surface_file);
+
+  # Standford PLY format without vertex colors
+  ply_file = tempfile(fileext=".ply");
+  write.fs.surface.ply(ply_file, mesh$vertices, mesh$faces);
+
+  mesh_reread = read.fs.surface.ply(ply_file);
+  expect_equal(mesh$vertices, mesh_reread$vertices);
+  expect_equal(mesh$faces, mesh_reread$faces);
+
+  # PLY with vertex colors
+  vertex_colors = matrix(rep(82L, 5*4), ncol=4);    # the mesh contains 5 verts
+  ply_col_file = tempfile(fileext=".ply");
+  write.fs.surface.ply(ply_col_file, mesh$vertices, mesh$faces, vertex_colors=vertex_colors);
+
+  col_mesh_reread = read.fs.surface.ply(ply_col_file);
+  expect_equal(mesh$vertices, col_mesh_reread$vertices);
+  expect_equal(mesh$faces, col_mesh_reread$faces);
+})
+
