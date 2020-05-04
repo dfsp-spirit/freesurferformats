@@ -18,6 +18,7 @@ This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. Se
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.ply}()},
 \code{\link{read.fs.surface}()},
 \code{\link{read_nisurfacefile}()},
 \code{\link{read_nisurface}()},
