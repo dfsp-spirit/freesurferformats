@@ -129,6 +129,11 @@ read.fs.surface.ply <- function(filepath) {
   current_line_idx = current_line_idx + nrow(vertices_df);
   faces_df = read.table(filepath, skip=current_line_idx, col.names = c('num_verts', 'vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer", "integer"), nrows=num_faces);
 
+  current_line_idx = current_line_idx + nrow(faces_df);
+
+  if(current_line_idx != length(ply_lines)) {
+    warning(sprintf("At line %d after reading vertices and faces, but PLY file has %d lines. Ignored remaining lines.\n", current_line_idx, length(ply_lines)));
+  }
 
   if(is.null(vertices_df) | is.null(faces_df)) {
     stop("PLY file did not contain a complete mesh dataset (vertices or faces missing).");
