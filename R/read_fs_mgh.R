@@ -43,7 +43,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     if(typeof(is_gzipped) == "logical") {
         is_gz = is_gzipped;
     } else if (typeof(is_gzipped) == "character") {
-        if(is_gzipped == "AUTO") {
+        if(toupper(is_gzipped) == "AUTO") {
             is_gz = guess.filename.is.gzipped(filepath);
         } else {
             stop("Argument 'is_gzipped' must be 'AUTO' if it is a string.\n");
