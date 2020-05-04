@@ -8,6 +8,7 @@ Version 0.1.10
 - support exporting surface meshes in Stanford triangle format (.ply)
 - support exporting surface meshes in Wavefront object format (.obj)
 - support exporting surface meshes in Object File Format (.off)
+- support reading surface meshes in PLY format, including Blender exports with vertex colors and normals
 
 
 Version 0.1.9
