@@ -36,11 +36,13 @@ read.fs.surface.asc <- function(filepath) {
 
 #' @title Read VTK ASCII format mesh as surface.
 #'
-#' @description This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
+#' @description This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See \url{https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf} for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
 #'
 #' @param filepath string. Full path to the input surface file in VTK ASCII format.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @note This is by far not a complete VTK format reader.
 #'
 #' @family mesh functions
 #'
@@ -110,6 +112,8 @@ read.fs.surface.vtk <- function(filepath) {
 #'
 #' @family mesh functions
 #'
+#' @note This is by far not a complete PLY format reader. It can read PLY mesh files which were written by \code{\link[freesurferformats]{write.fs.surface.ply}}. Vertex colors are currently ignored (but files with them are supported in the sense that the mesh data will be read correctly).
+#'
 #' @export
 read.fs.surface.ply <- function(filepath) {
 
@@ -119,12 +123,17 @@ read.fs.surface.ply <- function(filepath) {
   num_verts = header_info$num_verts;
   num_faces = header_info$num_faces;
   header_end_line_index = header_info$header_end_line_index;
+  contains_vertex_colors = header_info$contains_vertex_colors;
 
   vertices_df = NULL;
   faces_df = NULL;
 
   current_line_idx = header_end_line_index;
-  vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_verts);
+  if(contains_vertex_colors) {
+    vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3', 'r', 'g', 'b', 'a'), colClasses = c("numeric", "numeric", "numeric", "integer", "integer", "integer", "integer"), nrows=num_verts);
+  } else {
+    vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_verts);
+  }
 
   current_line_idx = current_line_idx + nrow(vertices_df);
   faces_df = read.table(filepath, skip=current_line_idx, col.names = c('num_verts', 'vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer", "integer"), nrows=num_faces);
@@ -153,6 +162,10 @@ read.fs.surface.ply <- function(filepath) {
 }
 
 
+#' @title Determine element counts from PLY file header.
+#'
+#' @param ply_lines vector character strings, all lines of the PLY file
+#'
 #' @keywords internal
 read.element.counts.ply.header <- function(ply_lines) {
   if(length(ply_lines) < 9L) {
@@ -193,7 +206,9 @@ read.element.counts.ply.header <- function(ply_lines) {
   face_count_line_words = strsplit(ply_lines[face_count_line_index], " ")[[1]];
   face_count = as.integer(face_count_line_words[3]);
 
-  return(list('header_end_line_index'=header_end_line_index, 'num_verts'=vertex_count, 'num_faces'=face_count));
+  file_contains_vertex_colors = length(which(header_lines == "property uchar red")) == 1L;
+
+  return(list('header_end_line_index'=header_end_line_index, 'num_verts'=vertex_count, 'num_faces'=face_count, 'contains_vertex_colors'=file_contains_vertex_colors));
 }
 
 

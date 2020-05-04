@@ -363,7 +363,7 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
 #'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
-#' @references http://paulbourke.net/dataformats/ply/
+#' @references \url{http://paulbourke.net/dataformats/ply/}
 #'
 #' @family mesh export functions
 #'
