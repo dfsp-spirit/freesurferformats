@@ -35,6 +35,13 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
     stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply').");
   }
 
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
+
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
     return(write.fs.surface.asc(filepath, vertex_coords, faces));
   }
@@ -136,6 +143,14 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 #'
 #' @export
 write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
+
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
+
   # Write the first comment line and the 2nd line containing the number of vertices in the label
   fh =  file(filepath);
   writeLines(c("#!ascii version of surface", sprintf("%d %d", nrow(vertex_coords), nrow(faces))), fh);
@@ -185,6 +200,13 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 #'
 #' @export
 write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
+
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
 
   fh = file(filepath, "w");
 
@@ -243,6 +265,13 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
 
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
+
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
 
@@ -291,6 +320,13 @@ write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.off <- function(filepath, vertex_coords, faces) {
 
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
+
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
 
@@ -321,9 +357,9 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
 #'
 #' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
 #'
-#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#' @param faces m x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
-#' @param vertex_colors optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255.
+#' @param vertex_colors optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255. Alternatively, a vector of *n* RGB color strings can be passed.
 #'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
@@ -348,10 +384,18 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
 #' }
 #'
 #' @export
+#' @importFrom grDevices col2rgb
 write.fs.surface.ply <- function(filepath, vertex_coords, faces, vertex_colors=NULL) {
 
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
+
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
 
   fh = file(filepath, "w");
 
@@ -364,11 +408,17 @@ write.fs.surface.ply <- function(filepath, vertex_coords, faces, vertex_colors=N
 
   # Append the vertex data
   if(use_vertex_colors) {
+    if(is.character(vertex_colors)) {
+      vertex_colors = t(grDevices::col2rgb(vertex_colors, alpha = TRUE));
+    }
     if((! is.integer(vertex_colors)) | ncol(vertex_colors) != 4L) {
       stop("Parameter 'vertex_colors' must be a matrix of integers with 4 columns (RGBA) in range 0-255.");
     }
     vertex_data = data.frame(vertex_coords);
     vertex_colors_df = data.frame(vertex_colors);
+    if(nrow(vertex_data) != nrow(vertex_colors_df)) {
+      stop(sprintf("Data mismatch, received %d vertices but %d vertex colors.\n", nrow(vertex_data), nrow(vertex_colors_df)));
+    }
     colnames(vertex_colors_df) = c('r', 'g', 'b', 'a');
     vertex_data = cbind(vertex_data, vertex_colors_df);
     write.table(vertex_data, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
