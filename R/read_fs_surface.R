@@ -112,7 +112,7 @@ read.fs.surface.vtk <- function(filepath) {
 #'
 #' @family mesh functions
 #'
-#' @note This is by far not a complete PLY format reader. It can read PLY mesh files which were written by \code{\link[freesurferformats]{write.fs.surface.ply}}. Vertex colors are currently ignored (but files with them are supported in the sense that the mesh data will be read correctly).
+#' @note This is by far not a complete PLY format reader. It can read PLY mesh files which were written by \code{\link[freesurferformats]{write.fs.surface.ply}} and Blender. Vertex colors and Blender vertex normals are currently ignored (but files with them are supported in the sense that the mesh data will be read correctly).
 #'
 #' @export
 read.fs.surface.ply <- function(filepath) {
@@ -124,13 +124,18 @@ read.fs.surface.ply <- function(filepath) {
   num_faces = header_info$num_faces;
   header_end_line_index = header_info$header_end_line_index;
   contains_vertex_colors = header_info$contains_vertex_colors;
+  contains_vertex_normals = header_info$contains_vertex_normals;
 
   vertices_df = NULL;
   faces_df = NULL;
 
   current_line_idx = header_end_line_index;
-  if(contains_vertex_colors) {
+  if(contains_vertex_colors & contains_vertex_normals) {
+    vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3', 'nx', 'ny', 'nz', 'r', 'g', 'b', 'a'), colClasses = c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric", "integer", "integer", "integer", "integer"), nrows=num_verts);
+  } else if(contains_vertex_colors) {
     vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3', 'r', 'g', 'b', 'a'), colClasses = c("numeric", "numeric", "numeric", "integer", "integer", "integer", "integer"), nrows=num_verts);
+  } else if(contains_vertex_normals) {
+    vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3', 'nx', 'ny', 'nz'), colClasses = c("numeric", "numeric", "numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
   } else {
     vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_verts);
   }
@@ -207,8 +212,9 @@ read.element.counts.ply.header <- function(ply_lines) {
   face_count = as.integer(face_count_line_words[3]);
 
   file_contains_vertex_colors = length(which(header_lines == "property uchar red")) == 1L;
+  file_contains_vertex_normals = length(which(header_lines == "property float nx")) == 1L; # vertex normals as exported by Blender
 
-  return(list('header_end_line_index'=header_end_line_index, 'num_verts'=vertex_count, 'num_faces'=face_count, 'contains_vertex_colors'=file_contains_vertex_colors));
+  return(list('header_end_line_index'=header_end_line_index, 'num_verts'=vertex_count, 'num_faces'=face_count, 'contains_vertex_colors'=file_contains_vertex_colors, 'contains_vertex_normals'=file_contains_vertex_normals));
 }
 
 
