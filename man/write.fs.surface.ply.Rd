@@ -11,9 +11,9 @@ write.fs.surface.ply(filepath, vertex_coords, faces, vertex_colors = NULL)
 
 \item{vertex_coords}{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
 
-\item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+\item{faces}{m x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
 
-\item{vertex_colors}{optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255.}
+\item{vertex_colors}{optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255. Alternatively, a vector of *n* RGB color strings can be passed.}
 }
 \value{
 string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
