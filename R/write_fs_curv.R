@@ -14,7 +14,7 @@ write.fs.curv <- function(filepath, data) {
     MAGIC_FILE_TYPE_NUMBER = 16777215;
     num_verts = length(data);
     num_faces = length(data);   # Has no meaning.
-    values_per_vert = 1;
+    values_per_vert = 1L;
 
     if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
         fh = gzfile(filepath, "wb");
@@ -26,7 +26,7 @@ write.fs.curv <- function(filepath, data) {
     writeBin(as.integer(num_verts), fh, endian = "big");
     writeBin(as.integer(num_faces), fh, endian = "big");
     writeBin(as.integer(values_per_vert), fh, endian = "big");
-    writeBin(data, fh, size = 4, endian = "big");
+    writeBin(data, fh, size = 4L, endian = "big");
     close(fh);
 }
 
@@ -73,7 +73,7 @@ write.fs.morph <- function(filepath, data, ...) {
     } else {
         write.fs.curv(filepath, data);
     }
-    return(format);
+    return(invisible(format));
 }
 
 
