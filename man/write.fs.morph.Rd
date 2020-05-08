@@ -2,14 +2,16 @@
 % Please edit documentation in R/write_fs_curv.R
 \name{write.fs.morph}
 \alias{write.fs.morph}
-\title{Write morphometry data in a format derived from the given file name (the file extension).}
+\title{Write morphometry data in a format derived from the given file name.}
 \usage{
-write.fs.morph(filepath, data, ...)
+write.fs.morph(filepath, data, format = "auto", ...)
 }
 \arguments{
 \item{filepath, }{string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, everything else will be treated as curv format.}
 
 \item{data, }{numerical vector. The data to write.}
+
+\item{format}{character string, the format to use. One of c("auto", "mgh", "mgz", "curv"). The default setting "auto" will determine the format from the file extension.}
 
 \item{...}{additional parameters to pass to \code{\link[freesurferformats]{write.fs.mgh}}. Only applicable for MGH and MGZ format output files, ignored for curv files.}
 }
@@ -17,7 +19,7 @@ write.fs.morph(filepath, data, ...)
 format, string. The format that was used to write the data. One of c("mgh", "mgz", "curv").
 }
 \description{
-Given data and a morphometry file name, derive the proper format and write the file.
+Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 }
 \seealso{
 Other morphometry functions: 
@@ -25,6 +27,7 @@ Other morphometry functions:
 \code{\link{fs.get.morph.file.format.from.filename}()},
 \code{\link{read.fs.curv}()},
 \code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.morph}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},

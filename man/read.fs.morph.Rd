@@ -4,10 +4,12 @@
 \alias{read.fs.morph}
 \title{Read morphometry data file in any FreeSurfer format.}
 \usage{
-read.fs.morph(filepath)
+read.fs.morph(filepath, format = "auto")
 }
 \arguments{
 \item{filepath, }{string. Full path to the input file. The suffix determines the expected format as follows: ".mgz" and ".mgh" will be read with the read.fs.mgh function, all other file extensions will be read with the read.fs.curv function.}
+
+\item{format}{character string, the format to use. One of c("auto", "mgh", "mgz", "curv", "gii"). The default setting "auto" will determine the format from the file extension.}
 }
 \value{
 data, vector of floats. The brain morphometry data, one value per vertex.
@@ -19,14 +21,14 @@ Read vertex-wise brain surface data from a file. The file can be in any of the s
     curvfile = system.file("extdata", "lh.thickness",
                             package = "freesurferformats", mustWork = TRUE);
     ct = read.fs.morph(curvfile);
-    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
+    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\n",
                             length(ct), min(ct), mean(ct), max(ct)));
 
 
     mghfile = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz",
                             package = "freesurferformats", mustWork = TRUE);
     curv = read.fs.morph(mghfile);
-    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
+    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\n",
                             length(ct), min(ct), mean(ct), max(ct)));
 
 }
@@ -36,6 +38,7 @@ Other morphometry functions:
 \code{\link{fs.get.morph.file.format.from.filename}()},
 \code{\link{read.fs.curv}()},
 \code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},
 \code{\link{write.fs.mgh}()},

@@ -15,6 +15,9 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 \description{
 This reads meshes from text files in PLY format. Note that this does not read arbitrary data from PLY files, i.e., PLY files can store data that is not supported by this function.
 }
+\note{
+This is by far not a complete PLY format reader. It can read PLY mesh files which were written by \code{\link[freesurferformats]{write.fs.surface.ply}} and Blender. Vertex colors and Blender vertex normals are currently ignored (but files with them are supported in the sense that the mesh data will be read correctly).
+}
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.asc}()},

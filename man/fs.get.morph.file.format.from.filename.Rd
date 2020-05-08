@@ -10,7 +10,7 @@ fs.get.morph.file.format.from.filename(filepath)
 \item{filepath, }{string. A path to a file.}
 }
 \value{
-format, string. The format, one of c("mgz", "mgh", "curv").
+format, string. The format, one of c("mgz", "mgh", "curv", "gii").
 }
 \description{
 Given a morphometry file name, derive the proper file format, based on the end of the string. Case is ignored, i.e., cast to lowercase before checks. If the filepath ends with "mgh", returns format "mgh". For suffix "mgz", returns "mgz" format. For all others, returns "curv" format.
@@ -20,6 +20,7 @@ Other morphometry functions:
 \code{\link{fs.get.morph.file.ext.for.format}()},
 \code{\link{read.fs.curv}()},
 \code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.morph}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},

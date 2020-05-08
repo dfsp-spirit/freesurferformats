@@ -15,4 +15,7 @@ numeric vector, the curv data
 \description{
 Read morphometry data from ASCII curv format file
 }
+\note{
+This format is also known as *dpv* (data-per-vertex) format.
+}
 \keyword{internal}

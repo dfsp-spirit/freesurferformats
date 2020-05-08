@@ -15,6 +15,9 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 \description{
 Read FreeSurfer ASCII format surface.
 }
+\note{
+This is also known as *srf* format.
+}
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.ply}()},
