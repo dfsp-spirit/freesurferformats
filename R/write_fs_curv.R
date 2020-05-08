@@ -51,13 +51,15 @@ fwrite3 <- function(filehandle, data) {
 }
 
 
-#' @title Write morphometry data in a format derived from the given file name (the file extension).
+#' @title Write morphometry data in a format derived from the given file name.
 #'
-#' @description Given data and a morphometry file name, derive the proper format and write the file.
+#' @description Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 #'
 #' @param filepath, string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, everything else will be treated as curv format.
 #'
 #' @param data, numerical vector. The data to write.
+#'
+#' @param format character string, the format to use. One of c("auto", "mgh", "mgz", "curv"). The default setting "auto" will determine the format from the file extension.
 #'
 #' @param ... additional parameters to pass to \code{\link[freesurferformats]{write.fs.mgh}}. Only applicable for MGH and MGZ format output files, ignored for curv files.
 #'
@@ -66,11 +68,20 @@ fwrite3 <- function(filehandle, data) {
 #' @family morphometry functions
 #'
 #' @export
-write.fs.morph <- function(filepath, data, ...) {
-    format = fs.get.morph.file.format.from.filename(filepath);
+write.fs.morph <- function(filepath, data, format='auto', ...) {
+
+    if(! format %in% c("auto", "mgh", "mgz", "curv")) {
+      stop("Format must be one of 'auto', 'mgh', 'mgz', or 'curv'.");
+    }
+
+    if(format == 'auto') {
+      format = fs.get.morph.file.format.from.filename(filepath);
+    }
     if(format == "mgh" || format == "mgz" ) {
         write.fs.mgh(filepath, data, ...);
-    } else {
+    } else if (format == "gii") {
+        stop("Writing files in GIFTI format is not supported.");
+    } else if (format == "curv") {
         write.fs.curv(filepath, data);
     }
     return(invisible(format));
@@ -83,7 +94,7 @@ write.fs.morph <- function(filepath, data, ...) {
 #'
 #' @param filepath, string. A path to a file.
 #'
-#' @return format, string. The format, one of c("mgz", "mgh", "curv").
+#' @return format, string. The format, one of c("mgz", "mgh", "curv", "gii").
 #'
 #' @family morphometry functions
 #'
@@ -98,6 +109,9 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
         }
         if(tolower(ext) == "mgz") {
             return("mgz");
+        }
+        if(tolower(ext) == "gii") {
+          return("gii");
         }
     }
     return("curv");

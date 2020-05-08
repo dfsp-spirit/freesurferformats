@@ -5,6 +5,8 @@
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
+#' @note This is also known as *srf* format.
+#'
 #' @family mesh functions
 #'
 #' @export
@@ -240,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -250,6 +252,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'vtk' | (format == 'auto' & filepath.ends.with(filepath, c('.vtk')))) {
     return(read.fs.surface.vtk(filepath));
+  }
+
+  if(format == 'ply' | (format == 'auto' & filepath.ends.with(filepath, c('.ply')))) {
+    return(read.fs.surface.ply(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;

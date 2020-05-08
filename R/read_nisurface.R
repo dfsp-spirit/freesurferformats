@@ -142,9 +142,14 @@ read_nisurfacefile.gifti <- function(filepath, ...) {
 
   # On success, return the result as a surface.
   if(!is.null(res)){
-    ret_list = list("vertices"=res$data$pointset, "faces"=as.integer(res$data$triangle + 1));
-    class(ret_list) = c("fs.surface", class(ret_list));
-    return(ret_list);
+    if(is.null(res$data$pointset) | is.null(res$data$triangle)) {
+      # This is a GIFTI file, but it does not contain a mesh. Note that GIFTI can contain various data types. Maybe the user accidently passed a func GIFTI file.
+      NextMethod('read_nisurfacefile');
+    } else {
+      ret_list = list("vertices"=res$data$pointset, "faces"=as.integer(res$data$triangle + 1));
+      class(ret_list) = c("fs.surface", class(ret_list));
+      return(ret_list);
+    }
   }
 
   # Failed, use the next read.ni.surface.* method
