@@ -113,6 +113,17 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
         if(tolower(ext) == "gii") {
           return("gii");
         }
+        if(tolower(ext) == ".gz") {
+            # Check whether it is '.gii.gz'
+            num_chars_to_inspect_deep = 7;
+            if(nc >= num_chars_to_inspect_deep) {
+                deep_ext = substr(filepath, nchar(filepath)-num_chars_to_inspect_deep+1, nchar(filepath));
+            }
+            if(tolower(deep_ext) == ".gii.gz") {
+                return("gii"); # The gifti reader function handles gii.gz.
+            }
+            # Otherwise we assume gzipped curv format.
+        }
     }
     return("curv");
 }

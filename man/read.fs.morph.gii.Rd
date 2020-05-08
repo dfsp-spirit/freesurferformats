@@ -18,7 +18,7 @@ data, vector of double or integer. The brain morphometry data, one value per ver
 Read vertex-wise brain surface data from a GIFTI file. The file must be a GIFTI *func* file (not a GIFTI *surf* file containing a mesh, use \code{\link[freesurferformats]{read_nisurface}} for loading GIFTI surf files).
 }
 \note{
-This function requires the `gifti` package, which is an optional dependency, to be installed.
+This function requires the `gifti` package, which is an optional dependency, to be installed. It also assumes that the dataset contains a vector or a matrix/array in which all dimensions except for 1 are empty.
 }
 \seealso{
 Other morphometry functions: 

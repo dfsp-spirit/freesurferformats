@@ -157,7 +157,7 @@ read.fs.morph <- function(filepath, format='auto') {
 #'
 #' @return data, vector of double or integer. The brain morphometry data, one value per vertex. The data type depends on the data type in the file.
 #'
-#' @note This function requires the `gifti` package, which is an optional dependency, to be installed.
+#' @note This function requires the `gifti` package, which is an optional dependency, to be installed. It also assumes that the dataset contains a vector or a matrix/array in which all dimensions except for 1 are empty.
 #'
 #' @family morphometry functions
 #'
@@ -172,7 +172,12 @@ read.fs.morph.gii <- function(filepath, element_index=1L) {
       if(element_index > length(gii$data)) {
         stop(sprintf("Requested data element at index '%d', but GIFTI file contains %d elements only.\n", element_index, length(gii$data)));
       }
-      return(gii$data[[element_index]]);
+      # Data may be stored in a matrix or higher dim array (with empty dimensions in case of vertex-wise data). Drop the empty dims to get a vector.
+      morph_data = drop(gii$data[[element_index]]);
+      if(! is.null(dim(morph_data))) {
+        stop("Dropping empty dimensions of the GIFTI data did not result in a vector. The data in the file cannot be interpreted as scalar per-vertex data.");
+      }
+      return(morph_data);
   } else {
     stop("Reading files in GIFTI format requires the 'gifti' package to be installed.");
   }
