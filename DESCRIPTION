@@ -12,12 +12,12 @@ URL: https://github.com/dfsp-spirit/freesurferformats
 BugReports: https://github.com/dfsp-spirit/freesurferformats/issues
 Imports:
     pkgfilecache (>= 0.1.1),
-    xml2,
-    gifti
+    xml2
 Suggests:
     knitr,
     rmarkdown,
     testthat (>= 2.1.0),
-    oro.nifti (>= 0.9)
+    oro.nifti (>= 0.9),
+    gifti
 VignetteBuilder: knitr
 RoxygenNote: 7.1.0

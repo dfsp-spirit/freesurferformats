@@ -455,8 +455,12 @@ is.fs.surface <- function(x) inherits(x, "fs.surface")
 #'
 #' @export
 read.fs.surface.gii <- function(filepath) {
-  gii = gifti::read_gifti(filepath);
-  ret_list = list("vertices" = gii$data$pointset, "faces" = matrix(as.integer(gii$data$triangle + 1L), ncol=3L), "mesh_face_type" = 'tris');
-  class(ret_list) = c("fs.surface", class(ret_list));
-  return(ret_list);
+  if (requireNamespace("gifti", quietly = TRUE)) {
+    gii = gifti::read_gifti(filepath);
+    ret_list = list("vertices" = gii$data$pointset, "faces" = matrix(as.integer(gii$data$triangle + 1L), ncol=3L), "mesh_face_type" = 'tris');
+    class(ret_list) = c("fs.surface", class(ret_list));
+    return(ret_list);
+  } else {
+    stop("Reading GIFTI format surface files requires the package 'gifti' to be installed.");
+  }
 }
