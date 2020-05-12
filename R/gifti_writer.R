@@ -37,7 +37,8 @@
 #'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
 #'   xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
 #'   # Verify that the tree is a valid GIFTI file:
-#'   xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+#'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 #'
 #' @importFrom xml2 xml_new_root xml_set_attr xml_add_child read_xml
 #' @export
@@ -176,7 +177,7 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #'
 #' @param filepath path to the output gifti file
 #'
-#' @param xmltree
+#' @param xmltree XML tree from xml2
 #'
 #' @param options output options passed to \code{\link[xml2]{write_xml}}.
 #'
@@ -189,7 +190,8 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #'   # Here we add global metadata:
 #'   xmltree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Day"="Monday"));
 #'   # Validating your XML never hurts
-#'   xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+#'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 #'   gifti_xml_write(outfile, xmltree);  # Write your custom tree to a file.
 #'
 #' @export
@@ -208,7 +210,8 @@ gifti_xml_write <- function(filepath, xmltree, options=c('as_xml', 'format')) {
 #'
 #' @examples
 #'   outfile = tempfile(fileext = 'gii');
-#'   gifti_writer(outfile, list(rep(3.1, 3L), matrix(seq(6), nrow=2L)), datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32');
+#'   dataarrays = list(rep(3.1, 3L), matrix(seq(6), nrow=2L));
+#'   gifti_writer(outfile, dataarrays, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'));
 #'
 #' @export
 gifti_writer <- function(filepath, ...) {

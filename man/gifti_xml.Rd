@@ -40,5 +40,6 @@ The example for \code{\link{gifti_xml_write}} shows how to modify the tree.
   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
   xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
   # Verify that the tree is a valid GIFTI file:
-  xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+  xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 }

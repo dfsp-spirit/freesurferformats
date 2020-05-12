@@ -9,7 +9,7 @@ gifti_xml_write(filepath, xmltree, options = c("as_xml", "format"))
 \arguments{
 \item{filepath}{path to the output gifti file}
 
-\item{xmltree}{}
+\item{xmltree}{XML tree from xml2}
 
 \item{options}{output options passed to \code{\link[xml2]{write_xml}}.}
 }
@@ -23,7 +23,8 @@ Write XML tree to a gifti file.
   # Here we add global metadata:
   xmltree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Day"="Monday"));
   # Validating your XML never hurts
-  xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+  xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
   gifti_xml_write(outfile, xmltree);  # Write your custom tree to a file.
 
 }

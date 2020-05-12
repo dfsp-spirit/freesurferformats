@@ -1,6 +1,12 @@
 
 #' @title Add metadata to GIFTI XML tree.
 #'
+#' @param xmltree XML tree from xml2
+#'
+#' @param metadata_named_list named list, the metadata entries
+#'
+#' @param as_cdata logical, whether to wrap the value in cdata tags
+#'
 #' @return the modified tree.
 #'
 #' @note Assumes that there already exists a global MetaData node. Also not that this is not supposed to be used for adding metadata to datarrays.
@@ -8,14 +14,15 @@
 #' @examples
 #'   xmltree = gifti_xml(list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L)));
 #'   newtree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Weather"="Great"));
-#'   xml2::xml_validate(newtree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+#'   xml2::xml_validate(newtree, xml2::read_xml(gifti_xsd));
 #'
 #' @export
-gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list) {
+gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list, as_cdata=TRUE) {
   xpath='.//MetaData';
   for(name in names(metadata_named_list)) {
     value = metadata_named_list[[name]];
-    md_node = xml_node_gifti_MD(name, value);
+    md_node = xml_node_gifti_MD(name, value, as_cdata=as_cdata);
     metadata_node = xml2::xml_find_first(xmltree, xpath);
     xml2::xml_add_child(metadata_node, md_node);
   }
@@ -30,6 +37,8 @@ gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list) {
 #' @param value character string, the metadata value
 #'
 #' @param as_cdata logical, whether to wrap the value in cdata tags
+#'
+#' @return XML tree from xml2
 #'
 #' @keywords internal
 xml_node_gifti_MD <- function(name, value, as_cdata=TRUE) {

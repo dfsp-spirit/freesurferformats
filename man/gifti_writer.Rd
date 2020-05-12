@@ -16,7 +16,8 @@ Write data to a gifti file.
 }
 \examples{
   outfile = tempfile(fileext = 'gii');
-  gifti_writer(outfile, list(rep(3.1, 3L), matrix(seq(6), nrow=2L)), datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32');
+  dataarrays = list(rep(3.1, 3L), matrix(seq(6), nrow=2L));
+  gifti_writer(outfile, dataarrays, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'));
 
 }
 \references{

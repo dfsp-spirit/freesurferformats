@@ -4,7 +4,15 @@
 \alias{gifti_xml_add_global_metadata}
 \title{Add metadata to GIFTI XML tree.}
 \usage{
-gifti_xml_add_global_metadata(xmltree, metadata_named_list)
+gifti_xml_add_global_metadata(xmltree, metadata_named_list,
+  as_cdata = TRUE)
+}
+\arguments{
+\item{xmltree}{XML tree from xml2}
+
+\item{metadata_named_list}{named list, the metadata entries}
+
+\item{as_cdata}{logical, whether to wrap the value in cdata tags}
 }
 \value{
 the modified tree.
@@ -18,6 +26,7 @@ Assumes that there already exists a global MetaData node. Also not that this is 
 \examples{
   xmltree = gifti_xml(list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L)));
   newtree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Weather"="Great"));
-  xml2::xml_validate(newtree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+  xml2::xml_validate(newtree, xml2::read_xml(gifti_xsd));
 
 }

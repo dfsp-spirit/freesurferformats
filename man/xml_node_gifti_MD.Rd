@@ -13,6 +13,9 @@ xml_node_gifti_MD(name, value, as_cdata = TRUE)
 
 \item{as_cdata}{logical, whether to wrap the value in cdata tags}
 }
+\value{
+XML tree from xml2
+}
 \description{
 Create XML GIFTI metadata node.
 }

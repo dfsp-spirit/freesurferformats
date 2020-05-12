@@ -29,7 +29,7 @@
 write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
   my_data_sets = list(vertex_coords, faces - 1L);
   xmltree = gifti_xml(my_data_sets, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'), intent=c('NIFTI_INTENT_POINTSET', 'NIFTI_INTENT_TRIANGLE'));
-  xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+  #xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
   gifti_xml_write(filepath, xmltree);
   return(invisible('tris'));
 }
