@@ -4,13 +4,8 @@
 \alias{write.fs.mgh}
 \title{Write file in FreeSurfer MGH or MGZ format}
 \usage{
-write.fs.mgh(
-  filepath,
-  data,
-  vox2ras_matrix = NULL,
-  mr_params = c(0, 0, 0, 0, 0),
-  mri_dtype = "auto"
-)
+write.fs.mgh(filepath, data, vox2ras_matrix = NULL, mr_params = c(0, 0,
+  0, 0, 0), mri_dtype = "auto")
 }
 \arguments{
 \item{filepath}{string. Full path to the output curv file. If this ends with ".mgz", the file will be written gzipped (i.e., in MGZ instead of MGH format).}
@@ -27,16 +22,14 @@ write.fs.mgh(
 Write brain data to a file in FreeSurfer binary MGH or MGZ format.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.weight}()}
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph.gii}},
+  \code{\link{read.fs.morph}},
+  \code{\link{read.fs.weight}},
+  \code{\link{write.fs.curv}},
+  \code{\link{write.fs.morph}},
+  \code{\link{write.fs.weight}}
 }
 \concept{morphometry functions}

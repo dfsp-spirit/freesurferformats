@@ -21,16 +21,13 @@ Read vertex-wise brain surface data from a GIFTI file. The file must be a GIFTI 
 This function requires the `gifti` package, which is an optional dependency, to be installed. It also assumes that the dataset contains a vector or a matrix/array in which all dimensions except for 1 are empty.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.weight}()}
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
+  \code{\link{read.fs.morph}},
+  \code{\link{read.fs.weight}},
+  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
+  \code{\link{write.fs.morph}},
+  \code{\link{write.fs.weight}}
 }
 \concept{morphometry functions}

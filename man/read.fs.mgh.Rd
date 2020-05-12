@@ -4,13 +4,8 @@
 \alias{read.fs.mgh}
 \title{Read file in FreeSurfer MGH or MGZ format}
 \usage{
-read.fs.mgh(
-  filepath,
-  is_gzipped = "AUTO",
-  flatten = FALSE,
-  with_header = FALSE,
-  drop_empty_dims = FALSE
-)
+read.fs.mgh(filepath, is_gzipped = "AUTO", flatten = FALSE,
+  with_header = FALSE, drop_empty_dims = FALSE)
 }
 \arguments{
 \item{filepath}{string. Full path to the input MGZ or MGH file.}
@@ -34,7 +29,7 @@ Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH o
                                package = "freesurferformats",
                                mustWork = TRUE);
     vd = read.fs.mgh(brain_image);
-    cat(sprintf("Read voxel data with dimensions \%s. Values: min=\%d, mean=\%f, max=\%d.\n",
+    cat(sprintf("Read voxel data with dimensions \%s. Values: min=\%d, mean=\%f, max=\%d.\\n",
                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
     # Read it again with full header data:
     vdh = read.fs.mgh(brain_image, with_header = TRUE);
@@ -45,16 +40,14 @@ Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH o
 \seealso{
 To derive more information from the header, see the `mghheader.*` functions, like \code{\link[freesurferformats]{mghheader.vox2ras.tkreg}}.
 
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.weight}()}
+Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
+  \code{\link{fs.get.morph.file.format.from.filename}},
+  \code{\link{read.fs.curv}},
+  \code{\link{read.fs.morph.gii}},
+  \code{\link{read.fs.morph}},
+  \code{\link{read.fs.weight}},
+  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
+  \code{\link{write.fs.morph}},
+  \code{\link{write.fs.weight}}
 }
 \concept{morphometry functions}

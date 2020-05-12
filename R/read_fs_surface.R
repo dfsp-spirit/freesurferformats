@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -256,6 +256,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'ply' | (format == 'auto' & filepath.ends.with(filepath, c('.ply')))) {
     return(read.fs.surface.ply(filepath));
+  }
+
+  if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
+    return(read.fs.surface.gii(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -441,3 +445,18 @@ faces.tris.to.quad <- function(tris_faces) {
 is.fs.surface <- function(x) inherits(x, "fs.surface")
 
 
+#' @title Read GIFTI format mesh as surface.
+#'
+#' @param filepath string. Full path to the input surface file in GIFTI format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @family mesh functions
+#'
+#' @export
+read.fs.surface.gii <- function(filepath) {
+  gii = gifti::read_gifti(filepath);
+  ret_list = list("vertices" = gii$data$pointset, "faces" = matrix(as.integer(gii$data$triangle + 1L), ncol=3L), "mesh_face_type" = 'tris');
+  class(ret_list) = c("fs.surface", class(ret_list));
+  return(ret_list);
+}

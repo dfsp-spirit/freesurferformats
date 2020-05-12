@@ -19,14 +19,15 @@ Read FreeSurfer ASCII format surface.
 This is also known as *srf* format.
 }
 \seealso{
-Other mesh functions: 
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{read_nisurface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.vtk}()},
-\code{\link{write.fs.surface}()}
+Other mesh functions: \code{\link{read.fs.surface.gii}},
+  \code{\link{read.fs.surface.ply}},
+  \code{\link{read.fs.surface.vtk}},
+  \code{\link{read.fs.surface}},
+  \code{\link{read_nisurfacefile}},
+  \code{\link{read_nisurface}},
+  \code{\link{write.fs.surface.asc}},
+  \code{\link{write.fs.surface.gii}},
+  \code{\link{write.fs.surface.vtk}},
+  \code{\link{write.fs.surface}}
 }
 \concept{mesh functions}
