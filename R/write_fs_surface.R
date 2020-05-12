@@ -9,7 +9,7 @@
 #'
 #' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
-#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
+#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
 #'
 #' @return character string, the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
@@ -31,8 +31,8 @@
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii').");
   }
 
   if(ncol(vertex_coords) != 3L) {
@@ -60,6 +60,10 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
   if(format == 'ply' | (format == 'auto' & filepath.ends.with(filepath, c('.ply')))) {
     return(write.fs.surface.ply(filepath, vertex_coords, faces));
+  }
+
+  if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
+    return(write.fs.surface.gii(filepath, vertex_coords, faces));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
