@@ -20,7 +20,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer *curv* format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Two versions of this format exist, an ASCII version and a binary version (the only one that is used in current FreeSurfer versions). An example file would be `surf/lh.area`. Both versions of this format can be read and written.
 
-* FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. (Put another way, a parcellation splits the brain surface into disjunct atlas regions). The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can be read and written. The standard atlases that come with FreeSurfer are Desikan-Killiany (`aparc`), DKT (`aparc.DKTatlas40`), and Destrieux (`aparc.a2009s`). 
+* FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. (Put another way, a parcellation splits the brain surface into disjunct atlas regions). The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can be read and written. The standard atlases that come with FreeSurfer are Desikan-Killiany (`aparc`), DKT (`aparc.DKTatlas40`), and Destrieux (`aparc.a2009s`).
 
 * FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) and meshes in VTK ASCII format (`.vtk` files) is also supported. Additionally, meshes can be exported in the following formats: Stanford triangle format (.ply), Wavefront object format (.obj), and Object File Format (.off).
 
@@ -108,8 +108,8 @@ library("freesurferformats")
 berts_brain = paste(Sys.getenv("FREESURFER_HOME"), "/subjects/bert/mri/brain.mgz", sep="")
 mgh = read.fs.mgh(berts_brain, with_header=TRUE);
 
-# Inspect the header:
-mgh$header$vox2ras_matrix
+# Compute the vox2ras matrix from the header:
+mghheader.vox2ras(mgh)
 #     [,1] [,2] [,3]      [,4]
 #[1,]   -1    0    0  133.3997
 #[2,]    0    0    1 -110.0000
@@ -148,8 +148,8 @@ This will ouput something like this (but for the version you actually used, whic
 ```
 To cite package ‘freesurferformats’ in publications use:
 
-  Tim Schäfer (2019). freesurferformats: Read and Write 'FreeSurfer'
-  Neuroimaging File Formats. R package version 0.1.6.
+  Tim Schäfer (2020). freesurferformats: Read and Write 'FreeSurfer'
+  Neuroimaging File Formats. R package version 0.1.9.
   https://CRAN.R-project.org/package=freesurferformats
 
 A BibTeX entry for LaTeX users is
@@ -167,7 +167,7 @@ A BibTeX entry for LaTeX users is
 
 The Digital Object Identifier (DOI) for *freesurferformats* is: [10.5281/zenodo.3540434](https://dx.doi.org/10.5281/zenodo.3540434)
 
-Note that this DOI always points to the latest version, so be sure to still include the package version in the citation. 
+Note that this DOI always points to the latest version, so be sure to still include the package version in the citation.
 
 ## Development
 
@@ -211,6 +211,6 @@ The displayed status represents the development version. Don't worry if you are 
 
 ### Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). 
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 If you have any question, suggestion or comment on freesurferformats, please [open an issue](https://github.com/dfsp-spirit/freesurferformats/issues). If you want to contact me via email, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
