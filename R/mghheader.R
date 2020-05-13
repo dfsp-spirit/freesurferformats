@@ -400,7 +400,7 @@ mghheader <- function(dims, mri_dtype_code) {
   header$voldim = c(dims[1], dims[2], dims[3], dims[4]);
   header$voldim_orig = header$voldim;
 
-  cat(sprintf("Created MGH header with dimensions %s.\n", paste(header$voldim, collapse="x")))
+  #cat(sprintf("Created MGH header with dimensions %s.\n", paste(header$voldim, collapse="x")));
 
   header$has_mr_params = 0L;
   header$mr = list("tr"=0.0, "te"=0.0, "ti"=0.0, "flip_angle_degrees"=0.0, "fov"=0.0);

@@ -35,20 +35,22 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface.asc}},
-  \code{\link{read.fs.surface.gii}},
-  \code{\link{read.fs.surface.ply}},
-  \code{\link{read.fs.surface.vtk}},
-  \code{\link{read.fs.surface}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface.gii}},
-  \code{\link{write.fs.surface.vtk}}
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.gii}()},
+\code{\link{read.fs.surface.ply}()},
+\code{\link{read.fs.surface.vtk}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.gii}()},
+\code{\link{write.fs.surface.vtk}()}
 
-Other mesh export functions: \code{\link{write.fs.surface.obj}},
-  \code{\link{write.fs.surface.off}},
-  \code{\link{write.fs.surface.ply}}
+Other mesh export functions: 
+\code{\link{write.fs.surface.obj}()},
+\code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface.ply}()}
 }
 \concept{mesh export functions}
 \concept{mesh functions}

@@ -19,15 +19,16 @@ This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. Se
 This is by far not a complete VTK format reader.
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface.asc}},
-  \code{\link{read.fs.surface.gii}},
-  \code{\link{read.fs.surface.ply}},
-  \code{\link{read.fs.surface}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface.gii}},
-  \code{\link{write.fs.surface.vtk}},
-  \code{\link{write.fs.surface}}
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.gii}()},
+\code{\link{read.fs.surface.ply}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.gii}()},
+\code{\link{write.fs.surface.vtk}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh functions}

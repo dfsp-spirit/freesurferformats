@@ -4,8 +4,7 @@
 \alias{write.fs.surface.ply}
 \title{Write mesh to file in PLY format (.ply)}
 \usage{
-write.fs.surface.ply(filepath, vertex_coords, faces,
-  vertex_colors = NULL)
+write.fs.surface.ply(filepath, vertex_coords, faces, vertex_colors = NULL)
 }
 \arguments{
 \item{filepath}{string. Full path to the output surface file, should end with '.vtk', but that is not enforced.}
@@ -43,8 +42,9 @@ The PLY format is a versatile ASCII format for storing meshes. Also known as Pol
 \url{http://paulbourke.net/dataformats/ply/}
 }
 \seealso{
-Other mesh export functions: \code{\link{write.fs.surface.obj}},
-  \code{\link{write.fs.surface.off}},
-  \code{\link{write.fs.surface}}
+Other mesh export functions: 
+\code{\link{write.fs.surface.obj}()},
+\code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh export functions}

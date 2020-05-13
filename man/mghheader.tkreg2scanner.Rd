@@ -24,11 +24,12 @@ This is also known as the 'tkreg2scanner' matrix. Note that this is a RAS-to-RAS
 
 }
 \seealso{
-Other header coordinate space: \code{\link{mghheader.is.ras.valid}},
-  \code{\link{mghheader.ras2vox.tkreg}},
-  \code{\link{mghheader.ras2vox}},
-  \code{\link{mghheader.scanner2tkreg}},
-  \code{\link{mghheader.vox2ras.tkreg}},
-  \code{\link{mghheader.vox2ras}}
+Other header coordinate space: 
+\code{\link{mghheader.is.ras.valid}()},
+\code{\link{mghheader.ras2vox.tkreg}()},
+\code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.vox2ras.tkreg}()},
+\code{\link{mghheader.vox2ras}()}
 }
 \concept{header coordinate space}

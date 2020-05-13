@@ -4,8 +4,13 @@
 \alias{check_data_and_settings_consistency}
 \title{Warn about common errors in combining data and datatype.}
 \usage{
-check_data_and_settings_consistency(index, data, datatype, intent,
-  force = FALSE)
+check_data_and_settings_consistency(
+  index,
+  data,
+  datatype,
+  intent,
+  force = FALSE
+)
 }
 \arguments{
 \item{index}{positive integer, the dataarray index to report. Makes it easier for the user to find the broken one.}

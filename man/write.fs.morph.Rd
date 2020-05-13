@@ -22,13 +22,16 @@ format, string. The format that was used to write the data. One of c("mgh", "mgz
 Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 }
 \seealso{
-Other morphometry functions: \code{\link{fs.get.morph.file.ext.for.format}},
-  \code{\link{fs.get.morph.file.format.from.filename}},
-  \code{\link{read.fs.curv}}, \code{\link{read.fs.mgh}},
-  \code{\link{read.fs.morph.gii}},
-  \code{\link{read.fs.morph}},
-  \code{\link{read.fs.weight}},
-  \code{\link{write.fs.curv}}, \code{\link{write.fs.mgh}},
-  \code{\link{write.fs.weight}}
+Other morphometry functions: 
+\code{\link{fs.get.morph.file.ext.for.format}()},
+\code{\link{fs.get.morph.file.format.from.filename}()},
+\code{\link{read.fs.curv}()},
+\code{\link{read.fs.mgh}()},
+\code{\link{read.fs.morph.gii}()},
+\code{\link{read.fs.morph}()},
+\code{\link{read.fs.weight}()},
+\code{\link{write.fs.curv}()},
+\code{\link{write.fs.mgh}()},
+\code{\link{write.fs.weight}()}
 }
 \concept{morphometry functions}

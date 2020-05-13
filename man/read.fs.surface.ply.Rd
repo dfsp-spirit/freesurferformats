@@ -19,15 +19,16 @@ This reads meshes from text files in PLY format. Note that this does not read ar
 This is by far not a complete PLY format reader. It can read PLY mesh files which were written by \code{\link[freesurferformats]{write.fs.surface.ply}} and Blender. Vertex colors and Blender vertex normals are currently ignored (but files with them are supported in the sense that the mesh data will be read correctly).
 }
 \seealso{
-Other mesh functions: \code{\link{read.fs.surface.asc}},
-  \code{\link{read.fs.surface.gii}},
-  \code{\link{read.fs.surface.vtk}},
-  \code{\link{read.fs.surface}},
-  \code{\link{read_nisurfacefile}},
-  \code{\link{read_nisurface}},
-  \code{\link{write.fs.surface.asc}},
-  \code{\link{write.fs.surface.gii}},
-  \code{\link{write.fs.surface.vtk}},
-  \code{\link{write.fs.surface}}
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.gii}()},
+\code{\link{read.fs.surface.vtk}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.gii}()},
+\code{\link{write.fs.surface.vtk}()},
+\code{\link{write.fs.surface}()}
 }
 \concept{mesh functions}

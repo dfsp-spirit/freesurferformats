@@ -4,8 +4,12 @@
 \alias{read.fs.label}
 \title{Read file in FreeSurfer label format}
 \usage{
-read.fs.label(filepath, return_one_based_indices = TRUE, full = FALSE,
-  metadata = list())
+read.fs.label(
+  filepath,
+  return_one_based_indices = TRUE,
+  full = FALSE,
+  metadata = list()
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the input label file.}
@@ -32,6 +36,7 @@ To load volume/voxel labels, you will have to set the 'full' parameter to `TRUE`
 
 }
 \seealso{
-Other label functions: \code{\link{write.fs.label}}
+Other label functions: 
+\code{\link{write.fs.label}()}
 }
 \concept{label functions}

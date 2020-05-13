@@ -4,8 +4,7 @@
 \alias{gifti_xml_add_global_metadata}
 \title{Add metadata to GIFTI XML tree.}
 \usage{
-gifti_xml_add_global_metadata(xmltree, metadata_named_list,
-  as_cdata = TRUE)
+gifti_xml_add_global_metadata(xmltree, metadata_named_list, as_cdata = TRUE)
 }
 \arguments{
 \item{xmltree}{XML tree from xml2}

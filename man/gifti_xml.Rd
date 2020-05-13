@@ -4,9 +4,14 @@
 \alias{gifti_xml}
 \title{Get GIFTI XML representation of data.}
 \usage{
-gifti_xml(data_array, intent = "NIFTI_INTENT_SHAPE",
-  datatype = "NIFTI_TYPE_FLOAT32", encoding = "GZipBase64Binary",
-  endian = "LittleEndian", force = FALSE)
+gifti_xml(
+  data_array,
+  intent = "NIFTI_INTENT_SHAPE",
+  datatype = "NIFTI_TYPE_FLOAT32",
+  encoding = "GZipBase64Binary",
+  endian = "LittleEndian",
+  force = FALSE
+)
 }
 \arguments{
 \item{data_array}{list of data vectors and/or data matrices.}
