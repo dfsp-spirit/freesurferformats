@@ -25,6 +25,7 @@ Other morphometry functions:
 \code{\link{read.fs.mgh}()},
 \code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.morph}()},
+\code{\link{read.fs.volume}()},
 \code{\link{write.fs.curv}()},
 \code{\link{write.fs.mgh}()},
 \code{\link{write.fs.morph}()},

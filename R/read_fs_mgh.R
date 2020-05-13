@@ -260,8 +260,9 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
         return_list$data = data;
         class(return_list) = 'fs.volume';
         return(return_list);
+    } else {
+      return(data);
     }
-    return(data);
 }
 
 

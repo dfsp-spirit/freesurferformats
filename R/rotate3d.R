@@ -154,3 +154,40 @@ flip3D <- function(volume, axis=1L, how='horizontally') {
   }
   return(flipped_brain);
 }
+
+#' @title Flip a 2D matrix.
+#'
+#' @param slice a 2D matrix
+#'
+#' @param how character string, one of 'vertically' or 'horizontally'. Note that flipping *horizontally* means that the image will be mirrored along the central *vertical* axis. If `NULL` is passed, the passed value is returned unaltered.
+#'
+#' @return 2D matrix, the flipped matrix.
+#'
+#' @keywords internal
+flip2D <- function(slice, how='horizontally') {
+  if(is.null(how)) {
+    return(slice);
+  }
+
+  if(how == 'vertically') {
+    axis = 2L;
+  } else if(how == 'horizontally') {
+    axis = 1L;
+  } else {
+    stop("How must be one of 'vertically' or 'horizontally' (or NULL for noop).");
+  }
+
+  axis = as.integer(axis);
+  if(axis < 1L | axis > 2L) {
+    stop(sprintf("Axis must be integer with value 1 or 2 but is %d.\n", axis));
+  }
+
+  if(length(dim(slice)) != 2L) {
+    stop("Slice must be a 2D matrix.");
+  }
+  if(axis == 1L) {
+    return(slice[nrow(slice):1,]);
+  } else {
+    return(slice[, ncol(slice):1]);
+  }
+}
