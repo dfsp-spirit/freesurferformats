@@ -6,9 +6,14 @@ Version 0.1.10
 --------------
 - read.fs.label improvement: do not increment indices for volume labels, better print support for them
 - support exporting surface meshes in Stanford triangle format (.ply)
+- support reading surface meshes in Stanford triangle format (.ply)
 - support exporting surface meshes in Wavefront object format (.obj)
 - support exporting surface meshes in Object File Format (.off)
 - support reading surface meshes in PLY format, including Blender exports with vertex colors and normals
+- add general GIFTI writer (requires xml2)
+- add support for writing surfaces in GIFTI format
+- add read.fs.volume() function that support MGH, MGZ and NIFTI formats
+- add experimental support for reading NIFTI volumes as fs.volume instances (via oro.nifti package), including header computation
 
 
 Version 0.1.9
