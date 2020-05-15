@@ -1,6 +1,10 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.11
+--------------
+- export rotate2D and flip2D to namespace
+
 
 Version 0.1.10
 --------------

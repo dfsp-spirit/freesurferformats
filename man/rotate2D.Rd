@@ -17,4 +17,3 @@ rotate2D(slice, degrees = 90)
 \description{
 Rotate a 2D matrix in 90 degree steps.
 }
-\keyword{internal}
