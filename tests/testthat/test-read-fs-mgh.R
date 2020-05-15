@@ -34,6 +34,11 @@ test_that("The demo 1D MGZ file is read correctly", {
   expect_equal(length(dim(vd)), 4);  # It has 4 dimensions
   num_vers_fsaverage = 163842
   expect_equal(dim(vd), c(num_vers_fsaverage, 1, 1, 1));
+
+  vd2 = read.fs.volume(morph_file);
+  expect_equal(class(vd2), "array");
+  expect_equal(length(dim(vd2)), 4);  # It has 4 dimensions
+  expect_equal(dim(vd2), c(num_vers_fsaverage, 1, 1, 1));
 })
 
 
@@ -41,6 +46,9 @@ test_that("The header can be read", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   ret = read.fs.mgh(brain_image, with_header=TRUE);
   expect_true(is.fs.volume(ret));
+
+  ret2 = read.fs.volume(brain_image, with_header=TRUE);
+  expect_true(is.fs.volume(ret2));
 
   header = ret$header;
   expect_equal(class(header), "list");
@@ -63,6 +71,14 @@ test_that("The header can be read", {
   expect_equal(length(header$vox2ras_matrix), 16);
   expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
 
+  header2 = ret2$header;
+  expect_equal(class(header2), "list");
+  expect_equal(header2$dtype, 0);  # MRI_UCHAR
+  expect_equal(header2$dof, 0);
+  expect_equal(header2$ras_good_flag, 1);
+  expect_equal(length(header2$internal$delta), 3);
+
+
 
   vd = ret$data;
   expect_equal(class(vd), "array");
@@ -72,6 +88,15 @@ test_that("The header can be read", {
   expect_equal(vd[80,80,80,1], 110); # value of voxel 80,80,80 must be 110 (known from ref. implementation)
   expect_equal(vd[100,100,100,1], 77);
   expect_equal(vd[100,100,80,1], 105);
+
+  vd2 = ret2$data;
+  expect_equal(class(vd2), "array");
+  expect_equal(length(dim(vd2)), 4);  # It has 4 dimensions
+  expect_equal(typeof(vd2), "integer");
+  expect_equal(dim(vd2), c(256, 256, 256, 1));
+  expect_equal(vd2[80,80,80,1], 110); # value of voxel 80,80,80 must be 110 (known from ref. implementation)
+  expect_equal(vd2[100,100,100,1], 77);
+  expect_equal(vd2[100,100,80,1], 105);
 })
 
 
