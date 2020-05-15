@@ -6,7 +6,7 @@
 #'
 #' @return 2D matrix, the rotated matrix
 #'
-#' @keywords internal
+#' @export
 rotate2D <- function(slice, degrees=90) {
   if(length(dim(slice)) != 2L) {
     stop("Slice must be a 2D matrix.");
@@ -163,7 +163,7 @@ flip3D <- function(volume, axis=1L, how='horizontally') {
 #'
 #' @return 2D matrix, the flipped matrix.
 #'
-#' @keywords internal
+#' @export
 flip2D <- function(slice, how='horizontally') {
   if(is.null(how)) {
     return(slice);
