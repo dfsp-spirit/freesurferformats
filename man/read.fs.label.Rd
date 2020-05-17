@@ -37,6 +37,7 @@ To load volume/voxel labels, you will have to set the 'full' parameter to `TRUE`
 }
 \seealso{
 Other label functions: 
+\code{\link{read.fs.label.gii}()},
 \code{\link{write.fs.label}()}
 }
 \concept{label functions}

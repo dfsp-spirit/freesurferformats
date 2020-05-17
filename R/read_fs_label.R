@@ -109,3 +109,62 @@ print.fs.label <- function(x, ...) {
 is.fs.label <- function(x) inherits(x, "fs.label")
 
 
+
+#' @title Read a label from a GIFTI label/annotation file.
+#'
+#' @param filepath string. Full path to the input label file.
+#'
+#' @param label_value integer, the label value of interest to extract from the annotation.
+#'
+#' @param element_index positive integer, the index of the dataarray to return. Ignored unless the file contains several dataarrays.
+#'
+#' @return integer vector,  the vertex indices of the label
+#'
+#' @note A gifti label is more like a FreeSurfer annotation, as it assigns a label integer (region code) to each vertex instead of listing a set of vertex indices. It is recommended to read it with \code{\link[freesurferformats]{read.fs.annot.gii}} instead. This function extracts one of the regions from the annotation as a label.
+#'
+#' @family label functions
+#'
+#' @export
+read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
+
+  if( ! is.integer(label_value)) {
+    if(is.numeric(label_value)) {
+      label_value = as.integer(label_value);
+    }
+    stop("Parameter 'label_value' must be an integer, like 1L.");
+  }
+
+  if (requireNamespace("gifti", quietly = TRUE)) {
+    gii = gifti::read_gifti(filepath);
+    intent = gii$data_info$Intent[[element_index]];
+    if(intent != 'NIFTI_INTENT_LABEL') {
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));
+    }
+    if(is.null(gii$label)) {
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));
+    } else {
+
+      label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
+      if(gii$data_info$Dimensionality != 1L) {
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));
+      }
+
+      annot_data = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
+
+      # Note: gifti labels seem to be more like a mask or an annotation: they assign a value to each vertex of the surface instead of listing
+      # all vertices which are part of the label. Reading them as a label in the FreeSurfer sense potentially means losing
+      # information (if they contain more than 2 region types). If they only contain positive/negative labels, it is fine.
+      num_regions_in_annot = nrow(gii$label);
+      return(which(annot_data == label_value))
+    }
+
+  } else {
+    stop("The 'gifti' package must be installed to use this functionality.");
+  }
+
+}
+
+
+read.fs.annot.gii <- function(filepath) {
+
+}

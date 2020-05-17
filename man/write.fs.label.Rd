@@ -46,6 +46,7 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
 }
 \seealso{
 Other label functions: 
+\code{\link{read.fs.label.gii}()},
 \code{\link{read.fs.label}()}
 }
 \concept{label functions}
