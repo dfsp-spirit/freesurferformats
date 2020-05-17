@@ -128,10 +128,11 @@ is.fs.label <- function(x) inherits(x, "fs.label")
 read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
 
   if( ! is.integer(label_value)) {
-    if(is.numeric(label_value)) {
+    if(is.numeric(label_value) | is.logical(label_value)) {
       label_value = as.integer(label_value);
+    } else {
+      stop("Parameter 'label_value' must be an integer, like 1L.");
     }
-    stop("Parameter 'label_value' must be an integer, like 1L.");
   }
 
   if (requireNamespace("gifti", quietly = TRUE)) {
@@ -164,7 +165,61 @@ read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
 
 }
 
+#' @export
+read.fs.annot.gii <- function(filepath, element_index=1L) {
+  if (requireNamespace("gifti", quietly = TRUE)) {
+    gii = gifti::read_gifti(filepath);
+    intent = gii$data_info$Intent[[element_index]];
+    if(intent != 'NIFTI_INTENT_LABEL') {
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));
+    }
+    if(is.null(gii$label)) {
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));
+    } else {
 
-read.fs.annot.gii <- function(filepath) {
+      label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
+      if(gii$data_info$Dimensionality != 1L) {
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));
+      }
 
+      annot_data = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
+
+      # Note: gifti labels seem to be more like a mask or an annotation: they assign a value to each vertex of the surface instead of listing
+      # all vertices which are part of the label. Reading them as a label in the FreeSurfer sense potentially means losing
+      # information (if they contain more than 2 region types). If they only contain positive/negative labels, it is fine.
+      num_regions_in_annot = nrow(gii$label);
+      colortable_raw = as.data.frame(gii$label, stringsAsFactors = FALSE);
+      colortable = matrix(rep(0.0, num_regions_in_annot * 5L), ncol = 5L);
+      colnames(colortable) = c('r', 'g', 'b', 'a', 'code');
+      if('Red' %in% colnames(colortable_raw)) { colortable[,1] = as.double(colortable_raw$Red); }
+      if('Green' %in% colnames(colortable_raw)) { colortable[,2] = as.double(colortable_raw$Green); }
+      if('Blue' %in% colnames(colortable_raw)) { colortable[,3] = as.double(colortable_raw$Blue); }
+      if('Alpha' %in% colnames(colortable_raw)) { colortable[,4] = as.double(colortable_raw$Alpha); }
+      if('Key' %in% colnames(colortable_raw)) { colortable[,5] = as.double(colortable_raw$Key); }
+      r = colortable[,1];
+      g = colortable[,2];
+      b = colortable[,3];
+      a = colortable[,4];
+      code = colortable[,5];
+      if(max(r) > 1.1) {
+        hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
+        hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
+      } else {
+        hex_color_string_rgb = grDevices::rgb(r, g, b);
+        hex_color_string_rgba = grDevices::rgb(r, g, b, a);
+      }
+
+      # Get the struct_names, the gifti package does not provide them.
+      xml = xml2::read_xml(filepath);
+      label_nodes = xml2::xml_find_all(xml, './/Label');
+      struct_names = xml2::xml_text(label_nodes);
+
+      colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba, stringsAsFactors = FALSE);
+      colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
+      return(colortable_df);
+    }
+
+  } else {
+    stop("The 'gifti' package must be installed to use this functionality.");
+  }
 }

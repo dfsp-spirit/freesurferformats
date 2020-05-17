@@ -2,22 +2,25 @@
 % Please edit documentation in R/read_fs_label.R
 \name{read.fs.label.gii}
 \alias{read.fs.label.gii}
-\title{Read annotation from GIFTI label file}
+\title{Read a label from a GIFTI label/annotation file.}
 \usage{
 read.fs.label.gii(filepath, label_value, element_index = 1L)
 }
 \arguments{
 \item{filepath}{string. Full path to the input label file.}
 
-\item{label_value}{the label value of interest to extract from the annotation.}
+\item{label_value}{integer, the label value of interest to extract from the annotation.}
 
 \item{element_index}{positive integer, the index of the dataarray to return. Ignored unless the file contains several dataarrays.}
 }
 \value{
-an annotation, see \code{\link[freesurferformats]{read.fs.annot}}.
+integer vector,  the vertex indices of the label
 }
 \description{
-Read annotation from GIFTI label file. If all you want from the file is a single label, see \code{\link[freesurferformats]{read.fs.label.gii}}.
+Read a label from a GIFTI label/annotation file.
+}
+\note{
+A gifti label is more like a FreeSurfer annotation, as it assigns a label integer (region code) to each vertex instead of listing a set of vertex indices. It is recommended to read it with \code{\link[freesurferformats]{read.fs.annot.gii}} instead. This function extracts one of the regions from the annotation as a label.
 }
 \seealso{
 Other label functions: 
