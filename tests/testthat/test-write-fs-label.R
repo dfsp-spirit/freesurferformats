@@ -30,3 +30,18 @@ test_that("A label file can be written and read again using the class method", {
   label2 = read.fs.label(output_file, full=TRUE);
   expect_equal(label$vertexdata$vertex_index, label2$vertexdata$vertex_index);
 })
+
+
+test_that("A GIFTI label file can be written and read again", {
+  label = c(1L, 23L, 44L); # the positive vertex indices
+  outfile = tempfile(fileext=".gii");
+  write.fs.label.gii(outfile, label, 50L);
+
+  label_pos_read = read.fs.label.gii(outfile, label_value=1L);
+  expect_equal(length(label_pos_read), 3L);
+  expect_equal(label, label_pos_read);
+
+  label_neg_read = read.fs.label.gii(outfile, label_value=0L);
+  expect_equal(length(label_neg_read), 47L);
+})
+
