@@ -27,7 +27,9 @@ Other morphometry functions:
 \code{\link{read.fs.volume}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},
+\code{\link{write.fs.label.gii}()},
 \code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph.gii}()},
 \code{\link{write.fs.morph}()}
 }
 \concept{morphometry functions}

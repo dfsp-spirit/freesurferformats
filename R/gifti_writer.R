@@ -188,7 +188,7 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #' @references \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
 #'
 #' @examples
-#'   outfile = tempfile(fileext = 'gii');
+#'   outfile = tempfile(fileext = '.gii');
 #'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
 #'   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
 #'   # Here we add global metadata:
@@ -214,7 +214,7 @@ gifti_xml_write <- function(filepath, xmltree, options=c('as_xml', 'format')) {
 #' @references \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
 #'
 #' @examples
-#'   outfile = tempfile(fileext = 'gii');
+#'   outfile = tempfile(fileext = '.gii');
 #'   dataarrays = list(rep(3.1, 3L), matrix(seq(6), nrow=2L));
 #'   gifti_writer(outfile, dataarrays, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'));
 #'

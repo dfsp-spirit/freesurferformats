@@ -17,7 +17,7 @@ gifti_xml_write(filepath, xmltree, options = c("as_xml", "format"))
 Write XML tree to a gifti file.
 }
 \examples{
-  outfile = tempfile(fileext = 'gii');
+  outfile = tempfile(fileext = '.gii');
   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
   # Here we add global metadata:

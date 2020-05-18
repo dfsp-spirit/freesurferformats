@@ -80,11 +80,31 @@ write.fs.morph <- function(filepath, data, format='auto', ...) {
     if(format == "mgh" || format == "mgz" ) {
         write.fs.mgh(filepath, data, ...);
     } else if (format == "gii") {
-        stop("Writing files in GIFTI format is not supported.");
+        write.fs.morph.gii(filepath, data);
     } else if (format == "curv") {
         write.fs.curv(filepath, data);
     }
     return(invisible(format));
+}
+
+
+#' @title Write morphometry data in GIFTI format.
+#'
+#' @description The data will be written with intent 'NIFTI_INTENT_SHAPE' and as datatype 'NIFTI_TYPE_FLOAT32'.
+#'
+#' @param filepath string, the full path of the output GIFTI file.
+#'
+#' @param data numerical vector, the data to write. Will be coerced to double.
+#'
+#' @return format, string. The format that was used to write the data: "gii".
+#'
+#' @family morphometry functions
+#'
+#' @export
+write.fs.morph.gii <- function(filepath, data) {
+  data = as.double(data);
+  gifti_writer(filepath, list(data), intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_TYPE_FLOAT32');
+  return(invisible('gii'));
 }
 
 
@@ -134,7 +154,7 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
 #'
 #' @description Given a morphometry file format, derive the proper file extension.
 #'
-#' @param format, string. One of c("mgh", "mgz", "curv").
+#' @param format, string. One of c("mgh", "mgz", "curv", "gii").
 #'
 #' @return file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
 #'
@@ -148,6 +168,8 @@ fs.get.morph.file.ext.for.format <- function(format) {
         return(".mgz");
     } else if(format == "curv") {
         return("");
+    } else if(format == "gii") {
+      return(".gii");
     } else {
         stop(sprintf("Unsupported morphometry file format: '%s'.", format));
     }

@@ -19,4 +19,7 @@ XML tree from xml2
 \description{
 Create XML GIFTI metadata node.
 }
+\note{
+This creates an MD note, not the outer MetaData node.
+}
 \keyword{internal}

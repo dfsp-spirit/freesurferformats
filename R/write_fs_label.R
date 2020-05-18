@@ -87,3 +87,39 @@ write.fs.label <- function(filepath, vertex_indices, vertex_coords=NULL, vertex_
   return(invisible(label_df));
 }
 
+
+#' @title Write a binary surface label in GIFTI format.
+#'
+#' @description The data will be written with intent 'NIFTI_INTENT_LABEL' and as datatype 'NIFTI_TYPE_INT32'. The label table will include entries 'positive' (label value 0), and 'negative' (label value 1).
+#'
+#' @param filepath string, the full path of the output GIFTI file.
+#'
+#' @param vertex_indices integer vector, the vertex indices which are part of the label (positive). All others not listed, up to num_vertices_in_surface, will be set to be negative.
+#'
+#' @param num_vertices_in_surface integer, the total number of vertices in the surface mesh. A GIFTI label is more like a mask/an annotation, so we need to know the number of vertices.
+#'
+#' @return format, string. The format that was used to write the data: "gii".
+#'
+#' @family morphometry functions
+#'
+#' @examples
+#'   label = c(1L, 23L, 44L); # the positive vertex indices
+#'   outfile = tempfile(fileext=".gii");
+#'   write.fs.label.gii(outfile, label, 50L);
+#'
+#' @export
+write.fs.label.gii <- function(filepath, vertex_indices, num_vertices_in_surface) {
+  if(! is.character(filepath)) {
+    stop("Paramater 'filepath' must be a character string.");
+  }
+  if(max(vertex_indices) > num_vertices_in_surface) {
+    stop("The maximal entry in 'vertex_indices' is larger than 'num_vertices_in_surface'.");
+  }
+  label = rep(0L, num_vertices_in_surface);
+  label[vertex_indices] = 1L;
+  xmltree = gifti_xml(list(label), intent='NIFTI_INTENT_LABEL', datatype='NIFTI_TYPE_INT32');
+  xmltree = giftixml_add_labeltable_posneg(xmltree);
+  gifti_xml_write(filepath, xmltree);
+  return(invisible(label));
+}
+

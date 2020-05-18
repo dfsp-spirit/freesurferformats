@@ -38,6 +38,8 @@ gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list, as_cdata
 #'
 #' @param as_cdata logical, whether to wrap the value in cdata tags
 #'
+#' @note This creates an MD note, not the outer MetaData node.
+#'
 #' @return XML tree from xml2
 #'
 #' @keywords internal
@@ -70,4 +72,60 @@ cdata <- function(string) {
   }
   return(paste(cdata_start_tag, string, cdata_end_tag, sep=""));
 }
+
+
+#' @title Create XML GIFTI Label node.
+#'
+#' @param attributes named list, the attributes
+#'
+#' @param value the text contents of the node, usually the region name
+#'
+#' @param as_cdata logical, whether to wrap the value in cdata tags
+#'
+#' @return XML node from xml2
+#'
+#' @importFrom xml2 read_xml xml_set_attrs
+#' @keywords internal
+xml_node_gifti_label <- function(value, attributes=list(), as_cdata=TRUE) {
+  if(! is.list(attributes)) {
+    stop("Parameter 'value' must be a named list.");
+  }
+  if(as_cdata) {
+    value = cdata(value);
+  }
+  label_node = xml2::read_xml(paste('<Label>', value, '</Label>', sep=''));
+  xml2::xml_set_attrs(label_node, attributes);
+  return(label_node);
+}
+
+
+#' @title Create XML GIFTI LabelTable node.
+#'
+#' @return XML node from xml2
+#'
+#' @importFrom xml2 read_xml
+#' @keywords internal
+xml_node_gifti_label_table <- function(attributes=list()) {
+  return(xml2::read_xml('<LabelTable></LabelTable>'));
+}
+
+
+#' @title Add a standard label tabel for to a GIFTI XML tree.
+#'
+#' @description This label table is suitable for labels in the FreeSurfer sense, i.e., if only a positive label (1) and a negative label (0) exist in the label data.
+#'
+#' @param xmltree an XML tree from xml2, typically the return value from \code{\link[freesurferformats]{gifti_xml}}.
+#'
+#' @return XML tree from xml2, the modified tree with the LabelTable added below the root node.
+#'
+#' @importFrom xml2 xml_add_child
+#' @keywords internal
+giftixml_add_labeltable_posneg <- function(xmltree) {
+  label_table_node = xml_node_gifti_label_table();
+  neg_node = xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L)));
+  pos_node = xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L)));
+  xml2::xml_add_child(xmltree, label_table_node);
+  return(xmltree);
+}
+
 

@@ -7,7 +7,7 @@
 fs.get.morph.file.ext.for.format(format)
 }
 \arguments{
-\item{format, }{string. One of c("mgh", "mgz", "curv").}
+\item{format, }{string. One of c("mgh", "mgz", "curv", "gii").}
 }
 \value{
 file ext, string. The standard file extension for the format. (May be an empty string for some formats.)
@@ -25,7 +25,9 @@ Other morphometry functions:
 \code{\link{read.fs.volume}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},
+\code{\link{write.fs.label.gii}()},
 \code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph.gii}()},
 \code{\link{write.fs.morph}()},
 \code{\link{write.fs.weight}()}
 }
