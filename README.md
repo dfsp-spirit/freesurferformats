@@ -24,7 +24,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) and meshes in VTK ASCII format (`.vtk` files) is also supported. Additionally, meshes can be exported in the following formats: Stanford triangle format (.ply), Wavefront object format (.obj), and Object File Format (.off).
 
-* FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. This format can be read and written.
+* FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. Volume labels are also supported. This format can be read and written.
 
 * FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and RGBA color values to a set of structures (typically brain regions). LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
 
