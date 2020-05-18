@@ -75,7 +75,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
 
         label_names = rep("", length(labels))
         hex_colors_rgb = rep("#333333", length(labels))
-        nempty = 1;  # There could be more than 1 empty region, and we cannot match all of them to the same name. Ususally there should not be any labels with empty name though.
+        nempty = 1L;  # There could be more than 1 empty region, and we cannot match all of them to the same name. Ususally there should not be any labels with empty name though.
         for (i in 1:length(colortable$struct_names)) {
           label_code = code[i];
           label_name = colortable$struct_names[i];
@@ -83,7 +83,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
           if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
             warning(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
             label_name = paste(empty_label_name, nempty, sep="");
-            nempty = nempty + 1;
+            nempty = nempty + 1L;
           }
           label_names[labels==label_code] = label_name;
           hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
@@ -304,5 +304,140 @@ colortable.from.annot <- function(annot, compute_colorcode=FALSE) {
   }
   return(invisible(colortable));
 }
+
+
+#' @title Read an annotation or label in GIFTI format.
+#'
+#' @param filepath string. Full path to the input label file in GIFTI format.
+#'
+#' @param element_index positive integer, the index of the dataarray to return. Ignored unless the file contains several dataarrays.
+#'
+#' @param labels_only logical, whether to ignore the colortable and region names. The returned annotation will only contain the a vector that contains one integer label per vertex (as entry 'label_codes'), but no region names and colortable information.
+#'
+#' @param rgb_column_names vector of exactly 4 character strings, order is important. The column names for the red, green, blue and alpha channels in the lable table. If a column does not exist, pass NA. If you do not know the column names, just call the function, it will print them. See 'labels_only' if you do not care.
+#'
+#' @param key_column_name character string, the column name for the key column in the lable table. This is the column that holds the label value from the raw vector (see 'labels_only') that links a label value to a row in the label table. Without it, one cannot recostruct the region name and color of an entry. Passing NA has the same effect as setting 'labels_only' to TRUE.
+#'
+#' @inheritParams read.fs.annot
+#'
+#' @export
+#' @importFrom xml2 xml_find_all read_xml xml_text
+read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb_column_names = c('Red', 'Green', 'Blue', 'Alpha'), key_column_name = 'Key', empty_label_name="unknown") {
+
+  if(length(rgb_column_names) != 4L) {
+    stop("Parameter 'rgb_column_names' must have length 4. Hint: Pass NA for values which are not available.");
+  }
+
+  if (requireNamespace("gifti", quietly = TRUE)) {
+    gii = gifti::read_gifti(filepath);
+    intent = gii$data_info$Intent[[element_index]];
+    if(intent != 'NIFTI_INTENT_LABEL') {
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));
+    }
+    if(is.null(gii$label)) {
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));
+    } else {
+
+      label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
+      if(gii$data_info$Dimensionality != 1L) {
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));
+      }
+
+      labels = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
+
+      return_list = list("vertices" = seq.int(length(labels)), "label_codes" = labels, "metadata"=list());
+      class(return_list) = c("fs.annot", class(return_list));
+
+      if(labels_only | is.na(key_column_name)) {
+        return(return_list);
+      }
+
+      num_regions_in_annot = nrow(gii$label);
+      colortable_raw = as.data.frame(gii$label, stringsAsFactors = FALSE);
+      colortable = list();
+      colortable$table = matrix(rep(0.0, num_regions_in_annot * 5L), ncol = 5L);
+      colnames(colortable$table) = c('r', 'g', 'b', 'a', 'code');
+
+      missing_columns = c();
+      colortable_column_index=1L;
+      for(coln in rgb_column_names) {
+        if(! is.na(coln)) {
+          if(coln %in% colnames(colortable_raw)) {
+            colortable$table[,colortable_column_index] = as.double(colortable_raw[[coln]]);
+          } else {
+            missing_columns = c(missing_columns, coln);
+          }
+        }
+        colortable_column_index = colortable_column_index + 1L;
+      }
+
+      if(length(missing_columns) > 0L) {
+        warning(sprintf("Gifti annotation/label is missing expected colortable columns: '%s' (available columns: '%s'). Fix parameter 'rgb_column_names'.\n", paste(missing_columns, collapse = ", "), paste(colnames(colortable_raw), collapse = ", ")));
+      }
+
+      # Get the struct_names manually, the gifti package does not provide them.
+      xml = xml2::read_xml(filepath);
+      label_nodes = xml2::xml_find_all(xml, './/Label');
+      colortable$struct_names = xml2::xml_text(label_nodes);
+
+      if(key_column_name %in% colnames(colortable_raw)) {
+        colortable$table[,5] = as.integer(colortable_raw[[key_column_name]]);
+      } else {
+        # Print the contents of the file to help the user fix the parameters.
+        # Different software packages may have different names for the key column, and there is no way
+        # to tell automatically which one it is. Therefore, we print all columns here, so the user
+        # can identify a suitable one (if any).
+        # We could do some wild guessing (like try the first integer column), but I don't like that idea too much.
+        print("Label table cdata (region names for the rows below):");
+        print(colortable$struct_names);
+        print("Label table attribute columns:");
+        print(colortable_raw);
+        stop(sprintf("Specified key column '%s' does not exist in lable table attribute columns (available columns: '%s'). Fix parameter 'key_column_name'.\n", key_column_name, paste(colnames(colortable_raw), collapse = ", ")));
+      }
+
+      r = colortable$table[,1];
+      g = colortable$table[,2];
+      b = colortable$table[,3];
+      a = colortable$table[,4];
+      code = colortable$table[,5];
+      if(max(r) > 1.1) { # colors are in range 0-255
+        hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
+        hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
+      } else { # colors are in range 0-1
+        hex_color_string_rgb = grDevices::rgb(r, g, b);
+        hex_color_string_rgba = grDevices::rgb(r, g, b, a);
+      }
+
+      colortable_df = data.frame(colortable$struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba, stringsAsFactors = FALSE);
+      colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
+
+      return_list$colortable = colortable;
+      return_list$colortable_df = colortable_df;
+
+      label_names = rep("", length(labels));
+      hex_colors_rgb = rep("#333333", length(labels));
+      nempty = 1L;  # There could be more than 1 empty region, and we cannot match all of them to the same name. Ususally there should not be any labels with empty name though.
+      for (i in 1:length(colortable$struct_names)) {
+        label_code = code[i];
+        label_name = colortable$struct_names[i];
+        hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
+        if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
+          warning(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
+          label_name = paste(empty_label_name, nempty, sep="");
+          nempty = nempty + 1L;
+        }
+        label_names[labels==label_code] = label_name;
+        hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
+      }
+      return_list$label_names = label_names;
+      return_list$hex_colors_rgb = hex_colors_rgb;
+      return(return_list);
+    }
+
+  } else {
+    stop("The 'gifti' package must be installed to use this functionality.");
+  }
+}
+
 
 
