@@ -156,7 +156,7 @@ read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
       # all vertices which are part of the label. Reading them as a label in the FreeSurfer sense potentially means losing
       # information (if they contain more than 2 region types). If they only contain positive/negative labels, it is fine.
       num_regions_in_annot = nrow(gii$label);
-      return(which(annot_data == label_value))
+      return(which(annot_data == label_value));
     }
 
   } else {
@@ -165,8 +165,27 @@ read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
 
 }
 
+
+#' @title Read an annotation or label in GIFTI format.
+#'
+#' @param filepath string. Full path to the input label file.
+#'
+#' @param element_index positive integer, the index of the dataarray to return. Ignored unless the file contains several dataarrays.
+#'
+#' @param data_only logical, whether to ignore the colortable and region names, and only return the raw vector that contains one integer label per vertex.
+#'
+#' @param rgb_column_names vector of exactly 4 character strings, order is important. The column names for the red, green, blue and alpha channels in the lable table. If a column does not exist, pass NA. If you do not know the column names, just call the function, it will print them. See 'data_only' if you do not care.
+#'
+#' @param key_column_name character string, the column name for the key column in the lable table. This is the column that holds the label value from the raw vector (see 'data_only') that links a label value to a row in the label table. Without it, one cannot recostruct the region name and color of an entry. Passing NA has the same effect as setting 'data_only' to TRUE.
+#'
 #' @export
-read.fs.annot.gii <- function(filepath, element_index=1L) {
+#' @importFrom xml2 xml_find_all read_xml xml_text
+read.fs.annot.gii <- function(filepath, element_index=1L, data_only=FALSE, rgb_column_names = c('Red', 'Green', 'Blue', 'Alpha'), key_column_name = 'Key') {
+
+  if(length(rgb_column_names) != 4L) {
+    stop("Parameter 'rgb_column_names' must have length 4. Hint: Pass NA for values which are not available.");
+  }
+
   if (requireNamespace("gifti", quietly = TRUE)) {
     gii = gifti::read_gifti(filepath);
     intent = gii$data_info$Intent[[element_index]];
@@ -183,6 +202,9 @@ read.fs.annot.gii <- function(filepath, element_index=1L) {
       }
 
       annot_data = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
+      if(data_only | is.na(key_column_name)) {
+        return(annot_data);
+      }
 
       # Note: gifti labels seem to be more like a mask or an annotation: they assign a value to each vertex of the surface instead of listing
       # all vertices which are part of the label. Reading them as a label in the FreeSurfer sense potentially means losing
@@ -191,11 +213,39 @@ read.fs.annot.gii <- function(filepath, element_index=1L) {
       colortable_raw = as.data.frame(gii$label, stringsAsFactors = FALSE);
       colortable = matrix(rep(0.0, num_regions_in_annot * 5L), ncol = 5L);
       colnames(colortable) = c('r', 'g', 'b', 'a', 'code');
-      if('Red' %in% colnames(colortable_raw)) { colortable[,1] = as.double(colortable_raw$Red); }
-      if('Green' %in% colnames(colortable_raw)) { colortable[,2] = as.double(colortable_raw$Green); }
-      if('Blue' %in% colnames(colortable_raw)) { colortable[,3] = as.double(colortable_raw$Blue); }
-      if('Alpha' %in% colnames(colortable_raw)) { colortable[,4] = as.double(colortable_raw$Alpha); }
-      if('Key' %in% colnames(colortable_raw)) { colortable[,5] = as.double(colortable_raw$Key); }
+
+      missing_columns = c();
+      colortable_column_index=1L;
+      for(coln in rgb_column_names) {
+        if(! is.na(coln)) {
+          if(coln %in% colnames(colortable_raw)) {
+            colortable[,colortable_column_index] = as.double(colortable_raw[[coln]]);
+          } else {
+            missing_columns = c(missing_columns, coln);
+          }
+        }
+        colortable_column_index = colortable_column_index + 1L;
+      }
+
+      if(length(missing_columns) > 0L) {
+        warning(sprintf("Gifti annotation/label is missing expected colortable columns: '%s' (available columns: '%s'). Fix parameter 'rgb_column_names'.\n", paste(missing_columns, collapse = ", "), paste(colnames(colortable_raw), collapse = ", ")));
+      }
+
+      # Get the struct_names manually, the gifti package does not provide them.
+      xml = xml2::read_xml(filepath);
+      label_nodes = xml2::xml_find_all(xml, './/Label');
+      struct_names = xml2::xml_text(label_nodes);
+
+      if(key_column_name %in% colnames(colortable_raw)) {
+        colortable[,5] = as.integer(colortable_raw[[key_column_name]]);
+      } else {
+        print("Label table cdata (region names):");
+        print(struct_names);
+        print("Label table attribute columns:");
+        print(colortable_raw);
+        stop(sprintf("Specified key column '%s' does not exist in lable table attribute columns (available columns: '%s'). Fix parameter 'key_column_name'.\n", key_column_name, paste(colnames(colortable_raw), collapse = ", ")));
+      }
+
       r = colortable[,1];
       g = colortable[,2];
       b = colortable[,3];
@@ -209,10 +259,7 @@ read.fs.annot.gii <- function(filepath, element_index=1L) {
         hex_color_string_rgba = grDevices::rgb(r, g, b, a);
       }
 
-      # Get the struct_names, the gifti package does not provide them.
-      xml = xml2::read_xml(filepath);
-      label_nodes = xml2::xml_find_all(xml, './/Label');
-      struct_names = xml2::xml_text(label_nodes);
+
 
       colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba, stringsAsFactors = FALSE);
       colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");

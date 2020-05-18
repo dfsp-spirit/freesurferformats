@@ -21,7 +21,7 @@ Read a brain surface mesh consisting of vertex and face data from a file in Free
     surface_file = system.file("extdata", "lh.tinysurface",
                             package = "freesurferformats", mustWork = TRUE);
     mesh = read.fs.surface(surface_file);
-    cat(sprintf("Read data for \%d vertices and \%d faces. \\n",
+    cat(sprintf("Read data for \%d vertices and \%d faces. \n",
                             nrow(mesh$vertices), nrow(mesh$faces)));
 
 }
