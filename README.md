@@ -16,7 +16,7 @@ This low-level package provides file format readers for [FreeSurfer](http://free
 
 You do **not** need to have FreeSurfer installed to use this package. It implements its own readers and writers for the following file formats:
 
-* MGH/MGZ: FreeSurfer 4-dimensional brain images or arbitrary other data. Typically a single 3D brain MRI scan or a time series of scans, or morphometry data for brain surfaces. The format is named after the Massachusetts General Hospital, and the specs are given (rather implicitely) [here in the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat). MGZ is just a gzipped version of MGH. An example file from the *recon-all* output for a subject would be `mri/T1.mgz` (containing a 3D brain volume), but also `surf/lh.area.fwhm15.fsaverage.mgh` (containing surface data mapped to standard space). This format can be read and written. Reading and writing header data is also supported, and the ras2vox matrix is computed from the header, allowing for the proper orientation of the voxel data in different spaces.
+* MGH/MGZ: FreeSurfer 4-dimensional brain images or arbitrary other data. Typically a single 3D brain MRI scan or a time series of scans, or morphometry data for brain surfaces. The format is named after the Massachusetts General Hospital, and the specs are given (rather implicitely) [here in the FreeSurfer wiki](https://surfer.nmr.mgh.harvard.edu/fswiki/FsTutorial/MghFormat). MGZ is just a gzipped version of MGH. An example file from the *recon-all* output for a subject would be `mri/T1.mgz` (containing a 3D brain volume), but also `surf/lh.area.fwhm15.fsaverage.mgh` (containing surface data mapped to standard space). This format can be read and written. Reading and writing header data is also supported, and transforms like the ras2vox matrix can be computed from the header, allowing for the proper orientation of the voxel data in different spaces.
 
 * FreeSurfer *curv* format: Morphometry data for a brain surface, one scalar per vertex. Could be the thickness or area of the cerebral cortex at each mesh vertex. Two versions of this format exist, an ASCII version and a binary version (the only one that is used in current FreeSurfer versions). An example file would be `surf/lh.area`. Both versions of this format can be read and written.
 
@@ -28,11 +28,13 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and RGBA color values to a set of structures (typically brain regions). LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
 
-* FreeSurfer *weight* file format: Contains one value per listed vertex. In contrast to curv files, weight files contain values not for all vertices of a surface, but only for a (sub)set of vertices defined by their indices. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
+* FreeSurfer *weight* file format: Contains one value per listed vertex. In contrast to curv files, weight files contain values not for all vertices of a surface, but only for a subset of vertices defined by their indices. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
 
 * FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
 
-The list reflects the development version.
+* NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance (including computation of transformation matrices from the NIFTI header q-form/s-form), so NIFTI volumes can be used just like MGH/MGZ volumes.
+
+* GIFTI: Reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, and labels/annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for different kinds of neuroimaging data.
 
 
 ## Installation
