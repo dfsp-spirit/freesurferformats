@@ -32,5 +32,11 @@ Other morphometry functions:
 \code{\link{write.fs.mgh}()},
 \code{\link{write.fs.morph}()},
 \code{\link{write.fs.weight}()}
+
+Other gifti writers: 
+\code{\link{write.fs.annot.gii}()},
+\code{\link{write.fs.label.gii}()},
+\code{\link{write.fs.surface.gii}()}
 }
+\concept{gifti writers}
 \concept{morphometry functions}

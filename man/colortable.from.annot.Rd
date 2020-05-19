@@ -29,6 +29,7 @@ Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also 
 Other atlas functions: 
 \code{\link{read.fs.annot}()},
 \code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot.gii}()},
 \code{\link{write.fs.annot}()},
 \code{\link{write.fs.colortable}()}
 

@@ -123,10 +123,10 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
     fh = file(filepath, "wb", blocking = TRUE);
   }
 
-  vertices = seq(0, num_vertices -1);
+  vertices = seq(0L, num_vertices -1L);
   verts_and_labels = as.integer(c(rbind(vertices, labels)));  # indices and label codes are writting in alternating style (vert0, label1, ver1, label1, vert2, ...)
 
-  if(length(verts_and_labels) != (num_vertices * 2)) {
+  if(length(verts_and_labels) != (num_vertices * 2L)) {
     stop(sprintf("Incorrect length of verts_and_labels: expected %d, found %d.\n", (num_vertices * 2), length(verts_and_labels)));
   }
 
@@ -170,3 +170,44 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 }
 
 
+
+#' Write annotation to GIFTI file.
+#'
+#' @description Write an annotation to a GIFTI XML file.
+#'
+#' @param filepath string, path to the output file.
+#'
+#' @param annot fs.annot instance, an annotation.
+#'
+#' @examples
+#' \donttest{
+#'    # Load annotation
+#'    annot_file = system.file("extdata", "lh.aparc.annot.gz",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'    annot = read.fs.annot(annot_file);
+#'
+#'    # New method: write the annotation instance:
+#'    write.fs.annot.gii(tempfile(fileext=".annot"), annot);
+#'
+#' }
+#'
+#' @family atlas functions
+#' @family gifti writers
+#' @export
+write.fs.annot.gii <- function(filepath, annot) {
+
+  if( ! is.fs.annot(annot)) {
+    stop("Parameter 'annot' must be an fs.annot instance.");
+  }
+
+  if(! is.character(filepath)) {
+    stop("Paramater 'filepath' must be a character string.");
+  }
+
+  label = annot$label_codes;
+  xmltree = gifti_xml(list(label), intent='NIFTI_INTENT_LABEL', datatype='NIFTI_TYPE_INT32');
+  xmltree = giftixml_add_labeltable_from_annot(xmltree, annot);
+  gifti_xml_write(filepath, xmltree);
+  return(invisible(NULL));
+}

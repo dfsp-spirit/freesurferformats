@@ -452,6 +452,7 @@ is.fs.surface <- function(x) inherits(x, "fs.surface")
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @family mesh functions
+#' @family gifti readers
 #'
 #' @export
 read.fs.surface.gii <- function(filepath) {

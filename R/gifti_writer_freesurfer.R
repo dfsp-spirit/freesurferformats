@@ -13,6 +13,7 @@
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
 #' @family mesh functions
+#' @family gifti writers
 #'
 #' @examples
 #' \donttest{

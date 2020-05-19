@@ -99,6 +99,7 @@ write.fs.morph <- function(filepath, data, format='auto', ...) {
 #' @return format, string. The format that was used to write the data: "gii".
 #'
 #' @family morphometry functions
+#' @family gifti writers
 #'
 #' @export
 write.fs.morph.gii <- function(filepath, data) {

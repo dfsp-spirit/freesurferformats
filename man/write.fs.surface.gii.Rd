@@ -43,5 +43,11 @@ Other mesh functions:
 \code{\link{write.fs.surface.asc}()},
 \code{\link{write.fs.surface.vtk}()},
 \code{\link{write.fs.surface}()}
+
+Other gifti writers: 
+\code{\link{write.fs.annot.gii}()},
+\code{\link{write.fs.label.gii}()},
+\code{\link{write.fs.morph.gii}()}
 }
+\concept{gifti writers}
 \concept{mesh functions}

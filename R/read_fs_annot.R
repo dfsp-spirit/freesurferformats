@@ -320,6 +320,8 @@ colortable.from.annot <- function(annot, compute_colorcode=FALSE) {
 #'
 #' @inheritParams read.fs.annot
 #'
+#' @family gifti readers
+#'
 #' @export
 #' @importFrom xml2 xml_find_all read_xml xml_text
 read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb_column_names = c('Red', 'Green', 'Blue', 'Alpha'), key_column_name = 'Key', empty_label_name="unknown") {

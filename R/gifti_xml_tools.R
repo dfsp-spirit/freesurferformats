@@ -122,10 +122,49 @@ xml_node_gifti_label_table <- function(attributes=list()) {
 #' @keywords internal
 giftixml_add_labeltable_posneg <- function(xmltree) {
   label_table_node = xml_node_gifti_label_table();
-  neg_node = xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L)));
-  pos_node = xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L)));
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L)));
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L)));
   xml2::xml_add_child(xmltree, label_table_node);
   return(xmltree);
+}
+
+
+#' @title Add a label tabel from an annotation to a GIFTI XML tree.
+#'
+#' @description Computes the LabelTable XML node for the given annotation and adds it to the XML tree.
+#'
+#' @param xmltree an XML tree from xml2, typically the return value from \code{\link[freesurferformats]{gifti_xml}}.
+#'
+#' @param annot an fs.annotation, the included data will be used to compute the LabelTable node
+#'
+#' @return XML tree from xml2, the modified tree with the LabelTable added below the root node.
+#'
+#' @importFrom xml2 xml_add_child
+#' @keywords internal
+giftixml_add_labeltable_from_annot <- function(xmltree, annot) {
+  label_table_node = xml_node_gifti_label_table_from_annot(annot);
+  xml2::xml_add_child(xmltree, label_table_node);
+  return(xmltree);
+}
+
+
+#' @title Compute LabelTable node from annotation.
+#'
+#' @param annot an fs.annotation, the included data will be used to compute the LabelTable node
+#'
+#' @return XML tree from xml2, the LabelTable and its child nodes
+#'
+#' @importFrom xml2 xml_add_child
+#' @keywords internal
+xml_node_gifti_label_table_from_annot <- function(annot) {
+  label_table_node = xml_node_gifti_label_table();
+  if(! is.null(annot$colortable_df)) {
+    for(row_idx in seq.int(nrow(annot$colortable_df))) {
+      sr = annot$colortable_df[row_idx, ];
+      xml2::xml_add_child(label_table_node, xml_node_gifti_label(sr$struct_name, attributes=list('Red'=sr$r, 'Green'=sr$g, 'Blue'=sr$b, 'Alpha'=sr$a, 'Key'=sr$code)));
+    }
+  }
+  return(label_table_node);
 }
 
 

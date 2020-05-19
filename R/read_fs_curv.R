@@ -160,6 +160,7 @@ read.fs.morph <- function(filepath, format='auto') {
 #' @note This function requires the `gifti` package, which is an optional dependency, to be installed. It also assumes that the dataset contains a vector or a matrix/array in which all dimensions except for 1 are empty.
 #'
 #' @family morphometry functions
+#' @family gifti readers
 #'
 #' @export
 read.fs.morph.gii <- function(filepath, element_index=1L) {

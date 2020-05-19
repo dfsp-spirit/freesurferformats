@@ -51,6 +51,7 @@ Other atlas functions:
 \code{\link{colortable.from.annot}()},
 \code{\link{read.fs.annot}()},
 \code{\link{read.fs.colortable}()},
+\code{\link{write.fs.annot.gii}()},
 \code{\link{write.fs.colortable}()}
 }
 \concept{atlas functions}

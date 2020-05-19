@@ -114,18 +114,19 @@ is.fs.label <- function(x) inherits(x, "fs.label")
 #'
 #' @param filepath string. Full path to the input label file.
 #'
-#' @param label_value integer, the label value of interest to extract from the annotation.
+#' @param label_value integer, the label value of interest to extract from the annotation: the indices of the vertices with this value will be returned. See the note for details.. It is important to set this correctly, otherwise you may accidently load the vertices which are *not* part of the label.
 #'
-#' @param element_index positive integer, the index of the dataarray to return. Ignored unless the file contains several dataarrays.
+#' @param element_index positive integer, the index of the data array to return. Ignored unless the file contains several data arrays.
 #'
 #' @return integer vector,  the vertex indices of the label
 #'
-#' @note A gifti label is more like a FreeSurfer annotation, as it assigns a label integer (region code) to each vertex instead of listing a set of vertex indices. It is recommended to read it with \code{\link[freesurferformats]{read.fs.annot.gii}} instead. This function extracts one of the regions from the annotation as a label.
+#' @note A GIFTI label is more like a FreeSurfer annotation, as it assigns a label integer (region code) to each vertex of the surface instead of listing only the set of 'positive' vertex indices. If you are not sure about the contents of the label file, it is recommended to read it with \code{\link[freesurferformats]{read.fs.annot.gii}} instead. The `read.fs.label.gii` function only extracts one of the regions from the annotation as a label, while \code{\link[freesurferformats]{read.fs.annot.gii}} reads the whole annotation and gives you access to the label table, which should assign region names to each region, making it clearer which 'label_value' you want.
 #'
 #' @family label functions
+#' @family gifti readers
 #'
 #' @export
-read.fs.label.gii <- function(filepath, label_value, element_index=1L) {
+read.fs.label.gii <- function(filepath, label_value=1L, element_index=1L) {
 
   if( ! is.integer(label_value)) {
     if(is.numeric(label_value) | is.logical(label_value)) {

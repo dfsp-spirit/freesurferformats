@@ -101,6 +101,7 @@ write.fs.label <- function(filepath, vertex_indices, vertex_coords=NULL, vertex_
 #' @return format, string. The format that was used to write the data: "gii".
 #'
 #' @family morphometry functions
+#' @family gifti writers
 #'
 #' @examples
 #'   label = c(1L, 23L, 44L); # the positive vertex indices
