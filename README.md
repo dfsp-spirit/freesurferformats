@@ -34,7 +34,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance (including computation of transformation matrices from the NIFTI header q-form/s-form), so NIFTI volumes can be used just like MGH/MGZ volumes.
 
-* GIFTI: Reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, and labels/annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for different kinds of neuroimaging data.
+* GIFTI: Reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
 
 
 ## Installation
@@ -48,6 +48,20 @@ install.packages("freesurferformats")
 
 [![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
+### System dependencies
+
+A *system dependency* is a **non-R** software that is needed for the installation of a package. System dependencies cannot be installed automatically using the R package system, so you need to install them manually or using the package manager of your operating system.
+
+If you install R packages from source (the default under Linux) and want support for the GIFTI XML file format, you will need `libxml2-dev`. If you do not have it installed already, before installing *freesurferformats*, run the following command in your system shell (not in R):
+
+* for deb-based Linux distributions (Debian, Ubuntu, ...):
+```shell
+sudo apt-get install libxml2-dev
+```
+* for rpm-based Linux distributions (Fedora, CentOS, RHEL, ...):
+```shell
+sudo yum install libxml2-devel
+```
 
 ## Documentation
 
