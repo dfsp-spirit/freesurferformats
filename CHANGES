@@ -1,6 +1,13 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.11
+--------------
+- add support for reading GIFTI format labels
+- add support for reading GIFTI format annotations
+- add support for writing GIFTI format labels
+- add support for writing GIFTI format annotations
+
 
 Version 0.1.10
 --------------
