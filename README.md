@@ -48,6 +48,8 @@ install.packages("freesurferformats")
 
 [![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
+In case something goes wrong, don't worry. Just install the missing [system dependencies](#system-dependencies) and retry.
+
 ### System dependencies
 
 A *system dependency* is a **non-R** software that is needed for the installation of a package. System dependencies cannot be installed automatically using the R package system, so you need to install them manually or using the package manager of your operating system.
