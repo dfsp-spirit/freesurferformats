@@ -7,6 +7,7 @@ Version 0.1.11
 - add support for reading GIFTI format annotations
 - add support for writing GIFTI format labels
 - add support for writing GIFTI format annotations
+- export rotate2D and flip2D to namespace
 
 
 Version 0.1.10
