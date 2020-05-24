@@ -186,7 +186,8 @@ readcolortable <- function(fh, ctable_num_entries) {
     ctab_orig_dev_filename_length = readBin(fh, integer(), n = 1, endian = "big");
 
     # Orginial filename of the colortable file that was used to create the atlas colortable (on the dev machine).
-    ctab_orig_dev_filename = readChar(fh, ctab_orig_dev_filename_length);
+    #ctab_orig_dev_filename = readChar(fh, ctab_orig_dev_filename_length);
+    seek(fh, where=ctab_orig_dev_filename_length, origin='current');
 
     colortable$struct_names = rep("", ctable_num_entries);
     colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
