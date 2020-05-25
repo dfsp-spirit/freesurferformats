@@ -143,14 +143,17 @@ readcolortable_oldformat <- function(fh, ctable_num_entries) {
   colortable <- list("num_entries" = ctable_num_entries);
 
   num_chars_dev_filepath = readBin(fh, integer(), n = 1, endian = "big");
-  dev_filepath = readChar(fh, num_chars_dev_filepath);
+  #dev_filepath = readChar(fh, num_chars_dev_filepath);
+  seek(fh, where=num_chars_dev_filepath, origin='current'); # not needed, so we skip it to avoid warnings about NULL bytes.
 
   colortable$struct_names = rep("", ctable_num_entries);
   colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
 
   for (i in 1:ctable_num_entries) {
     num_chars_struct_name = readBin(fh, integer(), n = 1, endian = "big");
-    struct_name = readChar(fh, num_chars_struct_name);
+
+    struct_name = suppressWarnings(readChar(fh, num_chars_struct_name));  # Supress warning about included and ignroed NULL byte.
+
     colortable$struct_names[i] = struct_name;
     r = readBin(fh, integer(), n = 1, endian = "big");   # red channel of color
     g = readBin(fh, integer(), n = 1, endian = "big");   # green channel of color
@@ -187,7 +190,7 @@ readcolortable <- function(fh, ctable_num_entries) {
 
     # Orginial filename of the colortable file that was used to create the atlas colortable (on the dev machine).
     #ctab_orig_dev_filename = readChar(fh, ctab_orig_dev_filename_length);
-    seek(fh, where=ctab_orig_dev_filename_length, origin='current');
+    seek(fh, where=ctab_orig_dev_filename_length, origin='current'); # not needed, so we skip it to avoid warnings about NULL bytes.
 
     colortable$struct_names = rep("", ctable_num_entries);
     colortable$table = matrix(0, nrow = ctable_num_entries, ncol = 5);
@@ -213,7 +216,8 @@ readcolortable <- function(fh, ctable_num_entries) {
         }
         entry_num_chars = readBin(fh, integer(), n = 1, endian = "big");
 
-        brain_structure_name = readChar(fh, entry_num_chars);
+        brain_structure_name = suppressWarnings(readChar(fh, entry_num_chars));
+
         colortable$struct_names[i] = brain_structure_name;
 
         r = readBin(fh, integer(), n = 1, endian = "big");   # red channel of color

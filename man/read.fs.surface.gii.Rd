@@ -27,5 +27,11 @@ Other mesh functions:
 \code{\link{write.fs.surface.gii}()},
 \code{\link{write.fs.surface.vtk}()},
 \code{\link{write.fs.surface}()}
+
+Other gifti readers: 
+\code{\link{read.fs.annot.gii}()},
+\code{\link{read.fs.label.gii}()},
+\code{\link{read.fs.morph.gii}()}
 }
+\concept{gifti readers}
 \concept{mesh functions}

@@ -29,3 +29,10 @@ read.fs.annot.gii(
 \description{
 Read an annotation or label in GIFTI format.
 }
+\seealso{
+Other gifti readers: 
+\code{\link{read.fs.label.gii}()},
+\code{\link{read.fs.morph.gii}()},
+\code{\link{read.fs.surface.gii}()}
+}
+\concept{gifti readers}

@@ -7,12 +7,12 @@
 write.fs.annot.gii(filepath, annot)
 }
 \arguments{
-\item{filepath}{string, path to the output file}
+\item{filepath}{string, path to the output file.}
 
-\item{annot}{fs.annot instance, an annotation}
+\item{annot}{fs.annot instance, an annotation.}
 }
 \description{
-Write an annotation to a GIFTI file.
+Write an annotation to a GIFTI XML file.
 }
 \examples{
 \donttest{

@@ -26,5 +26,11 @@ A GIFTI label is more like a FreeSurfer annotation, as it assigns a label intege
 Other label functions: 
 \code{\link{read.fs.label}()},
 \code{\link{write.fs.label}()}
+
+Other gifti readers: 
+\code{\link{read.fs.annot.gii}()},
+\code{\link{read.fs.morph.gii}()},
+\code{\link{read.fs.surface.gii}()}
 }
+\concept{gifti readers}
 \concept{label functions}
