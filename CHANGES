@@ -8,6 +8,7 @@ Version 0.1.11
 - add support for writing GIFTI format labels
 - add support for writing GIFTI format annotations
 - export rotate2D and flip2D to namespace
+- add support for reading transformation matrices from xfm files: read.fs.transform
 
 
 Version 0.1.10
