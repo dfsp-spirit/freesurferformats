@@ -30,6 +30,7 @@ Other header coordinate space:
 \code{\link{mghheader.scanner2tkreg}()},
 \code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{mghheader.vox2ras}()}
+\code{\link{mghheader.vox2ras}()},
+\code{\link{read.fs.transform}()}
 }
 \concept{header coordinate space}
