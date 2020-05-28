@@ -1,6 +1,11 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.12
+--------------
+- export readable.files function
+
+
 Version 0.1.11
 --------------
 - add support for reading GIFTI format labels
