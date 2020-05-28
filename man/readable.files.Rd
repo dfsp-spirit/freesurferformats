@@ -21,9 +21,8 @@ readable.files(
 \item{return_all}{logical, whether to return all readable files instead of just the first one}
 }
 \value{
-character string, the path to the first existing file (or NULL if none of them exists).
+character string, the path to the first existing file (or `NULL` if none of them exists).
 }
 \description{
 Note that in the current implementation, the case of the filepath and the extension must match.
 }
-\keyword{internal}
