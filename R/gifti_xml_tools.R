@@ -99,6 +99,60 @@ xml_node_gifti_label <- function(value, attributes=list(), as_cdata=TRUE) {
 }
 
 
+#' @title Create XML GIFTI CoordinateSystemTransformMatrix node.
+#'
+#' @param transform_matrix numerical 4x4 matrix, the transformation matrix from 'data_space' to 'transformed_space'.
+#'
+#' @param data_space character string, the space used by the data before transformation.
+#'
+#' @param transformed_space character string, the space reached after application of the transformation matrix.
+#'
+#' @param as_cdata logical, whether to wrap text attributes ('data_space' and 'transformed_space') in cdata tags.
+#'
+#' @return XML node from xml2
+#'
+#' @importFrom xml2 read_xml xml_set_attrs
+#' @export
+# @keywords internal
+xml_node_gifti_coordtransform <- function(transform_matrix, data_space='NIFTI_XFORM_UNKNOWN', transformed_space='NIFTI_XFORM_UNKNOWN', as_cdata=TRUE) {
+  if(! is.character(data_space)) {
+    stop("Parameter 'data_space' must be a character string.");
+  }
+  if(! is.character(transformed_space)) {
+    stop("Parameter 'transformed_space' must be a character string.");
+  }
+  if(! is.matrix(transform_matrix)) {
+    stop("Parameter 'transform_matrix' must be a numerical matrix.");
+  }
+  if(! (ncol(transform_matrix) == 4L & nrow(transform_matrix) == 4L)) {
+    stop("Parameter 'transform_matrix' must be a numerical 4x4 matrix.");
+  }
+  if(as_cdata) {
+    data_space = cdata(data_space);
+    transformed_space = cdata(transformed_space);
+  }
+
+  r1 = paste(sprintf("%f", transform_matrix[1, ]), collapse = ' ');
+  r2 = paste(sprintf("%f", transform_matrix[2, ]), collapse = ' ');
+  r3 = paste(sprintf("%f", transform_matrix[3, ]), collapse = ' ');
+  r4 = paste(sprintf("%f", transform_matrix[4, ]), collapse = ' ');
+  matrix_data_formatted = paste(r1, r2, r3, r4, sep='\n');
+  matrix_data_formatted = sprintf("\n%s\n", matrix_data_formatted); # start and end in fresh rows.
+
+  matrix_node = xml2::read_xml('<CoordinateSystemTransformMatrix/>');
+  data_space_node = xml2::read_xml(paste('<DataSpace>', data_space, '</DataSpace>', sep=''));
+  transformed_space_node = xml2::read_xml(paste('<TransformedSpace>', transformed_space, '</TransformedSpace>', sep=''));
+  matrix_data_node = xml2::read_xml(paste('<MatrixData>', matrix_data_formatted, '</MatrixData>', sep=''));
+
+  xml2::xml_add_child(matrix_node, data_space_node);
+  xml2::xml_add_child(matrix_node, transformed_space_node);
+  xml2::xml_add_child(matrix_node, matrix_data_node);
+
+  return(matrix_node);
+}
+
+
+
 #' @title Create XML GIFTI LabelTable node.
 #'
 #' @return XML node from xml2
