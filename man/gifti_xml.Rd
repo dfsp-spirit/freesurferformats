@@ -10,6 +10,7 @@ gifti_xml(
   datatype = "NIFTI_TYPE_FLOAT32",
   encoding = "GZipBase64Binary",
   endian = "LittleEndian",
+  transform_matrix = NULL,
   force = FALSE
 )
 }
@@ -23,6 +24,8 @@ gifti_xml(
 \item{encoding}{vector of encoding definition strings. One of 'ASCII', 'Base64Binary', 'GZipBase64Binary'.}
 
 \item{endian}{vector of endian definition strings. One of 'LittleEndian' or 'BigEndian'. See \code{\link[gifti]{convert_endian}}.}
+
+\item{transform_matrix}{optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.}
 
 \item{force}{logical, whether to force writing the data, even if issues like a mismatch of datatype and data values are detected.}
 }
@@ -43,7 +46,8 @@ The example for \code{\link{gifti_xml_write}} shows how to modify the tree.
 
 #' @examples
   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-  xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
+  transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN'));
+  xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32', transform_matrix=transforms);
   # Verify that the tree is a valid GIFTI file:
   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
