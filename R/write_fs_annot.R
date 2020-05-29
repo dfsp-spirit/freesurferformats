@@ -192,6 +192,8 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 #'
 #' }
 #'
+#' @note This function does not write a GIFTI file that is valid according to the specification: it stores extra color data in the Label nodes, and there is more than one Label in the LabelTable node.
+#'
 #' @family atlas functions
 #' @family gifti writers
 #' @export

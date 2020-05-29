@@ -38,17 +38,18 @@ Creates a GIFTI XML tree from your datasets (vectors and matrices). The tree can
 \note{
 Unless you want to modify the returned tree manually, you should not need to call this function. Use \code{\link{gifti_writer}} instead.
 }
+\examples{
+  my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
+  transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN'));
+  xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32', transform_matrix=transforms);
+  # Verify that the tree is a valid GIFTI file:
+  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
+  xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
+
+}
 \references{
 \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
 }
 \seealso{
 The example for \code{\link{gifti_xml_write}} shows how to modify the tree.
-
-#' @examples
-  my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-  transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN'));
-  xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32', transform_matrix=transforms);
-  # Verify that the tree is a valid GIFTI file:
-  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
-  xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 }

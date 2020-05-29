@@ -176,8 +176,8 @@ xml_node_gifti_label_table <- function(attributes=list()) {
 #' @keywords internal
 giftixml_add_labeltable_posneg <- function(xmltree) {
   label_table_node = xml_node_gifti_label_table();
-  xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L)));
-  xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L)));
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L, 'Index'=0L)));
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L, 'Index'=1L)));
   xml2::xml_add_child(xmltree, label_table_node);
   return(xmltree);
 }
@@ -194,10 +194,11 @@ giftixml_add_labeltable_posneg <- function(xmltree) {
 #' @return XML tree from xml2, the modified tree with the LabelTable added below the root node.
 #'
 #' @importFrom xml2 xml_add_child
-#' @keywords internal
+# ' @keywords internal
+#' @export
 giftixml_add_labeltable_from_annot <- function(xmltree, annot) {
   label_table_node = xml_node_gifti_label_table_from_annot(annot);
-  xml2::xml_add_child(xmltree, label_table_node);
+  xml2::xml_add_child(xmltree, label_table_node, .where=1); # GIFTI spec requires ordered elements
   return(xmltree);
 }
 
@@ -215,7 +216,7 @@ xml_node_gifti_label_table_from_annot <- function(annot) {
   if(! is.null(annot$colortable_df)) {
     for(row_idx in seq.int(nrow(annot$colortable_df))) {
       sr = annot$colortable_df[row_idx, ];
-      xml2::xml_add_child(label_table_node, xml_node_gifti_label(sr$struct_name, attributes=list('Red'=sr$r, 'Green'=sr$g, 'Blue'=sr$b, 'Alpha'=sr$a, 'Key'=sr$code)));
+      xml2::xml_add_child(label_table_node, xml_node_gifti_label(sr$struct_name, attributes=list('Red'=sr$r, 'Green'=sr$g, 'Blue'=sr$b, 'Alpha'=sr$a, 'Key'=sr$code, 'Index'=sr$code)));
     }
   }
   return(label_table_node);

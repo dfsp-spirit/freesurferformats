@@ -17,4 +17,3 @@ XML tree from xml2, the modified tree with the LabelTable added below the root n
 \description{
 Computes the LabelTable XML node for the given annotation and adds it to the XML tree.
 }
-\keyword{internal}
