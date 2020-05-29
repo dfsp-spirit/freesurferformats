@@ -149,7 +149,6 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
       data_array_metadata = xml2::xml_add_child(data_array_node_added, xml2::read_xml("<MetaData></MetaData>"));
       encoded_data = gifti::data_encoder(da, encoding = encoding[da_index], datatype = datatype[da_index], endian = endian[da_index]);
       data_node = xml2::read_xml(sprintf("<Data>%s</Data>", encoded_data));
-      xml2::xml_add_child(data_array_node_added, data_node);
 
       if(num_transform_matrices > 0L) {
         if(is.list(transform_matrix[[da_index]])) {
@@ -159,6 +158,7 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
         }
       }
 
+      xml2::xml_add_child(data_array_node_added, data_node);
 
       da_index = da_index + 1L;
     }
