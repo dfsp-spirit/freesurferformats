@@ -5,12 +5,16 @@
 #'
 #' @param filepath, string. Full path to the output curv file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.
 #'
-#' @param data vector of floats. The brain morphometry data to write, one value per vertex.
+#' @param data vector of doubles. The brain morphometry data to write, one value per vertex.
 #'
 #' @family morphometry functions
 #'
 #' @export
 write.fs.curv <- function(filepath, data) {
+    if(! is.double(data)) {
+      warning("Parameter 'data' is not of type double, trying to coerce.");
+      data = as.double(data);
+    }
     MAGIC_FILE_TYPE_NUMBER = 16777215;
     num_verts = length(data);
     num_faces = length(data);   # Has no meaning.
