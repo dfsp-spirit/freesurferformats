@@ -465,3 +465,39 @@ read.fs.surface.gii <- function(filepath) {
     stop("Reading GIFTI format surface files requires the package 'gifti' to be installed.");
   }
 }
+
+
+#' @title Read surface mesh in mz3 format, used by Surf-Ice.
+#'
+#' @param filepath full path to surface mesh file in mz3 format.
+#'
+#' @references See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
+#'
+# https://github.com/neurolabusc/surf-ice/blob/master/mz3/mz3.py
+#'
+#' @export
+read.fs.surface.mz3 <- function(filepath) {
+  is_gzipped = FALSE;
+  fh = file(filepath, "rb");
+  magic = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+  if(magic != 23117L) {
+    close(fh);
+    fh = gzfile(filepath, "rb");
+    magic = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+    if(magic != 23117L) {
+      close(fh);
+      stop("File not in mz3 format");
+    }
+    is_gzipped = TRUE;
+  }
+  attr = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+  num_faces = magic = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+  num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+  num_skip = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+
+  cat(sprintf("m3z: %d %d %d %d %d. gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
+
+  close(fh);
+}
+
+
