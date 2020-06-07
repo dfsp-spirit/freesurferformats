@@ -495,7 +495,38 @@ read.fs.surface.mz3 <- function(filepath) {
   num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "little");
   num_skip = readBin(fh, integer(), size = 4, n = 1, endian = "little");
 
-  cat(sprintf("m3z: %d %d %d %d %d. gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
+  cat(sprintf("m3z: magic=%d attr=%d faces=%d vertices=%d skip=%d. is_gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
+
+  is_face = bitwAnd(attr, 1L) != 0L;
+  is_vert = bitwAnd(attr, 2L) != 0L;
+  is_rgba = bitwAnd(attr, 4L) != 0L;
+  is_scalar = bitwAnd(attr, 8L) != 0L;
+
+  cat(sprintf("m3z: face=%d vert=%d rgba=%d scalar=%d.\n", as.integer(is_face), as.integer(is_vert), as.integer(is_rgba), as.integer(is_scalar)));
+
+  if(attr > 15L) {
+    stop("Unsupported mz3 file version.");
+  }
+
+  if(num_vertices < 1L) {
+    stop("Mesh must contain at least one vertex.");
+  }
+  if(is_face) {
+    if(num_faces < 1L) {
+      stop("Must contain at least one face is faces is set.");
+    }
+  }
+
+  header_bytes = 16L; # these have already been read above.
+
+  if(num_skip > 0L) {
+    if(is_gzipped) {   # Cannot seek in a gzip stream
+      discarded = readBin(fh, integer(), n = num_skip, size = 1L);
+    } else {
+        seek(fh, where=num_skip, origin="current");
+    }
+  }
+
 
   close(fh);
 }

@@ -34,7 +34,7 @@ Read multi-dimensional brain imaging data from a file in FreeSurfer binary MGH o
                                package = "freesurferformats",
                                mustWork = TRUE);
     vd = read.fs.mgh(brain_image);
-    cat(sprintf("Read voxel data with dimensions \%s. Values: min=\%d, mean=\%f, max=\%d.\n",
+    cat(sprintf("Read voxel data with dimensions \%s. Values: min=\%d, mean=\%f, max=\%d.\\n",
                  paste(dim(vd), collapse = ' '), min(vd), mean(vd), max(vd)));
     # Read it again with full header data:
     vdh = read.fs.mgh(brain_image, with_header = TRUE);
