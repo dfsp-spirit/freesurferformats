@@ -506,6 +506,8 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #'
 #' @inheritParams write.fs.surface
 #'
+#' @param gzipped logical, whether to write a gzip compressed file
+#'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
 #' @family mesh functions

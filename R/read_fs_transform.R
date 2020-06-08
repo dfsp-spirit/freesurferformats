@@ -69,7 +69,7 @@ read.fs.transform <- function(filepath, format='xfm') {
 #' @keywords internal
 parse.transform.matrix.lines <- function(file_lines, ignore_line_suffix=";") {
   if(length(file_lines) != 3L) {
-    stop(sprintf("Parameter 'lines' must be of length 3, is %d.\n", length(lines)));
+    stop(sprintf("Parameter 'lines' must be of length 3, is %d.\n", length(file_lines)));
   }
   tm = matrix(rep(0., 16L), ncol = 4L);
   tm[4, ] = c(0, 0, 0, 1);
