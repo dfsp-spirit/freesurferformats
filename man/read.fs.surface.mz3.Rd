@@ -9,8 +9,11 @@ read.fs.surface.mz3(filepath)
 \arguments{
 \item{filepath}{full path to surface mesh file in mz3 format.}
 }
+\value{
+an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
+}
 \description{
-Read surface mesh in mz3 format, used by Surf-Ice.
+The mz3 format is a binary file format that can store a mesh (vertices and faces), and optionally per-vertex colors or scalars.
 }
 \references{
 See \url{https://github.com/neurolabusc/surf-ice} for details on the format.

@@ -226,7 +226,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'mz3', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -260,6 +260,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
     return(read.fs.surface.gii(filepath));
+  }
+
+  if(format == 'mz3' | (format == 'auto' & filepath.ends.with(filepath, c('.mz3')))) {
+    return(read.fs.surface.mz3(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -469,13 +473,13 @@ read.fs.surface.gii <- function(filepath) {
 
 #' @title Read surface mesh in mz3 format, used by Surf-Ice.
 #'
+#' @description The mz3 format is a binary file format that can store a mesh (vertices and faces), and optionally per-vertex colors or scalars.
+#'
 #' @param filepath full path to surface mesh file in mz3 format.
 #'
 #' @return an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
 #'
 #' @references See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
-#'
-# https://github.com/neurolabusc/surf-ice/blob/master/mz3/mz3.py
 #'
 #' @export
 read.fs.surface.mz3 <- function(filepath) {
