@@ -471,6 +471,8 @@ read.fs.surface.gii <- function(filepath) {
 #'
 #' @param filepath full path to surface mesh file in mz3 format.
 #'
+#' @return an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
+#'
 #' @references See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
 #'
 # https://github.com/neurolabusc/surf-ice/blob/master/mz3/mz3.py
@@ -495,14 +497,14 @@ read.fs.surface.mz3 <- function(filepath) {
   num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "little");
   num_skip = readBin(fh, integer(), size = 4, n = 1, endian = "little");
 
-  cat(sprintf("m3z: magic=%d attr=%d faces=%d vertices=%d skip=%d. is_gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
+  # cat(sprintf("mz3: magic=%d attr=%d faces=%d vertices=%d skip=%d. is_gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
 
   is_face = bitwAnd(attr, 1L) != 0L;
   is_vert = bitwAnd(attr, 2L) != 0L;
   is_rgba = bitwAnd(attr, 4L) != 0L;
   is_scalar = bitwAnd(attr, 8L) != 0L;
 
-  cat(sprintf("m3z: face=%d vert=%d rgba=%d scalar=%d.\n", as.integer(is_face), as.integer(is_vert), as.integer(is_rgba), as.integer(is_scalar)));
+  # cat(sprintf("mz3: face=%d vert=%d rgba=%d scalar=%d.\n", as.integer(is_face), as.integer(is_vert), as.integer(is_rgba), as.integer(is_scalar)));
 
   if(attr > 15L) {
     stop("Unsupported mz3 file version.");
@@ -527,8 +529,31 @@ read.fs.surface.mz3 <- function(filepath) {
     }
   }
 
+  if(is_face) {
+    faces_vertex_indices = readBin(fh, integer(), size = 4, n = num_faces * 3L, endian = "little");
+    faces = matrix(faces_vertex_indices, nrow=num_faces, ncol=3L, byrow = TRUE);
+  }
+  if(is_vert) {
+    vertex_coords = readBin(fh, numeric(), size = 4, n = num_vertices * 3L, endian = "little");
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
+  }
+  vertex_colors = NULL;
+  if(is_rgba) {
+    vertex_colors = readBin(fh, integer(), size = 4, n = num_vertices, endian = "little");
+  }
+  scalars = NULL;
+  if(is_scalar) {
+    scalars = readBin(fh, numeric(), size = 4, n = num_vertices, endian = "little");
+  }
+
+  ret_list = list();
+  ret_list$vertices = vertices;
+  ret_list$faces = faces;
+  ret_list$metadata = list("vertex_colors"=vertex_colors, "scalars"=scalars);
+  class(ret_list) = c("fs.surface", class(ret_list));
 
   close(fh);
+  return(ret_list);
 }
 
 
