@@ -532,6 +532,7 @@ read.fs.surface.mz3 <- function(filepath) {
   if(is_face) {
     faces_vertex_indices = readBin(fh, integer(), size = 4, n = num_faces * 3L, endian = "little");
     faces = matrix(faces_vertex_indices, nrow=num_faces, ncol=3L, byrow = TRUE);
+    faces = faces + 1L;
   }
   if(is_vert) {
     vertex_coords = readBin(fh, numeric(), size = 4, n = num_vertices * 3L, endian = "little");
