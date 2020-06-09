@@ -22,7 +22,9 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer annotation file format: Contains a cortical parcellation. A cortical parcellation originates from a brain atlas and contains a label for each vertex of a surface that assigns this vertex to one of a set of atlas regions. (Put another way, a parcellation splits the brain surface into disjunct atlas regions). The file format also contains a colortable, which assigns a color code to each atlas region. An example file would be `labels/lh.aparc.annot`. This format can be read and written. The standard atlases that come with FreeSurfer are Desikan-Killiany (`aparc`), DKT (`aparc.DKTatlas40`), and Destrieux (`aparc.a2009s`).
 
-* FreeSurfer surface file format: Contains a brain surface mesh. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) and meshes in VTK ASCII format (`.vtk` files) is also supported. Additionally, meshes can be exported in the following formats: Stanford triangle format (.ply), Wavefront object format (.obj), and Object File Format (.off). Reading and writing meshes in mz3 format is also supported.
+* FreeSurfer surface file format: Contains a brain surface mesh in a binary format. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) is also supported.
+
+* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice mz3 format, and Stanford triangle format (.ply). Additionally, meshes can be exported in the following formats: Wavefront object format (.obj) and Object File Format (.off).
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. Volume labels are also supported. This format can be read and written.
 
@@ -31,6 +33,8 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 * FreeSurfer *weight* file format: Contains one value per listed vertex. In contrast to curv files, weight files contain values not for all vertices of a surface, but only for a subset of vertices defined by their indices. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
 
 * FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
+
+* FreeSurfer transformation matrices can be read from m3z files (e.g., `transforms/talairach.m3z`).
 
 * NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance (including computation of transformation matrices from the NIFTI header q-form/s-form), so NIFTI volumes can be used just like MGH/MGZ volumes.
 
