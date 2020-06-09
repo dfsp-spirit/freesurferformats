@@ -10,9 +10,9 @@
 #'
 #' @param return_all logical, whether to return all readable files instead of just the first one
 #'
-#' @return character string, the path to the first existing file (or NULL if none of them exists).
+#' @return character string, the path to the first existing file (or `NULL` if none of them exists).
 #'
-#' @keywords internal
+#' @export
 readable.files <- function(filepath, precedence=c('.mgh', '.mgz'), error_if_none=TRUE, return_all=FALSE) {
   candidate_files = paste(filepath, precedence, sep='');
   readable_files = c();
@@ -48,7 +48,7 @@ filepath.ends.with <- function(filepath, extensions) {
   for (ext in extensions) {
     num_chars_to_inspect = nchar(ext);
     if(nc >= num_chars_to_inspect) {
-      this_file_ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
+      this_file_ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1L, nchar(filepath));
       if(tolower(this_file_ext) == tolower(ext)) {
         return(TRUE);
       }
@@ -56,3 +56,5 @@ filepath.ends.with <- function(filepath, extensions) {
   }
   return(FALSE);
 }
+
+

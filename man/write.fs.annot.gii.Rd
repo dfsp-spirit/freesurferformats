@@ -14,6 +14,9 @@ write.fs.annot.gii(filepath, annot)
 \description{
 Write an annotation to a GIFTI XML file.
 }
+\note{
+This function does not write a GIFTI file that is valid according to the specification: it stores extra color data in the Label nodes, and there is more than one Label in the LabelTable node.
+}
 \examples{
 \donttest{
    # Load annotation

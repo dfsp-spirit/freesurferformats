@@ -226,7 +226,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'mz3', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -260,6 +260,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
     return(read.fs.surface.gii(filepath));
+  }
+
+  if(format == 'mz3' | (format == 'auto' & filepath.ends.with(filepath, c('.mz3')))) {
+    return(read.fs.surface.mz3(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -465,3 +469,96 @@ read.fs.surface.gii <- function(filepath) {
     stop("Reading GIFTI format surface files requires the package 'gifti' to be installed.");
   }
 }
+
+
+#' @title Read surface mesh in mz3 format, used by Surf-Ice.
+#'
+#' @description The mz3 format is a binary file format that can store a mesh (vertices and faces), and optionally per-vertex colors or scalars.
+#'
+#' @param filepath full path to surface mesh file in mz3 format.
+#'
+#' @return an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
+#'
+#' @references See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
+#'
+#' @export
+read.fs.surface.mz3 <- function(filepath) {
+  is_gzipped = FALSE;
+  fh = file(filepath, "rb");
+  magic = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+  if(magic != 23117L) {
+    close(fh);
+    fh = gzfile(filepath, "rb");
+    magic = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+    if(magic != 23117L) {
+      close(fh);
+      stop("File not in mz3 format");
+    }
+    is_gzipped = TRUE;
+  }
+  attr = readBin(fh, integer(), size = 2, n = 1, endian = "little");
+  num_faces = magic = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+  num_vertices = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+  num_skip = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+
+  # cat(sprintf("mz3: magic=%d attr=%d faces=%d vertices=%d skip=%d. is_gz=%d\n", magic, attr, num_faces, num_vertices, num_skip, as.integer(is_gzipped)));
+
+  is_face = bitwAnd(attr, 1L) != 0L;
+  is_vert = bitwAnd(attr, 2L) != 0L;
+  is_rgba = bitwAnd(attr, 4L) != 0L;
+  is_scalar = bitwAnd(attr, 8L) != 0L;
+
+  # cat(sprintf("mz3: face=%d vert=%d rgba=%d scalar=%d.\n", as.integer(is_face), as.integer(is_vert), as.integer(is_rgba), as.integer(is_scalar)));
+
+  if(attr > 15L) {
+    stop("Unsupported mz3 file version.");
+  }
+
+  if(num_vertices < 1L) {
+    stop("Mesh must contain at least one vertex.");
+  }
+  if(is_face) {
+    if(num_faces < 1L) {
+      stop("Must contain at least one face is faces is set.");
+    }
+  }
+
+  header_bytes = 16L; # these have already been read above.
+
+  if(num_skip > 0L) {
+    if(is_gzipped) {   # Cannot seek in a gzip stream
+      discarded = readBin(fh, integer(), n = num_skip, size = 1L);
+    } else {
+        seek(fh, where=num_skip, origin="current");
+    }
+  }
+
+  if(is_face) {
+    faces_vertex_indices = readBin(fh, integer(), size = 4, n = num_faces * 3L, endian = "little");
+    faces = matrix(faces_vertex_indices, nrow=num_faces, ncol=3L, byrow = TRUE);
+    faces = faces + 1L;
+  }
+  if(is_vert) {
+    vertex_coords = readBin(fh, numeric(), size = 4, n = num_vertices * 3L, endian = "little");
+    vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
+  }
+  vertex_colors = NULL;
+  if(is_rgba) {
+    vertex_colors = readBin(fh, integer(), size = 4, n = num_vertices, endian = "little");
+  }
+  scalars = NULL;
+  if(is_scalar) {
+    scalars = readBin(fh, numeric(), size = 4, n = num_vertices, endian = "little");
+  }
+
+  ret_list = list();
+  ret_list$vertices = vertices;
+  ret_list$faces = faces;
+  ret_list$metadata = list("vertex_colors"=vertex_colors, "scalars"=scalars);
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  close(fh);
+  return(ret_list);
+}
+
+

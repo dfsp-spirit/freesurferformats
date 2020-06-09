@@ -31,8 +31,8 @@
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3').");
   }
 
   if(ncol(vertex_coords) != 3L) {
@@ -64,6 +64,10 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
   if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
     return(write.fs.surface.gii(filepath, vertex_coords, faces));
+  }
+
+  if(format == 'mz3' | (format == 'auto' & filepath.ends.with(filepath, c('.mz3')))) {
+    return(write.fs.surface.mz3(filepath, vertex_coords, faces));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -457,3 +461,108 @@ ply.header.lines <- function(num_verts, num_faces, use_vertex_colors) {
       return(c(header_top, header_verts, header_faces, header_end));
     }
 }
+
+
+
+#' @title Write mesh to file in GIFTI surface format
+#'
+#' @description Write vertex coordinates and vertex indices defining faces to a file in GIFTI surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white.asc'.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.asc', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh functions
+#' @family gifti writers
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.gii(tempfile(fileext=".gii"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @export
+write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
+  my_data_sets = list(vertex_coords, faces - 1L);
+  xmltree = gifti_xml(my_data_sets, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'), intent=c('NIFTI_INTENT_POINTSET', 'NIFTI_INTENT_TRIANGLE'));
+  #xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
+  gifti_xml_write(filepath, xmltree);
+  return(invisible('tris'));
+}
+
+
+#' @title Write mesh to file in mz3 binary format.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.mz3', but that is not enforced.
+#'
+#' @inheritParams write.fs.surface
+#'
+#' @param gzipped logical, whether to write a gzip compressed file
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.mz3(tempfile(fileext=".mz3"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @note This format is used by the surf-ice renderer.
+#'
+#' @export
+write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
+
+  if(typeof(faces) != "integer") {
+    stop(sprintf("The type of the faces matrix must be 'integer' but is '%s'.", typeof(faces)));
+  }
+
+  faces = faces - 1L;
+
+  format_written = "tris";
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+  num_skip = 0L;
+
+  if(gzipped) {
+    fh = gzfile(filepath, "wb");
+  } else {
+    fh = file(filepath, "wb", blocking = TRUE);
+  }
+
+  magic_code = 23117L;
+  attr = 3L; # verts + faces
+  writeBin(as.integer(magic_code), fh, size = 2, endian = "little");
+  writeBin(as.integer(attr), fh, size = 2, endian = "little");
+
+  writeBin(as.integer(num_faces), fh, size = 4, endian = "little");
+  writeBin(as.integer(num_verts), fh, size = 4, endian = "little");
+  writeBin(as.integer(num_skip), fh, size = 4, endian = "little");
+
+  # header done, now write the data itself.
+
+  # write vertex indices making up a face
+  writeBin(c(t(faces)), fh, size = 4, endian = "little");
+
+  # write vertex coords
+  writeBin(c(t(vertex_coords)), fh, size = 4, endian = "little");
+  close(fh);
+
+  return(invisible(format_written));
+}
+

@@ -157,6 +157,7 @@ flip3D <- function(volume, axis=1L, how='horizontally') {
   return(flipped_brain);
 }
 
+
 #' @title Flip a 2D matrix.
 #'
 #' @param slice a 2D matrix

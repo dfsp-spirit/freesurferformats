@@ -23,6 +23,8 @@
 #'
 #' @param endian vector of endian definition strings. One of 'LittleEndian' or 'BigEndian'. See \code{\link[gifti]{convert_endian}}.
 #'
+#' @param transform_matrix optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.
+#'
 #' @param force logical, whether to force writing the data, even if issues like a mismatch of datatype and data values are detected.
 #'
 #' @return xml tree, see xml2 package. One could modify this tree as needed using xml2 functions, e.g., add metadata.
@@ -33,16 +35,18 @@
 #'
 #' @seealso The example for \code{\link{gifti_xml_write}} shows how to modify the tree.
 #'
-#' #' @examples
+#' @examples
 #'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-#'   xmtree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
+#'   transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN',
+#'    'transformed_space'='NIFTI_XFORM_UNKNOWN'));
+#'   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32', transform_matrix=transforms);
 #'   # Verify that the tree is a valid GIFTI file:
 #'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
 #'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 #'
 #' @importFrom xml2 xml_new_root xml_set_attr xml_add_child read_xml
 #' @export
-gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_TYPE_FLOAT32', encoding='GZipBase64Binary', endian='LittleEndian', force=FALSE) {
+gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_TYPE_FLOAT32', encoding='GZipBase64Binary', endian='LittleEndian', transform_matrix=NULL, force=FALSE) {
 
   if (requireNamespace("gifti", quietly = TRUE)) {
     if( ! is.list(data_array)) {
@@ -53,6 +57,20 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
 
     num_data_arrays = length(data_array);
     dataarray_contains_matrices = any(lapply((lapply(data_array, dim)), length) > 0L);
+
+    num_transform_matrices = 0L;
+    if(! is.null(transform_matrix)) {
+      if( ! is.list(transform_matrix)) {
+        stop("Parameter 'transform_matrix' must be NULL or a list.");
+      }
+      if( length(names(transform_matrix)) != 0L) {
+        stop("Parameter 'transform_matrix' must not be a named list. Hint: When passing a single matrix, you need to enclose it in an outer list.");
+      }
+      num_transform_matrices = length(transform_matrix);
+      if(num_transform_matrices != num_data_arrays) {
+        stop(sprintf("Found %d data arrays, but %d transform matrices: mismatch. Pass NA if you have no matrix for a data array.\n", num_data_arrays, num_transform_matrices));
+      }
+    }
 
     if(num_data_arrays > 1L) {
       if(length(intent) == 1L) {
@@ -76,7 +94,7 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
 
     root = xml2::xml_new_root("GIFTI", 'Version' = "1.0", 'NumberOfDataArrays'=num_data_arrays);
     metadata = xml2::xml_add_child(root, read_xml("<MetaData></MetaData>"));
-    xml2::xml_add_child(metadata, read_xml("<MD><Name>Date</Name><Value>2020-01-01</Value></MD>"));
+    xml2::xml_add_child(metadata, read_xml("<MD><Name>Generator</Name><Value>fsbrain</Value></MD>"));
 
 
     da_index = 1L;
@@ -132,7 +150,17 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
       data_array_metadata = xml2::xml_add_child(data_array_node_added, xml2::read_xml("<MetaData></MetaData>"));
       encoded_data = gifti::data_encoder(da, encoding = encoding[da_index], datatype = datatype[da_index], endian = endian[da_index]);
       data_node = xml2::read_xml(sprintf("<Data>%s</Data>", encoded_data));
+
+      if(num_transform_matrices > 0L) {
+        if(is.list(transform_matrix[[da_index]])) {
+          tf = transform_matrix[[da_index]];
+          tf_node = xml_node_gifti_coordtransform(tf$transform_matrix, data_space=tf$data_space, transformed_space=tf$transformed_space);
+          xml2::xml_add_child(data_array_node_added, tf_node);
+        }
+      }
+
       xml2::xml_add_child(data_array_node_added, data_node);
+
       da_index = da_index + 1L;
     }
     return(root);

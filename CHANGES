@@ -1,6 +1,12 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.12
+--------------
+- export readable.files function
+- support reading and writing meshes in mz3 format
+
+
 Version 0.1.11
 --------------
 - add support for reading GIFTI format labels
