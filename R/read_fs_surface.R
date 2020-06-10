@@ -562,3 +562,134 @@ read.fs.surface.mz3 <- function(filepath) {
 }
 
 
+#' @title Read surface mesh in STL binary format.
+#'
+#' @description The STL format is a mesh format that is often used for 3D printing, it stores geometry information. It is known as stereolithography format. A binary and an ASCII version exist. This function reads the binary version.
+#'
+#' @param filepath full path to surface mesh file in STL format.
+#'
+#' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
+#'
+#' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
+#'
+#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
+#'
+#' @export
+read.fs.surface.stl.bin <- function(filepath) {
+  fh = file(filepath, "rb");
+
+  # skip header
+  discarded = readBin(fh, integer(), n = 80L, size = 1L);
+
+  num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "little");
+
+  cat(sprintf("Reading %d faces from STL file.\n", num_faces));
+
+  for(face_idx in seq.int(num_faces)) {
+    face_normal = readBin(fh, integer(), size = 4, n = 3L, endian = "little");
+    vertex_coords = readBin(fh, integer(), size = 4, n = 9L, endian = "little");
+    attr_count = readBin(fh, integer(), size = 2, n = 1L, signed = FALSE, endian = "little");
+  }
+}
+
+
+#' @title Read surface mesh in STL ASCII format.
+#'
+#' @description The STL format is a mesh format that is often used for 3D printing, it stores geometry information. It is known as stereolithography format. A binary and an ASCII version exist. This function reads the ASCII version.
+#'
+#' @param filepath full path to surface mesh file in STL format.
+#'
+#' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
+#'
+#' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
+#'
+#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
+#'
+#' @export
+read.fs.surface.stl.ascii <- function(filepath) {
+
+  stl_lines = readLines(filepath);
+  lines_total = length(stl_lines);
+  if(lines_total < 8L) {
+    stop("Invalid STL ASCII file: file must contain at least 8 lines (one face).");
+  }
+
+  if(! startsWith(stl_lines[1], "solid")) {
+    stop("Invalid STL ASCII file: first line must start with 'solid'.");
+  }
+
+  line_idx = 1L;
+  num_lines_left = lines_total - line_idx;
+
+  all_normals = NULL;
+  all_vertex_coords = NULL;
+
+  while(num_lines_left >= 7L) {
+    face_info = parse.stl.ascii.face(stl_lines[(line_idx+1L):(line_idx+7L)]);
+    face_normal = face_info$face_normal;
+    vertex_coords = face_info$vertex_coords;
+
+    if(is.null(all_normals)) {
+      all_normals = face_normal;
+    } else {
+      all_normals = rbind(all_normals, face_normal);
+    }
+    if(is.null(all_vertex_coords)) {
+      all_vertex_coords = vertex_coords;
+    } else {
+      all_vertex_coords = rbind(all_vertex_coords, vertex_coords);
+    }
+
+    line_idx = line_idx + 7L;
+    num_lines_left = lines_total - line_idx;
+  }
+
+  if(num_lines_left != 1L) {
+    stop("Ignored %d lines at the end of ASCII STL file, please double-check file.\n", num_lines_left);
+  } else {
+    if(! startsWith(stl_lines[lines_total], "endsolid")) {
+      stop("Invalid STL ASCII file: last line must start with 'endsolid'.");
+    }
+  }
+
+  # TODO: We still need to turn the polygon soup in 'all_vertex_coords' into a mesh.
+  return(list('vertex_coords'=NULL, 'faces'=NULL, 'faces_vertex_coords'=all_vertex_coords));
+}
+
+
+#' @title Parse a single ASCII STL face.
+#'
+#' @param stl_face_lines vector of exactly 7 character strings, the lines from an STL ASCII file defining a triangular face.
+#'
+#' @return named list with entries: 'face_normal': double matrix with 1 row and 3 columns, the face normal. 'vertex_coords': double matrix with 3 rows and 3 columns, the 3x3 vertex coordinates of the face, each row contain the x, y, and z coordinate of a vertex.
+#'
+#' @keywords internal
+parse.stl.ascii.face <- function(stl_face_lines) {
+  if(length(stl_face_lines) != 7L) {
+    stop(sprintf("Expected 7 STL lines, received %d.\n", length(stl_face_lines)));
+  }
+  stl_face_lines = trimws(stl_face_lines); # trim leading and trailing white space from all lines.
+
+  # the normal line is the fist of the 7 lines, and looks like this: 'facet normal 8.424343831663975e-20 6.016192594284479e-15 -1.0'
+  face_normal = as.double(strsplit(stl_face_lines[1], " ")[[1]][3:5]);
+  face_normal = matrix(face_normal, ncol = 3, nrow = 1);
+
+  # the 3 vertex lines are lines 3 to 5 of the  lines, each one looks like this: 'vertex -19.848729961302116 -22.57002825204731 38.1169729018115'
+  v1_coords = as.double(strsplit(stl_face_lines[3], " ")[[1]][2:4]);
+  v2_coords = as.double(strsplit(stl_face_lines[4], " ")[[1]][2:4]);
+  v3_coords = as.double(strsplit(stl_face_lines[5], " ")[[1]][2:4]);
+
+  vertex_coords = rbind(v1_coords, v2_coords, v3_coords);
+  colnames(vertex_coords) = c('x', 'y', 'z');
+  rownames(vertex_coords) = NULL;
+
+  return(list('face_normal'=face_normal, 'vertex_coords'=vertex_coords));
+}
+
+polygon.soup.to.tris(faces_vertex_coords) {
+  tris = misc3d::makeTriangles(faces_vertex_coords);
+}
+
+
+
+
