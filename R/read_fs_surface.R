@@ -583,13 +583,36 @@ read.fs.surface.stl.bin <- function(filepath) {
 
   num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "little");
 
-  cat(sprintf("Reading %d faces from STL file.\n", num_faces));
+  cat(sprintf("Reading %d faces from binary STL file.\n", num_faces));
+
+  all_normals = NULL;
+  all_vertex_coords = NULL;
+  all_attr_counts = NULL;
 
   for(face_idx in seq.int(num_faces)) {
-    face_normal = readBin(fh, integer(), size = 4, n = 3L, endian = "little");
-    vertex_coords = readBin(fh, integer(), size = 4, n = 9L, endian = "little");
+    face_normal = readBin(fh, double(), size = 4, n = 3L, endian = "little");
+    vertex_coords = readBin(fh, double(), size = 4, n = 9L, endian = "little");
+    vertex_coords = matrix(vertex_coords, nrow = 3, byrow = TRUE);
     attr_count = readBin(fh, integer(), size = 2, n = 1L, signed = FALSE, endian = "little");
+    all_attr_counts = c(all_attr_counts, attr_count);
+
+    if(is.null(all_normals)) {
+      all_normals = face_normal;
+    } else {
+      all_normals = rbind(all_normals, face_normal);
+    }
+    if(is.null(all_vertex_coords)) {
+      all_vertex_coords = vertex_coords;
+    } else {
+      all_vertex_coords = rbind(all_vertex_coords, vertex_coords);
+    }
   }
+
+  if(any(all_attr_counts != 0L)) {
+    warning('Found non-zero face attribute count entries in file, ignored.');
+  }
+
+  return(polygon.soup.to.indexed.mesh(faces_vertex_coords));
 }
 
 
@@ -605,7 +628,7 @@ read.fs.surface.stl.bin <- function(filepath) {
 #'
 #' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
 #'
-#' @export
+#' @keywords internal
 read.fs.surface.stl.ascii <- function(filepath) {
 
   stl_lines = readLines(filepath);
@@ -652,8 +675,8 @@ read.fs.surface.stl.ascii <- function(filepath) {
     }
   }
 
-  # TODO: We still need to turn the polygon soup in 'all_vertex_coords' into a mesh.
-  return(list('vertex_coords'=NULL, 'faces'=NULL, 'faces_vertex_coords'=all_vertex_coords));
+
+  return(polygon.soup.to.indexed.mesh(faces_vertex_coords));
 }
 
 
@@ -686,8 +709,31 @@ parse.stl.ascii.face <- function(stl_face_lines) {
   return(list('face_normal'=face_normal, 'vertex_coords'=vertex_coords));
 }
 
-polygon.soup.to.tris(faces_vertex_coords) {
-  tris = misc3d::makeTriangles(faces_vertex_coords);
+
+#' @title Turn polygon soup into indexed mesh.
+#'
+#' @param face_vertex_coords numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.
+#'
+#' @return a mesh, as an fs.surface instance
+#'
+#' @keywords internal
+polygon.soup.to.indexed.mesh(faces_vertex_coords) {
+
+  if(! is.matrix(faces_vertex_coords)) {
+    stop("Parameter 'faces_vertex_coords' must be a matrix.");
+  }
+  if(ncol(faces_vertex_coords) != 3L) {
+    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with exactly 3 columns, found %d.\n", ncol(faces_vertex_coords)));
+  }
+  if((nrow(faces_vertex_coords) %% 3L) != 0L) {
+    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with row count a multiple of 3, but found %d rows.\n", nrow(faces_vertex_coords)));
+  }
+
+  stop('Not implemented yet.');
+  mesh = NULL;
+  #...
+  class(mesh) = c(class(mesh), 'fs.surface');
+  return(mesh);
 }
 
 
