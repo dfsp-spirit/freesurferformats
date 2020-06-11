@@ -21,3 +21,4 @@ The STL format does not use indices into a vertex list to define faces, instead 
 \references{
 \url{https://en.wikipedia.org/wiki/STL_(file_format)}
 }
+\keyword{internal}

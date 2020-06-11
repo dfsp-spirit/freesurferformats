@@ -302,7 +302,7 @@ write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
 #'
 #' @description The Object File Format is a simply ASCII format for storing meshes.
 #'
-#' @param filepath string. Full path to the output surface file, should end with '.vtk', but that is not enforced.
+#' @param filepath string. Full path to the output surface file, should end with '.off', but that is not enforced.
 #'
 #' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
 #'
@@ -327,6 +327,45 @@ write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
 #'
 #' @export
 write.fs.surface.off <- function(filepath, vertex_coords, faces) {
+  return(write.fs.surface.off.ply2(filepath, vertex_coords, faces, format = 'off'));
+}
+
+
+#' @title Write mesh to file in Object File Format (.off) or PLY2 format.
+#'
+#' @description The two formats are very similar, they only differ in the header lines. This function can write both.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.off', but that is not enforced.
+#'
+#' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
+#'
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @param format character string, the format to write. One of 'ply2' or 'off'.
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @note Do not confuse the OFF format (.off) with the Wavefront object file format (.obj), they are not identical.
+#'
+#' @family mesh export functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.off(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @keywords internal
+write.fs.surface.off.ply2 <- function(filepath, vertex_coords, faces, format) {
+
+  if(! format %in% c('ply2', 'off')) {
+    stop("Format must be 'ply2' or 'off'.");
+  }
 
   if(ncol(vertex_coords) != 3L) {
     stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
@@ -341,8 +380,14 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
   fh = file(filepath, "w");
 
   # write header
-  count_line = sprintf("%d %d %d", num_verts, num_faces, 0L);
-  writeLines(c("# OFF", count_line), fh);
+  if(format == 'off') {
+    count_line = sprintf("%d %d %d", num_verts, num_faces, 0L);
+    writeLines(c("# OFF", count_line), fh);
+  } else {
+    vertex_count_line = sprintf("%d", num_verts);
+    face_count_line = sprintf("%d", num_faces);
+    writeLines(c(vertex_count_line, face_count_line), fh);
+  }
   close(fh);
 
   # Append the vertex data
@@ -354,6 +399,33 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
   write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
 
   return(invisible('tris'));
+}
+
+
+#' @title Write mesh to file in PLY2 File Format (.ply2)
+#'
+#' @description The PLY2 file format is a simply ASCII format for storing meshes. It is very similar to OFF and by far not as flexible as PLY.
+#'
+#' @inheritParams write.fs.surface.off
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh export functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.ply2(tempfile(fileext=".ply2"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @export
+write.fs.surface.ply2 <- function(filepath, vertex_coords, faces) {
+  return(write.fs.surface.off.ply2(filepath, vertex_coords, faces, format = 'ply2'));
 }
 
 

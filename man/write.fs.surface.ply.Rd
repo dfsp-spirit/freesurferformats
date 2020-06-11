@@ -44,7 +44,9 @@ The PLY format is a versatile ASCII format for storing meshes. Also known as Pol
 \seealso{
 Other mesh export functions: 
 \code{\link{write.fs.surface.obj}()},
+\code{\link{write.fs.surface.off.ply2}()},
 \code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface.ply2}()},
 \code{\link{write.fs.surface}()}
 }
 \concept{mesh export functions}

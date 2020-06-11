@@ -612,7 +612,7 @@ read.fs.surface.stl.bin <- function(filepath) {
     warning('Found non-zero face attribute count entries in file, ignored.');
   }
 
-  return(polygon.soup.to.indexed.mesh(faces_vertex_coords));
+  return(polygon.soup.to.indexed.mesh(all_vertex_coords));
 }
 
 
@@ -675,8 +675,7 @@ read.fs.surface.stl.ascii <- function(filepath) {
     }
   }
 
-
-  return(polygon.soup.to.indexed.mesh(faces_vertex_coords));
+  return(polygon.soup.to.indexed.mesh(all_vertex_coords));
 }
 
 
@@ -717,7 +716,7 @@ parse.stl.ascii.face <- function(stl_face_lines) {
 #' @return a mesh, as an fs.surface instance
 #'
 #' @keywords internal
-polygon.soup.to.indexed.mesh(faces_vertex_coords) {
+polygon.soup.to.indexed.mesh <- function(faces_vertex_coords) {
 
   if(! is.matrix(faces_vertex_coords)) {
     stop("Parameter 'faces_vertex_coords' must be a matrix.");

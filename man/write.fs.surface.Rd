@@ -50,7 +50,9 @@ Other mesh functions:
 
 Other mesh export functions: 
 \code{\link{write.fs.surface.obj}()},
+\code{\link{write.fs.surface.off.ply2}()},
 \code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface.ply2}()},
 \code{\link{write.fs.surface.ply}()}
 }
 \concept{mesh export functions}

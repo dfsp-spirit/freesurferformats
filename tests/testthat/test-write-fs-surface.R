@@ -82,7 +82,7 @@ test_that("Surface files in VTK format can be read and written", {
 })
 
 
-test_that("One can export surface meshes in OFF, OBJ and PLY formats", {
+test_that("One can export surface meshes in OFF, OBJ, PLY2 and PLY formats", {
 
   surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
   mesh = read.fs.surface(surface_file);
@@ -96,6 +96,9 @@ test_that("One can export surface meshes in OFF, OBJ and PLY formats", {
 
   # OFF, the Object File Format
   write.fs.surface.off(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+
+  # PLY2 format, very similar to OFF.
+  write.fs.surface.ply2(tempfile(fileext=".ply2"), mesh$vertices, mesh$faces);
 
   # Wavefront OBJ format
   write.fs.surface.obj(tempfile(fileext=".obj"), mesh$vertices, mesh$faces);

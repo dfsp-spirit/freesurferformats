@@ -36,7 +36,9 @@ Do not confuse the Wavefront object file format (.obj) with the OFF format (.off
 }
 \seealso{
 Other mesh export functions: 
+\code{\link{write.fs.surface.off.ply2}()},
 \code{\link{write.fs.surface.off}()},
+\code{\link{write.fs.surface.ply2}()},
 \code{\link{write.fs.surface.ply}()},
 \code{\link{write.fs.surface}()}
 }
