@@ -583,7 +583,7 @@ read.fs.surface.stl.bin <- function(filepath) {
 
   num_faces = readBin(fh, integer(), size = 4, n = 1, endian = "little");
 
-  cat(sprintf("Reading %d faces from binary STL file.\n", num_faces));
+  # cat(sprintf("Reading %d faces from binary STL file.\n", num_faces));
 
   all_normals = NULL;
   all_vertex_coords = NULL;
@@ -713,10 +713,12 @@ parse.stl.ascii.face <- function(stl_face_lines) {
 #'
 #' @param face_vertex_coords numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.
 #'
-#' @return a mesh, as an fs.surface instance
+#' @param digits the precision to use when to determine whether two x,y,z coords define the same vertex.
+#'
+#' @return an indexed mesh, as an `fs.surface` instance (see \code{\link[freesurferformats]{read.fs.surface}}).
 #'
 #' @keywords internal
-polygon.soup.to.indexed.mesh <- function(faces_vertex_coords) {
+polygon.soup.to.indexed.mesh <- function(faces_vertex_coords, digits=6) {
 
   if(! is.matrix(faces_vertex_coords)) {
     stop("Parameter 'faces_vertex_coords' must be a matrix.");
@@ -724,17 +726,64 @@ polygon.soup.to.indexed.mesh <- function(faces_vertex_coords) {
   if(ncol(faces_vertex_coords) != 3L) {
     stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with exactly 3 columns, found %d.\n", ncol(faces_vertex_coords)));
   }
+
   if((nrow(faces_vertex_coords) %% 3L) != 0L) {
     stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with row count a multiple of 3, but found %d rows.\n", nrow(faces_vertex_coords)));
   }
+  num_initial_faces = as.integer(nrow(faces_vertex_coords) / 3L);
+  num_initial_vertices = nrow(faces_vertex_coords);
 
-  stop('Not implemented yet.');
-  mesh = NULL;
-  #...
+  # rounded version of coords for comparison.
+  faces_vertex_coords_rounded = round(faces_vertex_coords, digits = digits);
+  coord_keys = apply(faces_vertex_coords, 1, coord.to.key, digits = digits);
+  new_vertex_indices = rep(0L, num_initial_vertices);
+  new_vertex_old_indices = rep(NA, num_initial_vertices); # reverse mapping. The length is unknown, but it cannot be more than the old ones.
+  new_vertex_coords = NULL;
+
+  unique_position_keys_to_index = list();
+  current_unique_vertex_index = 1L;
+  for(vert_idx_initial in seq.int(num_initial_vertices)) {
+    vkey = coord_keys[vert_idx_initial];
+    vcoords = faces_vertex_coords[vert_idx_initial,];
+    if(is.null(unique_position_keys_to_index[[vkey]])) {
+      unique_position_keys_to_index[[vkey]] = current_unique_vertex_index;
+      new_vertex_indices[vert_idx_initial] = current_unique_vertex_index;
+
+      # store coord for new vertex
+      new_vertex_old_indices[current_unique_vertex_index] = vert_idx_initial;
+      if(is.null(new_vertex_coords)) {
+        new_vertex_coords = matrix(vcoords, ncol=3);
+      } else {
+        new_vertex_coords = rbind(new_vertex_coords, vcoords);
+      }
+
+      current_unique_vertex_index = current_unique_vertex_index + 1L;
+    } else {
+      new_vertex_indices[vert_idx_initial] = unique_position_keys_to_index[[vkey]];
+    }
+  }
+
+  # build faces using vertex indices
+  new_faces = matrix(new_vertex_indices, ncol = 3, byrow = TRUE);
+
+  mesh = list('vertices'=new_vertex_coords, 'faces'=new_faces);
   class(mesh) = c(class(mesh), 'fs.surface');
   return(mesh);
 }
 
 
+#' @title Turn coordinate vector into string.
+#'
+#' @param coord double vector of length 3, the xyz coord
+#'
+#' @param digits integer, the number of digits (after the decimal separator) to use
+#'
+#' @return character string
+#'
+#' @keywords internal
+coord.to.key <- function(coord, digits=6L) {
+  format_string = sprintf("%%.%df,%%.%df,%%.%df", digits, digits, digits);
+  return(sprintf(format_string, coord[1], coord[2], coord[3]));
+}
 
 

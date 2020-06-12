@@ -4,7 +4,7 @@
 \alias{polygon.soup.to.indexed.mesh}
 \title{Turn polygon soup into indexed mesh.}
 \usage{
-polygon.soup.to.indexed.mesh(faces_vertex_coords)
+polygon.soup.to.indexed.mesh(faces_vertex_coords, digits = 6)
 }
 \arguments{
 \item{face_vertex_coords}{numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.}
@@ -14,5 +14,10 @@ a mesh, as an fs.surface instance
 }
 \description{
 Turn polygon soup into indexed mesh.
+}
+\examples{
+    faces_vertex_coords = matrix(rnorm(3*30), ncol=3);
+    polygon.soup.to.indexed.mesh(faces_vertex_coords);
+
 }
 \keyword{internal}
