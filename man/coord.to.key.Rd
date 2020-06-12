@@ -17,3 +17,4 @@ character string
 \description{
 Turn coordinate vector into string.
 }
+\keyword{internal}

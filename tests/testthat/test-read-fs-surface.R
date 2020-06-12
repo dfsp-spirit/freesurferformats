@@ -144,3 +144,19 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read.fs.s
   num_faces_with_index_zero = sum(surf$faces==0);
   expect_equal(num_faces_with_index_zero, 0);
 })
+
+
+test_that("A surface file in STL binary format can be read using read.fs.surface", {
+  stlbin_surface_file = system.file("extdata", "cube_bin.stl", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(stlbin_surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices
+})

@@ -4,10 +4,12 @@
 \alias{read.fs.surface.stl.ascii}
 \title{Read surface mesh in STL ASCII format.}
 \usage{
-read.fs.surface.stl.ascii(filepath)
+read.fs.surface.stl.ascii(filepath, digits = 6L)
 }
 \arguments{
 \item{filepath}{full path to surface mesh file in STL format.}
+
+\item{digits}{the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.}
 }
 \value{
 an `fs.surface` instance. The normals are available in the 'metadata' property.

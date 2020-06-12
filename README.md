@@ -24,7 +24,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer surface file format: Contains a brain surface mesh in a binary format. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) is also supported.
 
-* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice mz3 format, and Stanford triangle format (`.ply`). Additionally, meshes can be exported in the following formats: Wavefront object format (`.obj`), PLY2 format (`.ply2`), and Object File Format (`.off`).
+* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice format (`.mz3`), and Stanford triangle format (`.ply`). Additionally, meshes can be exported in the following formats: Wavefront object format (`.obj`), PLY2 format (`.ply2`), and Object File Format (`.off`).
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. Volume labels are also supported. This format can be read and written.
 

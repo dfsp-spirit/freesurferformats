@@ -220,13 +220,13 @@ read.element.counts.ply.header <- function(ply_lines) {
 }
 
 
-#' @title Read file in FreeSurfer surface format
+#' @title Read file in FreeSurfer surface format or various mesh formats.
 #'
 #' @description Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary or ASCII surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk', 'mz3', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -264,6 +264,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'mz3' | (format == 'auto' & filepath.ends.with(filepath, c('.mz3')))) {
     return(read.fs.surface.mz3(filepath));
+  }
+
+  if(format == 'stl' | (format == 'auto' & filepath.ends.with(filepath, c('.stl')))) {
+    return(read.fs.surface.stl(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -566,16 +570,16 @@ read.fs.surface.mz3 <- function(filepath) {
 #'
 #' @description The STL format is a mesh format that is often used for 3D printing, it stores geometry information. It is known as stereolithography format. A binary and an ASCII version exist. This function reads the binary version.
 #'
-#' @param filepath full path to surface mesh file in STL format.
+#' @inheritParams read.fs.surface.stl.ascii
 #'
-#' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
+#' @return an `fs.surface` instance.
 #'
 #' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
 #'
-#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
+#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup').
 #'
 #' @export
-read.fs.surface.stl.bin <- function(filepath) {
+read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
   fh = file(filepath, "rb");
 
   # skip header
@@ -612,7 +616,36 @@ read.fs.surface.stl.bin <- function(filepath) {
     warning('Found non-zero face attribute count entries in file, ignored.');
   }
 
-  return(polygon.soup.to.indexed.mesh(all_vertex_coords));
+  return(polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits));
+}
+
+
+#' @title Read mesh in STL format, auto-detecting ASCII versus binary format version.
+#'
+#' @inheritParams read.fs.surface.stl.ascii
+#'
+#' @return an `fs.surface` instance, the mesh.
+#'
+#' @note The mesh is stored in the file as a polygon soup, which is transformed into an index mesh by this function.
+#'
+#' @export
+read.fs.surface.stl <- function(filepath, digits = 6L) {
+  if(stl.format.file.is.ascii(filepath)) {
+    return(read.fs.surface.stl.ascii(filepath, digits = digits));
+  } else {
+    return(read.fs.surface.stl.bin(filepath, digits = digits));
+  }
+}
+
+
+#' @title Guess whether a mesh file in STL format is the ASCII or the binary version.
+#'
+#' @inheritParams read.fs.surface.stl.bin
+#'
+#' @keywords internal
+stl.format.file.is.ascii <- function(filepath) {
+  stl_lines = readLines(filepath);
+  return(startsWith(stl_lines[1], "solid"));
 }
 
 
@@ -622,6 +655,8 @@ read.fs.surface.stl.bin <- function(filepath) {
 #'
 #' @param filepath full path to surface mesh file in STL format.
 #'
+#' @param digits the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.
+#'
 #' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
 #'
 #' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
@@ -629,7 +664,7 @@ read.fs.surface.stl.bin <- function(filepath) {
 #' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
 #'
 #' @keywords internal
-read.fs.surface.stl.ascii <- function(filepath) {
+read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
 
   stl_lines = readLines(filepath);
   lines_total = length(stl_lines);
@@ -675,7 +710,7 @@ read.fs.surface.stl.ascii <- function(filepath) {
     }
   }
 
-  return(polygon.soup.to.indexed.mesh(all_vertex_coords));
+  return(polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits));
 }
 
 
@@ -711,9 +746,11 @@ parse.stl.ascii.face <- function(stl_face_lines) {
 
 #' @title Turn polygon soup into indexed mesh.
 #'
+#' @description Some mesh file formats like STL do not store the faces as indices into a vertex list ('indexed mesh'), but repeat all vertex coordinates for each face ('polygon soup'). This function creates an indexed mesh from a polysoup.
+#'
 #' @param face_vertex_coords numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.
 #'
-#' @param digits the precision to use when to determine whether two x,y,z coords define the same vertex.
+#' @param digits the precision (number of digits after decimal separator) to use when to determine whether two x,y,z coords define the same vertex.
 #'
 #' @return an indexed mesh, as an `fs.surface` instance (see \code{\link[freesurferformats]{read.fs.surface}}).
 #'
