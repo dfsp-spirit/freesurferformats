@@ -827,7 +827,7 @@ coord.to.key <- function(coord, digits=6L) {
 
 #' @title Read mesh in BYU format.
 #'
-#' @description The BYU format is an old ASCII mesh format. I consider it a bit counter-intuitive.
+#' @description The BYU format is an old ASCII mesh format that is based on fixed character positions in lines (as opposed to whitespace-separated elements). I consider it a bit counter-intuitive.
 #'
 #' @param filepath full path of the file in BYU format.
 #'
@@ -841,9 +841,8 @@ coord.to.key <- function(coord, digits=6L) {
 read.fs.surface.byu <- function(filepath, part = 1L) {
   part = as.integer(part);
   byu_lines = readLines(filepath);
-  byu_lines = trimws(byu_lines); # trim leading and trailing white space from all lines.
 
-  element_counts = as.integer(strsplit(byu_lines[1], " ")[[1]]);
+  element_counts = as.integer(linesplit.fixed(byu_lines[1], length_per_part=6L, num_parts_expected=5L, error_tag = "1"));
   num_parts = element_counts[1]; # number of meshes in the file.
   num_vertices = element_counts[2];
   num_faces = element_counts[3]; # strictly these faces are polys, not neccessarily triangles. We only support triangles though.
@@ -853,9 +852,9 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   if(num_test != 0L) {
     stop(sprintf("Not a valid BYU mesh file: num_test must be 0, but is '%d'.\n", num_test));
   }
-  if(num_connects != (3L * num_faces)) {
-    stop(sprintf("Only triangular BYU files are supported: expected %d connects for %d triangular faces, but found '%d'.\n", (3L * num_faces), num_faces, num_connects));
-  }
+  #if(num_connects != (3L * num_faces)) {
+  #  stop(sprintf("Only triangular BYU files are supported: expected %d edges for %d triangular faces, but found %d.\n", (3L * num_faces), num_faces, num_connects));
+  #}
   if(part > num_parts) {
     stop(sprintf("Requested to load mesh # %d from BYU file, but the file contains %d meshes only.\n", part, num_parts));
   }
@@ -863,7 +862,8 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
     stop("Mesh file does not contain any faces.");
   }
   relevant_part_info_line_index = part + 1L;
-  part_info = as.integer(strsplit(byu_lines[relevant_part_info_line_index], " ")[[1]]);
+  #part_info = as.integer(strsplit(byu_lines[relevant_part_info_line_index], " ")[[1]]);
+  part_info = as.integer(linesplit.fixed(byu_lines[relevant_part_info_line_index], length_per_part=6L, num_parts_expected=2L, error_tag = relevant_part_info_line_index));
   part_start = part_info[1];  # the first face (by one-based index in the face list) of this mesh
   part_end = part_info[2];    # the last face (by one-based index in the face list) of this mesh
 
@@ -874,13 +874,16 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   num_verts_left_to_parse = num_vertices;
   current_line_idx = first_vertex_coords_line_index;
   while(num_verts_left_to_parse > 0L) {
-    coords = as.double(strsplit(byu_lines[current_line_idx], " ")[[1]]);
+    cline = byu_lines[current_line_idx];
+    chars_per_coord = 12L;
+    coords = as.integer(linesplit.fixed(cline, length_per_part=chars_per_coord, num_parts_expected=NULL, error_tag = current_line_idx));
+    #coords = as.double(strsplit(byu_lines[current_line_idx], " ")[[1]]);
     if(length(coords) == 6L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 2L;
     } else if(length(coords) == 3L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 1L;
     } else {
-      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d.\n", length(coords), current_line_idx));
+      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not triangular?\n", length(coords), current_line_idx));
     }
     coords = as.double(coords, ncol = 3L, byrow = TRUE);
     if(is.null(all_coords)) {
@@ -893,3 +896,51 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
 
 }
 
+
+#' @title Split a string into fixed-length parts.
+#'
+#' @param cline character string, the input line
+#'
+#' @length_per_part integer, number of characters per part
+#'
+#' @param num_parts_expected integer, the number of parts. Leave at NULL if this is not known.
+#'
+#' @param error_tag optional character string, how to identify the line in a parsing error message. Could be the line number, or whatever. Only relevant if 'num_parts_expected' is not matched.
+#'
+#' @keywords internal
+linesplit.fixed <- function(cline, length_per_part, num_parts_expected=NULL, error_tag=NULL) {
+
+  if(is.null(error_tag)) {
+    error_tag_string = "";
+  } else {
+    error_tag_string = sprintf('%s ', as.character(error_tag));
+  }
+
+  if((nchar(cline) %% length_per_part) != 0L) {
+    stop(sprintf("Line %slength %d is not a multiple of the length per part (%d).\n", error_tag_string, nchar(cline), length_per_part));
+  }
+
+  if(! is.null(num_parts_expected)) {
+    num_chars_expected = num_parts_expected * length_per_part;
+    if(nchar(cline) != num_chars_expected) {
+      stop(sprintf("Line %slength of %d characters expected for %d parts with length %d, but found line with %d chars.\n", error_tag_string, num_chars_expected, num_parts_expected, length_per_part, nchar(cline)));
+    }
+  }
+  start_indices = seq(1L, nchar(cline)-1L, by=length_per_part);
+  stop_indices = seq(length_per_part, nchar(cline), by=length_per_part);
+
+  if(length(start_indices) != length(stop_indices)) {
+    stop(sprintf("Line %slength %d is not a multiple of the length per part (%d) -- part index mistmatch.\n", error_tag_string, nchar(cline), length_per_part));
+  }
+
+  #cat(sprintf("n=%d: '%s'\n", nchar(cline), cline));
+  #print(start_indices);
+  #print(stop_indices);
+  line_parts = substring(cline, start_indices, stop_indices);
+  if(! is.null(num_parts_expected)) {
+    if(length(line_parts) != num_parts_expected) {
+      stop(sprintf("Parsed line %scontains %d fields, expected %d.", error_tag_string, length(line_parts), num_parts_expected));
+    }
+  }
+  return(line_parts);
+}
