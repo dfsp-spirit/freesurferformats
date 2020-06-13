@@ -864,22 +864,32 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   }
   relevant_part_info_line_index = part + 1L;
   part_info = as.integer(strsplit(byu_lines[relevant_part_info_line_index], " ")[[1]]);
-  part_start = part_info[1];
-  part_end = part_info[2];
-  part_lines = byu_lines[part_start:part_end];
-  return(parse.byu.mesh(part_lines));
+  part_start = part_info[1];  # the first face (by one-based index in the face list) of this mesh
+  part_end = part_info[2];    # the last face (by one-based index in the face list) of this mesh
+
+  # Read the point lines. Each line contains the x, y, z coords for 2 vertices (=2 x 3 numbers), the last line may of
+  # course only contain the coords for a single vertex.
+  all_coords = NULL;
+  first_vertex_coords_line_index = 1L + num_parts + 1L;
+  num_verts_left_to_parse = num_vertices;
+  current_line_idx = first_vertex_coords_line_index;
+  while(num_verts_left_to_parse > 0L) {
+    coords = as.double(strsplit(byu_lines[current_line_idx], " ")[[1]]);
+    if(length(coords) == 6L) {
+      num_verts_left_to_parse = num_verts_left_to_parse - 2L;
+    } else if(length(coords) == 3L) {
+      num_verts_left_to_parse = num_verts_left_to_parse - 1L;
+    } else {
+      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d.\n", length(coords), current_line_idx));
+    }
+    coords = as.double(coords, ncol = 3L, byrow = TRUE);
+    if(is.null(all_coords)) {
+      all_coords = coords;
+    } else {
+      all_coords = rbind(all_coords, coords);
+    }
+    current_line_idx = current_line_idx + 1L;
+  }
+
 }
-
-
-#' @title Parse a single mesh from the relevant lines of a BYU file.
-#'
-#' @param byu_mesh_lines vector of character strings, the lines defining a single mesh, extracted from a file in BYU format.
-#'
-#' @return fs.surface, the mesh
-#'
-#' @keywords internal
-parse.byu.mesh <- function(byu_mesh_lines) {
-
-}
-
 
