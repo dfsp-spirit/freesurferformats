@@ -825,3 +825,61 @@ coord.to.key <- function(coord, digits=6L) {
 }
 
 
+#' @title Read mesh in BYU format.
+#'
+#' @description The BYU format is an old ASCII mesh format. I consider it a bit counter-intuitive.
+#'
+#' @param filepath full path of the file in BYU format.
+#'
+#' @param part positive integer, the index of the mesh that should be loaded from the file. Only relevant if the file contains more than one mesh.
+#'
+#' @return an `fs.surface` instance, aka a mesh
+#'
+#' @references \url{http://www.eg-models.de/formats/Format_Byu.html}
+#'
+#' @export
+read.fs.surface.byu <- function(filepath, part = 1L) {
+  part = as.integer(part);
+  byu_lines = readLines(filepath);
+  byu_lines = trimws(byu_lines); # trim leading and trailing white space from all lines.
+
+  element_counts = as.integer(strsplit(byu_lines[1], " ")[[1]]);
+  num_parts = element_counts[1]; # number of meshes in the file.
+  num_vertices = element_counts[2];
+  num_faces = element_counts[3]; # strictly these faces are polys, not neccessarily triangles. We only support triangles though.
+  num_connects = element_counts[4];
+  num_test = element_counts[5];
+
+  if(num_test != 0L) {
+    stop(sprintf("Not a valid BYU mesh file: num_test must be 0, but is '%d'.\n", num_test));
+  }
+  if(num_connects != (3L * num_faces)) {
+    stop(sprintf("Only triangular BYU files are supported: expected %d connects for %d triangular faces, but found '%d'.\n", (3L * num_faces), num_faces, num_connects));
+  }
+  if(part > num_parts) {
+    stop(sprintf("Requested to load mesh # %d from BYU file, but the file contains %d meshes only.\n", part, num_parts));
+  }
+  if(num_vertices < 3L | num_faces < 1L) {
+    stop("Mesh file does not contain any faces.");
+  }
+  relevant_part_info_line_index = part + 1L;
+  part_info = as.integer(strsplit(byu_lines[relevant_part_info_line_index], " ")[[1]]);
+  part_start = part_info[1];
+  part_end = part_info[2];
+  part_lines = byu_lines[part_start:part_end];
+  return(parse.byu.mesh(part_lines));
+}
+
+
+#' @title Parse a single mesh from the relevant lines of a BYU file.
+#'
+#' @param byu_mesh_lines vector of character strings, the lines defining a single mesh, extracted from a file in BYU format.
+#'
+#' @return fs.surface, the mesh
+#'
+#' @keywords internal
+parse.byu.mesh <- function(byu_mesh_lines) {
+
+}
+
+
