@@ -581,6 +581,7 @@ read.fs.surface.mz3 <- function(filepath) {
 #' @export
 read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
   fh = file(filepath, "rb");
+  on.exit({ close(fh) }, add=TRUE);
 
   # skip header
   discarded = readBin(fh, integer(), n = 80L, size = 1L);
