@@ -34,7 +34,7 @@ read_nisurface <- function(filepath_noext, extensions=c('', '.asc', '.gii'), ...
 
 #' @title S3 method to read a neuroimaging surface file.
 #'
-#' @description Tries to read the file with all implemented surface format reader methods. The file must exist. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{\link[gifti]{read_gifti}} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
+#' @description Tries to read the file with all implemented surface format reader methods. The file must exist. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{gifti::read_gifti} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
 #'
 #' @param filepath character string, the full path to the input surface file.
 #'
