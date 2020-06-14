@@ -33,6 +33,7 @@ Write mesh to file in VTK ASCII format
 }
 \seealso{
 Other mesh functions: 
+\code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ply}()},

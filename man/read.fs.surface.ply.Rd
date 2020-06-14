@@ -20,6 +20,7 @@ This is by far not a complete PLY format reader. It can read PLY mesh files whic
 }
 \seealso{
 Other mesh functions: 
+\code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.vtk}()},

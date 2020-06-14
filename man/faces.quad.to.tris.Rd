@@ -2,16 +2,35 @@
 % Please edit documentation in R/read_fs_surface.R
 \name{faces.quad.to.tris}
 \alias{faces.quad.to.tris}
-\title{Convert quad faces to tris faces.}
+\title{Convert quadrangular faces or polygons to triangular ones.}
 \usage{
 faces.quad.to.tris(quad_faces)
 }
 \arguments{
-\item{quad_faces}{nx4 integer matrix, the indices of the vertices making up the *n* quad faces}
+\item{quad_faces}{nx4 integer matrix, the indices of the vertices making up the *n* quad faces.}
 }
 \value{
-*2nx3* integer matrix, the indices of the vertices making up the *2n* tris faces
+*2nx3* integer matrix, the indices of the vertices making up the *2n* tris faces.
 }
 \description{
-Convert quad faces to tris faces.
+Convert quadrangular faces or polygons to triangular ones.
 }
+\note{
+This function does no fancy remeshing, it simply splits each quad into two triangles.
+}
+\seealso{
+Other mesh functions: 
+\code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.gii}()},
+\code{\link{read.fs.surface.ply}()},
+\code{\link{read.fs.surface.vtk}()},
+\code{\link{read.fs.surface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{read_nisurface}()},
+\code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.gii}()},
+\code{\link{write.fs.surface.mz3}()},
+\code{\link{write.fs.surface.vtk}()},
+\code{\link{write.fs.surface}()}
+}
+\concept{mesh functions}

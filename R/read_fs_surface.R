@@ -847,6 +847,7 @@ coord.to.key <- function(coord, digits=6L) {
 #'
 #' @references \url{http://www.eg-models.de/formats/Format_Byu.html}
 #'
+#' @importFrom stats na.omit
 #' @export
 read.fs.surface.byu <- function(filepath, part = 1L) {
   part = as.integer(part);
@@ -893,7 +894,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   while(num_verts_left_to_parse > 0L) {
     cline = byu_lines[current_line_idx];
     coords = as.double(linesplit.fixed(cline, length_per_part=chars_per_coord, num_parts_expected=NULL, error_tag = current_line_idx));
-    coords = na.omit(coords); # If a line (the last one) is not fully filled with digits, the missing ones will be parsed as NA. Remove these NAs.
+    coords = stats::na.omit(coords); # If a line (the last one) is not fully filled with digits, the missing ones will be parsed as NA. Remove these NAs.
     if(length(coords) == 6L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 2L;
     } else if(length(coords) == 3L) {
@@ -922,7 +923,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   while(num_faces_vert_indices_left_to_parse > 0L) {
     cline = byu_lines[current_line_idx];
     faces_vert_indices = as.integer(linesplit.fixed(cline, length_per_part=chars_per_vertex_index, num_parts_expected=NULL, error_tag = current_line_idx));
-    faces_vert_indices = na.omit(faces_vert_indices);
+    faces_vert_indices = stats::na.omit(faces_vert_indices);
 
     num_faces_vert_indices_left_to_parse = num_faces_vert_indices_left_to_parse - length(faces_vert_indices);
     if(is.null(all_faces_vert_indices)) {

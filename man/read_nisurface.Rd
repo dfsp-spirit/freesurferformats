@@ -31,6 +31,7 @@ Tries to read all files which can be constructed from the base path and the give
 }
 \seealso{
 Other mesh functions: 
+\code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ply}()},
