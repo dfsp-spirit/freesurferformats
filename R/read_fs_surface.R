@@ -942,7 +942,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
 #'
 #' @param cline character string, the input line
 #'
-#' @length_per_part integer, number of characters per part
+#' @param length_per_part integer, number of characters per part
 #'
 #' @param num_parts_expected integer, the number of parts. Leave at NULL if this is not known.
 #'
