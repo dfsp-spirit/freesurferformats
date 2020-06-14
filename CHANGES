@@ -6,6 +6,8 @@ Version 0.1.12
 - export readable.files function
 - support reading and writing meshes in mz3 format
 - support writing PLY2 ASCII mesh format
+- support reading mesh in BYU format
+- support automatic conversion of quadrangular BYU meshes to triangular upon import
 
 
 Version 0.1.11
