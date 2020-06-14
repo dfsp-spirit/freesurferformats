@@ -685,3 +685,33 @@ fixed.vec.format.int <- function(vdata, num_chars_per_entry, max_entries_per_lin
   }
   return(result_string);
 }
+
+
+
+write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
+
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+
+  if(ncol(vertex_coords) != 3L) {
+    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
+
+  fh = file(filepath, "w");
+
+
+  # write header
+  num_meshes = 1L;
+  header_data = c(num_meshes, num_verts, num_faces, (num_verts * 3L), 0L);
+  header_line = fixed.vec.format.intfunction(header_data, num_chars_per_entry=6L);
+  # write the lines identifying the start and stop of the meshes in the faces list. Only one mesh in our case, that spans the entire list.
+  part_line = fixed.vec.format.intfunction(c(1L, (num_verts * 3L)), num_chars_per_entry=6L);
+  writeLines(c(header_line, part_line), fh);
+
+  # write the vertex coordinates
+
+  close(fh);
+}
