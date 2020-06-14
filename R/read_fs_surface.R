@@ -398,13 +398,17 @@ print.fs.surface <- function(x, ...) {
 }
 
 
-#' Convert quad faces to tris faces.
+#' @title Convert quadrangular faces or polygons to triangular ones.
 #'
-#' @param quad_faces nx4 integer matrix, the indices of the vertices making up the *n* quad faces
+#' @param quad_faces nx4 integer matrix, the indices of the vertices making up the *n* quad faces.
 #'
-#' @return *2nx3* integer matrix, the indices of the vertices making up the *2n* tris faces
+#' @return *2nx3* integer matrix, the indices of the vertices making up the *2n* tris faces.
 #'
-#' @keywords internal
+#' @note This function does no fancy remeshing, it simply splits each quad into two triangles.
+#'
+#' @family mesh functions
+#'
+#' @export
 faces.quad.to.tris <- function(quad_faces) {
   num_quad_faces = nrow(quad_faces);
   num_tris_faces = num_quad_faces * 2L;
@@ -861,8 +865,12 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
 
   vertices_per_face = 3L; # assume triangular mesh
   if(num_connects != (3L * num_faces)) {
-    vertices_per_face = as.integer(num_connects / num_faces);
-    warning(sprintf("Only triangular BYU files are supported: expected %d edges for %d triangular faces, but found %d. Mesh has %d verts per face.\n", (3L * num_faces), num_faces, num_connects, vertices_per_face));
+    vertices_per_face = num_connects / num_faces;
+    if(vertices_per_face == 4L) {
+      message(sprintf("Mesh has %d vertices per face (quadrangular faces), remeshing to triangular faces.\n", vertices_per_face));
+    } else {
+      stop(sprintf("Only triangular or quadrangular meshes in BYU files are supported: expected %d edges for %d triangular faces, but found %d. Mesh has %d vertices per face.\n", (3L * num_faces), num_faces, num_connects, vertices_per_face));
+    }
   }
   if(part > num_parts) {
     stop(sprintf("Requested to load mesh # %d from BYU file, but the file contains %d meshes only.\n", part, num_parts));
@@ -935,6 +943,13 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   faces = matrix(all_faces_vert_indices, ncol = vertices_per_face, byrow = TRUE);
 
   mesh = list('vertices'=all_coords, 'faces'=faces);
+
+  # Remesh quadrangular mesh to triangular if needed.
+  if(vertices_per_face == 4L) {
+    mesh$metadata = list('faces_quads'=faces);
+    mesh$faces = faces.quad.to.tris(mesh$faces);
+  }
+
   class(mesh) = c(class(mesh), 'fs.surface');
   return(mesh);
 }

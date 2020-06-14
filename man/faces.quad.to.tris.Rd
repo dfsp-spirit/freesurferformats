@@ -15,4 +15,3 @@ faces.quad.to.tris(quad_faces)
 \description{
 Convert quad faces to tris faces.
 }
-\keyword{internal}
