@@ -15,7 +15,7 @@ read.fs.surface.byu(filepath, part = 1L)
 an `fs.surface` instance, aka a mesh
 }
 \description{
-The BYU format is an old ASCII mesh format that is based on fixed character positions in lines (as opposed to whitespace-separated elements). I consider it a bit counter-intuitive.
+The BYU or Brigham Young University format is an old ASCII mesh format that is based on fixed character positions in lines (as opposed to whitespace-separated elements). I consider it a bit counter-intuitive.
 }
 \references{
 \url{http://www.eg-models.de/formats/Format_Byu.html}

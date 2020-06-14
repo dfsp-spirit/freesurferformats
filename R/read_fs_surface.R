@@ -659,7 +659,18 @@ read.fs.surface.stl <- function(filepath, digits = 6L) {
 #'
 #' @keywords internal
 stl.format.file.is.ascii <- function(filepath) {
-  stl_lines = readLines(filepath);
+  stl_lines = NULL;
+  stl_lines <- tryCatch({
+    readLines(filepath);
+  }, error = function(e) {
+    NULL;
+  }, warning = function(e) {
+    NULL;
+  });
+
+  if(is.null(stl_lines)) {
+    return(FALSE);
+  }
   return(startsWith(stl_lines[1], "solid"));
 }
 
