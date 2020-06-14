@@ -160,3 +160,26 @@ test_that("A surface file in STL binary format can be read using read.fs.surface
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices
 })
+
+
+test_that("A surface file in BYU ASCII mesh format can be read using read.fs.surface", {
+  byu_surface_file = system.file("extdata", "cube_quads.byu", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(byu_surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+
+  # The file actually contains quadrangular polygons, not triangles. The function
+  # remeshes automatically, but we can access the original quads as well:
+  expect_equal(ncol(surf$metadata$faces_quads), 4);      # the 4 vertex indices of a quad
+  expect_equal(nrow(surf$metadata$faces_quads), known_face_count / 2L);
+})
+
+
