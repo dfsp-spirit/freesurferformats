@@ -638,3 +638,39 @@ write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
   return(invisible(format_written));
 }
 
+
+#' @title Write fixed width integer lines.
+#' @export
+fixed.vec.format.int <- function(vdata, num_chars_per_entry, max_entries_per_line=NULL, align_right=TRUE) {
+  num_chars_per_entry = as.integer(num_chars_per_entry);
+  if(align_right) {
+    format_string = sprintf("%%%dd", num_chars_per_entry);
+  } else {
+    format_string = sprintf("%%-%dd", num_chars_per_entry);
+  }
+  if(is.null(max_entries_per_line)) {
+    return(paste(sprintf(format_string, vdata), collapse=""));
+  } else {
+    result_string = NULL;
+    num_left = length(vdata);
+    start_idx = 1L;
+    while(num_left > 0L) {
+      if(num_left >= max_entries_per_line) {
+        end_idx = start_idx + max_entries_per_line - 1L;
+      } else {
+        end_idx = length(vdata);
+      }
+      num_written = end_idx - start_idx + 1L;
+      #cat(sprintf("%d written: from index %d to %d (total %d, %d per line).\n", num_written, start_idx, end_idx, length(vdata), max_entries_per_line));
+      this_line = paste(sprintf(format_string, vdata[start_idx:end_idx]), collapse="");
+      if(is.null(result_string)) {
+        result_string = this_line;
+      } else {
+        result_string = paste(result_string, this_line, sep = "\n");
+      }
+      num_left = num_left - num_written;
+      start_idx = end_idx + 1L;
+    }
+  }
+  return(result_string);
+}
