@@ -389,6 +389,12 @@ read.fs.surface <- function(filepath, format='auto') {
 print.fs.surface <- function(x, ...) {
   cat(sprintf("Brain surface trimesh with %d vertices and %d faces.\n", nrow(x$vertices), nrow(x$faces)));
   cat(sprintf("-Surface coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertices[,1]), min(x$vertices[,2]), min(x$vertices[,3]), max(x$vertices[,1]), max(x$vertices[,2]), max(x$vertices[,3])));
+  if(ncol(x$vertices) != 3L) {
+    warning(sprintf("Vertex coordinates of the mesh have %d dimensions, expected 3. Not a valid 3-dimensional mesh.\n", ncol(x$vertices)));
+  }
+  if(ncol(x$faces) != 3L) {
+    warning(sprintf("Faces of the mesh consist of %d vertices each, expected 3. Not a valid triangular mesh.\n", ncol(x$faces)));
+  }
 }
 
 
@@ -852,17 +858,19 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   if(num_test != 0L) {
     stop(sprintf("Not a valid BYU mesh file: num_test must be 0, but is '%d'.\n", num_test));
   }
-  #if(num_connects != (3L * num_faces)) {
-  #  stop(sprintf("Only triangular BYU files are supported: expected %d edges for %d triangular faces, but found %d.\n", (3L * num_faces), num_faces, num_connects));
-  #}
+
+  vertices_per_face = 3L; # assume triangular mesh
+  if(num_connects != (3L * num_faces)) {
+    vertices_per_face = as.integer(num_connects / num_faces);
+    warning(sprintf("Only triangular BYU files are supported: expected %d edges for %d triangular faces, but found %d. Mesh has %d verts per face.\n", (3L * num_faces), num_faces, num_connects, vertices_per_face));
+  }
   if(part > num_parts) {
     stop(sprintf("Requested to load mesh # %d from BYU file, but the file contains %d meshes only.\n", part, num_parts));
   }
-  if(num_vertices < 3L | num_faces < 1L) {
+  if(num_vertices < vertices_per_face | num_faces < 1L) {
     stop("Mesh file does not contain any faces.");
   }
   relevant_part_info_line_index = part + 1L;
-  #part_info = as.integer(strsplit(byu_lines[relevant_part_info_line_index], " ")[[1]]);
   part_info = as.integer(linesplit.fixed(byu_lines[relevant_part_info_line_index], length_per_part=6L, num_parts_expected=2L, error_tag = relevant_part_info_line_index));
   part_start = part_info[1];  # the first face (by one-based index in the face list) of this mesh
   part_end = part_info[2];    # the last face (by one-based index in the face list) of this mesh
@@ -873,17 +881,17 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   first_vertex_coords_line_index = 1L + num_parts + 1L;
   num_verts_left_to_parse = num_vertices;
   current_line_idx = first_vertex_coords_line_index;
+  chars_per_coord = 12L;
   while(num_verts_left_to_parse > 0L) {
     cline = byu_lines[current_line_idx];
-    chars_per_coord = 12L;
-    coords = as.integer(linesplit.fixed(cline, length_per_part=chars_per_coord, num_parts_expected=NULL, error_tag = current_line_idx));
-    #coords = as.double(strsplit(byu_lines[current_line_idx], " ")[[1]]);
+    coords = as.double(linesplit.fixed(cline, length_per_part=chars_per_coord, num_parts_expected=NULL, error_tag = current_line_idx));
+    coords = na.omit(coords); # If a line (the last one) is not fully filled with digits, the missing ones will be parsed as NA. Remove these NAs.
     if(length(coords) == 6L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 2L;
     } else if(length(coords) == 3L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 1L;
     } else {
-      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not triangular?\n", length(coords), current_line_idx));
+      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not 3-dimensional?\n", length(coords), current_line_idx));
     }
     coords = as.double(coords, ncol = 3L, byrow = TRUE);
     if(is.null(all_coords)) {
@@ -893,6 +901,39 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
     }
     current_line_idx = current_line_idx + 1L;
   }
+
+  # Parse faces. For now, we only parse the vertex indices. We construct faces from them later.
+  all_faces_vert_indices = NULL; # only a vector for now, not a matrix.
+  num_faces_left_to_parse = num_faces;
+  num_faces_vert_indices_left_to_parse = num_faces * vertices_per_face;
+  chars_per_vertex_index = 6L;
+  while(num_faces_vert_indices_left_to_parse > 0L) {
+    cline = byu_lines[current_line_idx];
+    faces_vert_indices = as.integer(linesplit.fixed(cline, length_per_part=chars_per_vertex_index, num_parts_expected=NULL, error_tag = current_line_idx));
+    faces_vert_indices = na.omit(faces_vert_indices);
+
+    num_faces_vert_indices_left_to_parse = num_faces_vert_indices_left_to_parse - length(faces_vert_indices);
+    if(is.null(all_faces_vert_indices)) {
+      all_faces_vert_indices = faces_vert_indices;
+    } else {
+      all_faces_vert_indices = c(all_faces_vert_indices, faces_vert_indices);
+    }
+    current_line_idx = current_line_idx + 1L;
+  }
+
+  # Now create faces from the vector of vertex indices. If an index is negative, it is the last one in the current face.
+  last_vertex_of_face_indices = which(all_faces_vert_indices < 0L);
+  if(length(last_vertex_of_face_indices) != num_faces) {
+    stop(sprintf("BYU data mismatch: expected %d face end vertices from header, but found %d.\n", num_faces, length(last_vertex_of_face_indices)));
+  }
+
+  all_faces_vert_indices = as.integer(abs(all_faces_vert_indices));
+  faces = matrix(all_faces_vert_indices, ncol = vertices_per_face, byrow = TRUE);
+
+  mesh = list('vertices'=all_coords, 'faces'=faces);
+  class(mesh) = c(class(mesh), 'fs.surface');
+  return(mesh);
+  return()
 
 }
 
@@ -933,9 +974,6 @@ linesplit.fixed <- function(cline, length_per_part, num_parts_expected=NULL, err
     stop(sprintf("Line %slength %d is not a multiple of the length per part (%d) -- part index mistmatch.\n", error_tag_string, nchar(cline), length_per_part));
   }
 
-  #cat(sprintf("n=%d: '%s'\n", nchar(cline), cline));
-  #print(start_indices);
-  #print(stop_indices);
   line_parts = substring(cline, start_indices, stop_indices);
   if(! is.null(num_parts_expected)) {
     if(length(line_parts) != num_parts_expected) {
