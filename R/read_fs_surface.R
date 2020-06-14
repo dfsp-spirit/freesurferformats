@@ -893,13 +893,17 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
     } else {
       stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not 3-dimensional?\n", length(coords), current_line_idx));
     }
-    coords = as.double(coords, ncol = 3L, byrow = TRUE);
+    coords = matrix(coords, ncol = 3L, byrow = TRUE);
     if(is.null(all_coords)) {
       all_coords = coords;
     } else {
       all_coords = rbind(all_coords, coords);
     }
     current_line_idx = current_line_idx + 1L;
+  }
+
+  if(nrow(all_coords) != num_vertices) {
+    stop(sprintf("BYU data mismatch: expected %d vertices from header, but found %d.\n", num_vertices, nrow(all_coords)));
   }
 
   # Parse faces. For now, we only parse the vertex indices. We construct faces from them later.
@@ -933,8 +937,6 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   mesh = list('vertices'=all_coords, 'faces'=faces);
   class(mesh) = c(class(mesh), 'fs.surface');
   return(mesh);
-  return()
-
 }
 
 
