@@ -39,6 +39,7 @@ Other mesh functions:
 \code{\link{read.fs.surface}()},
 \code{\link{read_nisurfacefile}()},
 \code{\link{write.fs.surface.asc}()},
+\code{\link{write.fs.surface.byu}()},
 \code{\link{write.fs.surface.gii}()},
 \code{\link{write.fs.surface.mz3}()},
 \code{\link{write.fs.surface.vtk}()},

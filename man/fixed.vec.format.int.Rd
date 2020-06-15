@@ -21,8 +21,9 @@ fixed.vec.format.int(
 \item{align_right}{logical, whether to align the integers to the right. As you may have guessed, set to `FALSE` to align to the left.}
 }
 \value{
-character string, the formatted data. May contain newlines.
+vector of character strings, the formatted data lines.
 }
 \description{
 Write fixed width integers to one or several lines.
 }
+\keyword{internal}

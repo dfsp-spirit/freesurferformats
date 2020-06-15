@@ -9,7 +9,7 @@
 #'
 #' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
-#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
+#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young University (BYU) mesh format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
 #'
 #' @return character string, the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
@@ -31,8 +31,8 @@
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu').");
   }
 
   if(ncol(vertex_coords) != 3L) {
@@ -68,6 +68,10 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 
   if(format == 'mz3' | (format == 'auto' & filepath.ends.with(filepath, c('.mz3')))) {
     return(write.fs.surface.mz3(filepath, vertex_coords, faces));
+  }
+
+  if(format == 'byu' | (format == 'auto' & filepath.ends.with(filepath, c('.byu')))) {
+    return(write.fs.surface.byu(filepath, vertex_coords, faces));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;
@@ -595,7 +599,7 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #'     write.fs.surface.mz3(tempfile(fileext=".mz3"), mesh$vertices, mesh$faces);
 #' }
 #'
-#' @note This format is used by the surf-ice renderer.
+#' @note This format is used by the surf-ice renderer. The format spec is at \url{https://github.com/neurolabusc/surf-ice/tree/master/mz3}.
 #'
 #' @export
 write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
@@ -649,16 +653,21 @@ write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
 #'
 #' @param align_right logical, whether to align the integers to the right. As you may have guessed, set to `FALSE` to align to the left.
 #'
-#' @return character string, the formatted data. May contain newlines.
+#' @return vector of character strings, the formatted data lines.
 #'
-#' @export
+#' @keywords internal
 fixed.vec.format.int <- function(vdata, num_chars_per_entry, max_entries_per_line=NULL, align_right=TRUE) {
   num_chars_per_entry = as.integer(num_chars_per_entry);
   if(align_right) {
-    format_string = sprintf("%%%dd", num_chars_per_entry);
+    format_string = sprintf("%% %dd", num_chars_per_entry);
   } else {
-    format_string = sprintf("%%-%dd", num_chars_per_entry);
+    format_string = sprintf("%% -%dd", num_chars_per_entry);
   }
+  return(fixed.format.lines(vdata, format_string, max_entries_per_line = max_entries_per_line));
+}
+
+#' @keywords internal
+fixed.format.lines <- function(vdata, format_string, max_entries_per_line=NULL) {
   if(is.null(max_entries_per_line)) {
     return(paste(sprintf(format_string, vdata), collapse=""));
   } else {
@@ -672,22 +681,40 @@ fixed.vec.format.int <- function(vdata, num_chars_per_entry, max_entries_per_lin
         end_idx = length(vdata);
       }
       num_written = end_idx - start_idx + 1L;
-      #cat(sprintf("%d written: from index %d to %d (total %d, %d per line).\n", num_written, start_idx, end_idx, length(vdata), max_entries_per_line));
       this_line = paste(sprintf(format_string, vdata[start_idx:end_idx]), collapse="");
-      if(is.null(result_string)) {
-        result_string = this_line;
-      } else {
-        result_string = paste(result_string, this_line, sep = "\n");
-      }
+      result_string = c(result_string, this_line);
       num_left = num_left - num_written;
       start_idx = end_idx + 1L;
     }
+    return(result_string);
   }
-  return(result_string);
 }
 
 
-
+#' @title Write mesh to file in BYU ASCII format.
+#'
+#' @param filepath string. Full path to the output surface file, should end with '.byu', but that is not enforced.
+#'
+#' @inheritParams write.fs.surface
+#'
+#' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
+#'
+#' @family mesh functions
+#'
+#' @examples
+#' \donttest{
+#'     # Read a surface from a file:
+#'     surface_file = system.file("extdata", "lh.tinysurface",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     mesh = read.fs.surface(surface_file);
+#'
+#'     # Now save it:
+#'     write.fs.surface.byu(tempfile(fileext=".byu"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @note This is a fixed field length ASCII format. Keep in mind that the BYU format expects the coordinates to be in the cube -1 to +1 on all three axes.
+#'
+#' @export
 write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
 
   num_verts = nrow(vertex_coords);
@@ -700,18 +727,35 @@ write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
     stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
   }
 
-  fh = file(filepath, "w");
+  # The BYU format expects the coordinates to be in the cube -1 to +1 on all axes. Warn if that is not the case.
+  coord_min = min(min(vertex_coords[,1]), min(vertex_coords[,2]), min(vertex_coords[,3]));
+  coord_max = max(max(vertex_coords[,1]), max(vertex_coords[,2]), max(vertex_coords[,3]));
+  if(coord_min < -1.0 | coord_max > 1.0) {
+     stop(sprintf("Exported BYU mesh contains vertex coordinates outside of expected range -1 to 1 (coord range of mesh is %f to %f). Consider rescaling.\n", coord_min, coord_max));
+  }
 
+  fh = file(filepath, "w");
 
   # write header
   num_meshes = 1L;
-  header_data = c(num_meshes, num_verts, num_faces, (num_verts * 3L), 0L);
-  header_line = fixed.vec.format.intfunction(header_data, num_chars_per_entry=6L);
+  header_data = c(num_meshes, num_verts, num_faces, (num_faces * 3L), 0L);
+  header_line = fixed.vec.format.int(header_data, num_chars_per_entry=6L);
   # write the lines identifying the start and stop of the meshes in the faces list. Only one mesh in our case, that spans the entire list.
-  part_line = fixed.vec.format.intfunction(c(1L, (num_verts * 3L)), num_chars_per_entry=6L);
+  part_line = fixed.vec.format.int(c(1L, (num_faces * 3L)), num_chars_per_entry=6L);
   writeLines(c(header_line, part_line), fh);
 
   # write the vertex coordinates
+  vertex_coords_vec = as.double(t(vertex_coords));
+  vertex_lines = fixed.format.lines(vertex_coords_vec, format_string="% 1.5e", max_entries_per_line=6L);
+  writeLines(vertex_lines, fh);
+
+  # Write faces.
+  # Turn matrix of vertex indices into a vector and make the index of the last vertex of each face negative:
+  face_vertex_indices = as.integer(t(faces));
+  last_vertices_of_faces_indices = seq.int(3L, length(face_vertex_indices), by=3L);
+  face_vertex_indices[last_vertices_of_faces_indices] = -face_vertex_indices[last_vertices_of_faces_indices];
+  face_lines = fixed.vec.format.int(face_vertex_indices, num_chars_per_entry=6L, max_entries_per_line=16L);
+  writeLines(face_lines, fh);
 
   close(fh);
 }

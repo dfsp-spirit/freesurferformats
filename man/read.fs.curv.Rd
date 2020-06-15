@@ -22,7 +22,7 @@ Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format.
     curvfile = system.file("extdata", "lh.thickness",
                             package = "freesurferformats", mustWork = TRUE);
     ct = read.fs.curv(curvfile);
-    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\\n",
+    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\n",
                             length(ct), min(ct), mean(ct), max(ct)));
 
 }

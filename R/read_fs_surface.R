@@ -896,8 +896,8 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   }
   relevant_part_info_line_index = part + 1L;
   part_info = as.integer(linesplit.fixed(byu_lines[relevant_part_info_line_index], length_per_part=6L, num_parts_expected=2L, error_tag = relevant_part_info_line_index));
-  part_start = part_info[1];  # the first face (by one-based index in the face list) of this mesh
-  part_end = part_info[2];    # the last face (by one-based index in the face list) of this mesh
+  part_start = part_info[1];  # the first vertex index (by one-based index in the face list) of this mesh
+  part_end = part_info[2];    # the last vertex index (by one-based index in the face list) of this mesh
 
   # Read the point lines. Each line contains the x, y, z coords for 2 vertices (=2 x 3 numbers), the last line may of
   # course only contain the coords for a single vertex.
