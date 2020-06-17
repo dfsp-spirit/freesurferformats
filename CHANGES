@@ -1,17 +1,13 @@
 freesurferformats Changes
 =========================
 
-Version 0.1.12
+Version 0.1.11
 --------------
 - export readable.files function
 - support reading and writing meshes in mz3 format
 - support writing PLY2 ASCII mesh format
 - support reading mesh in BYU format
 - support automatic conversion of quadrangular BYU meshes to triangular upon import
-
-
-Version 0.1.11
---------------
 - add support for reading GIFTI format labels
 - add support for reading GIFTI format annotations
 - add support for writing GIFTI format labels
