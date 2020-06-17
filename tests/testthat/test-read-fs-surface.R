@@ -3,8 +3,8 @@
 test_that("Our demo surface file can be read using read.fs.surface", {
 
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
-  freesurferformats::download_optional_data();
-  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
   skip_if_not(file.exists(surface_file), message="Test data missing.") ;
 
@@ -36,8 +36,8 @@ test_that("Vertex connectivity in the demo surface file is as expected from refe
 
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
 
-  freesurferformats::download_optional_data();
-  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
   skip_if_not(file.exists(surface_file), message="Test data missing.");
 
@@ -60,8 +60,8 @@ test_that("The vertices of a face are close to each other", {
 
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
 
-  freesurferformats::download_optional_data();
-  subjects_dir = freesurferformats::get_optional_data_filepath("subjects_dir");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
   skip_if_not(file.exists(surface_file), message="Test data missing.");
 

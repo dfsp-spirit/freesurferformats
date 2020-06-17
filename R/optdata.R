@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info ensure_files_available
-download_optional_data <- function() {
+download_opt_data <- function() {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
 
   # Replace these with your optional data files.
@@ -94,7 +94,7 @@ download_optional_data <- function() {
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info list_available
-list_optional_data <- function() {
+list_opt_data <- function() {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
   return(pkgfilecache::list_available(pkg_info));
 }
@@ -110,7 +110,7 @@ list_optional_data <- function() {
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info get_filepath
-get_optional_data_filepath <- function(filename, mustWork=TRUE) {
+get_opt_data_filepath <- function(filename, mustWork=TRUE) {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
   return(pkgfilecache::get_filepath(pkg_info, filename, mustWork=mustWork));
 }
@@ -122,7 +122,7 @@ get_optional_data_filepath <- function(filename, mustWork=TRUE) {
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info erase_file_cache
-delete_all_optional_data <- function() {
+delete_all_opt_data <- function() {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
   return(pkgfilecache::erase_file_cache(pkg_info));
 }

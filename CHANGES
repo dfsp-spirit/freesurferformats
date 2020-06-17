@@ -14,6 +14,7 @@ Version 0.1.11
 - add support for writing GIFTI format annotations
 - export rotate2D and flip2D to namespace
 - add support for reading transformation matrices from xfm files: read.fs.transform
+- rename all optional data functions: replace optional_data with opt_data in function names to prevent clash with fsbrain names
 
 
 Version 0.1.10
