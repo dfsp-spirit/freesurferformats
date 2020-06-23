@@ -1015,3 +1015,59 @@ linesplit.fixed <- function(cline, length_per_part, num_parts_expected=NULL, err
   }
   return(line_parts);
 }
+
+
+#' @title Read ICO format mesh as surface.
+#'
+#' @description This reads meshes from text files in ICO / TRI mesh format. This format is not to be confused with the the format used to store tiny icons.
+#'
+#' @param filepath string. Full path to the input surface file in ICO or TRI mesh format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @note This is a fixed with format.
+#'
+#' @family mesh functions
+#'
+#' @export
+read.fs.surface.ico <- function(filepath) {
+
+  ico_lines = readLines(filepath);
+  num_verts = as.integer(trimws(ico_lines[1]));   # "%8d"
+
+  vertices_df = NULL;
+  faces_df = NULL;
+
+  # This is a fixed with format, but there is always a space between the separate fields, so we can read it with read.table instead of splitting strings.
+
+  current_line_idx = 1L;
+
+  # vertex line: "%8d %8.4f %8.4f %8.4f\n"
+  vertices_df = read.table(filepath, skip=current_line_idx, col.names = c('vertex_index', 'coord1', 'coord2', 'coord3'), colClasses = c("integer", "numeric", "numeric", "numeric"), nrows=num_verts, header=FALSE);
+  current_line_idx = current_line_idx + num_verts + 1L;
+  num_faces = as.integer(trimws(ico_lines[current_line_idx]));    # "%8d"
+
+  # face line: vertex indices are 1 based, and the vertex ordering is flipped to clockwise!
+  # fprintf(fp, "%8d %8d %8d %8d\n", actual_fno, face->v[0] + 1, face->v[2] + 1, face->v[1] + 1);
+  faces_df = read.table(filepath, skip=current_line_idx, col.names = c('face_index', 'vert1', 'vert3', 'vert2'), colClasses = c("integer", "integer", "integer", "integer"), nrows=num_faces, header=FALSE);
+
+  ret_list = list();
+  ret_list$vertices = unname(data.matrix(vertices_df[2:4]));
+  ret_list$faces = unname(data.matrix(faces_df[2:4]));  # we do not add +1 here: in ICO files the indices are already 1-based
+  # switch vertex order
+  tmp_vec = ret_list$faces[,2];
+  ret_list$faces[,2] = ret_list$faces[,3];
+  ret_list$faces[,3] = tmp_vec;
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  if(nrow(ret_list$vertices) != num_verts) {
+    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+  }
+  if(nrow(ret_list$faces) != num_faces) {
+    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+  }
+
+  return(ret_list);
+}
+
+

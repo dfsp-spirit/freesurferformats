@@ -19,6 +19,7 @@ Read GIFTI format mesh as surface.
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.ico}()},
 \code{\link{read.fs.surface.ply}()},
 \code{\link{read.fs.surface.vtk}()},
 \code{\link{read.fs.surface}()},

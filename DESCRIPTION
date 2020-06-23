@@ -20,4 +20,4 @@ Suggests:
     oro.nifti (>= 0.9),
     gifti
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.0.9000
