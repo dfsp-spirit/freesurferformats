@@ -21,6 +21,7 @@ This is also known as *srf* format.
 \seealso{
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
+\code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
 \code{\link{read.fs.surface.ply}()},

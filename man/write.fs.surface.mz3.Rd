@@ -40,6 +40,7 @@ This format is used by the surf-ice renderer. The format spec is at \url{https:/
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
 \code{\link{read.fs.surface.ply}()},

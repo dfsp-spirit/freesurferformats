@@ -35,6 +35,7 @@ Write vertex coordinates and vertex indices defining faces to a file in GIFTI su
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
 \code{\link{read.fs.surface.ply}()},

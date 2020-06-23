@@ -21,6 +21,7 @@ This function does no fancy remeshing, it simply splits each quad into two trian
 \seealso{
 Other mesh functions: 
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
 \code{\link{read.fs.surface.ply}()},

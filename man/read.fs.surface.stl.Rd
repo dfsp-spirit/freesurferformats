@@ -4,12 +4,14 @@
 \alias{read.fs.surface.stl}
 \title{Read mesh in STL format, auto-detecting ASCII versus binary format version.}
 \usage{
-read.fs.surface.stl(filepath, digits = 6L)
+read.fs.surface.stl(filepath, digits = 6L, is_ascii = "auto")
 }
 \arguments{
 \item{filepath}{full path to surface mesh file in STL format.}
 
 \item{digits}{the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.}
+
+\item{is_ascii}{logical, whether the file is in the ASCII version of the STL format (as opposed to the binary version). Can also be the character string 'auto', in which case the function will try to auto-detect the format.}
 }
 \value{
 an `fs.surface` instance, the mesh.

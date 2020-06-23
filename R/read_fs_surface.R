@@ -639,13 +639,20 @@ read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
 #'
 #' @inheritParams read.fs.surface.stl.ascii
 #'
+#' @param is_ascii logical, whether the file is in the ASCII version of the STL format (as opposed to the binary version). Can also be the character string 'auto', in which case the function will try to auto-detect the format.
+#'
 #' @return an `fs.surface` instance, the mesh.
 #'
 #' @note The mesh is stored in the file as a polygon soup, which is transformed into an index mesh by this function.
 #'
 #' @export
-read.fs.surface.stl <- function(filepath, digits = 6L) {
-  if(stl.format.file.is.ascii(filepath)) {
+read.fs.surface.stl <- function(filepath, digits = 6L, is_ascii = 'auto') {
+
+  if(is_ascii == 'auto') {
+    is_ascii = stl.format.file.is.ascii(filepath);
+  }
+
+  if(is_ascii) {
     return(read.fs.surface.stl.ascii(filepath, digits = digits));
   } else {
     return(read.fs.surface.stl.bin(filepath, digits = digits));
@@ -1058,6 +1065,77 @@ read.fs.surface.ico <- function(filepath) {
   tmp_vec = ret_list$faces[,2];
   ret_list$faces[,2] = ret_list$faces[,3];
   ret_list$faces[,3] = tmp_vec;
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  if(nrow(ret_list$vertices) != num_verts) {
+    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+  }
+  if(nrow(ret_list$faces) != num_faces) {
+    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+  }
+
+  return(ret_list);
+}
+
+
+#' @title Read GEO format mesh as surface.
+#'
+#' @description This reads meshes from text files in GEO mesh format. This is an ASCII format.
+#'
+#' @param filepath string. Full path to the input surface file in GEO mesh format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @note This is a fixed with format.
+#'
+#' @family mesh functions
+#'
+#' @export
+read.fs.surface.geo <- function(filepath) {
+
+  mesh_lines = readLines(filepath);
+  header_line1_data = read.table(filepath, colClasses = rep('integer', 4L), col.names = c('one', 'num_verts', 'num_faces', 'num_connect'), nrows = 1L);
+  num_verts = header_line1_data$num_verts;
+  num_faces = header_line1_data$num_faces;
+
+  if(header_line1_data$num_connect != num_faces * 3L) {
+    stop("Inconsistent GEO header data or not a triangular mesh.");
+  }
+
+  cat(sprintf("Reading %d vertices and %d faces from GEO file.\n", num_verts, num_faces));
+
+  # we skip the 2nd header line entirely, it is redundant.
+  current_line_idx = 2L;
+
+  num_full_vertex_lines = num_verts / 2L;
+  vertices_two_per_line_df = read.table(filepath, skip = current_line_idx, colClasses = rep('double', 6L), col.names = c('v1_x', 'v1_y', 'v1_z', 'v2_x', 'v2_y', 'v2_z'), nrows = num_full_vertex_lines);
+  left_vertices = unname(data.matrix(vertices_two_per_line_df[1:3]));
+  right_vertices = unname(data.matrix(vertices_two_per_line_df[2:4]));
+  vertices = NULL;
+  for(row_idx in seq.int(num_full_vertex_lines)) {
+    cur_vertices = matrix(c(left_vertices[row_idx,], right_vertices[row_idx, ]), ncol = 3, byrow = TRUE);
+    if(is.null(vertices)) {
+      vertices = cur_vertices;
+    } else {
+      vertices = rbind(vertices, cur_vertices);
+    }
+  }
+
+  current_line_idx = current_line_idx + num_full_vertex_lines;
+  if(num_verts %% 2L == 1L) {
+    # gotta add the single vertex on the last line.
+    last_vert = read.table(filepath, skip = current_line_idx, colClasses = rep('double', 3L), col.names = c('v1_x', 'v1_y', 'v1_z', 'v2_x', 'v2_y', 'v2_z'), nrows = 1L);
+    vertices = rbind(vertices, unname(data.matrix(last_vert[1:3])));
+    current_line_idx = current_line_idx + 1L;
+  }
+
+  # face lines: vertex indices are 1 based.
+  faces_df = read.table(filepath, skip=current_line_idx, col.names = c('vert1', 'vert2', 'vert3'), colClasses = c("integer", "integer", "integer"), nrows=num_faces);
+  faces_df$vert3 = abs(faces_df$vert3);  # last index in every poly is negative to mark end of poly
+
+  ret_list = list();
+  ret_list$vertices = vertices;
+  ret_list$faces = unname(data.matrix(faces_df[1:3]));  # we do not add +1 here: in ICO GEO the indices are already 1-based
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
