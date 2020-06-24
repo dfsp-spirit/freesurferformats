@@ -13,10 +13,10 @@ read.fs.surface.ico(filepath)
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 }
 \description{
-This reads meshes from text files in ICO / TRI mesh format. This format is not to be confused with the the format used to store tiny icons.
+This reads meshes from text files in ICO / TRI mesh format. This format is not to be confused with the the image format used to store tiny icons.
 }
 \note{
-This is a fixed with format.
+This is a fixed width format.
 }
 \seealso{
 Other mesh functions: 
