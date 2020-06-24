@@ -183,3 +183,67 @@ test_that("A surface file in BYU ASCII mesh format can be read using read.fs.sur
 })
 
 
+test_that("Surface files in GEO format can be read using read.fs.surface", {
+  surface_file = system.file("extdata", "cube.geo", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+})
+
+
+test_that("Surface files in STL format can be read using read.fs.surface", {
+  surface_file = system.file("extdata", "cube.stl", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+})
+
+
+test_that("Surface files in TRI format can be read using read.fs.surface", {
+  surface_file = system.file("extdata", "cube.tri", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+})
+
+
+test_that("Surface files in VTK format can be read using read.fs.surface", {
+  surface_file = system.file("extdata", "cube.vtk", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+})
+
+
