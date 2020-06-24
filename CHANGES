@@ -1,6 +1,12 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.12
+--------------
+- add support for reading meshes in GEO format
+- add support for reading meshes in TRI format (also known as ICO mesh format)
+
+
 Version 0.1.11
 --------------
 - export readable.files function
