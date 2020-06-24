@@ -9,7 +9,7 @@ read.fs.surface(filepath, format = "auto")
 \arguments{
 \item{filepath}{string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
 
-\item{format}{one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.}
+\item{format}{one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.}
 }
 \value{
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.

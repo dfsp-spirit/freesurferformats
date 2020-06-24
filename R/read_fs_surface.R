@@ -226,7 +226,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -272,6 +272,14 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'byu' | (format == 'auto' & filepath.ends.with(filepath, c('.byu')))) {
     return(read.fs.surface.byu(filepath));
+  }
+
+  if(format == 'geo' | (format == 'auto' & filepath.ends.with(filepath, c('.geo')))) {
+    return(read.fs.surface.geo(filepath));
+  }
+
+  if(format == 'tri' | format == 'ico' | (format == 'auto' & filepath.ends.with(filepath, c('.tri'))) | (format == 'auto' & filepath.ends.with(filepath, c('.ico')))) {
+    return(read.fs.surface.ico(filepath));
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER = 16777214L;

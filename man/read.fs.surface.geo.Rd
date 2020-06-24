@@ -16,7 +16,7 @@ named list. The list has the following named entries: "vertices": nx3 double mat
 This reads meshes from text files in GEO mesh format. This is an ASCII format.
 }
 \note{
-This is a fixed with format.
+This is a fixed width format.
 }
 \seealso{
 Other mesh functions: 
