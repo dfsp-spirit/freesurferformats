@@ -1,5 +1,5 @@
 # freesurferformats
-GNU R package to read and write (not only) FreeSurfer neuroimaging file formats.
+GNU R package to read and write (not only) FreeSurfer neuroimaging file formats. Comes with support for many standard mesh file formats.
 
 ![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
@@ -24,7 +24,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer surface file format: Contains a brain surface mesh in a binary format. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) is also supported.
 
-* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice format (`.mz3`), and Stanford triangle format (`.ply`). Additionally, meshes can be exported in the following formats: Wavefront object format (`.obj`), PLY2 format (`.ply2`), and Object File Format (`.off`). Meshes can be imported from  files in BYU format (`.byu`), GEO format (`.geo`) and TRI format (also known as ICO mesh format, `.tri`).
+* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice format (`.mz3`),  Wavefront object format (`.obj`), Object File Format (`.off`), and Stanford triangle format (`.ply`). Additionally, meshes can be exported in PLY2 format (`.ply2`). Meshes can be imported from  files in BYU format (`.byu`), GEO format (`.geo`) and TRI format (also known as ICO mesh format, `.tri`).
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. Volume labels are also supported. This format can be read and written.
 
@@ -87,7 +87,7 @@ read.fs.mgh()         # read volume or morphometry data from files in MGH or MGZ
 read.fs.curv()        # read morphometry data from 'curv' format files like `surf/lh.area`
 read.fs.morph()       # read any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 read.fs.annot()       # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
-read.fs.surface()     # read a surface mesh, like `surf/lh.white`
+read.fs.surface()     # read a surface mesh, like `surf/lh.white`, supports many standard mesh formats
 read.fs.label()       # read a label file, like `label/lh.cortex.label`
 read.fs.colortable()  # read a color lookup table (LUT), like `$FREESURFER_HOME/FreeSurferColorLUT.txt`
 read.fs.weight()      # read scalar data for a subset of vertices, defined by index. Known as `weight`, `paint` or simply `w` format.
