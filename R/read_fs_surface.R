@@ -226,7 +226,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -276,6 +276,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'geo' | (format == 'auto' & filepath.ends.with(filepath, c('.geo')))) {
     return(read.fs.surface.geo(filepath));
+  }
+
+  if(format == 'obj' | (format == 'auto' & filepath.ends.with(filepath, c('.obj')))) {
+    return(read.fs.surface.obj(filepath));
   }
 
   if(format == 'tri' | format == 'ico' | (format == 'auto' & filepath.ends.with(filepath, c('.tri'))) | (format == 'auto' & filepath.ends.with(filepath, c('.ico')))) {
@@ -1157,3 +1161,31 @@ read.fs.surface.geo <- function(filepath) {
 }
 
 
+#' @title Read OBJ format mesh as surface.
+#'
+#' @description This reads meshes from text files in Wavefront OBJ mesh format. This is an ASCII format.
+#'
+#' @param filepath string. Full path to the input surface file in Wavefront object mesh format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @note This is a simple but very common mesh format supported by many applications, well suited for export.
+#'
+#' @family mesh functions
+#' @export
+read.fs.surface.obj <- function(filepath) {
+  verts_and_faces_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type', 'val1', 'val2', 'val3'));
+  first_face_row_idx = min(which(verts_and_faces_df$type == 'f'));
+
+  num_vertices = first_face_row_idx - 1L;
+  num_faces = nrow(verts_and_faces_df) - num_vertices;
+
+  vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type_face', 'coordx', 'coordy', 'coordz'), nrows = num_vertices);
+  faces_df = read.table(filepath, skip=num_vertices, colClasses = c('character', 'integer', 'integer', 'integer'), col.names = c('type_vertex', 'v1', 'v2', 'v3'), nrows = num_faces);
+
+  ret_list = list();
+  ret_list$vertices = unname(data.matrix(vertices_df[2:4]));
+  ret_list$faces = unname(data.matrix(faces_df[2:4]));
+  class(ret_list) = c("fs.surface", class(ret_list));
+  return(ret_list);
+}

@@ -120,6 +120,8 @@ test_that("The lh.white of Bert can be read using read.fs.surface", {
   expect_equal(surf$vertices[1,], c(-12.6998, -102.2399, -10.0076), tolerance=1e-2);
   expect_equal(surf$vertices[100,], c(-12.234, -100.672, 0.129), tolerance=1e-2);
   expect_equal(surf$vertices[1000,], c(-18.8, -97.6, -16.8), tolerance=1e-2);
+
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -143,6 +145,7 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read.fs.s
   # Check whether vertex indices were incremented properly
   num_faces_with_index_zero = sum(surf$faces==0);
   expect_equal(num_faces_with_index_zero, 0);
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -159,6 +162,7 @@ test_that("A surface file in STL binary format can be read using read.fs.surface
 
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -180,6 +184,7 @@ test_that("A surface file in BYU ASCII mesh format can be read using read.fs.sur
   # remeshes automatically, but we can access the original quads as well:
   expect_equal(ncol(surf$metadata$faces_quads), 4);      # the 4 vertex indices of a quad
   expect_equal(nrow(surf$metadata$faces_quads), known_face_count / 2L);
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -196,6 +201,7 @@ test_that("Surface files in GEO format can be read using read.fs.surface", {
 
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -212,6 +218,7 @@ test_that("Surface files in STL format can be read using read.fs.surface", {
 
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -228,6 +235,7 @@ test_that("Surface files in TRI format can be read using read.fs.surface", {
 
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 
@@ -244,6 +252,27 @@ test_that("Surface files in VTK format can be read using read.fs.surface", {
 
   expect_equal(nrow(surf$faces), known_face_count);
   expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
+})
+
+
+test_that("Surface files in Wavefront OBJ format can be read using read.fs.surface", {
+
+  surface_file = system.file("extdata", "cube.obj", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file, format = 'obj');
+
+
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
 

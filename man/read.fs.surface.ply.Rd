@@ -25,6 +25,7 @@ Other mesh functions:
 \code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
+\code{\link{read.fs.surface.obj}()},
 \code{\link{read.fs.surface.vtk}()},
 \code{\link{read.fs.surface}()},
 \code{\link{read_nisurfacefile}()},
