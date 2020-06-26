@@ -258,7 +258,9 @@ test_that("Surface files in VTK format can be read using read.fs.surface", {
 
 test_that("Surface files in Wavefront OBJ format can be read using read.fs.surface", {
 
-  surface_file = system.file("extdata", "cube.obj", package = "freesurferformats", mustWork = TRUE);
+  # I had to change the file extension of demo .obj files that come with this package to
+  # '.wobj', because the file extension '.obj' triggered false positive warnings on CRAN. ~
+  surface_file = system.file("extdata", "cube.wobj", package = "freesurferformats", mustWork = TRUE);
   surf = read.fs.surface(surface_file, format = 'obj');
 
 
