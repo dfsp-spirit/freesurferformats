@@ -226,7 +226,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 #'
 #' @param filepath string. Full path to the input surface file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
+#' @param format one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj', 'off' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -242,8 +242,8 @@ read.element.counts.ply.header <- function(ply_lines) {
 #' @export
 read.fs.surface <- function(filepath, format='auto') {
 
-  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj'))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj').");
+  if(!(format %in% c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj', 'off'))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj', 'off').");
   }
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -280,6 +280,10 @@ read.fs.surface <- function(filepath, format='auto') {
 
   if(format == 'obj' | (format == 'auto' & filepath.ends.with(filepath, c('.obj')))) {
     return(read.fs.surface.obj(filepath));
+  }
+
+  if(format == 'off' | (format == 'auto' & filepath.ends.with(filepath, c('.off')))) {
+    return(read.fs.surface.off(filepath));
   }
 
   if(format == 'tri' | format == 'ico' | (format == 'auto' & filepath.ends.with(filepath, c('.tri'))) | (format == 'auto' & filepath.ends.with(filepath, c('.ico')))) {
@@ -1080,10 +1084,10 @@ read.fs.surface.ico <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in ICO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in ICO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
   }
 
   return(ret_list);
@@ -1151,10 +1155,10 @@ read.fs.surface.geo <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in GEO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in GEO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
   }
 
   return(ret_list);
@@ -1180,12 +1184,88 @@ read.fs.surface.obj <- function(filepath) {
   num_vertices = first_face_row_idx - 1L;
   num_faces = nrow(verts_and_faces_df) - num_vertices;
 
-  vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type_face', 'coordx', 'coordy', 'coordz'), nrows = num_vertices);
-  faces_df = read.table(filepath, skip=num_vertices, colClasses = c('character', 'integer', 'integer', 'integer'), col.names = c('type_vertex', 'v1', 'v2', 'v3'), nrows = num_faces);
+  vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type_vertex', 'coordx', 'coordy', 'coordz'), nrows = num_vertices);
+  faces_df = read.table(filepath, skip=num_vertices, colClasses = c('character', 'integer', 'integer', 'integer'), col.names = c('type_face', 'v1', 'v2', 'v3'), nrows = num_faces);
 
   ret_list = list();
   ret_list$vertices = unname(data.matrix(vertices_df[2:4]));
   ret_list$faces = unname(data.matrix(faces_df[2:4]));
   class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
+}
+
+
+#' @title Read Object File Format (OFF) mesh as surface.
+#'
+#' @description This reads meshes from text files in OFF mesh format. This is an ASCII format.
+#'
+#' @param filepath string. Full path to the input surface file in OFF mesh format.
+#'
+#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#'
+#' @family mesh functions
+#' @export
+read.fs.surface.off <- function(filepath) {
+  off_header = readLines(filepath, n = 1L);
+  if(off_header != "# OFF") {
+    stop("Not a valid Object Format File (OFF): missing expected header line.");
+  }
+  element_count_df = read.table(filepath, skip=1L, colClasses = c('integer', 'integer', 'integer'), col.names = c('num_vertices', 'num_faces', 'num_edges'), nrows = 1L);
+
+  num_verts = element_count_df$num_vertices;
+  num_faces = element_count_df$num_faces;
+
+  vertices_df = read.table(filepath, skip = 2L, colClasses = c('numeric', 'numeric', 'numeric'), col.names = c('coordx', 'coordy', 'coordz'), nrows = num_verts);
+  faces_df = read.table(filepath, skip=num_verts + 2L, colClasses = c('integer', 'integer', 'integer', 'integer'), col.names = c('num_verts', 'v1', 'v2', 'v3'), nrows = num_faces);
+
+  ret_list = list();
+  ret_list$vertices = unname(data.matrix(vertices_df[1:3]));
+  ret_list$faces = unname(data.matrix(faces_df[2:4]));
+  ret_list$faces = adjust.face.indices.to(ret_list$faces, target_min_index = 1L);
+  class(ret_list) = c("fs.surface", class(ret_list));
+
+  if(nrow(ret_list$vertices) != num_verts) {
+    stop(sprintf("Expected %d vertices in OFF mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+  }
+  if(nrow(ret_list$faces) != num_faces) {
+    stop(sprintf("Expected %d faces in OFF mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+  }
+
+  return(ret_list);
+}
+
+
+#' @title Adjust integer matrix to target min value.
+#'
+#' @description This takes a matrix of integers, and adjusts the values such that the minimal value is the 'target_min_index' value. It is used to adjust from 0-based to 1-based indices in meshes.
+#'
+#' @param faces 3xn integer matrix, the vertex indices of the faces
+#'
+#' @param target_min_index integer, one of 1L or 0L. The target minimal value that the data should have afterwards.
+#'
+#' @return 3xn integer matrix, the adjusted values
+#'
+#' @note The current and the target min values must be 0 or 1.
+#'
+#' @keywords internal
+adjust.face.indices.to <- function(faces, target_min_index=1L) {
+  if(! is.matrix(faces)) {
+    stop("Parameter 'faces' must be a matrix.");
+  }
+  target_min_index = as.integer(target_min_index);
+  if(! target_min_index %in% c(0L, 1L)) {
+    stop("Parameter 'target_min_index' must be 0 or 1.");
+  }
+  min_index = min(faces);
+  if(! min_index %in% c(0L, 1L)) {
+    stop(sprintf("Found current minimal vertex index %d, expected 0 or 1.\n", min_index));
+  }
+  if(min_index != target_min_index) {
+    if(target_min_index == 1L) {
+      faces = faces + 1L;
+    } else {
+      faces = faces - 1L;
+    }
+  }
+  return(faces);
 }

@@ -263,8 +263,6 @@ test_that("Surface files in Wavefront OBJ format can be read using read.fs.surfa
   surface_file = system.file("extdata", "cube.wobj", package = "freesurferformats", mustWork = TRUE);
   surf = read.fs.surface(surface_file, format = 'obj');
 
-
-
   known_vertex_count = 8L;
   known_face_count = 12L;
 
@@ -277,4 +275,21 @@ test_that("Surface files in Wavefront OBJ format can be read using read.fs.surfa
   expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
+
+test_that("Surface files in Object File Format (OFF) can be read using read.fs.surface", {
+
+  surface_file = system.file("extdata", "cube.off", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
+})
 
