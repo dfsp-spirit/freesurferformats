@@ -70,7 +70,7 @@ read.fs.weight.asc <- function(filepath) {
   if(nrow(pairs_df) != num_pairs) {
     stop(sprintf("Expected %d vertex values from ASCII weight file header, but received %d.\n", num_pairs, nrow(pairs_df)));
   }
-  return(list("vertex_indices"=pairs_df$vertex_index + 1, "values"=pairs_df$value));
+  return(list("vertex_indices"=pairs_df$vertex_index + 1L, "values"=pairs_df$value));
 }
 
 

@@ -19,6 +19,8 @@ test_that("Our demo label file can be read with original, zero-based indices", {
   expect_equal(label[2], v2);
   expect_equal(label[1084], v1084);
   expect_equal(label[1085], v1085);
+
+  label; # call print.fs.label
 })
 
 
