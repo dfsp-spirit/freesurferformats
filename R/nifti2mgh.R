@@ -13,6 +13,8 @@
 #'
 #' @inheritParams read.fs.mgh
 #'
+#' @param do_rotate logical, whether to rotate 3D volumes to compensate for storage order. WIP.
+#'
 #' @return an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
 #'
 #' @seealso \code{oro.nifti::readNIfTI}, \code{\link[freesurferformats]{read.fs.mgh}}
@@ -34,7 +36,7 @@
 #' }
 #'
 #' @export
-read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE) {
+read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE, do_rotate = FALSE) {
 
   nifti_img = filepath;
 
@@ -277,7 +279,15 @@ read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, dro
 
     # Check in which storage ordering the data is saved in the NIFTI image and rotate/permute the array accordingly.
     # See https://brainder.org/2012/09/23/the-nifti-file-format/ and the official NIFTI standard.
-    data = rotate3D(drop(data), axis=1L, degrees = 90L);
+
+    if(do_rotate) {
+      if(length(dim(drop(data))) == 3L) {
+          data = rotate3D(drop(data), axis=1L, degrees = 90L);
+      } else {
+        warning(sprintf("Not rotating: data dimension is '%s'.\n", paste(dim(data), collapse = " ")));
+      }
+
+    }
 
     if(length(dim(data)) != 4) {
       # Most likely the 4th dimension of size 1 is missing, reshape it.

@@ -29,7 +29,9 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read_nisu
 
   fsasc_surface_file = system.file("extdata", "lh.tinysurface.asc", package = "freesurferformats", mustWork = TRUE);
   surf = read_nisurfacefile(fsasc_surface_file);
+  surf2 = read_nisurfacefile.fsascii(fsasc_surface_file);
   expect_true(is.fs.surface(surf));
+  expect_true(is.fs.surface(surf2));
   known_vertex_count = 5L;
   known_face_count = 3L;
 
@@ -45,6 +47,9 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read_nisu
   # Check whether vertex indices were incremented properly
   num_faces_with_index_zero = sum(surf$faces==0);
   expect_equal(num_faces_with_index_zero, 0);
+
+  # The final default method should fail, it is reached if none of the readers were successfull
+  expect_error(read_nisurfacefile.default(fsasc_surface_file));
 })
 
 
@@ -52,7 +57,9 @@ test_that("A surface file in GIFTI format can be read using read_nisurfacefile",
 
   gii_surface_file = system.file("extdata", "lh.tinysurface.gii", package = "freesurferformats", mustWork = TRUE);
   surf = read_nisurfacefile(gii_surface_file);
+  surf2 = read_nisurfacefile.gifti(gii_surface_file);
   expect_true(is.fs.surface(surf));
+  expect_true(is.fs.surface(surf2));
   known_vertex_count = 5L;
   known_face_count = 3L;
 

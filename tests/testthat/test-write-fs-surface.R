@@ -103,6 +103,18 @@ test_that("One can export surface meshes in OFF, OBJ, PLY2 and PLY formats", {
   # Wavefront OBJ format
   write.fs.surface.obj(tempfile(fileext=".obj"), mesh$vertices, mesh$faces);
 
+  # FreeSurfer ASCII surface format
+  write.fs.surface.asc(tempfile(fileext=".fsascii"), mesh$vertices, mesh$faces);
+
+  # GIFTI surface format
+  write.fs.surface.gii(tempfile(fileext=".gii"), mesh$vertices, mesh$faces);
+
+  # MZ3 surface format
+  write.fs.surface.mz3(tempfile(fileext=".mz3"), mesh$vertices, mesh$faces);
+
+  # BYU surface format
+  write.fs.surface.byu(tempfile(fileext=".byu"), mesh$vertices, mesh$faces);
+
   # currently this test only ensures that the functions run without error, the output is not checked in detail yet.
   # You can import the PLY and OBJ files into Blender, btw.
   expect_equal(1L, 1L);
