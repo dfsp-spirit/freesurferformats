@@ -153,3 +153,18 @@ test_that("Logical data can be written and re-read from MGH and MGZ files", {
   expect_equal(mgz$data, data_int);
   expect_equal(mgz$header$dtype, translate.mri.dtype("MRI_UCHAR"));
 })
+
+
+test_that("Improper use of write.fs.mgh leads to errors", {
+  data_int = sample(0:1, 2000, replace=TRUE);
+  filepath = tempfile(fileext = '.mgh');
+
+  expect_error(write.fs.mgh(123, data_int)); # 123 is not a valid file path (not a string)
+  expect_error(write.fs.mgh(filepath, data_int, mr_params = c(0., 0))); # invalid length of mr_params
+  expect_error(write.fs.mgh(filepath, data_int, mr_params = "what"));   # mr_params must be double
+  expect_error(write.fs.mgh(filepath, data_int, vox2ras_matrix = "what"));   # vox2ras_matrix must be double matrix
+  expect_error(write.fs.mgh(filepath, data_int, vox2ras_matrix = matrix(seq(6), nrow=2)));   # vox2ras_matrix must be a 4x4 matrix
+  expect_error(write.fs.mgh(filepath, data_int, mri_dtype = 3));   # mri_dtype must be a character string
+  expect_error(write.fs.mgh(filepath, data_int, mri_dtype = "no such MRI dtype I guess"));   # mri_dtype must be valid
+})
+

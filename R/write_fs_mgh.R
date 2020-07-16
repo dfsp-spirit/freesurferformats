@@ -67,6 +67,8 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
         fh = file(filepath, "wb", blocking = TRUE);
     }
 
+    on.exit({ close(fh) }, add=TRUE);
+
     d = dim(data);
     num_dim = length(d);
 
@@ -161,8 +163,6 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     }
 
     # We do not write any tags.
-
-    close(fh);
 }
 
 
