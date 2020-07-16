@@ -2,8 +2,8 @@
 test_that("We can rotate a 2D matrix", {
   slice = matrix(seq.int(9), nrow = 3, byrow =TRUE);
   slice_rot_90 = rotate2D(slice, degrees=90);
-  slice_rot_180 = rotate2D(slice, degrees=90);
-  slice_rot_270 = rotate2D(slice, degrees=90);
+  slice_rot_180 = rotate2D(slice, degrees=180);
+  slice_rot_270 = rotate2D(slice, degrees=270);
 
   expected_result_90 = matrix(c(7, 4, 1, 8, 5, 2, 9, 6, 3), nrow = 3, byrow = TRUE);
   expected_result_180 = matrix(seq.int(9, 1), nrow = 3, byrow = TRUE);
