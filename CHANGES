@@ -7,7 +7,8 @@ Version 0.1.12
 - add support for reading meshes in TRI format (also known as ICO mesh format)
 - add support for reading meshes in OFF format, the Object File Format
 - add support for reading meshes in OBJ format, the Wavefront object format
-
+- add support for writing FreeSurfer patch files in the ASCII format version
+- add many unit tests and test files
 
 
 Version 0.1.11
