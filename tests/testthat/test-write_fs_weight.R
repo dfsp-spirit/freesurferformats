@@ -36,5 +36,10 @@ test_that("Invalid arguments to write.fs.weight lead to errors", {
   tmp_file = tempfile(fileext=".w");
 
   expect_error(write.fs.weight(tmp_file, (vertex_indices - 1L), values)); # vertex index 0 not allowed
+  expect_error(write.fs.weight(tmp_file, (vertex_indices - 1L), values, format = 'asc')); # vertex index 0 not allowe
+
   expect_error(write.fs.weight(tmp_file, c(2, 24), values)); # 3 values but only 2 vertex indices
+  expect_error(write.fs.weight(tmp_file, c(2, 24), values, format = 'asc')); # 3 values but only 2 vertex indices
+
+  expect_error(write.fs.weight(tmp_file, vertex_indices, values, format = "no such format")); # invalid format
 })
