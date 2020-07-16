@@ -58,6 +58,10 @@ test_that("The slice direction and orientation can be computed from full fs.volu
   expect_true(mghheader.is.conformed(mgh));
   expect_equal(mghheader.primary.slice.direction(mgh), 'coronal');
   expect_equal(mghheader.crs.orientation(mgh), 'LIA');
+
+  header_noras = mgh$header;
+  header_noras$ras_good_flag = 0L;
+  expect_false(mghheader.is.conformed(header_noras));
 })
 
 
@@ -100,6 +104,71 @@ test_that("The RAS coordinate of the center voxel (CRAS) can be computed from th
   known_center_RAS = c(-0.499954, 29.3727, -48.9047);     # known from: `mri_info --cras  path/to/brain.mgz` (in system shell)
 
   expect_equal(center_RAS, known_center_RAS, tolerance=1e-2);
+})
+
+
+test_that("MGH header can be checked for valid RAS", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  header = mgh$header;
+
+  expect_true(mghheader.is.ras.valid(header));
+  expect_true(mghheader.is.ras.valid(mgh));
+
+  expect_false(mghheader.is.ras.valid(NULL));
+  expect_false(mghheader.is.ras.valid("what"));
+
+  header_noras = header;
+  header_noras$ras_good_flag = 0L;
+  expect_false(mghheader.is.ras.valid(header_noras));
+
+  header_noras$ras_good_flag = NULL;
+  expect_false(mghheader.is.ras.valid(header_noras));
+})
+
+
+test_that("MGH header can be used to compute tkreg2scanner", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  header = mgh$header;
+
+  tkm = mghheader.tkreg2scanner(header);
+  tkm2 = mghheader.tkreg2scanner(mgh);
+
+  header_noras = header;
+  header_noras$ras_good_flag = 0L;
+  expect_error(mghheader.tkreg2scanner(header_noras));
+})
+
+
+test_that("MGH header can be used to compute scanner2tkreg", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  header = mgh$header;
+
+  tkm = mghheader.scanner2tkreg(header);
+  tkm2 = mghheader.scanner2tkreg(mgh);
+
+  header_noras = header;
+  header_noras$ras_good_flag = 0L;
+  expect_error(mghheader.scanner2tkreg(header_noras));
+})
+
+
+test_that("Two MGH headers can be used to compute vox2vox", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  header = mgh$header;
+  header2 = header;
+
+  v2v = mghheader.vox2vox(header, header2);
+  v2v = mghheader.vox2vox(mgh, mgh);
+
+  header_noras = header;
+  header_noras$ras_good_flag = 0L;
+  expect_error(mghheader.vox2vox(header_noras, header));
+  expect_error(mghheader.vox2vox(header, header_noras));
+  expect_error(mghheader.vox2vox(header_noras, header_noras));
 })
 
 
