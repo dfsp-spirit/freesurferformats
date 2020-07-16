@@ -61,7 +61,7 @@ read.fs.patch <- function(filepath, format='auto') {
 
 
 ## To get a patch file in ASCII format, use 'mris_convert -p' on a binary patch file like this on the command line:
-## mris_convert -p $FREESURFER_HOME/fsaverage/surf/lh.cortex.patch.3d ~/patch.asc
+## mris_convert -p $FREESURFER_HOME/subjects/fsaverage/surf/lh.cortex.patch.3d ~/patch.asc
 
 
 #' @title Read FreeSurfer ASCII format patch.

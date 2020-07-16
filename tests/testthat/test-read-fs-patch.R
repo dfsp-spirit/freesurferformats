@@ -18,6 +18,8 @@ test_that("A FreeSurfer binary patch file can be read using read.fs.patch", {
   # Test indices:
   expect_equal(min(patch_data[,1]), 1);   # smallest one-based index must be 1
   expect_equal(min(patch_data[,7]), 0);   # smallest zero-based index must be 0
+
+  expect_error(read.fs.patch(patch_file, format = 'no such format')); # invalid format
 })
 
 

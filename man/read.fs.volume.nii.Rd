@@ -8,7 +8,8 @@ read.fs.volume.nii(
   filepath,
   flatten = FALSE,
   with_header = FALSE,
-  drop_empty_dims = FALSE
+  drop_empty_dims = FALSE,
+  do_rotate = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ read.fs.volume.nii(
 \item{with_header}{logical. Whether to return the header as well. If TRUE, return an instance of class `fs.volume` for data with at least 3 dimensions, a named list with entries "data" and "header". The latter is another named list which contains the header data. These header entries exist: "dtype": int, one of: 0=MRI_UCHAR; 1=MRI_INT; 3=MRI_FLOAT; 4=MRI_SHORT. "voldim": integer vector. The volume (=data) dimensions. E.g., c(256, 256, 256, 1). These header entries may exist: "vox2ras_matrix" (exists if "ras_good_flag" is 1), "mr_params" (exists if "has_mr_params" is 1). See the `mghheader.*` functions, like \code{\link[freesurferformats]{mghheader.vox2ras.tkreg}}, to compute more information from the header fields.}
 
 \item{drop_empty_dims}{logical, whether to drop empty dimensions of the returned data}
+
+\item{do_rotate}{logical, whether to rotate 3D volumes to compensate for storage order. WIP.}
 }
 \value{
 an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
