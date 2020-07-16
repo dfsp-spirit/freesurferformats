@@ -35,6 +35,7 @@ Other morphometry functions:
 \code{\link{write.fs.label.gii}()},
 \code{\link{write.fs.mgh}()},
 \code{\link{write.fs.morph.gii}()},
+\code{\link{write.fs.weight.asc}()},
 \code{\link{write.fs.weight}()}
 }
 \concept{morphometry functions}

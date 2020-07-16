@@ -4,7 +4,7 @@
 \alias{write.fs.weight}
 \title{Write file in FreeSurfer weight format}
 \usage{
-write.fs.weight(filepath, vertex_indices, values)
+write.fs.weight(filepath, vertex_indices, values, format = "bin")
 }
 \arguments{
 \item{filepath, }{string. Full path to the output weight file.}
@@ -12,9 +12,11 @@ write.fs.weight(filepath, vertex_indices, values)
 \item{vertex_indices}{vector of integers, the vertex indices. Must be one-based (R-style). This function will substract 1, as they need to be stored zero-based in the file.}
 
 \item{values}{vector of floats. The brain morphometry data to write, one value per vertex.}
+
+\item{format}{character string, one of 'bin' or 'asc'. The weight format type, there is a binary version of the format and an ASCII version.}
 }
 \description{
-Write vertex-wise brain data for a set of vertices to a binary file in *weight* format. This format is also known as *paint* format or simply as *w* format.
+Write vertex-wise brain data for a set of vertices to file in *weight* format. This format is also known as *paint* format or simply as *w* format.
 }
 \seealso{
 Other morphometry functions: 
@@ -30,6 +32,7 @@ Other morphometry functions:
 \code{\link{write.fs.label.gii}()},
 \code{\link{write.fs.mgh}()},
 \code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.morph}()}
+\code{\link{write.fs.morph}()},
+\code{\link{write.fs.weight.asc}()}
 }
 \concept{morphometry functions}
