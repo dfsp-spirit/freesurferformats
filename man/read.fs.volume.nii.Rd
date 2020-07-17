@@ -9,7 +9,8 @@ read.fs.volume.nii(
   flatten = FALSE,
   with_header = FALSE,
   drop_empty_dims = FALSE,
-  do_rotate = FALSE
+  do_rotate = FALSE,
+  ...
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ read.fs.volume.nii(
 \item{drop_empty_dims}{logical, whether to drop empty dimensions of the returned data}
 
 \item{do_rotate}{logical, whether to rotate 3D volumes to compensate for storage order. WIP.}
+
+\item{...}{extra parameters passed to \code{oro.nifti::readNIfTI}. Leave this alone unless you know what you are doing.}
 }
 \value{
 an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
