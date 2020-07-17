@@ -11,7 +11,7 @@ flip3D(volume, axis = 1L, how = "horizontally")
 
 \item{axis}{positive integer in range 1L..3L or an axis name, the axis to use.}
 
-\item{how}{character string, one of 'horizontally' or 'vertically'. How to flip the 2D slices. Note that flipping *horizontally* means that the image will be mirrored along the central *vertical* axis.}
+\item{how}{character string, one of 'horizontally' / 'h' or 'vertically' / 'v'. How to flip the 2D slices. Note that flipping *horizontally* means that the image will be mirrored along the central *vertical* axis.}
 }
 \value{
 a 3D image volume, flipped around the axis. The dimensions are identical to the dimensions of the input image.
