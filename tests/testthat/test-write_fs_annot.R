@@ -78,3 +78,24 @@ test_that("An annotation can be written in GIFTI format and read again based on 
   expect_equal(annot$hex_colors_rgb, annot2$hex_colors_rgb);
 })
 
+
+test_that("Invalid arguments to write.fs.annot lead to errors.", {
+  annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+  annot = read.fs.annot(annotfile);
+
+  expect_error(write.fs.annot.gii(tempfile(), list("a"=12))); # not an annot
+  expect_error(write.fs.annot.gii(123, annot)); # invalid filepath
+})
+
+
+test_that("An annotation can be written in binary v2 format in different ways.", {
+
+  output_file = tempfile(fileext = ".annot");
+  write.fs.annot(output_file, num_vertices = 10L, colortable = NULL, labels_as_colorcodes=rep(1L, 10L));
+
+  expect_error(write.fs.annot(output_file, num_vertices = 10L, colortable = NULL, labels_as_colorcodes=rep(1L, 9L))); # vertex count != label count
+  expect_error(write.fs.annot(output_file, num_vertices = "no idea", colortable = NULL, labels_as_colorcodes=rep(1L, 10L))); # invalid vertex count
+  expect_error(write.fs.annot(output_file, num_vertices = 10L, colortable = NULL, labels_as_indices_into_colortable = rep(1L, 10L))); # colortable must not be NULL when using indices into it
+
+  expect_equal(1L, 1L);
+})
