@@ -200,7 +200,7 @@ You can install the latest development version directly from Github if you need 
 If you do not have `devtools` and related tools installed yet:
 
 ```r
-install.packages(c("devtools", "knitr", "rmarkdown", "testthat"));
+install.packages(c("devtools", "knitr", "rmarkdown", "testthat", "covr"));
 ```
 
 Then:
@@ -228,6 +228,8 @@ Continuous integration results:
 [![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats) Travis CI under Linux
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats) AppVeyor CI under Windows
+
+[![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats) Test coverage
 
 The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing.
 
