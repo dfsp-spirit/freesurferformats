@@ -29,7 +29,9 @@ download_opt_data <- function() {
                                   c(base_path_subject1, 'surf', 'lh.area.fwhm10.fsaverage.mgh'),
                                   c(base_path_subject1, 'surf', 'rh.area.fwhm10.fsaverage.mgh'),
                                   c(base_path_subject1, 'label', 'lh.aparc.a2005s.annot'),
-                                  c(base_path_subject1, 'label', 'rh.aparc.a2005s.annot')
+                                  c(base_path_subject1, 'label', 'rh.aparc.a2005s.annot'),
+                                  c(base_path_subject1, 'ext', 'lh.cortex.patch.3d'),
+                                  c(base_path_subject1, 'ext', 'lh.cortex.patch.3d.asc')
   );
   local_filenames = local_filenames_subject1;
 
@@ -52,7 +54,9 @@ download_opt_data <- function() {
                        '492516bb4e1e31224dba96b2da0d07c4',
                        '4b7d88484182326576218abdce8ac378',
                        '718c140022bf14a33b2ea6d6e04686a5',
-                       '6c845df28caa47e362ab0ec784fb64e9'
+                       '6c845df28caa47e362ab0ec784fb64e9',
+                       '66abb5e91095754d01bcb3f445494141', # lh.cortex.patch.3d
+                       '47b92cb02f4b080b5602fef8d327e37d'
   );
 
   md5sums = md5sums_subject1;
@@ -76,7 +80,9 @@ download_opt_data <- function() {
                                  'surf/lh.area.fwhm10.fsaverage.mgh',
                                  'surf/rh.area.fwhm10.fsaverage.mgh',
                                  'label/lh.aparc.a2005s.annot',
-                                 'label/rh.aparc.a2005s.annot'
+                                 'label/rh.aparc.a2005s.annot',
+                                 'ext/lh.cortex.patch.3d',
+                                 'ext/lh.cortex.patch.3d.asc'
   );
   ext_urls_subject1 = paste(ext_url_subject_part_subject1, ext_url_parts_each_subject, sep='');
   ext_urls = ext_urls_subject1;
