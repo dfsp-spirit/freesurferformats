@@ -1,4 +1,4 @@
-# I feel there are some standard R functions for these...
+# I guess there are some standard R functions for these.
 
 #' @title Rotate a 2D matrix in 90 degree steps.
 #'
