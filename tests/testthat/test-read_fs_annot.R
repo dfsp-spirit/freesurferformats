@@ -1,7 +1,9 @@
 test_that("Our demo annotation file can be read", {
     annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE)
     annot = read.fs.annot(annotfile)
-    known_vertex_count = 149244
+    known_vertex_count = 149244;
+
+    color_table = colortable.from.annot(annot);
 
     # Test that the number of entries is correct, and that metadata matches data
     expect_equal(annot$colortable$num_entries, 36);
@@ -73,15 +75,18 @@ test_that("Our demo annotation file can be read", {
 
 
 test_that("Annotation files in old format can be read", {
-  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = FALSE);
-  skip_if_not(file.exists(annotfile), message="Test data missing.");
 
-  annotfile = system.file("extdata", "lh.aparc.a2005s.annot", package = "freesurferformats", mustWork = TRUE);
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
+  annotfile = file.path(subjects_dir, "subject1", "label", "lh.aparc.a2005s.annot");
+  skip_if_not(file.exists(annotfile), message="Test data missing.") ;
+
+  known_vertex_count = 149244;
+
   annot = read.fs.annot(annotfile);
-  known_vertex_count = 163842;
 
-  expect_true(is.annot(annot));
-  expect_false(is.annot(list("a"=5)));
+  expect_true(is.fs.annot(annot));
 
   # Test that the number of entries is correct, and that metadata matches data
   expect_equal(annot$colortable$num_entries, 82);
@@ -89,7 +94,7 @@ test_that("Annotation files in old format can be read", {
 
   # Test that structure names are correct
   expect_equal(annot$colortable$struct_names[1], "Unknown");
-  expect_equal(annot$colortable$struct_names[2], "Corpus_callosum");
+  expect_equal(annot$colortable$struct_names[82], "S_temporal_transverse");
 
   expect_equal(typeof(annot$hex_colors_rgb), "character");
   expect_equal(length(annot$hex_colors_rgb), known_vertex_count);

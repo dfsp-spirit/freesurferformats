@@ -27,7 +27,9 @@ download_opt_data <- function() {
                                   c(base_path_subject1, 'surf', 'lh.area'),
                                   c(base_path_subject1, 'surf', 'rh.area'),
                                   c(base_path_subject1, 'surf', 'lh.area.fwhm10.fsaverage.mgh'),
-                                  c(base_path_subject1, 'surf', 'rh.area.fwhm10.fsaverage.mgh')
+                                  c(base_path_subject1, 'surf', 'rh.area.fwhm10.fsaverage.mgh'),
+                                  c(base_path_subject1, 'label', 'lh.aparc.a2005s.annot'),
+                                  c(base_path_subject1, 'label', 'rh.aparc.a2005s.annot')
   );
   local_filenames = local_filenames_subject1;
 
@@ -48,7 +50,9 @@ download_opt_data <- function() {
                        '33ac2ccf1cd388e458e2d03fcc5cc3e6',
                        '1e55e15bb468652b5b024daf37c4ec12',
                        '492516bb4e1e31224dba96b2da0d07c4',
-                       '4b7d88484182326576218abdce8ac378'
+                       '4b7d88484182326576218abdce8ac378',
+                       '718c140022bf14a33b2ea6d6e04686a5',
+                       '6c845df28caa47e362ab0ec784fb64e9'
   );
 
   md5sums = md5sums_subject1;
@@ -70,7 +74,9 @@ download_opt_data <- function() {
                                  'surf/lh.area',
                                  'surf/rh.area',
                                  'surf/lh.area.fwhm10.fsaverage.mgh',
-                                 'surf/rh.area.fwhm10.fsaverage.mgh'
+                                 'surf/rh.area.fwhm10.fsaverage.mgh',
+                                 'label/lh.aparc.a2005s.annot',
+                                 'label/rh.aparc.a2005s.annot'
   );
   ext_urls_subject1 = paste(ext_url_subject_part_subject1, ext_url_parts_each_subject, sep='');
   ext_urls = ext_urls_subject1;

@@ -15,6 +15,8 @@
 #'
 #' @param do_rotate logical, whether to rotate 3D volumes to compensate for storage order. WIP.
 #'
+#' @param ... extra parameters passed to \code{oro.nifti::readNIfTI}. Leave this alone unless you know what you are doing.
+#'
 #' @return an `fs.volume` instance. The `header` fields are computed from the NIFTI header. The `data` array is rotated into FreeSurfer storage order, but otherwise returned as present in the input NIFTI instance, i.e., no values are changed in any way.
 #'
 #' @seealso \code{oro.nifti::readNIfTI}, \code{\link[freesurferformats]{read.fs.mgh}}
@@ -36,13 +38,13 @@
 #' }
 #'
 #' @export
-read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE, do_rotate = FALSE) {
+read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, drop_empty_dims=FALSE, do_rotate = FALSE, ...) {
 
   nifti_img = filepath;
 
   if (requireNamespace("oro.nifti", quietly = TRUE)) {
     if(is.character(nifti_img)) {
-      nifti_img = oro.nifti::readNIfTI(nifti_img);
+      nifti_img = oro.nifti::readNIfTI(nifti_img, ...);
     }
     if(! oro.nifti::is.nifti(nifti_img)) {
       stop("Parameter 'nifti_img' is not a nifti instance from oro.nifti.");
