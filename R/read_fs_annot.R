@@ -104,7 +104,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
 #' @param ... further arguments passed to or from other methods
 #'
 #' @export
-print.fs.annot <- function(x, ...) {
+print.fs.annot <- function(x, ...) { # nocov start
   if(is.null(x$colortable)) {
     print(sprintf("Brain surface annotation without colortable for %d vertices containing %d unique region codes.", length(x$vertices), length(unique(x$label_codes))));
   } else {
@@ -113,7 +113,7 @@ print.fs.annot <- function(x, ...) {
       cat(sprintf(" - region #%d '%s': size %d vertices\n", region_idx, as.character(x$colortable_df$struct_name[[region_idx]]), sum(x$label_codes == x$colortable_df$code[[region_idx]])));
     }
   }
-}
+} # nocov end
 
 
 #' @title Check whether object is an fs.annot

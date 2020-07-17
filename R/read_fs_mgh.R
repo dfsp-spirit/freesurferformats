@@ -407,7 +407,7 @@ is.fs.volume <- function(x) inherits(x, "fs.volume")
 #' @param ... further arguments passed to or from other methods
 #'
 #' @export
-print.fs.volume <- function(x, ...) {
+print.fs.volume <- function(x, ...) { # nocov start
   cat(sprintf("Brain volume with %d dimensions '%s' and %d voxels.\n", length(dim(x$data)), paste(dim(x$data), collapse="x"), prod(dim(x$data))));
   cat(sprintf(" - Data dimensions according to header: '%s'.\n", paste(x$header$voldim_orig, collapse="x")));
   if(x$header$voldim_orig[2] == 1L) {
@@ -439,4 +439,5 @@ print.fs.volume <- function(x, ...) {
   } else {
     cat(sprintf(" - Header does not contain MR acquisition parameters.\n"));
   }
-}
+}  # nocov end
+

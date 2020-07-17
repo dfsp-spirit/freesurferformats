@@ -95,11 +95,11 @@ fs.patch <- function(vertices, faces=NULL) {
 #' @param ... further arguments passed to or from other methods
 #'
 #' @export
-print.fs.patch <- function(x, ...) {
+print.fs.patch <- function(x, ...) { # nocov start
   cat(sprintf("Brain surface patch with %d vertices, %d on patch border.\n", nrow(x$vertices), sum(as.integer(x$vertices[,5]))));
   if(is.null(x$faces)) {
     cat(sprintf("Patch contains no face information.\n"));
   } else {
     cat(sprintf("Patch contains %d faces.\n", nrow(x$faces)));
   }
-}
+} # nocov end

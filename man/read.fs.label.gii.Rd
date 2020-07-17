@@ -24,6 +24,7 @@ A GIFTI label is more like a FreeSurfer annotation, as it assigns a label intege
 }
 \seealso{
 Other label functions: 
+\code{\link{read.fs.label.native}()},
 \code{\link{read.fs.label}()},
 \code{\link{write.fs.label}()}
 

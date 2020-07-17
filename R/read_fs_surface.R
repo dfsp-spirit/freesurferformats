@@ -406,7 +406,7 @@ read.fs.surface <- function(filepath, format='auto') {
 #' @param ... further arguments passed to or from other methods
 #'
 #' @export
-print.fs.surface <- function(x, ...) {
+print.fs.surface <- function(x, ...) { # nocov start
   cat(sprintf("Brain surface trimesh with %d vertices and %d faces.\n", nrow(x$vertices), nrow(x$faces)));
   cat(sprintf("-Surface coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertices[,1]), min(x$vertices[,2]), min(x$vertices[,3]), max(x$vertices[,1]), max(x$vertices[,2]), max(x$vertices[,3])));
   if(ncol(x$vertices) != 3L) {
@@ -415,7 +415,7 @@ print.fs.surface <- function(x, ...) {
   if(ncol(x$faces) != 3L) {
     warning(sprintf("Faces of the mesh consist of %d vertices each, expected 3. Not a valid triangular mesh.\n", ncol(x$faces)));
   }
-}
+} # nocov end
 
 
 #' @title Convert quadrangular faces or polygons to triangular ones.
