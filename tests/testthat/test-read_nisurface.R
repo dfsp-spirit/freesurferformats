@@ -110,7 +110,10 @@ test_that("A surface files is discovered and read from its basename by read_nisu
 
 test_that("Erros are thrown if something goes wrong", {
   nofile = tempfile();
+
   expect_error(read_nisurfacefile(nofile));
+
+  file.create(nofile); # empty file
   expect_error(read_nisurfacefile.gifti(nofile));
   expect_error(read_nisurfacefile.fsascii(nofile));
   expect_error(read_nisurfacefile.fsnative(nofile));

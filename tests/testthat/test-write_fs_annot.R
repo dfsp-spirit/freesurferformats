@@ -61,3 +61,20 @@ test_that("An annotation can be written in binary v2 format and read again based
   expect_equal(annot$vertices, annot2$vertices);
   expect_equal(annot, annot2);
 })
+
+
+test_that("An annotation can be written in GIFTI format and read again based on the class method.", {
+  annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+  annot = read.fs.annot(annotfile);
+
+  output_file = tempfile(fileext = ".annot.gii");
+  write.fs.annot.gii(output_file, annot);
+
+  annot2 = read.fs.annot.gii(output_file);
+
+  expect_equal(annot$vertices, annot2$vertices, tolerance = 1e-2);
+  expect_equal(annot$label_codes, annot2$label_codes);
+  expect_equal(annot$label_names, annot2$label_names);
+  expect_equal(annot$hex_colors_rgb, annot2$hex_colors_rgb);
+})
+

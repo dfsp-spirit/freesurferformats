@@ -73,6 +73,9 @@ rotate3D <- function(volume, axis=1L, degrees=90L) {
   if(length(dim(volume)) != 3) {
     stop(sprintf("Volume must have exactly 3 dimensions but has %d.\n", length(dim(volume))));
   }
+  if(! is.numeric(axis)) {
+    stop("Parameter 'axis' must be numeric.");
+  }
   axis = as.integer(axis);
   if(axis < 1L | axis > 3L) {
     stop(sprintf("Axis must be integer with value 1, 2 or 3 but is %d.\n", axis));
