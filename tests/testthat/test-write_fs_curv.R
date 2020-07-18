@@ -70,3 +70,38 @@ test_that("Morphometry file extensions are derived from formats correctly when w
 })
 
 
+test_that("Writing morph files and re-reading the data works for different formats", {
+
+  # generate data
+  data_length = 149;
+  data = rep(1.25, data_length);
+  data[5] = 3.5;
+
+  # FreeSurfer ASCII curv format
+  asc_file = tempfile(fileext = ".asc");
+  write.fs.morph.asc(asc_file, data);
+  asc_data = read.fs.morph.asc(asc_file);
+  asc_data2 = read.fs.curv(asc_file);
+  expect_equal(length(asc_data), 149L);
+  expect_equal(length(asc_data2), 149L);
+  expect_equal(asc_data[5], 3.5);
+  expect_equal(asc_data2[5], 3.5);
+
+  # simple text format: one value per line
+  txt_file = tempfile(fileext = ".txt");
+  write.fs.morph.txt(txt_file, data);
+  txt_data = read.fs.morph.txt(txt_file);
+  txt_data2 = read.fs.curv(txt_file);
+  expect_equal(length(txt_data), 149L);
+  expect_equal(length(txt_data2), 149L);
+  expect_equal(txt_data[5], 3.5);
+  expect_equal(txt_data2[5], 3.5);
+})
+
+
+test_that("Trying to write invalid data with write.fs.curv leads to erroes", {
+  filepath = tempfile(fileext = ".asc");
+  data = rep(0.9, 100L);
+  expect_error(write.fs.morph.asc(filepath, data, coords = matrix(seq(300), ncol = 4))); # wrong number of columns in coords
+})
+

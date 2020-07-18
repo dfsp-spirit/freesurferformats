@@ -27,11 +27,11 @@ read.fs.curv <- function(filepath, format='auto') {
     }
 
     if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
-      return(read.fs.curv.asc(filepath));
+      return(read.fs.morph.asc(filepath));
     }
 
     if(format == 'txt' | (format == 'auto' & filepath.ends.with(filepath, c('.txt')))) {
-      return(read.fs.curv.txt(filepath));
+      return(read.fs.morph.txt(filepath));
     }
 
     if(guess.filename.is.gzipped(filepath)) {
@@ -61,8 +61,8 @@ read.fs.curv <- function(filepath, format='auto') {
 #'
 #' @note This format is also known as *dpv* (data-per-vertex) format.
 #'
-#' @keywords internal
-read.fs.curv.asc <- function(filepath) {
+#' @export
+read.fs.morph.asc <- function(filepath) {
   curv_df = read.table(filepath, header=FALSE, col.names=c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
   return(curv_df$morph_data);
 }
@@ -74,8 +74,8 @@ read.fs.curv.asc <- function(filepath) {
 #'
 #' @return numeric vector, the curv data
 #'
-#' @keywords internal
-read.fs.curv.txt <- function(filepath) {
+#' @export
+read.fs.morph.txt <- function(filepath) {
   curv_df = read.table(filepath, header=FALSE, col.names=c("morph_data"), colClasses = c("numeric"));
   return(curv_df$morph_data);
 }
