@@ -26,10 +26,10 @@ read.fs.surface.asc <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in ASCII surface file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices))); # nocov
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in ASCII surface file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces))); # nocov
   }
 
   return(ret_list);
@@ -53,17 +53,17 @@ read.fs.surface.vtk <- function(filepath) {
 
   all_lines = readLines(filepath);
   if(length(all_lines) < 5L) {
-    stop("The file is not a valid VTK ASCII file: it does not contain the 4 header lines and a data line.");
+    stop("The file is not a valid VTK ASCII file: it does not contain the 4 header lines and a data line."); # nocov
   }
   if(! startsWith(all_lines[1], "# vtk DataFile Version")) {
-    stop("The file is not a valid VTK ASCII file: first line is not a proper VTK file version descriptor.");
+    stop("The file is not a valid VTK ASCII file: first line is not a proper VTK file version descriptor."); # nocov
   }
   # line 2 is a freeform description, we do not check it
   if(all_lines[3] !=  "ASCII") {
-    stop("The file is not a valid VTK ASCII file: third line does not read 'ASCII'.");
+    stop("The file is not a valid VTK ASCII file: third line does not read 'ASCII'."); # nocov
   }
   if(all_lines[4] !=  "DATASET POLYDATA") {
-    stop("The file is not a VTK ASCII mesh file: forth line does not read 'DATASET POLYDATA'. Only mesh data is supported by this function.");
+    stop("The file is not a VTK ASCII mesh file: forth line does not read 'DATASET POLYDATA'. Only mesh data is supported by this function."); # nocov
   }
 
   # Starting from here, several data sections may follow.
@@ -80,7 +80,7 @@ read.fs.surface.vtk <- function(filepath) {
     } else if(data_type == "POLYGONS") {
       faces_df = read.table(filepath, skip=current_line_idx, col.names = c('num_verts', 'vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer", "integer"), nrows=num_elements);
     } else {
-      warning(sprintf("Unsupported data type in section staring at line %d: '%s'. Only 'POINTS' and 'POLYGONS' are supported. Skipping section.\n", current_line_idx, data_type));
+      warning(sprintf("Unsupported data type in section staring at line %d: '%s'. Only 'POINTS' and 'POLYGONS' are supported. Skipping section.\n", current_line_idx, data_type)); # nocov
     }
     current_line_idx = current_line_idx + num_elements + 1L;   # the +1L is for the section header line
   }
@@ -152,7 +152,7 @@ read.fs.surface.ply <- function(filepath) {
   }
 
   if(is.null(vertices_df) | is.null(faces_df)) {
-    stop("PLY file did not contain a complete mesh dataset (vertices or faces missing).");
+    stop("PLY file did not contain a complete mesh dataset (vertices or faces missing)."); # nocov
   }
 
   if(any(faces_df$num_verts != 3L)) {
@@ -453,7 +453,7 @@ faces.quad.to.tris <- function(quad_faces) {
 #'
 #' @note This function does not implement proper remeshing of tri-meshes to quad-meshes. Use a proper mesh library if you need that.
 #'
-#' @keywords internal
+#' @export
 faces.tris.to.quad <- function(tris_faces) {
   num_tris_faces = nrow(tris_faces);
   if(num_tris_faces %% 2 != 0L) {

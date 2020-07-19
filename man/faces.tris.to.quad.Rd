@@ -18,4 +18,3 @@ This is experimental. Note that it can only work if the number of 'tris_faces' i
 \note{
 This function does not implement proper remeshing of tri-meshes to quad-meshes. Use a proper mesh library if you need that.
 }
-\keyword{internal}

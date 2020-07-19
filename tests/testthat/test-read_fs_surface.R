@@ -330,3 +330,28 @@ test_that("Surface files in PLY Format can be read using read.fs.surface", {
 })
 
 
+test_that("The read.fs.surface function errors on invalid format.", {
+  expect_error(read.fs.surface(tempfile(), format = 'invalid_format')); # invalid format
+})
+
+
+test_that("An even number of triangular faces can be converted to quad faces", {
+  surface_file = system.file("extdata", "cube.mz3", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  tris_faces = surf$faces;
+  expect_equal(nrow(tris_faces), 12L);
+
+  quad_faces = faces.tris.to.quad(tris_faces);
+  expect_equal(nrow(quad_faces), 6L);
+
+  expect_equal(faces.quad.to.tris(quad_faces), tris_faces);
+
+  # It des not work with uneven tris face count:
+  brk_tris_faces = rbind(tris_faces, c(3, 3, 3));
+  expect_error(faces.tris.to.quad(brk_tris_faces));
+})
+
+
+
+
