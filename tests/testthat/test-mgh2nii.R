@@ -1,14 +1,12 @@
-# Tests for mgh2nii
+# Tests for nifti2mgh
 
 test_that("An oro.nifti instance can be converted into an fs.volume instance", {
   mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   mgh = read.fs.mgh(mgh_file, with_header=TRUE);
 
   nii_file = "~/data/subject1_only/subject1/mri/brain.nii";
-  nii = oro.nifti::readNIfTI(nii_file);
-
-  mgh_from_nii = fs.volume.from.oro.nifti(nii);
-
+  if(! file.exists(nii_file)) { skip("Test data missing."); }
+  mgh_from_nii = read.fs.volume.nii(nii_file, with_header=TRUE);
 
   expect_equal(dim(mgh_from_nii$data), dim(mgh$data));
   expect_equal(mghheader.vox2ras(mgh_from_nii), mghheader.vox2ras(mgh));
@@ -28,8 +26,6 @@ test_that("An oro.nifti instance can be converted into an fs.volume instance", {
   rotated_nii_data = rotate3D(niidata, 1);
 
   expect_equal(rotated_nii_data, mghdata);
-
   expect_true(all.equal(rotate3D(niidata, 1), mghdata));
-  expect_false(all.equal(flip3D(niidata, 1), mghdata));
 })
 
