@@ -12,5 +12,7 @@ test_that("A FreeSurfer transformation matrix can be read from an xfm file.", {
   expect_equal(nrow(transform$matrix), 4);
 
   expect_equal(transform$type, 'Linear');
+
+  expect_error(read.fs.transform(tf_file, format = 'invalid')); # invalid format
 })
 

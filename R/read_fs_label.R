@@ -193,7 +193,7 @@ read.fs.label.gii <- function(filepath, label_value=1L, element_index=1L) {
     }
 
   } else {
-    stop("The 'gifti' package must be installed to use this functionality.");
+    stop("The 'gifti' package must be installed to use this functionality.");   # nocov
   }
 
 }
