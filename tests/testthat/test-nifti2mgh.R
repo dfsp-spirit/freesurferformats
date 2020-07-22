@@ -19,8 +19,8 @@ test_that("We can load a NIFTI volume file as an MGH instance", {
   expect_equal(dim(mgh_dropped$data), c(3, 3, 3));
   expect_true(is.array(read.fs.volume(nii_file, with_header = FALSE)));
 
-  expect_error(read.fs.volume(nii_file, format = 'no such format')); # invalid format
-  expect_error(read.fs.volume(124)); # invalid filepath: neither strings nor nifti instance
+  expect_error(read.fs.volume.nii(nii_file, format = 'no such format')); # invalid format
+  expect_error(read.fs.volume.nii(124)); # invalid filepath: neither strings nor nifti instance
 })
 
 
