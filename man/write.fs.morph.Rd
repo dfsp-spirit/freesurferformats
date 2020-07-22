@@ -16,7 +16,7 @@ write.fs.morph(filepath, data, format = "auto", ...)
 \item{...}{additional parameters to pass to \code{\link[freesurferformats]{write.fs.mgh}}. Only applicable for MGH and MGZ format output files, ignored for curv files.}
 }
 \value{
-format, string. The format that was used to write the data. One of c("mgh", "mgz", "curv").
+format, string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "gii").
 }
 \description{
 Given data and a morphometry file name, derive the proper format from the file extension and write the file.
