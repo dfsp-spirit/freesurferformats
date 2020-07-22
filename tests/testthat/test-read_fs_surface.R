@@ -353,5 +353,21 @@ test_that("An even number of triangular faces can be converted to quad faces", {
 })
 
 
+test_that("Surface files in GIFTI Format can be read using read.fs.surface", {
+
+  surface_file = system.file("extdata", "cube.gii", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
+})
 
 

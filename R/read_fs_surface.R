@@ -87,11 +87,11 @@ read.fs.surface.vtk <- function(filepath) {
 
 
   if(is.null(vertices_df) | is.null(faces_df)) {
-    stop("VTK file did not contain a complete mesh dataset (POINTS and POLYGONS sections).");
+    stop("VTK file did not contain a complete mesh dataset (POINTS and POLYGONS sections)."); #nocov
   }
 
   if(any(faces_df$num_verts != 3L)) {
-    stop("The mesh in the VTK file contains POLYGONS which are not triangles. Only triangular meshes are supported by this function.");
+    stop("The mesh in the VTK file contains POLYGONS which are not triangles. Only triangular meshes are supported by this function."); # nocov
   }
 
 
@@ -156,7 +156,7 @@ read.fs.surface.ply <- function(filepath) {
   }
 
   if(any(faces_df$num_verts != 3L)) {
-    stop("The mesh in the PLY file contains faces which are not triangles. Only triangular meshes are supported by this function.");
+    stop("The mesh in the PLY file contains faces which are not triangles. Only triangular meshes are supported by this function."); # nocov
   }
 
 
@@ -176,31 +176,31 @@ read.fs.surface.ply <- function(filepath) {
 #' @keywords internal
 read.element.counts.ply.header <- function(ply_lines) {
   if(length(ply_lines) < 9L) {
-    stop("The file is not a valid PLY mesh file: it does not contain the 9 header lines.");
+    stop("The file is not a valid PLY mesh file: it does not contain the 9 header lines."); # nocov
     # 9 lines are required for the mandatory header fields and the lines defining the vertex and face properties.
   }
   if(ply_lines[1] != "ply") {
-    stop("The file is not a valid PLY file: first line does not read 'ply'.");
+    stop("The file is not a valid PLY file: first line does not read 'ply'."); # nocov
   }
   if(ply_lines[2] != "format ascii 1.0") {
-    stop("The file is not a valid PLY file in supported format: second line does not read 'format ascii 1.0'.");
+    stop("The file is not a valid PLY file in supported format: second line does not read 'format ascii 1.0'.");  # nocov
   }
 
   if(length(which(ply_lines == "end_header")) != 1L) {
-    stop("The file is not a valid PLY file in supported format: could not find header termination string.");
+    stop("The file is not a valid PLY file in supported format: could not find header termination string.");  # nocov
   } else {
     header_end_line_index = which(ply_lines == "end_header");
   }
 
   if(length(ply_lines) == header_end_line_index) {
-    stop("PLY file contains no data elements.");
+    stop("PLY file contains no data elements.");  # nocov
   }
 
   header_lines = ply_lines[1L:header_end_line_index];
 
   vertex_count_line_index = which(startsWith(header_lines, "element vertex"));
   if(length(vertex_count_line_index) != 1L) {
-    stop("The file is not a valid PLY file in supported format: could not find vertex count header line.");
+    stop("The file is not a valid PLY file in supported format: could not find vertex count header line.");  # nocov
   }
   vertex_count_line_words = strsplit(ply_lines[vertex_count_line_index], " ")[[1]];
   vertex_count = as.integer(vertex_count_line_words[3]);
@@ -208,7 +208,7 @@ read.element.counts.ply.header <- function(ply_lines) {
 
   face_count_line_index = which(startsWith(header_lines, "element face"));
   if(length(face_count_line_index) != 1L) {
-    stop("The file is not a valid PLY file in supported format: could not find face count header line.");
+    stop("The file is not a valid PLY file in supported format: could not find face count header line.");  # nocov
   }
   face_count_line_words = strsplit(ply_lines[face_count_line_index], " ")[[1]];
   face_count = as.integer(face_count_line_words[3]);
@@ -375,7 +375,7 @@ read.fs.surface <- function(filepath, format='auto') {
     vertices = matrix(vertex_coords, nrow=num_vertices, ncol=3L, byrow = TRUE);
 
     if(length(vertex_coords) != num_vertex_coords) {
-      stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));
+      stop(sprintf("Mismatch in read vertex coordinates: expected %d but received %d.\n", num_vertex_coords, length(vertex_coords)));  # nocov
     }
 
     num_face_vertex_indices = num_faces * 3L;
@@ -384,11 +384,11 @@ read.fs.surface <- function(filepath, format='auto') {
     faces = faces + 1L;    # Increment indices by 1: GNU R uses 1-based indices.
 
     if(length(face_vertex_indices) != num_face_vertex_indices) {
-      stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));
+      stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));  # nocov
     }
 
   } else {
-    stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, NEW_QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));
+    stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, NEW_QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));  # nocov
   }
 
 
@@ -500,7 +500,7 @@ read.fs.surface.gii <- function(filepath) {
     class(ret_list) = c("fs.surface", class(ret_list));
     return(ret_list);
   } else {
-    stop("Reading GIFTI format surface files requires the package 'gifti' to be installed.");
+    stop("Reading GIFTI format surface files requires the package 'gifti' to be installed.");   # nocov
   }
 }
 
@@ -545,15 +545,15 @@ read.fs.surface.mz3 <- function(filepath) {
   # cat(sprintf("mz3: face=%d vert=%d rgba=%d scalar=%d.\n", as.integer(is_face), as.integer(is_vert), as.integer(is_rgba), as.integer(is_scalar)));
 
   if(attr > 15L) {
-    stop("Unsupported mz3 file version.");
+    stop("Unsupported mz3 file version.");    # nocov
   }
 
   if(num_vertices < 1L) {
-    stop("Mesh must contain at least one vertex.");
+    stop("Mesh must contain at least one vertex.");    # nocov
   }
   if(is_face) {
     if(num_faces < 1L) {
-      stop("Must contain at least one face is faces is set.");
+      stop("Must contain at least one face is faces is set.");    # nocov
     }
   }
 
@@ -644,7 +644,7 @@ read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
   }
 
   if(any(all_attr_counts != 0L)) {
-    warning('Found non-zero face attribute count entries in file, ignored.');
+    warning('Found non-zero face attribute count entries in file, ignored.');   # nocov
   }
 
   return(polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits));
@@ -718,11 +718,11 @@ read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
   stl_lines = readLines(filepath);
   lines_total = length(stl_lines);
   if(lines_total < 8L) {
-    stop("Invalid STL ASCII file: file must contain at least 8 lines (one face).");
+    stop("Invalid STL ASCII file: file must contain at least 8 lines (one face).");   # nocov
   }
 
   if(! startsWith(stl_lines[1], "solid")) {
-    stop("Invalid STL ASCII file: first line must start with 'solid'.");
+    stop("Invalid STL ASCII file: first line must start with 'solid'.");   # nocov
   }
 
   line_idx = 1L;
@@ -752,10 +752,10 @@ read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
   }
 
   if(num_lines_left != 1L) {
-    stop("Ignored %d lines at the end of ASCII STL file, please double-check file.\n", num_lines_left);
+    stop("Ignored %d lines at the end of ASCII STL file, please double-check file.\n", num_lines_left);   # nocov
   } else {
     if(! startsWith(stl_lines[lines_total], "endsolid")) {
-      stop("Invalid STL ASCII file: last line must start with 'endsolid'.");
+      stop("Invalid STL ASCII file: last line must start with 'endsolid'.");   # nocov
     }
   }
 
@@ -772,7 +772,7 @@ read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
 #' @keywords internal
 parse.stl.ascii.face <- function(stl_face_lines) {
   if(length(stl_face_lines) != 7L) {
-    stop(sprintf("Expected 7 STL lines, received %d.\n", length(stl_face_lines)));
+    stop(sprintf("Expected 7 STL lines, received %d.\n", length(stl_face_lines)));   # nocov
   }
   stl_face_lines = trimws(stl_face_lines); # trim leading and trailing white space from all lines.
 
@@ -807,10 +807,10 @@ parse.stl.ascii.face <- function(stl_face_lines) {
 polygon.soup.to.indexed.mesh <- function(faces_vertex_coords, digits=6) {
 
   if(! is.matrix(faces_vertex_coords)) {
-    stop("Parameter 'faces_vertex_coords' must be a matrix.");
+    stop("Parameter 'faces_vertex_coords' must be a matrix.");   # nocov
   }
   if(ncol(faces_vertex_coords) != 3L) {
-    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with exactly 3 columns, found %d.\n", ncol(faces_vertex_coords)));
+    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with exactly 3 columns, found %d.\n", ncol(faces_vertex_coords)));   # nocov
   }
 
   if((nrow(faces_vertex_coords) %% 3L) != 0L) {
