@@ -99,9 +99,30 @@ test_that("Writing morph files and re-reading the data works for different forma
 })
 
 
-test_that("Trying to write invalid data with write.fs.curv leads to erroes", {
+test_that("Trying to write invalid data with write.fs.curv or write.fs.morph leads to erroes", {
   filepath = tempfile(fileext = ".asc");
   data = rep(0.9, 100L);
   expect_error(write.fs.morph.asc(filepath, data, coords = matrix(seq(300), ncol = 4))); # wrong number of columns in coords
+  expect_error(write.fs.morph.asc(filepath, data, format = 'invalid')); # invalid format
+  expect_error(write.fs.morph(filepath, data, format = 'invalid')); # invalid format
+})
+
+
+test_that("Morph data can be written in GIFTI format", {
+  filepath = tempfile(fileext = ".gii");
+  data = rep(0.9, 100L);
+  write.fs.morph(filepath, data, format = 'gii');
+  write.fs.morph(filepath, data);
+  write.fs.morph.gii(filepath, data);
+  expect_equal(data, read.fs.morph.gii(filepath), tolerance = 1e-2);
+})
+
+
+test_that("Warning sare shown when writing integer data.", {
+  filepath = tempfile();
+  integer_data = rep(2L, 100L);
+  expect_warning(write.fs.morph.asc(filepath, integer_data)); # should be double, will be coerced to double
+  expect_warning(write.fs.morph.txt(filepath, integer_data)); # should be double, will be coerced to double
+  expect_warning(write.fs.curv(filepath, integer_data)); # should be double, will be coerced to double
 })
 

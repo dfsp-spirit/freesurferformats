@@ -32,6 +32,19 @@ test_that("A colortable can be written to a text file in FreeSurfer LUT format."
   expect_equal(ncol(colortable_df), ncol(written_colortable));
   expect_equal(nrow(colortable_df), nrow(written_colortable));
   expect_equal(colortable_df, written_colortable);
+
+  # write colortable and have the function auto-fill struct_index
+  colortable_df2 = colortable_df;
+  colortable_df2$struct_index = NULL;
+  write.fs.colortable(tempfile(fileext = ".txt"), colortable_df2);
+
+  # errors should be thrown on invalid params
+  expect_error(write.fs.colortable(output_file, "what")); # colortable must be a data.frame, not a string
+
+  # delete vital columns and expect error
+  colortable_df2$struct_name = NULL;
+  colortable_df2$r = NULL;
+  expect_error(write.fs.colortable(output_file, colortable_df2)); # colortable missing columns 'struct_name' and 'r'
 })
 
 
@@ -46,6 +59,13 @@ test_that("An annotation can be written in binary v2 format and read again.", {
 
   expect_equal(annot$vertices, annot2$vertices);
   expect_equal(annot, annot2);
+
+  # Cannot specify both labels_as_colorcodes and labels_as_indices_into_colortable
+  expect_error(write.fs.annot(output_file, length(annot$vertices), annot$colortable_df, labels_as_colorcodes=annot$label_codes, labels_as_indices_into_colortable=rep(1L, length(annot$vertices))));
+
+  # Give wrong number of labels and expect error
+  wrong_length = length(annot$vertices) + 5L;
+  expect_error(write.fs.annot(output_file, length(annot$vertices), annot$colortable_df, labels_as_indices_into_colortable=rep(1L, wrong_length)));
 })
 
 

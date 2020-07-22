@@ -143,3 +143,41 @@ test_that("One can export and re-read surface meshes in PLY format", {
   expect_equal(mesh$faces, col_mesh_reread$faces);
 })
 
+
+
+test_that("One can write meshes in all formats directly from write.fs.surface", {
+
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  mesh = read.fs.surface(surface_file);
+
+  # Standford PLY format
+  write.fs.surface(tempfile(fileext=".ply"), mesh$vertices, mesh$faces);
+
+  # OFF, the Object File Format
+  write.fs.surface(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+
+  # PLY2 format, very similar to OFF.
+  write.fs.surface(tempfile(fileext=".ply2"), mesh$vertices, mesh$faces);
+
+  # Wavefront OBJ format
+  write.fs.surface(tempfile(fileext=".obj"), mesh$vertices, mesh$faces);
+
+  # FreeSurfer ASCII surface format
+  write.fs.surface(tempfile(fileext=".asc"), mesh$vertices, mesh$faces);
+
+  # GIFTI surface format
+  write.fs.surface(tempfile(fileext=".gii"), mesh$vertices, mesh$faces);
+
+  # MZ3 surface format
+  write.fs.surface(tempfile(fileext=".mz3"), mesh$vertices, mesh$faces);
+
+  # BYU surface format
+  write.fs.surface(tempfile(fileext=".byu"), mesh$vertices, mesh$faces);
+
+  # VTK format
+  write.fs.surface(tempfile(fileext=".vtk"), mesh$vertices, mesh$faces);
+
+  # error on invalid format
+  expect_error(write.fs.surface(tempfile(fileext=".vtk"), mesh$vertices, mesh$faces, format = "invalid format")); # invalid format
+
+})

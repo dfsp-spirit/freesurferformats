@@ -119,15 +119,15 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @param ... additional parameters to pass to \code{\link[freesurferformats]{write.fs.mgh}}. Only applicable for MGH and MGZ format output files, ignored for curv files.
 #'
-#' @return format, string. The format that was used to write the data. One of c("mgh", "mgz", "curv").
+#' @return format, string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "gii").
 #'
 #' @family morphometry functions
 #'
 #' @export
 write.fs.morph <- function(filepath, data, format='auto', ...) {
 
-    if(! format %in% c("auto", "mgh", "mgz", "curv")) {
-      stop("Format must be one of 'auto', 'mgh', 'mgz', or 'curv'.");
+    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii")) {
+      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', or 'gii'.");
     }
 
     if(format == 'auto') {

@@ -138,7 +138,7 @@ test_that("Logical data can be written and re-read from MGH and MGZ files", {
   output_file_mgz = tempfile(fileext = ".mgz");
 
   # generate data
-  data_int = sample(0:1, 2000, replace=TRUE);
+  data_int = sample(0:1, 2000, replace=TRUE); # only zeroes and ones
   data_logical = as.logical(data_int);
 
   # write data to files, re-read and check
@@ -147,11 +147,25 @@ test_that("Logical data can be written and re-read from MGH and MGZ files", {
   expect_equal(mgh$data, data_int);
   expect_equal(mgh$header$dtype, translate.mri.dtype("MRI_UCHAR"));
 
-
-  write.fs.mgh(output_file_mgz, data_logical);
+  write.fs.mgh(output_file_mgz, data_logical, mr_params = c(0., 0., 0., 0.));
   mgz = read.fs.mgh(output_file_mgz, with_header = TRUE, drop_empty_dims = TRUE);
   expect_equal(mgz$data, data_int);
   expect_equal(mgz$header$dtype, translate.mri.dtype("MRI_UCHAR"));
+
+  # Also write integer data as MRI_SHORT and _UCHAR for completeness
+  write.fs.mgh(tempfile(fileext = ".mgz"), data_int, mri_dtype = 'MRI_SHORT');
+  write.fs.mgh(tempfile(fileext = ".mgz"), data_int, mri_dtype = 'MRI_UCHAR');
+
+  # There should be warning for unsiotable data range / dtype combinations
+  data_int_large = c(12L, 288L, 343456L); # integer data with values outside of range for MRI_SHORT and _UCHAR
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_int_large, mri_dtype = 'MRI_SHORT'));
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_int_large, mri_dtype = 'MRI_UCHAR'));
+  # ... and for invalid input data type.
+  data_char = rep("hi", 42L);
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_char, mri_dtype = 'MRI_SHORT'));
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_char, mri_dtype = 'MRI_UCHAR'));
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_char, mri_dtype = 'MRI_INT'));
+  expect_warning(write.fs.mgh(tempfile(fileext = ".mgz"), data_char, mri_dtype = 'MRI_FLOAT'));
 })
 
 
@@ -161,10 +175,14 @@ test_that("Improper use of write.fs.mgh leads to errors", {
 
   expect_error(write.fs.mgh(123, data_int)); # 123 is not a valid file path (not a string)
   expect_error(write.fs.mgh(filepath, data_int, mr_params = c(0., 0))); # invalid length of mr_params
+  expect_error(write.fs.mgh(filepath, data_int, mr_params = "hi")); # invalid mr_params, must be double
   expect_error(write.fs.mgh(filepath, data_int, mr_params = "what"));   # mr_params must be double
   expect_error(write.fs.mgh(filepath, data_int, vox2ras_matrix = "what"));   # vox2ras_matrix must be double matrix
   expect_error(write.fs.mgh(filepath, data_int, vox2ras_matrix = matrix(seq(6), nrow=2)));   # vox2ras_matrix must be a 4x4 matrix
   expect_error(write.fs.mgh(filepath, data_int, mri_dtype = 3));   # mri_dtype must be a character string
   expect_error(write.fs.mgh(filepath, data_int, mri_dtype = "no such MRI dtype I guess"));   # mri_dtype must be valid
+  expect_error(write.fs.mgh(filepath, data=NULL)); # invalid data
+  expect_error(write.fs.mgh(filepath, data=array(seq.int(6), dim=rep(1L, 6L)))); # invalid data: too many dimensions (>5)
+  expect_error(write.fs.mgh(filepath, data=rep("hi", 100L))); # invalid data: character strings not supported, no suitable MRI_DTYPE
 })
 

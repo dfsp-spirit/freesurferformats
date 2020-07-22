@@ -35,12 +35,7 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
     stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu').");
   }
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
     return(write.fs.surface.asc(filepath, vertex_coords, faces));
@@ -89,41 +84,45 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
     stop(sprintf("The type of the faces matrix must be 'integer' but is '%s'.", typeof(faces)));
   }
 
-  if(ncol(faces) == 3) {
-    MAGIC_FILE_TYPE_NUMBER = TRIS_MAGIC_FILE_TYPE_NUMBER;
-    format_written = "tris";
-    num_verts = nrow(vertex_coords);
-    num_faces = nrow(faces);
 
-    if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
-      fh = gzfile(filepath, "wb");
-    } else {
-      fh = file(filepath, "wb", blocking = TRUE);
-    }
+  MAGIC_FILE_TYPE_NUMBER = TRIS_MAGIC_FILE_TYPE_NUMBER;
+  format_written = "tris";
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
 
-    fwrite3(fh, MAGIC_FILE_TYPE_NUMBER);
-
-    creation_date_line = "Created by anonymous on a perfect day.\n";
-    writeLines(creation_date_line, con=fh);
-
-    writeBin(as.integer(num_verts), fh, size = 4, endian = "big");
-    writeBin(as.integer(num_faces), fh, size = 4, endian = "big");
-
-    # write the data itself: vertex coords
-    writeBin(c(t(vertex_coords)), fh, size = 4, endian = "big");
-
-    # write vertex indices making up a face
-    writeBin(c(t(faces)), fh, size = 4, endian = "big");
-    close(fh);
-  } else if (ncol(faces) == 4) {
-    MAGIC_FILE_TYPE_NUMBER = OLD_QUAD_MAGIC_FILE_TYPE_NUMBER;
-    format_written = "quads";
-    stop("Sorry, writing QUAD files not implemented yet. Use TRIS instead (3 vertex indices per face instead of 4).")
+  if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
+    fh = gzfile(filepath, "wb");
   } else {
-    format_written = NULL;
-    stop(sprintf("Each face must be made up of exactly 3 vertices (for triangular meshes) or 4 vertices (for quads), but found %d columns in matrix 'faces'.", ncol(faces)));
+    fh = file(filepath, "wb", blocking = TRUE);
   }
+
+  fwrite3(fh, MAGIC_FILE_TYPE_NUMBER);
+
+  creation_date_line = "Created by anonymous on a perfect day.\n";
+  writeLines(creation_date_line, con=fh);
+
+  writeBin(as.integer(num_verts), fh, size = 4, endian = "big");
+  writeBin(as.integer(num_faces), fh, size = 4, endian = "big");
+
+  # write the data itself: vertex coords
+  writeBin(c(t(vertex_coords)), fh, size = 4, endian = "big");
+
+  # write vertex indices making up a face
+  writeBin(c(t(faces)), fh, size = 4, endian = "big");
+  close(fh);
+
   return(invisible(format_written));
+}
+
+
+#' @keywords internal
+check.verts.faces <- function(vertex_coords, faces) {
+  if(ncol(vertex_coords) != 3L) {
+      stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
+  }
+  if(ncol(faces) != 3L) {
+      stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
+  }
 }
 
 
@@ -156,12 +155,7 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
 #' @export
 write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   # Write the first comment line and the 2nd line containing the number of vertices in the label
   fh =  file(filepath);
@@ -213,12 +207,7 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   fh = file(filepath, "w");
 
@@ -277,12 +266,7 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
@@ -371,12 +355,7 @@ write.fs.surface.off.ply2 <- function(filepath, vertex_coords, faces, format) {
     stop("Format must be 'ply2' or 'off'.");
   }
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
@@ -474,12 +453,7 @@ write.fs.surface.ply <- function(filepath, vertex_coords, faces, vertex_colors=N
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   fh = file(filepath, "w");
 
@@ -568,6 +542,7 @@ ply.header.lines <- function(num_verts, num_faces, use_vertex_colors) {
 #'
 #' @export
 write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
+  check.verts.faces(vertex_coords, faces);
   my_data_sets = list(vertex_coords, faces - 1L);
   xmltree = gifti_xml(my_data_sets, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'), intent=c('NIFTI_INTENT_POINTSET', 'NIFTI_INTENT_TRIANGLE'));
   #xml2::xml_validate(xmltree, xml2::read_xml("https://www.nitrc.org/frs/download.php/158/gifti.xsd"));
@@ -604,9 +579,7 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
 
-  if(typeof(faces) != "integer") {
-    stop(sprintf("The type of the faces matrix must be 'integer' but is '%s'.", typeof(faces)));
-  }
+  check.verts.faces(vertex_coords, faces);
 
   faces = faces - 1L;
 
@@ -720,12 +693,7 @@ write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
   num_verts = nrow(vertex_coords);
   num_faces = nrow(faces);
 
-  if(ncol(vertex_coords) != 3L) {
-    stop("Parameter 'vertex_coords' must be a matrix with 3 columns (the x, y, z coords of the vertices).");
-  }
-  if(ncol(faces) != 3L) {
-    stop("Parameter 'faces' must be a matrix with 3 columns (the indices of the vertices making up the faces).");
-  }
+  check.verts.faces(vertex_coords, faces);
 
   # The BYU format expects the coordinates to be in the cube -1 to +1 on all axes. Warn if that is not the case.
   coord_min = min(min(vertex_coords[,1]), min(vertex_coords[,2]), min(vertex_coords[,3]));
