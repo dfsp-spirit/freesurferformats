@@ -9,7 +9,7 @@ GNU R package to read and write (not only) FreeSurfer neuroimaging file formats.
 
 ## A note to end users
 
-This low-level package provides file format readers for [FreeSurfer](http://freesurfer.net) neuroimaging data. Typically, you want to access not only individual files, but datasets of subjects stored in the standardized output structure of recon-all (your $SUBJECTS_DIR) when doing neuroimaging research. In that case, I recommend to use the high-level functions from the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) instead of re-inventing the wheel. The *fsbrain* package is built on top of *freesurferformats* and provides functions for working with the data of your study, including visualization of results on brain meshes.
+This low-level package provides well-tested file format readers and writers for [FreeSurfer](http://freesurfer.net) neuroimaging data. Typically, you want to access not only individual files, but datasets of subjects stored in the standardized output structure of recon-all (your $SUBJECTS_DIR) when doing neuroimaging research. In that case, I recommend to use the high-level functions from the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) instead of re-inventing the wheel. The *fsbrain* package is built on top of *freesurferformats* and provides functions for working with the data of your study, including visualization of results on brain meshes.
 
 
 ## Supported formats
@@ -34,9 +34,9 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
 
-* FreeSurfer transformation matrices can be read from m3z files (e.g., `transforms/talairach.m3z`).
+* FreeSurfer spatial transformation matrices can be read from m3z files (e.g., `transforms/talairach.m3z`).
 
-* NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance (including computation of transformation matrices from the NIFTI header q-form/s-form), so NIFTI volumes can be used just like MGH/MGZ volumes.
+* NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.)
 
 * GIFTI: Reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
 
