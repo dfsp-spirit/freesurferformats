@@ -24,3 +24,22 @@ test_that("We can load a NIFTI volume file as an MGH instance", {
 })
 
 
+test_that("We can compute mghheader data from the q-form in a NIFTI volume file", {
+  nii_file = system.file("extdata", "vol27int.nii.gz", package = "freesurferformats", mustWork = TRUE);
+  nifti_img = oro.nifti::readNIfTI(nii_file);
+  nifti_img@sform_code = 0L; # set sform to zero to force reading the qform
+  mgh = read.fs.volume.nii(nifti_img, with_header = TRUE);
+  expect_true(is.fs.volume(mgh));
+})
+
+
+test_that("Warnings are show if neither s-form nor  q-form are available in a NIFTI volume file", {
+  nii_file = system.file("extdata", "vol27int.nii.gz", package = "freesurferformats", mustWork = TRUE);
+  nifti_img = oro.nifti::readNIfTI(nii_file);
+  nifti_img@sform_code = 0L; # set sform to zero
+  nifti_img@qform_code = 0L; # set qform to zero
+  expect_warning(read.fs.volume.nii(nifti_img, with_header = TRUE));
+})
+
+
+
