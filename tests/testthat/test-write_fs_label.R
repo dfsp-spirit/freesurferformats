@@ -29,6 +29,14 @@ test_that("A label file can be written and read again using the class method", {
   # load data again and check it
   label2 = read.fs.label(output_file, full=TRUE);
   expect_equal(label$vertexdata$vertex_index, label2$vertexdata$vertex_index);
+
+  # check some errors
+  expect_error(write.fs.label(output_file, c(-3, 5, 6))); # negative index
+  expect_error(write.fs.label(output_file, c(0, 5, 6), indices_are_one_based = TRUE)); # zero index in 1-based data
+  expect_error(write.fs.label(output_file, c(1, 5, 6), vertex_data = rep(1.1, 4L))); # 3 vertex indices, but vertex_data for 4.
+
+  vertex_coords_brk = matrix(rep(1.0, 4L * 3), nrow= 4L);
+  expect_error(write.fs.label(output_file, c(1, 5, 6), vertex_coords = vertex_coords_brk)); # 3 vertex indices, but vertex_coords for 4.
 })
 
 
@@ -43,5 +51,8 @@ test_that("A GIFTI label file can be written and read again", {
 
   label_neg_read = read.fs.label.gii(outfile, label_value=0L);
   expect_equal(length(label_neg_read), 47L);
+
+  expect_error(write.fs.label.gii(1234, label, 50L)); # filepath invalid: not char
+  expect_error(write.fs.label.gii(1234, label, 30L)); # max vertex index > num vertices
 })
 
