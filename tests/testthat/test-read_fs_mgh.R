@@ -157,3 +157,9 @@ test_that("A real MGH can be read, rewritten, read again, and the data and heade
   expect_equal(vd[100,100,100,1], 77);
   expect_equal(vd[100,100,80,1], 105);
 })
+
+
+test_that("Invalid volume format leads to errors", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  expect_error(read.fs.volume(brain_image, format = 'invalid format')); # invalid format
+})

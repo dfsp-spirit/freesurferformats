@@ -24,7 +24,7 @@ read.fs.annot.gii(
 
 \item{key_column_name}{character string, the column name for the key column in the lable table. This is the column that holds the label value from the raw vector (see 'labels_only') that links a label value to a row in the label table. Without it, one cannot recostruct the region name and color of an entry. Passing NA has the same effect as setting 'labels_only' to TRUE.}
 
-\item{empty_label_name}{string. The region name to assign to regions with empty name. Defaults to 'unknown'. Set to NULL if you want to keep the empty region name.}
+\item{empty_label_name}{string. Ignored, deprecated.}
 }
 \description{
 Read an annotation or label in GIFTI format.

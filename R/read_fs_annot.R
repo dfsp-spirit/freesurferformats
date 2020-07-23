@@ -5,7 +5,7 @@
 #'
 #' @param filepath string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param empty_label_name string. The region name to assign to regions with empty name. Defaults to 'unknown'. Set to NULL if you want to keep the empty region name.
+#' @param empty_label_name string. Ignored, deprecated.
 #'
 #' @param metadata named list of arbitrary metadata to store in the instance.
 #'
@@ -55,7 +55,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
                 colortable = readcolortable(fh, ctable_num_entries);
             }
             else {
-                stop(sprintf("Unsupported annotation file version '%d'.\n", version));
+                stop(sprintf("Unsupported annotation file version '%d'.\n", version));   # nocov
             }
         }
         return_list$colortable = colortable;
@@ -80,11 +80,6 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
           label_code = code[i];
           label_name = colortable$struct_names[i];
           hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
-          if(nchar(empty_label_name) > 0 && nchar(label_name) == 0) {
-            warning(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
-            label_name = paste(empty_label_name, nempty, sep="");
-            nempty = nempty + 1L;
-          }
           label_names[labels==label_code] = label_name;
           hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
         }
@@ -206,13 +201,13 @@ readcolortable <- function(fh, ctable_num_entries) {
 
         # Index must not be negative:
         if (struct_idx < 0L) {
-            stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, struct_idx));
+            stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, struct_idx));   # nocov
         }
 
         name_so_far = colortable$struct_names[struct_idx];
         # The same structure must not occur more than once (so the name should still be the empty string from the initialization when setting it):
         if (!identical(name_so_far, "")) {
-            warning(sprintf("Annotation file entry #%d struct index %d: entry with identical name '%s' already hit, this must not happen. Brain structure names must be unique.\n", i, struct_idx, name_so_far));
+            warning(sprintf("Annotation file entry #%d struct index %d: entry with identical name '%s' already hit, this must not happen. Brain structure names must be unique.\n", i, struct_idx, name_so_far)); # nocov
         }
         entry_num_chars = readBin(fh, integer(), n = 1, endian = "big");
 

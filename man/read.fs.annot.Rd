@@ -9,7 +9,7 @@ read.fs.annot(filepath, empty_label_name = "unknown", metadata = list())
 \arguments{
 \item{filepath}{string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".}
 
-\item{empty_label_name}{string. The region name to assign to regions with empty name. Defaults to 'unknown'. Set to NULL if you want to keep the empty region name.}
+\item{empty_label_name}{string. Ignored, deprecated.}
 
 \item{metadata}{named list of arbitrary metadata to store in the instance.}
 }
