@@ -156,6 +156,8 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
           tf = transform_matrix[[da_index]];
           tf_node = xml_node_gifti_coordtransform(tf$transform_matrix, data_space=tf$data_space, transformed_space=tf$transformed_space);
           xml2::xml_add_child(data_array_node_added, tf_node);
+        } else {
+          stop(sprintf("Invalid transformation matrix at index %d: not a named list.\n", da_index));
         }
       }
 

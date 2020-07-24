@@ -24,6 +24,8 @@ This is also known as the 'tkreg' ras2vox. It is the inverse of the respective v
 
 }
 \seealso{
+\code{\link{sm1to0}}
+
 Other header coordinate space: 
 \code{\link{mghheader.is.ras.valid}()},
 \code{\link{mghheader.ras2vox}()},

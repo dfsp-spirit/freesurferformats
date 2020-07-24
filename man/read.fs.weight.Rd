@@ -9,7 +9,7 @@ read.fs.weight(filepath, format = "auto")
 \arguments{
 \item{filepath}{string. Full path to the input weight file. Weight files typically have the file extension '.w', but that is not enforced.}
 
-\item{format}{one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.w.asc'.}
+\item{format}{one of 'auto', 'asc', or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.}
 }
 \value{
 the indices and weight data, as a named list. Entries: "vertex_indices": vector of *n* vertex indices. They are stored zero-based in the file, but are returned one-based (R-style). "value": double vector of length *n*, the morphometry data for the vertices. The data can be whatever you want.

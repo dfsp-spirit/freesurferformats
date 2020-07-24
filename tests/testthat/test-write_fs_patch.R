@@ -17,3 +17,12 @@ test_that("A tiny patch can be written to binary patch format and re-read", {
   same_patch = read.fs.patch(patch_file);
   expect_equal(nrow(patch$vertices), nrow(same_patch$vertices));
 })
+
+
+test_that("Creating a patch from invalid data leads to errors", {
+  num_vertices = 6L;
+  vertices = matrix(rep(0., num_vertices*5), ncol=5); # okay
+  vertices_broken = matrix(rep(0., num_vertices*5), ncol=6); # note ncol = 6, which is invalid
+  expect_error(fs.patch(vertices_broken));
+  expect_error(fs.patch(vertices, faces = vertices_broken)); # faces must have 5 cols
+})

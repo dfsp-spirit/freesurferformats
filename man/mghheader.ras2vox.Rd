@@ -24,6 +24,8 @@ This is also known as the 'scanner' or 'native' ras2vox. It is the inverse of th
 
 }
 \seealso{
+\code{\link{sm1to0}}
+
 Other header coordinate space: 
 \code{\link{mghheader.is.ras.valid}()},
 \code{\link{mghheader.ras2vox.tkreg}()},

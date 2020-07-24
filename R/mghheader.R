@@ -102,6 +102,8 @@ mghheader.is.ras.valid <- function(header) {
 #'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
 #'     mghheader.ras2vox(vdh$header);
 #'
+#' @seealso \code{\link{sm1to0}}
+#'
 #' @export
 mghheader.ras2vox <- function(header) {
 
@@ -135,6 +137,8 @@ mghheader.ras2vox <- function(header) {
 #'                                mustWork = TRUE);
 #'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
 #'     mghheader.vox2ras.tkreg(vdh$header);
+#'
+#' @seealso \code{\link{sm0to1}}
 #'
 #' @export
 mghheader.vox2ras.tkreg <- function(header) {
@@ -182,6 +186,8 @@ mghheader.vox2ras.tkreg <- function(header) {
 #'                                mustWork = TRUE);
 #'     vdh = read.fs.mgh(brain_image, with_header = TRUE);
 #'     mghheader.ras2vox.tkreg(vdh$header);
+#'
+#' @seealso \code{\link{sm1to0}}
 #'
 #' @export
 mghheader.ras2vox.tkreg <- function(header) {
