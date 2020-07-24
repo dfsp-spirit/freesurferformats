@@ -172,5 +172,13 @@ test_that("Two MGH headers can be used to compute vox2vox", {
 })
 
 
+test_that("Transformation matrices can be adapted to 0-based and 1-based indices", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  vox2ras = mghheader.vox2ras(mgh$header);
 
+  vox2ras_for_1based = sm0to1(vox2ras);
+  vox2ras_for_0based = sm1to0(vox2ras_for_1based);
+  expect_equal(vox2ras, vox2ras_for_0based, tolerance=1e-2);
+})
 
