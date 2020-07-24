@@ -15,3 +15,18 @@ sm0to1(tf_matrix)
 \description{
 Adapt spatial transformation matrix for 1-based indices.
 }
+\seealso{
+\code{\link{sm1to0}} for the inverse operation
+
+Other header coordinate space: 
+\code{\link{mghheader.is.ras.valid}()},
+\code{\link{mghheader.ras2vox.tkreg}()},
+\code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.scanner2tkreg}()},
+\code{\link{mghheader.tkreg2scanner}()},
+\code{\link{mghheader.vox2ras.tkreg}()},
+\code{\link{mghheader.vox2ras}()},
+\code{\link{read.fs.transform}()},
+\code{\link{sm1to0}()}
+}
+\concept{header coordinate space}

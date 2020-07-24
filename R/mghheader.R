@@ -10,6 +10,8 @@
 #'
 #' @family header coordinate space
 #'
+#' @seealso \code{\link{sm0to1}}
+#'
 #' @examples
 #'     brain_image = system.file("extdata", "brain.mgz",
 #'                                package = "freesurferformats",
@@ -519,6 +521,10 @@ mghheader.centervoxelRAS.from.firstvoxelRAS <- function(header, first_voxel_RAS)
 #'
 #' @return 4x4 numerical matrix, adapted spatial transformation matrix, suitable for 1-based indices.
 #'
+#' @family header coordinate space
+#'
+#' @seealso \code{\link{sm1to0}} for the inverse operation
+#'
 #' @export
 sm0to1 <- function(tf_matrix) {
   q = matrix(rep(0, 16L), ncol = 4L);
@@ -532,6 +538,10 @@ sm0to1 <- function(tf_matrix) {
 #' @param tf_matrix 4x4 numerical matrix, the input spatial transformation matrix, suitable for 1-based indices.
 #'
 #' @return 4x4 numerical matrix, adapted spatial transformation matrix, suitable for 0-based indices.
+#'
+#' @family header coordinate space
+#'
+#' @seealso \code{\link{sm0to1}} for the inverse operation
 #'
 #' @export
 sm1to0 <- function(tf_matrix) {

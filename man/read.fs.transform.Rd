@@ -36,6 +36,8 @@ Other header coordinate space:
 \code{\link{mghheader.scanner2tkreg}()},
 \code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{mghheader.vox2ras}()}
+\code{\link{mghheader.vox2ras}()},
+\code{\link{sm0to1}()},
+\code{\link{sm1to0}()}
 }
 \concept{header coordinate space}
