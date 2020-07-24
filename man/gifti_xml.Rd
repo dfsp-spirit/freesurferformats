@@ -25,7 +25,7 @@ gifti_xml(
 
 \item{endian}{vector of endian definition strings. One of 'LittleEndian' or 'BigEndian'. See \code{\link[gifti]{convert_endian}}.}
 
-\item{transform_matrix}{optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.}
+\item{transform_matrix}{optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be a 4x4 matrix or given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.}
 
 \item{force}{logical, whether to force writing the data, even if issues like a mismatch of datatype and data values are detected.}
 }

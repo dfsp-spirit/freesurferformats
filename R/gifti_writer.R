@@ -23,7 +23,7 @@
 #'
 #' @param endian vector of endian definition strings. One of 'LittleEndian' or 'BigEndian'. See \code{\link[gifti]{convert_endian}}.
 #'
-#' @param transform_matrix optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.
+#' @param transform_matrix optional, a list of transformation matrices, one for each data_array. If one of the data arrays has none, pass `NA`. Each transformation matrix in the outer list has to be a 4x4 matrix or given as a named list with entries 'transform_matrix', 'data_space', and 'transformed_space'. Here is an example: \code{list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN', 'transformed_space'='NIFTI_XFORM_UNKNOWN')}.
 #'
 #' @param force logical, whether to force writing the data, even if issues like a mismatch of datatype and data values are detected.
 #'
@@ -152,12 +152,18 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
       data_node = xml2::read_xml(sprintf("<Data>%s</Data>", encoded_data));
 
       if(num_transform_matrices > 0L) {
-        if(is.list(transform_matrix[[da_index]])) {
-          tf = transform_matrix[[da_index]];
+        tf = transform_matrix[[da_index]];
+        if(is.list(tf)) {
           tf_node = xml_node_gifti_coordtransform(tf$transform_matrix, data_space=tf$data_space, transformed_space=tf$transformed_space);
           xml2::xml_add_child(data_array_node_added, tf_node);
-        } else {
-          stop(sprintf("Invalid transformation matrix at index %d: not a named list.\n", da_index));
+        } else if(is.matrix(tf)) {
+          tf_node = xml_node_gifti_coordtransform(tf);
+          xml2::xml_add_child(data_array_node_added, tf_node);
+        }
+        else {
+          if(! is.na(tf)) {
+            stop(sprintf("Invalid transformation matrix at index %d: neither a named list, nor NA.\n", da_index));
+          }
         }
       }
 
