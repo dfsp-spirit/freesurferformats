@@ -43,10 +43,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 ## Installation
 
-
-<div class="border border-black-fade bg-red-light p-2 mb-2">
-This software is for research puposes only and shall not be used for any clinical use.
-</div>
+**This software is for research puposes only and shall not be used for any clinical use.**
 
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
 
