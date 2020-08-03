@@ -80,20 +80,26 @@ read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, dro
     MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
     MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
-
+    # the @datatype is the NIFTI data type integer code
     if(nifti_img@datatype == 2L & nifti_img@bitpix == 8L) {   # NIFTI: 'unsigned char'
       dtype = MRI_UCHAR;
     } else if(nifti_img@datatype == 4L & nifti_img@bitpix == 16L) {  # NIFTI: 'signed short'
       dtype = MRI_SHORT;
     } else if(nifti_img@datatype == 8L & nifti_img@bitpix == 32L) {  # NIFTI: 'signed int'
       dtype = MRI_INT;
+    } else if(nifti_img@datatype == 512L & nifti_img@bitpix == 16L) {  # NIFTI: 'unsigned short', we map this to MRI_INT
+        dtype = MRI_INT;
+    } else if(nifti_img@datatype == 768L & nifti_img@bitpix == 32L) {  # NIFTI: 'unsigned int', we map this to MRI_INT and print a notice
+      dtype = MRI_INT;
     } else if(nifti_img@datatype == 16L & nifti_img@bitpix == 32L) {  # NIFTI: 'float'
+      dtype = MRI_FLOAT;
+    } else if(nifti_img@datatype == 64L & nifti_img@bitpix == 64L) {  # NIFTI: 'double', but we treat this as MRI_FLOAT, there is no double support for MGH afaik.
       dtype = MRI_FLOAT;
     } else {
       stop(sprintf("Nifti images with @datatype=%d and @bitpix=%d not supported yet.\n", nifti_img@datatype, nifti_img@bitpix));
     }
 
-    bytes_per_voxel = mri_dtype_numbytes(dtype); # Note that we store the size in **bytes** per voxel, while the Nifti header uses **bits**.
+    #bytes_per_voxel = mri_dtype_numbytes(dtype); # Note that we store the size in **bytes** per voxel, while the Nifti header uses **bits**.
 
     #message(sprintf("Nifti header: Nifti datatype=%d with %d bitpix. MRI datatype '%s' (code %d), with %d bytes per voxel.\n", nifti_img@datatype, nifti_img@bitpix, translate.mri.dtype(dtype), dtype, bytes_per_voxel));
 
@@ -125,12 +131,11 @@ read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, dro
       ncols = nifti_img@dim_[2];
     }
 
-    ico7_num_vertices = 163842L; # Vertex count of ICO 7 meshes, like fsaverage. If the dimensions match this, the file is assumed to
+    #ico7_num_vertices = 163842L; # Vertex count of ICO 7 meshes, like fsaverage. If the dimensions match this, the file is assumed to
     #                              contain morphometry data stored with the FreeSurfer hack.
     # It is very unlikely though that oro.nifti would accept such data, so this will most likely never happen.
-    is_ico7 = (ncols * nifti_img@dim_[3] * nifti_img@dim_[4] == ico7_num_vertices);
-
-    ico7_state_string = ifelse(is_ico7, "looks like", "does NOT look like");
+    #is_ico7 = (ncols * nifti_img@dim_[3] * nifti_img@dim_[4] == ico7_num_vertices);
+    #ico7_state_string = ifelse(is_ico7, "looks like", "does NOT look like");
     #message(sprintf("Nifti header: Image has %d used dimensions. It %s ico7 morphometry data.\n", nifti_img@dim_[1], ico7_state_string));
 
     ## Compute space and time unit factors from @xyzt_units.
