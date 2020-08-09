@@ -29,17 +29,28 @@ read.fs.morph.cifti <- function(filepath, brain_structure='CIFTI_STRUCTURE_CORTE
   }
 
   cii = cifti::read_cifti(filepath);
+  if(is.numeric(brain_structure)) {
+    brain_struct_index = as.integer(brain_structure);
+  } else {
   brain_struct_names = cifti::cifti_brain_structs(cii);
-  if(! brain_structure %in% brain_struct_names) {
-    stop(sprintf("No brain structure named '%s' in the %d CIFTI brain structures ''.\n", brain_structure, length(brain_struct_names), paste(brain_struct_names, collapse = ", ")));
+    if(! brain_structure %in% brain_struct_names) {
+      stop(sprintf("No brain structure named '%s' in the %d CIFTI brain structures '%s'.\n", brain_structure, length(brain_struct_names), paste(brain_struct_names, collapse = ", ")));
+    }
+    brain_struct_index = which(brain_struct_names == brain_structure);
   }
-  brain_struct_index = which(brain_struct_names == brain_structure);
   morph_data_cii = as.matrix(cii$data); # The morphometry data, but this is not one value per vertex in the brain model/surface:
   # it is only for the vertices listed below. The other vertices will get NA.
   # Another thing to keep in mind is that a CIFTI file may contain several descriptors per vertex (e.g., thickness and area in a single file), so this is a matrix instead of a vector.
   brain_struct_type = attr(cii$BrainModel[[brain_struct_index]], "ModelType"); # should be "CIFTI_MODEL_TYPE_SURFACE"
-  if(brain_struct_type != "CIFTI_MODEL_TYPE_SURFACE") {
-    stop(sprintf("Currently only model type 'CIFTI_MODEL_TYPE_SURFACE' is supported, but structure '%s' has type '%s'.\n", brain_structure, brain_struct_type));
+
+  if(is.null(brain_struct_type)) {
+    # It's a volume, and the model is just an nx3 integer matrix of n (i,j,k) voxel indices.
+    # We still have to confirm this in the spec though, currently this is based on the (official) CIFTI2 example files only.
+    stop(sprintf("Currently only model type 'CIFTI_MODEL_TYPE_SURFACE' is supported, but structure '%s' has type NULL (most likely a volume part).\n", as.character(brain_structure)));
+  } else {
+    if(brain_struct_type != "CIFTI_MODEL_TYPE_SURFACE") {
+      stop(sprintf("Currently only model type 'CIFTI_MODEL_TYPE_SURFACE' is supported, but structure '%s' has type '%s'.\n", as.character(brain_structure), brain_struct_type));
+    }
   }
   md_index_count = attr(cii$BrainModel[[brain_struct_index]], "IndexCount");
   md_index_offset = attr(cii$BrainModel[[brain_struct_index]], "IndexOffset") + 1L;
