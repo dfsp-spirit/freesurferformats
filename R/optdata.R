@@ -33,7 +33,14 @@ download_opt_data <- function() {
                                   c(base_path_subject1, 'ext', 'lh.cortex.patch.3d'),
                                   c(base_path_subject1, 'ext', 'lh.cortex.patch.3d.asc')
   );
-  local_filenames = local_filenames_subject1;
+
+  base_path_cifti = c('cifti');
+  local_filenames_cifti = list(c(base_path_cifti, 'Conte69.L.inflated.32k_fs_LR.surf.gii'),
+                               c(base_path_cifti, 'Conte69.R.inflated.32k_fs_LR.surf.gii'),
+                               c(base_path_cifti, 'Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii')
+                          );
+
+  local_filenames = c(local_filenames_subject1, local_filenames_cifti);
 
 
   md5sums_subject1 = c('099e738654aedc71cd580256f4f3914b',
@@ -59,7 +66,12 @@ download_opt_data <- function() {
                        '47b92cb02f4b080b5602fef8d327e37d'
   );
 
-  md5sums = md5sums_subject1;
+  md5sums_cifti = c('5aa64e146839f0332b5744d0a6e7f737',
+                    'd9073d649d0a49e619fcf4e622a6d9df',
+                    '66feaa6d0b5dabc448c8557426c8dbbb'
+  );
+
+  md5sums = c(md5sums_subject1, md5sums_cifti);
 
   ext_url_subject_part_subject1 = 'subjects_dir/subject1/';
   ext_url_parts_each_subject = c('label/lh.aparc.a2009s.annot',
@@ -85,7 +97,14 @@ download_opt_data <- function() {
                                  'ext/lh.cortex.patch.3d.asc'
   );
   ext_urls_subject1 = paste(ext_url_subject_part_subject1, ext_url_parts_each_subject, sep='');
-  ext_urls = ext_urls_subject1;
+
+  ext_urls_cifti = c('cifti/Conte69.L.inflated.32k_fs_LR.surf.gii',
+                     'cifti/Conte69.R.inflated.32k_fs_LR.surf.gii',
+                     'cifti/Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii'
+                     );
+
+
+  ext_urls = c(ext_urls_subject1, ext_urls_cifti);
 
   base_url = 'http://rcmd.org/projects/nitestdata/';
   urls = paste(base_url, ext_urls, sep='');
