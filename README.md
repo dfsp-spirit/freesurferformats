@@ -36,9 +36,13 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer spatial transformation matrices can be read from m3z files (e.g., `transforms/talairach.m3z`).
 
-* NIFTI volumes: Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.)
+We also provide wrappers around existing neuroimaging file format packages:
 
-* GIFTI: Reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
+* NIFTI volumes (v1, single file): Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.)
+
+* GIFTI: General reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. It also comes with its own GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
+
+* CIFTI: Reading of morphometry data from CIFTI v2 files (`.dscalar.nii`) is supported based on the [cifti package by John Muschelli](https://CRAN.R-project.org/package=cifti). The wrapper functions in freesurferformats support extraction of the data for a specific brain model (surface mesh), and map the data to the appropriate vertex indices of the surface based on the CIFTI metadata.
 
 
 ## Installation

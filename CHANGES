@@ -10,6 +10,7 @@ Version 0.1.12
 - add support for writing FreeSurfer patch files in the ASCII format version
 - add many unit tests and test files, use covr
 - deprecate (imo) useless parameter 'empty_label_name' to read.fs.annot. using it will show a deprecation notice. (Please open issue if you feel you need it.)
+- add experimental support for CIFTI v2 morphometry data files (.dscalar.nii), based on the 'cifti' package by J. Muschelli
 
 
 
