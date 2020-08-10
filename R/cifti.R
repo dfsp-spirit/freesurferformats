@@ -1,10 +1,6 @@
 # Functions for working with CIFTI files.
 #
-# We use the 'cifti' package by J. Muschelli to access data in CIFTI files whenever possible.
-# Afaict, that package supports CIFTI v1 only though, so we may need to come up with something for CIFTI v2 files, which
-# are not backwards compatible with v1. CIFTI v2 uses a NIFTI v2 header, and it seems 'oro.nifti' only supports readings v1 NIFTI headers,
-# so we may need to come up with something there as well, but the changes from the NIFTI v1 header seem minor, mostly datatypes were
-# changed to support better precision/large data ranges.
+# We use the 'cifti' package by J. Muschelli to access data in CIFTI files whenever possible. It seems in 2020 we only need to care about CIFTI v2.
 #
 # General CIFTI information: https://www.nitrc.org/projects/cifti/
 # Specs:d
