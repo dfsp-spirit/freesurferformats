@@ -17,7 +17,7 @@
 
 #' @title Read surface morphometry data from CIFTI dscalar files.
 #'
-#' @description Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, folowing the meta data like vertex counts, indices and offset in the CIFTI file.
+#' @description Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, based on the metadata like vertex counts, indices and offset in the CIFTI file.
 #'
 #' @param filepath character string, the full path to a file in CIFTI 2 format, should end with '.dscalar.nii'. Note that this is NOT a NIFTI file, despite the '.nii' part. It uses a CIFTIv2 header though. See the spec for details.
 #'

@@ -21,7 +21,7 @@ read.fs.morph.cifti(
 The reconstructed data for the given surface, one value per vertex in the surface. The value for vertices which did not have a value in the CIFTI data is set to `NA`.
 }
 \description{
-Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, folowing the meta data like vertex counts, indices and offset in the CIFTI file.
+Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, based on the metadata like vertex counts, indices and offset in the CIFTI file.
 }
 \note{
 This function calls code from the 'cifti' package by John Muschelli: \url{https://CRAN.R-project.org/package=cifti}.
