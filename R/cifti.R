@@ -15,7 +15,7 @@
 #  - Great article on NIFTI v2 format by A Winkler: https://brainder.org/2015/04/03/the-nifti-2-file-format/
 
 
-#' @title Read surface morphometry data from CIFTI files.
+#' @title Read surface morphometry data from CIFTI dscalar files.
 #'
 #' @description Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, folowing the meta data like vertex counts, indices and offset in the CIFTI file.
 #'
@@ -46,6 +46,8 @@
 #' # fsbrain::vis.fs.surface(list('lh'=sf_lh, 'rh'=sf_rh),
 #' # per_vertex_data = list('lh'=morph2_lh, 'rh'=morph2_rh));
 #' }
+#'
+#' @note This function calls code from the 'cifti' package by John Muschelli: \url{https://CRAN.R-project.org/package=cifti}.
 #'
 #' @references See \url{https://www.nitrc.org/forum/attachment.php?attachid=341&group_id=454&forum_id=1955} for the CIFTI 2 file format spec. See \url{https://www.nitrc.org/projects/cifti/} for more details on CIFTI, including example files.
 #' @export

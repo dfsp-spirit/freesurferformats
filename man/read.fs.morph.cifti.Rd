@@ -2,7 +2,7 @@
 % Please edit documentation in R/cifti.R
 \name{read.fs.morph.cifti}
 \alias{read.fs.morph.cifti}
-\title{Read surface morphometry data from CIFTI files.}
+\title{Read surface morphometry data from CIFTI dscalar files.}
 \usage{
 read.fs.morph.cifti(
   filepath,
@@ -22,6 +22,9 @@ The reconstructed data for the given surface, one value per vertex in the surfac
 }
 \description{
 Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, folowing the meta data like vertex counts, indices and offset in the CIFTI file.
+}
+\note{
+This function calls code from the 'cifti' package by John Muschelli: \url{https://CRAN.R-project.org/package=cifti}.
 }
 \examples{
 \dontrun{
