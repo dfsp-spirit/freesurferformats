@@ -18,6 +18,7 @@ Suggests:
     rmarkdown,
     testthat (>= 2.1.0),
     oro.nifti (>= 0.9),
-    gifti
+    gifti (>= 0.7.5),
+    cifti (>= 0.4.5)
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0.9000
+RoxygenNote: 7.1.1
