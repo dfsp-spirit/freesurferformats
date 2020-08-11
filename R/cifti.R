@@ -108,6 +108,6 @@ read.fs.morph.cifti <- function(filepath, brain_structure='CIFTI_STRUCTURE_CORTE
     morph_data[morph_data_cii_vert_indices] = morph_data_values;
     return(morph_data);
   } else {
-    stop("Reading files in CIFTI format requires the 'cifti' package to be installed.");
+    stop("Reading files in CIFTI format requires the 'cifti' package to be installed.");  # nocov
   }
 }
