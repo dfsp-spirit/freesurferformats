@@ -1274,60 +1274,85 @@ adjust.face.indices.to <- function(faces, target_min_index=1L) {
 
 #' @title Read Brainvoyager srf format (.srf) mesh as surface.
 #'
-#' @description Read a mesh and color, normals, and color data from binary files in BrainVoyager SRF mesh format.
+#' @description Read a mesh and associated data like color and normals from a binary file in BrainVoyager SRF mesh format.
 #'
 #' @param filepath string. Full path to the input surface file in SRF mesh format.
 #'
-#' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+#' @return fs.surface instance
 #'
 #' @references The srf format spec is at \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files}.
 #'
 #' @family mesh functions
 #' @export
-read.fs.surface.srf <- function(filepath) {
+read.fs.surface.bvsrf <- function(filepath) {
+  srf_mesh = read.mesh.brainvoyager(filepath);
+  ret_list = list();
+  ret_list$vertices = srf_mesh$vertices;
+  ret_list$faces = srf_mesh$faces + 1L;
+  class(ret_list) = c("fs.surface", class(ret_list));
+  return(ret_list);
+}
+
+
+#' @title Read Brainvoyager srf format (.srf) mesh.
+#'
+#' @description Read a mesh and associated data like color and normals from a binary file in BrainVoyager SRF mesh format.
+#'
+#' @param filepath string. Full path to the input surface file in SRF mesh format.
+#'
+#' @return named list of the elements in the file.
+#'
+#' @references The srf format spec is at \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files}.
+#'
+#' @family mesh functions
+#' @export
+read.mesh.brainvoyager <- function(filepath) {
   endian = "little"; # TODO: check whether this is correct
   fh = file(filepath, "rb");
   on.exit({ close(fh) }, add=TRUE);
-  srf_version = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
-  reserved = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+
+  ret_list = list();
+  ret_list$srf_version = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+  ret_list$reserved = readBin(fh, integer(), size = 4, n = 1, endian = endian);
   num_verts = readBin(fh, integer(), size = 4, n = 1, endian = endian);
   num_faces = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-  mesh_center_xyz = readBin(fh, numeric(), size = 4, n = 3, endian = endian);
+  ret_list$mesh_center_xyz = readBin(fh, numeric(), size = 4, n = 3, endian = endian);
   vert_coords_x = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian);
   vert_coords_y = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian);
   vert_coords_z = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian);
   vert_normals_x = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian); # see spec for gotcha, these point inwards!
   vert_normals_y = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian);
   vert_normals_z = readBin(fh, numeric(), size = 4, n = num_verts, endian = endian);
-  color_rgba_curv_convex = readBin(fh, numeric(), size = 4, n = 4, endian = endian);    # color for convex vertices, to add a binary color overlay based on curvature (float in range 0-1).
-  color_rgba_curv_concave = readBin(fh, numeric(), size = 4, n = 4, endian = endian);   # in range 0-1.
+  ret_list$color_rgba_curv_convex = readBin(fh, numeric(), size = 4, n = 4, endian = endian);    # color for convex vertices, to add a binary color overlay based on curvature (float in range 0-1).
+  ret_list$color_rgba_curv_concave = readBin(fh, numeric(), size = 4, n = 4, endian = endian);   # in range 0-1.
 
   # This is a raw color index, see the spec for the interpretation. Depending on the value,
   # it may reference (1) once of the 2 curvature colors above (2) an index into a color lookup table stored
   # below, or (3) a custom RGBA color.
-  vertex_colors_raw_index = readBin(fh, integer(), size = 4, n = num_verts, endian = endian);
+  ret_list$vertex_colors_raw_index = readBin(fh, integer(), size = 4, n = num_verts, endian = endian);
 
   # Read vertex neighborhood info.
   current_center_vertex = 1L;
   while(current_center_vertex <= num_verts) {
     num_neighbors = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-    neigbor_verts = readBin(fh, integer(), size = 4, n = num_neighbors, endian = endian);
-    # We have to read the neighbor data, but we currently do not save it.
+    neighbor_verts = readBin(fh, integer(), size = 4, n = num_neighbors, endian = endian);
+    neighbor_verts = NULL; # We have to read the neighbor data, but we currently do not save it.
     current_center_vertex = current_center_vertex + 1L;
   }
+
   faces_vert_indices = readBin(fh, integer(), size = 4, n = num_faces * 3L, endian = endian);
+  ret_list$faces = matrix(faces_vert_indices, ncol = 3, byrow = TRUE);
   num_triangle_strips = readBin(fh, integer(), size = 4, n = 1, endian = endian);
   if(num_triangle_strips > 0L) { # triangle strips for faster rendering
-    triangle_strips = readBin(fh, integer(), size = 4, n = num_triangle_strips, endian = endian);
+    ret_list$triangle_strips = readBin(fh, integer(), size = 4, n = num_triangle_strips, endian = endian);
   }
-  # Here follow a zero-terminated MTC file name, which we currently ignore.
+  # Here follows a zero-terminated MTC file name, which we currently ignore.
+  # End of parsing code.
 
-  vertices = cbind(vert_coords_x, vert_coords_y, vert_coords_z);
+  # We could derive the actual colors for the vertices here from the color table, curv colors, and direct colors and store them in ret_list$derived or similar.
 
-  ret_list = list();
-  ret_list$vertices = vertices;
-  ret_list$faces = matrix(faces_vert_indices, ncol = 3, byrow = TRUE) + 1L;
-  class(ret_list) = c("fs.surface", class(ret_list));
+  ret_list$vertices = cbind(vert_coords_x, vert_coords_y, vert_coords_z);
+  ret_list$vertex_normals = cbind(vert_normals_x, vert_normals_y, vert_normals_z);
   return(ret_list);
 }
 

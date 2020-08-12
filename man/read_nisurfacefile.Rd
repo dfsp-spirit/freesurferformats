@@ -30,6 +30,7 @@ Tries to read the file with all implemented surface format reader methods. The f
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.bvsrf}()},
 \code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
@@ -38,6 +39,7 @@ Other mesh functions:
 \code{\link{read.fs.surface.ply}()},
 \code{\link{read.fs.surface.vtk}()},
 \code{\link{read.fs.surface}()},
+\code{\link{read.mesh.brainvoyager}()},
 \code{\link{read_nisurface}()},
 \code{\link{write.fs.surface.asc}()},
 \code{\link{write.fs.surface.byu}()},

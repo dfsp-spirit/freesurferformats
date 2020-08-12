@@ -22,6 +22,7 @@ This is by far not a complete VTK format reader.
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
 \code{\link{read.fs.surface.asc}()},
+\code{\link{read.fs.surface.bvsrf}()},
 \code{\link{read.fs.surface.geo}()},
 \code{\link{read.fs.surface.gii}()},
 \code{\link{read.fs.surface.ico}()},
@@ -29,6 +30,7 @@ Other mesh functions:
 \code{\link{read.fs.surface.off}()},
 \code{\link{read.fs.surface.ply}()},
 \code{\link{read.fs.surface}()},
+\code{\link{read.mesh.brainvoyager}()},
 \code{\link{read_nisurfacefile}()},
 \code{\link{read_nisurface}()},
 \code{\link{write.fs.surface.asc}()},
