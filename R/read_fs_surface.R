@@ -1306,8 +1306,9 @@ read.fs.surface.bvsrf <- function(filepath) {
 #'
 #' @family mesh functions
 #' @export
+#' @importFrom grDevices rgb
 read.mesh.brainvoyager <- function(filepath) {
-  endian = "little"; # TODO: check whether this is correct
+  endian = "little";
   fh = file(filepath, "rb");
   on.exit({ close(fh) }, add=TRUE);
 
@@ -1350,11 +1351,47 @@ read.mesh.brainvoyager <- function(filepath) {
   # End of parsing code.
 
   # We could derive the actual colors for the vertices here from the color table, curv colors, and direct colors and store them in ret_list$derived or similar.
-  #derived_colors = rep(NA, num_verts);
+  derived_colors = rep(NA, num_verts);
+  derived_colors[ret_list$vertex_colors_raw_index == 0L] = grDevices::rgb(ret_list$color_rgba_curv_convex[1], ret_list$color_rgba_curv_convex[2], ret_list$color_rgba_curv_convex[3]);
+  derived_colors[ret_list$vertex_colors_raw_index == 1L] = grDevices::rgb(ret_list$color_rgba_curv_concave[1], ret_list$color_rgba_curv_concave[2], ret_list$color_rgba_curv_concave[3]);
+  ret_list$derived = list('curv_colors' = derived_colors);
 
+  #num_curvcol = length(which(ret_list$vertex_colors_raw_index == 0L)) + length(which(ret_list$vertex_colors_raw_index == 1L));
+  #cat(sprintf("%d verts total, found %d curv colors, %d color codes.\n", num_verts, num_curvcol, length(which(ret_list$vertex_colors_raw_index >= 1056964608L))));
 
   ret_list$vertices = cbind(vert_coords_x, vert_coords_y, vert_coords_z);
   ret_list$vertex_normals = cbind(vert_normals_x, vert_normals_y, vert_normals_z);
   return(ret_list);
+}
+
+
+#' @title Convert 32 bit integer to RGB color as described in Brainvoyager SRF file spec.
+#'
+#' @param int_val the 32 bit integer
+#'
+#' @return an rgb color
+#'
+#' @keywords internal
+#' @importFrom grDevices rgb
+int.to.col.brainvoyager <- function(int_val) {
+  if(int_val < 1056965353L) {
+    warning("Not a valid Brainvoyager color code, int_val must be >= 1056965353L.");
+  }
+  bits_32 = intToBits(int_val);
+  raw_zeros_32 = intToBits(0L);
+  red_bits = raw_zeros_32;
+  blue_bits = raw_zeros_32;
+  green_bits = raw_zeros_32;
+  unused_bits = raw_zeros_32;
+  red_bits[1:8] = bits_32[1:8];
+  green_bits[1:8] = bits_32[9:16];
+  blue_bits[1:8] = bits_32[17:24];
+  unused_bits[1:8] = bits_32[25:32];
+  r = packBits(red_bits, "integer");
+  g = packBits(green_bits, "integer");
+  b = packBits(blue_bits, "integer");
+  #u = packBits(unused_bits, "integer");
+  #cat(sprintf("%d => %d, %d, %d (%d)\n", int_val, r, g, b, u));
+  return(grDevices::rgb(r/255., g/255., b/255.));
 }
 
