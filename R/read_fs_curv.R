@@ -183,3 +183,87 @@ read.fs.morph.gii <- function(filepath, element_index=1L) {
     stop("Reading files in GIFTI format requires the 'gifti' package to be installed.");
   }
 }
+
+#' @title Read Brainvoyager vertex-wise statistical surface data from SMP file.
+#'
+#' @param filepath character string, path to file in Brainvoyager SMP file format
+#'
+#' @param map_index positive integer or character string, the surface value map to load (an SMP file can contain several values per vertex, i.e., several surface maps). If an integer, interpreted as the index of the map. If a character string, as the name of the map.
+#'
+#' @return numeric vector, the values from the respective map.
+#'
+#' @export
+read.fs.morph.bvsmp <- function(filepath, map_index = 1L) {
+  smp = read.smp.brainvoyager(filepath);
+  if(is.integer(map_index)) {
+    if(map_index > smp$num_maps) {
+      stop(sprintf("Requested SMP statistical map # %d, but file contains only %d maps.\n", map_index, smp$num_maps));
+    }
+    return(smp$vertex_maps[[map_index]]$data);
+  } else {
+    map_name = map_index;
+    available_maps = c();
+    for(mi in seq.int(smp$num_maps)) {
+      if(smp$vertex_maps[[mi]]$name == map_name) {
+        return(smp$vertex_maps[[mi]]$data);
+        available_maps = c(available_maps, smp$vertex_maps[[mi]]$name);
+      }
+    }
+    stop(sprintf("Requested map not found, available maps: %s \n", paste(available_maps, collapse = ", ")));
+  }
+}
+
+
+#' @title Read Brainvoyager statistical surface results from SMP file.
+#'
+#' @param filepath character string, path to file in Brainvoyager SMP file format
+#'
+#' @references see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec
+#'
+#' @note Currently only SMP file version 3 is supported.
+#'
+#' @return named list of file contents
+#' @export
+read.smp.brainvoyager <- function(filepath) {
+  endian = "little";
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) }, add=TRUE);
+
+  ret_list = list();
+  ret_list$smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
+
+  if(ret_list$smp_version != 3L) {
+    stop(sprintf("Found SMP file in file format version %d, only version 3 is supported.\n", ret_list$smp_version));
+  }
+
+  ret_list$num_mesh_vertices = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  ret_list$num_maps = readBin(fh, integer(), size = 2, n = 1, endian = endian);
+  ret_list$srf_file_name = readBin(fh, character(), n = 1);
+  ret_list$vertex_maps = list();
+  for(map_index in seq.int(ret_list$num_maps)) {
+    vm = list();
+    vm$map_type = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$num_lags = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$min_lag = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$max_lag = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$cc_overlay = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$cluster_size = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$enable_cluster_check = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+    vm$stat_threshold_critical = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+    vm$degrees_of_freedom_1_fnom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$degrees_of_freedom_2_fdenom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$cortex_bonferroni_correct = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+    vm$color_critical_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+    vm$color_max_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+    vm$enable_smp_color = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+    vm$transparent_color_factor = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+    vm$map_name = readBin(fh, character(), n = 1);
+    ret_list$vertex_maps[[map_index]] = vm;
+  }
+
+  # header done, now read the data
+  for(map_index in seq.int(ret_list$num_maps)) {
+    ret_list$vertex_maps[[map_index]]$data = readBin(fh, numeric(), size = 4, n = ret_list$num_mesh_vertices, endian = endian);
+  }
+  return(ret_list);
+}

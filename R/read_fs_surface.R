@@ -1347,6 +1347,7 @@ read.mesh.brainvoyager <- function(filepath) {
   if(num_triangle_strips > 0L) { # triangle strips for faster rendering
     ret_list$triangle_strips = readBin(fh, integer(), size = 4, n = num_triangle_strips, endian = endian);
   }
+  ret_list$mtc_file_name = readBin(fh, character(), n = 1);
   # Here follows a zero-terminated MTC file name, which we currently ignore.
   # End of parsing code.
 
