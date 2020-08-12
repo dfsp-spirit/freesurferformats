@@ -1350,6 +1350,8 @@ read.mesh.brainvoyager <- function(filepath) {
   # End of parsing code.
 
   # We could derive the actual colors for the vertices here from the color table, curv colors, and direct colors and store them in ret_list$derived or similar.
+  #derived_colors = rep(NA, num_verts);
+
 
   ret_list$vertices = cbind(vert_coords_x, vert_coords_y, vert_coords_z);
   ret_list$vertex_normals = cbind(vert_normals_x, vert_normals_y, vert_normals_z);
