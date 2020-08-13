@@ -442,4 +442,110 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
 }
 
 
+#' @title Read FreeSurfer GCA file.
+#'
+#' @param filepath character string, path to a file in binary GCA format. Stores array of Gaussian classifiers for probabilistic atlas.
+#'
+#' @return named list, the file fields. The GCA data is in the data field.
+#'
+#' @author This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferOpenSourceLicense}. The R version was written by Tim Schaefer.
+#'
+#' @export
+read.fs.gca <- function(filepath) {
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) }, add = TRUE);
+  endian = "big";
+  ret_list = list();
+
+  gca_num_mrf = 1L;
+  max_labels = 4L;
+  gibbs_neighborhood_size = 6L;
+
+  ret_list$gca_version = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+  if(ret_list$gca_version < 1.0 | ret_list$gca_version > 4.0) {
+    stop(sprintf("Invalid GCA file format version in file header: %f\n", ret_list$gca_version));
+  }
+
+  ret_list$prior_spacing = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+  ret_list$node_spacing = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+
+  prior_width = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  prior_height = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  prior_depth = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+
+  node_width = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  node_height = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  node_depth = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+
+  ret_list$num_inputs = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  flags = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+
+  gca = matrix(nrow = (prior_width * prior_height * prior_depth), ncol = (2L * max_labels + 1L));
+  cat(sprintf("Prior dimension: %d x %d %d, spacing=%d, version=%f\n", prior_width, prior_height, prior_depth, ret_list$prior_spacing, ret_list$gca_version));
+  cat(sprintf("Node dimension: %d x %d %d\n", node_width, node_height, node_depth));
+  cat(sprintf("GCA dimension: %d x %d\n", dim(gca)[1], dim(gca)[2]));
+
+  gca_row_idx = 1L;
+  for(idx_x in seq.int(node_width)) {
+    cat(sprintf("[Node] Reading slice %d of %d.\n", idx_x, node_width));
+    for(idx_y in seq.int(node_height)) {
+      for(idx_z in seq.int(node_depth)) {
+        num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+        total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+        gca[gca_row_idx, 1L] = num_labels;
+
+        for(label_idx in seq.int(num_labels)) {
+          label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
+          lmean = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+          lmean = NULL;     # not used
+          lvar = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+          lvar = NULL;     # not used
+          if(bitwAnd(flags, gca_num_mrf)) {
+            next;
+          }
+          for(gibbs_idx in seq.int(gibbs_neighborhood_size)) {
+            num_gibbs_labels = readBin(fh, integer(), size = 4, n = 1, signed = FALSE, endian = endian);
+            for(gibbs_label_idx in seq.int(num_gibbs_labels)) {
+              gibbs_label = readBin(fh, integer(), size = 4, n = 1, signed = FALSE, endian = endian);
+              gibbs_label = NULL;  # not used
+              gibbs_prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+              gibbs_prior = NULL;  # not used
+            }
+          }
+
+        }
+        gca_row_idx = gca_row_idx + 1L;
+      }
+    }
+  }
+
+  gca_row_idx = 1L;
+  for(idx_x in seq.int(prior_width)) {
+    cat(sprintf("[Prior] Reading slice %d of %d.\n", idx_x, prior_width));
+    for(idx_y in seq.int(prior_height)) {
+      for(idx_z in seq.int(prior_depth)) {
+        num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+        total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+        gca[gca_row_idx, 1L] = num_labels;
+
+        for(label_idx in seq.int(num_labels)) {
+          label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
+          prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+
+          if(label_idx <= max_labels) {
+            gca[gca_row_idx, (2L * label_idx)] = label;
+            gca[gca_row_idx, (2L * label_idx + 1L)] = prior;
+          }
+
+        }
+        gca_row_idx = gca_row_idx + 1L;
+      }
+    }
+  }
+
+  ret_list$data = gca;
+  return(ret_list);
+}
+
+
 
