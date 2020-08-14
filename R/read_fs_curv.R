@@ -223,6 +223,18 @@ read.fs.morph.bvsmp <- function(filepath, map_index = 1L) {
 #' @note Currently only SMP file version 3 is supported.
 #'
 #' @return named list of file contents
+#'
+#' @examples
+#' \dontrun{
+#'  # Surface mesh, requires BV demo dataset from website:
+#'  sf = read.fs.surface.bvsrf("~/data/BrainTutorData/CG_LHRH_D65534.srf");
+#'  # Surface map of cortical thickness. Needs to be created in BV.
+#'  smp_file = "~/data/BrainTutorData/CG_LHRH_D65534_Thickness.smp";
+#'  smp_full = read.smp.brainvoyager(smp_file);
+#'  smp_data = read.fs.morph.bvsmp(smp_file);
+#'  fsbrain::vis.fs.surface(sf, per_vertex_data = smp_data);
+#' }
+#'
 #' @export
 read.smp.brainvoyager <- function(filepath) {
   endian = "little";
@@ -233,7 +245,7 @@ read.smp.brainvoyager <- function(filepath) {
   ret_list$smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
 
   if(ret_list$smp_version != 3L) {
-    stop(sprintf("Found SMP file in file format version %d, only version 3 is supported.\n", ret_list$smp_version));
+    warning(sprintf("Found SMP file in file format version %d, only version 3 is supported.\n", ret_list$smp_version));
   }
 
   ret_list$num_mesh_vertices = readBin(fh, integer(), size = 4, n = 1, endian = endian);
@@ -250,6 +262,7 @@ read.smp.brainvoyager <- function(filepath) {
     vm$cluster_size = readBin(fh, integer(), size = 4, n = 1, endian = endian);
     vm$enable_cluster_check = readBin(fh, integer(), size = 1, n = 1, endian = endian);
     vm$stat_threshold_critical = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+    vm$stat_threshold_max = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
     vm$degrees_of_freedom_1_fnom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
     vm$degrees_of_freedom_2_fdenom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
     vm$cortex_bonferroni_correct = readBin(fh, integer(), size = 4, n = 1, endian = endian);
