@@ -450,6 +450,12 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
 #'
 #' @author This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferOpenSourceLicense}. The R version was written by Tim Schaefer.
 #'
+#' @examples
+#' \dontrun{
+#' gca_file = file.path(Sys.getenv('FREESURFER_HOME'), 'average', 'face.gca');
+#' gca = read.fs.gca(gca_file);
+#' }
+#'
 #' @export
 read.fs.gca <- function(filepath) {
   fh = file(filepath, "rb");
@@ -494,25 +500,27 @@ read.fs.gca <- function(filepath) {
         total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
         #gca[gca_row_idx, 1L] = num_labels;
 
-        for(label_idx in seq.int(num_labels)) {
-          label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
-          lmean = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
-          lmean = NULL;     # not used
-          lvar = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
-          lvar = NULL;     # not used
-          if(bitwAnd(flags, gca_num_mrf)) {
-            next;
-          }
-          for(gibbs_idx in seq.int(gibbs_neighborhood_size)) {
-            num_gibbs_labels = readBin(fh, integer(), size = 4, n = 1, signed = FALSE, endian = endian);
-            for(gibbs_label_idx in seq.int(num_gibbs_labels)) {
-              gibbs_label = readBin(fh, integer(), size = 4, n = 1, endian = endian); # TODO: must be uint32
-              gibbs_label = NULL;  # not used
-              gibbs_prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
-              gibbs_prior = NULL;  # not used
+        if(num_labels > 0L) {
+          for(label_idx in seq.int(num_labels)) {
+            label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
+            lmean = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+            lmean = NULL;     # not used
+            lvar = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+            lvar = NULL;     # not used
+            if(bitwAnd(flags, gca_num_mrf)) {
+              next;
             }
-          }
+            for(gibbs_idx in seq.int(gibbs_neighborhood_size)) {
+              num_gibbs_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+              for(gibbs_label_idx in seq.int(num_gibbs_labels)) {
+                gibbs_label = readBin(fh, integer(), size = 4, n = 1, endian = endian); # TODO: must be uint32
+                gibbs_label = NULL;  # not used
+                gibbs_prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+                gibbs_prior = NULL;  # not used
+              }
+            }
 
+          }
         }
         gca_row_idx = gca_row_idx + 1L;
       }
@@ -528,15 +536,17 @@ read.fs.gca <- function(filepath) {
         total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
         gca[gca_row_idx, 1L] = num_labels;
 
-        for(label_idx in seq.int(num_labels)) {
-          label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
-          prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+        if(num_labels > 0L) {
+          for(label_idx in seq.int(num_labels)) {
+            label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
+            prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
 
-          if(label_idx <= max_labels) {
-            gca[gca_row_idx, (2L * label_idx)] = label;
-            gca[gca_row_idx, (2L * label_idx + 1L)] = prior;
+            if(label_idx <= max_labels) {
+              gca[gca_row_idx, (2L * label_idx)] = label;
+              gca[gca_row_idx, (2L * label_idx + 1L)] = prior;
+            }
+
           }
-
         }
         gca_row_idx = gca_row_idx + 1L;
       }
