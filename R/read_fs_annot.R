@@ -481,8 +481,8 @@ read.fs.gca <- function(filepath) {
   flags = readBin(fh, integer(), size = 4, n = 1, endian = endian);
 
   gca = matrix(nrow = (prior_width * prior_height * prior_depth), ncol = (2L * max_labels + 1L));
-  cat(sprintf("Prior dimension: %d x %d %d, spacing=%d, version=%f\n", prior_width, prior_height, prior_depth, ret_list$prior_spacing, ret_list$gca_version));
-  cat(sprintf("Node dimension: %d x %d %d\n", node_width, node_height, node_depth));
+  cat(sprintf("Prior dimension: %d x %d x %d, spacing=%d, version=%f\n", prior_width, prior_height, prior_depth, ret_list$prior_spacing, ret_list$gca_version));
+  cat(sprintf("Node dimension: %d x %d x %d, num_inputs=%d, flags=%d\n", node_width, node_height, node_depth, ret_list$num_inputs, flags));
   cat(sprintf("GCA dimension: %d x %d\n", dim(gca)[1], dim(gca)[2]));
 
   gca_row_idx = 1L;
@@ -492,7 +492,7 @@ read.fs.gca <- function(filepath) {
       for(idx_z in seq.int(node_depth)) {
         num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
         total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-        gca[gca_row_idx, 1L] = num_labels;
+        #gca[gca_row_idx, 1L] = num_labels;
 
         for(label_idx in seq.int(num_labels)) {
           label = readBin(fh, integer(), size = 1, n = 1, signed = FALSE, endian = endian);
@@ -506,7 +506,7 @@ read.fs.gca <- function(filepath) {
           for(gibbs_idx in seq.int(gibbs_neighborhood_size)) {
             num_gibbs_labels = readBin(fh, integer(), size = 4, n = 1, signed = FALSE, endian = endian);
             for(gibbs_label_idx in seq.int(num_gibbs_labels)) {
-              gibbs_label = readBin(fh, integer(), size = 4, n = 1, signed = FALSE, endian = endian);
+              gibbs_label = readBin(fh, integer(), size = 4, n = 1, endian = endian); # TODO: must be uint32
               gibbs_label = NULL;  # not used
               gibbs_prior = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
               gibbs_prior = NULL;  # not used
