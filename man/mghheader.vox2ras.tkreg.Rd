@@ -33,6 +33,8 @@ Other header coordinate space:
 \code{\link{mghheader.scanner2tkreg}()},
 \code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras}()},
+\code{\link{read.fs.transform.dat}()},
+\code{\link{read.fs.transform.xfm}()},
 \code{\link{read.fs.transform}()},
 \code{\link{sm0to1}()},
 \code{\link{sm1to0}()}

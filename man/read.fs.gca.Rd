@@ -15,6 +15,13 @@ named list, the file fields. The GCA data is in the data field.
 \description{
 Read FreeSurfer GCA file.
 }
+\examples{
+\dontrun{
+gca_file = file.path(Sys.getenv('FREESURFER_HOME'), 'average', 'face.gca');
+gca = read.fs.gca(gca_file);
+}
+
+}
 \author{
 This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferOpenSourceLicense}. The R version was written by Tim Schaefer.
 }

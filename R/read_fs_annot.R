@@ -498,7 +498,7 @@ read.fs.gca <- function(filepath) {
       for(idx_z in seq.int(node_depth)) {
         num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
         total_training = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-        #gca[gca_row_idx, 1L] = num_labels;
+        gca[gca_row_idx, 1L] = num_labels;
 
         if(num_labels > 0L) {
           for(label_idx in seq.int(num_labels)) {

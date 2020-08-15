@@ -16,7 +16,19 @@ named list of file contents
 Read Brainvoyager statistical surface results from SMP file.
 }
 \note{
-Currently only SMP file version 3 is supported.
+Currently only SMP file versions 2 and 3 are supported, as these are the only ones for which a spec is available.
+}
+\examples{
+\dontrun{
+ # Surface mesh, requires BV demo dataset from website:
+ sf = read.fs.surface.bvsrf("~/data/BrainTutorData/CG_LHRH_D65534.srf");
+ # Surface map of cortical thickness. Needs to be created in BV.
+ smp_file = "~/data/BrainTutorData/CG_LHRH_D65534_Thickness.smp";
+ smp_full = read.smp.brainvoyager(smp_file);
+ smp_data = read.fs.morph.bvsmp(smp_file);
+ fsbrain::vis.fs.surface(sf, per_vertex_data = smp_data);
+}
+
 }
 \references{
 see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec

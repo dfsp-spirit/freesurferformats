@@ -9,7 +9,7 @@ read.fs.transform(filepath, format = "xfm")
 \arguments{
 \item{filepath}{character string, the full path to the transform file.}
 
-\item{format}{character string, the file format. Currently only 'xfm' is supported.}
+\item{format}{character string, the file format. Currently 'xfm' or 'dat' (for tkregister style, e.g. register.dat) are supported.}
 }
 \value{
 4x4 numerical matrix, the transformation matrix
@@ -37,6 +37,8 @@ Other header coordinate space:
 \code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras.tkreg}()},
 \code{\link{mghheader.vox2ras}()},
+\code{\link{read.fs.transform.dat}()},
+\code{\link{read.fs.transform.xfm}()},
 \code{\link{sm0to1}()},
 \code{\link{sm1to0}()}
 }
