@@ -2,9 +2,9 @@
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @param format character string, the file format. Currently 'xfm' or 'dat' (for tkregister style, e.g. register.dat) are supported.
+#' @param format character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.
 #'
-#' @return 4x4 numerical matrix, the transformation matrix
+#' @return named list, the 'matrix field contains a '4x4 numerical matrix, the transformation matrix. Other fields may exist, depending on the parsed format.
 #'
 #' @note Currently this function has been tested with linear transformation files only, all others are unsupported.
 #'
@@ -18,9 +18,9 @@
 #'     transform$matrix;
 #'
 #' @export
-read.fs.transform <- function(filepath, format='xfm') {
+read.fs.transform <- function(filepath, format='auto') {
 
-  if( ! format %in% c('xfm', 'dat')) {
+  if( ! format %in% c('auto', 'xfm', 'dat')) {
     stop("Format must be 'xfm'.");
   }
 
@@ -109,7 +109,7 @@ read.fs.transform.dat <- function(filepath) {
 
   all_lines = readLines(filepath);
   if(length(all_lines) != 9L) {
-    stop(sprintf("Expected 9 lines in tkregister dat file, found %d.\n", length(all_lines)));
+    stop(sprintf("Expected 9 lines in tkregister dat file, found %d.\n", length(all_lines))); # nocov
   }
 
   transform$intensity = as.integer(trimws(all_lines[4]));
