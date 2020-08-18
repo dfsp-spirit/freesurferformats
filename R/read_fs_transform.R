@@ -30,6 +30,9 @@ read.fs.transform <- function(filepath, format='auto') {
   if(format == "dat" || (format == 'auto' & endsWith(filepath, '.dat') )) {
     return(read.fs.transform.dat(filepath));
   }
+  if(format == "lta" || (format == 'auto' & endsWith(filepath, '.lta') )) {
+    return(read.fs.transform.lta(filepath));
+  }
 }
 
 
@@ -117,6 +120,35 @@ read.fs.transform.dat <- function(filepath) {
 
   return(transform);
 }
+
+
+#' @title  Load transformation matrix from a FreeSurfer linear transform array (LTA) file.
+#'
+#' @param filepath character string, the full path to the transform file.
+#'
+#' @return 4x4 numerical matrix, the transformation matrix
+#'
+#' @family header coordinate space
+#'
+#' @examples
+#'     tf_file = system.file("extdata", "register.dat",
+#'                                package = "freesurferformats",
+#'                                mustWork = TRUE);
+#'     transform = read.fs.transform.dat(tf_file);
+#'     transform$matrix;
+#'
+#' @export
+read.fs.transform.lta <- function(filepath) {
+
+  transform = list('type'=NULL, 'matrix'=NULL);
+
+  all_lines = readLines(filepath);
+
+  stop("not implemented yet")
+
+  return(transform);
+}
+
 
 
 
