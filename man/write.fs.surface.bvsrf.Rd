@@ -21,7 +21,7 @@ write.fs.surface.bvsrf(
 
 \item{normals}{matrix of nx3 vertex normals (x,y,z)}
 
-\item{neighborhoods}{list of integer lists, the indices of the nearest neighbors for each vertex (an adjacency list). The sublist at index n contains the indices of the vertices in the 1-neighborhood of vertex n.}
+\item{neighborhoods}{list of integer lists, the indices of the nearest neighbors for each vertex (an adjacency list). The sub list at index n contains the indices of the vertices in the 1-neighborhood of vertex n. The vertex indices in the sub lists must be zero-based.}
 }
 \description{
 Write surface to Brainvoyager SRF file.

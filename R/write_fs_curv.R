@@ -126,8 +126,8 @@ fwrite3 <- function(filehandle, data) {
 #' @export
 write.fs.morph <- function(filepath, data, format='auto', ...) {
 
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii")) {
-      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', or 'gii'.");
+    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp")) {
+      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', or 'gii'.");
     }
 
     if(format == 'auto') {
@@ -230,5 +230,24 @@ fs.get.morph.file.ext.for.format <- function(format) {
     } else {
         stop(sprintf("Unsupported morphometry file format: '%s'.", format));
     }
+}
+
+
+#' @title Write morphometry data in Brainvoyager SMP format.
+#'
+#' @param filepath string, the full path of the output SMP file.
+#'
+#' @param data numerical vector, the data to write. Will be coerced to double.
+#'
+#' @param ... extra arguments passed to \code{\link{write.smp.brainvoyager}}. Allows yout to save in specific format versions.
+#'
+#' @return format, string. The format that was used to write the data.
+#'
+#' @family morphometry functions
+#'
+#' @export
+write.fs.morph.smp <- function(filepath, data, ...) {
+  write.smp.brainvoyager(filepath, bvsmp(data), ...);
+  return("smp");
 }
 

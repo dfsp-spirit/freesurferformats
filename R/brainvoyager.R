@@ -226,3 +226,44 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
   }
   close(fh);
 }
+
+
+#' @title Create new bvsmp instance.
+#'
+#' @param morph_data numeric vector, the morphometry data to store in the bvsmp instance (one value per mesh vertex).
+#'
+#' @return bvsmp instance
+bvsmp <- function(morph_data) {
+  ret_list = list();
+  ret_list$smp_version = 3L;
+
+
+  ret_list$num_mesh_vertices = length(morph_data);
+  ret_list$num_maps = 1L;
+  ret_list$srf_file_name = "";
+  ret_list$vertex_maps = list();
+
+  vm = list();
+  vm$map_type = 13L;
+  vm$num_lags = 0L;
+  vm$min_lag = 0L;
+  vm$max_lag = 0L;
+  vm$cc_overlay = 0L;
+  vm$cluster_size = 0L;
+  vm$enable_cluster_check = 0L;
+  vm$stat_threshold_critical = 0.0;
+  vm$stat_threshold_max = 0.0;
+  vm$degrees_of_freedom_1_fnom = 0L;
+  vm$degrees_of_freedom_2_fdenom = 0L;
+  vm$cortex_bonferroni_correct = 0L;
+  vm$color_critical_rgb = c(100L, 0L, 0L);
+  vm$color_max_rgb = c(100L, 100L, 0L);
+  vm$enable_smp_color = 0L;
+  vm$transparent_color_factor = 0.0;
+  vm$map_name = "data"; # not very creative, I know.
+  vm$data = morph_data;
+  ret_list$vertex_maps[[1]] = vm;
+
+  class(ret_list) = c("bvsmp", class(ret_list));
+  return(ret_list);
+}

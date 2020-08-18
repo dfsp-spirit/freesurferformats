@@ -735,7 +735,7 @@ write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
 #'
 #' @param normals matrix of nx3 vertex normals (x,y,z)
 #'
-#' @param neighborhoods list of integer lists, the indices of the nearest neighbors for each vertex (an adjacency list). The sublist at index n contains the indices of the vertices in the 1-neighborhood of vertex n.
+#' @param neighborhoods list of integer lists, the indices of the nearest neighbors for each vertex (an adjacency list). The sub list at index n contains the indices of the vertices in the 1-neighborhood of vertex n. The vertex indices in the sub lists must be zero-based.
 #'
 #' @note This function is experimental. Only SRF file format version 4 is supported.
 #'
@@ -790,7 +790,7 @@ write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL,
   } else {
     for(neighbors in neighborhoods) {
       writeBin(as.integer(length(neighbors)), fh, size = 4, endian = endian);
-      writeBin(as.integer(neighbors), fh, size = 4, endian = endian);     # TODO: decide whether to substract 1 from these.
+      writeBin(as.integer(neighbors), fh, size = 4, endian = endian);
     }
   }
 
