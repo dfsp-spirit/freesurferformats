@@ -131,10 +131,9 @@ read.fs.transform.dat <- function(filepath) {
 #' @family header coordinate space
 #'
 #' @examples
-#'     tf_file = system.file("extdata", "register.dat",
-#'                                package = "freesurferformats",
-#'                                mustWork = TRUE);
-#'     transform = read.fs.transform.dat(tf_file);
+#'     tf_file = system.file("extdata", "talairach.lta",
+#'      package = "freesurferformats", mustWork = TRUE);
+#'     transform = read.fs.transform.lta(tf_file);
 #'     transform$matrix;
 #'
 #' @export
