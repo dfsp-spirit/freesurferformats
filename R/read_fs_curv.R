@@ -184,9 +184,10 @@ read.fs.morph.gii <- function(filepath, element_index=1L) {
   }
 }
 
+
 #' @title Read Brainvoyager vertex-wise statistical surface data from SMP file.
 #'
-#' @param filepath character string, path to file in Brainvoyager SMP file format
+#' @param filepath character string, path to file in Brainvoyager SMP file format. Alternatively, a 'bvsmp' instance read with \code{\link{read.smp.brainvoyager}}.
 #'
 #' @param map_index positive integer or character string, the surface value map to load (an SMP file can contain several values per vertex, i.e., several surface maps). If an integer, interpreted as the index of the map. If a character string, as the name of the map.
 #'
@@ -194,7 +195,12 @@ read.fs.morph.gii <- function(filepath, element_index=1L) {
 #'
 #' @export
 read.fs.morph.bvsmp <- function(filepath, map_index = 1L) {
-  smp = read.smp.brainvoyager(filepath);
+  if(is.bvsmp(filepath)) {
+    smp = filepath;
+  } else {
+    smp = read.smp.brainvoyager(filepath);
+  }
+
   if(is.integer(map_index)) {
     if(map_index > smp$num_maps) {
       stop(sprintf("Requested SMP statistical map # %d, but file contains only %d maps.\n", map_index, smp$num_maps));

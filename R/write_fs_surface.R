@@ -753,8 +753,8 @@ write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL,
   }
 
   fh = file(filepath, "wb");
-  writeBin(as.double(4.0), fh, size = 1, endian = endian);
-  writeBin(as.integer(0L), fh, size = 4, endian = endian);
+  writeBin(as.double(4.0), fh, size = 4, endian = endian); # SRF file format version
+  writeBin(as.integer(0L), fh, size = 4, endian = endian);  # must be 0
   writeBin(as.integer(num_verts), fh, size = 4, endian = endian);
   writeBin(as.integer(num_faces), fh, size = 4, endian = endian);
 
@@ -795,6 +795,7 @@ write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL,
   }
 
   # writes faces
+  faces = faces - 1L;
   writeBin(as.integer(t(faces)), fh, size = 4, endian = endian);
   writeBin(as.integer(0L), fh, size = 4, endian = endian); # num triangle strips
   writeBin("", fh, size = 1, endian = endian); # associated file name

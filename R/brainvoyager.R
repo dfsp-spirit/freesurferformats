@@ -51,6 +51,7 @@ read.smp.brainvoyager.v3 <- function(filepath) {
   for(map_index in seq.int(ret_list$num_maps)) {
     ret_list$vertex_maps[[map_index]]$data = readBin(fh, numeric(), size = 4, n = ret_list$num_mesh_vertices, endian = endian);
   }
+  class(ret_list) = c("bvsmp", class(ret_list));
   return(ret_list);
 }
 
@@ -103,6 +104,7 @@ read.smp.brainvoyager.v2 <- function(filepath) {
   for(map_index in seq.int(ret_list$num_maps)) {
     ret_list$vertex_maps[[map_index]]$data = readBin(fh, numeric(), size = 4, n = ret_list$num_mesh_vertices, endian = endian);
   }
+  class(ret_list) = c("bvsmp", class(ret_list));
   return(ret_list);
 }
 
@@ -123,8 +125,8 @@ read.smp.brainvoyager.v2 <- function(filepath) {
 #'  sf = read.fs.surface.bvsrf("~/data/BrainTutorData/CG_LHRH_D65534.srf");
 #'  # Surface map of cortical thickness. Needs to be created in BV.
 #'  smp_file = "~/data/BrainTutorData/CG_LHRH_D65534_Thickness.smp";
-#'  smp_full = read.smp.brainvoyager(smp_file);
-#'  smp_data = read.fs.morph.bvsmp(smp_file);
+#'  smp = read.smp.brainvoyager(smp_file);
+#'  smp_data = read.fs.morph.bvsmp(smp); # could also pass smp_file.
 #'  fsbrain::vis.fs.surface(sf, per_vertex_data = smp_data);
 #' }
 #'
@@ -145,20 +147,32 @@ read.smp.brainvoyager <- function(filepath) {
 }
 
 
+#' @title Check whether object is a bvsmp instance.
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is an bvsmp instane (that is, has "bvsmp" amongst its classes) and FALSE otherwise.
+#' @export
+is.bvsmp <- function(x) inherits(x, "bvsmp")
+
+
 #' @title Write a brainvoyager SMP file.
 #'
-#' @description Write a brainvoyager SMP file, which contains one or more vertex-wise data maps (stats or morpometry data).
+#' @description Write a brainvoyager SMP file, which contains one or more vertex-wise data maps (stats or morphometry data).
 #'
 #' @param filepath character string, the output file
 #'
-#' @param bvsmp a named list, as returned by \code{\link{read.smp.brainvoyager}}.
+#' @param bvsmp bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.
 #'
-#' @param smp_version integer, the SMP file format version to use when writing. Only v3 is supported atm.
+#' @param smp_version integer, the SMP file format version to use when writing. Only v3 is supported.
 #'
 #' @seealso \code{\link{write.fs.morph.smp}}
 #'
 #' @export
 write.smp.brainvoyager <- function(filepath, bvsmp, smp_version = 3L) {
+  if(! is.bvsmp(bvsmp)) {
+    stop("Parameter 'bvsmp' must contain bvsmp instance.\n");
+  }
   if(smp_version == 3L) {
     return(write.smp.brainvoyager.v3(filepath, bvsmp));
   } else {

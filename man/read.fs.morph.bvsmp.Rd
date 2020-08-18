@@ -7,7 +7,7 @@
 read.fs.morph.bvsmp(filepath, map_index = 1L)
 }
 \arguments{
-\item{filepath}{character string, path to file in Brainvoyager SMP file format}
+\item{filepath}{character string, path to file in Brainvoyager SMP file format. Alternatively, a 'bvsmp' instance read with \code{\link{read.smp.brainvoyager}}.}
 
 \item{map_index}{positive integer or character string, the surface value map to load (an SMP file can contain several values per vertex, i.e., several surface maps). If an integer, interpreted as the index of the map. If a character string, as the name of the map.}
 }

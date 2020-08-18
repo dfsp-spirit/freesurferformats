@@ -9,7 +9,7 @@ write.smp.brainvoyager.v3(filepath, bvsmp)
 \arguments{
 \item{filepath}{character string, the output file}
 
-\item{bvsmp}{a named list, as returned by \code{\link{read.smp.brainvoyager}}.}
+\item{bvsmp}{bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.}
 }
 \description{
 Write a brainvoyager v3 SMP file.
