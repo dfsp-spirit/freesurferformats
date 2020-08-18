@@ -4,12 +4,14 @@
 \alias{write.fs.morph.smp}
 \title{Write morphometry data in Brainvoyager SMP format.}
 \usage{
-write.fs.morph.smp(filepath, data)
+write.fs.morph.smp(filepath, data, ...)
 }
 \arguments{
 \item{filepath}{string, the full path of the output SMP file.}
 
 \item{data}{numerical vector, the data to write. Will be coerced to double.}
+
+\item{...}{extra arguments passed to \code{\link{write.smp.brainvoyager}}. Allows yout to save in specific format versions.}
 }
 \value{
 format, string. The format that was used to write the data.

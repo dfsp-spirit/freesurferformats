@@ -34,6 +34,7 @@ Other header coordinate space:
 \code{\link{mghheader.tkreg2scanner}()},
 \code{\link{mghheader.vox2ras}()},
 \code{\link{read.fs.transform.dat}()},
+\code{\link{read.fs.transform.lta}()},
 \code{\link{read.fs.transform.xfm}()},
 \code{\link{read.fs.transform}()},
 \code{\link{sm0to1}()},
