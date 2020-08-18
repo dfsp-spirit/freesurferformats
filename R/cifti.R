@@ -3,7 +3,7 @@
 # We use the 'cifti' package by J. Muschelli to access data in CIFTI files whenever possible. It seems in 2020 we only need to care about CIFTI v2.
 #
 # General CIFTI information: https://www.nitrc.org/projects/cifti/
-# Specs:d
+# Specs:
 #  - CIFTI v1 spec: https://www.nitrc.org/plugins/mwiki/index.php/cifti:Cifti-1
 #  - CITFI v2 full spec (PDF): https://www.nitrc.org/forum/attachment.php?attachid=341&group_id=454&forum_id=1955
 # Related:

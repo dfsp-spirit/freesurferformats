@@ -28,8 +28,6 @@ read.fs.weight <- function(filepath, format='auto') {
   }
   on.exit({ close(fh) }, add=TRUE);
 
-  ret_list = list();
-
   latency = readBin(fh, integer(), size = 2L, n = 1, endian = "big");
   num_vertex_value_pairs = fread3(fh);
 
@@ -42,7 +40,7 @@ read.fs.weight <- function(filepath, format='auto') {
     vertex_index[read_idx] = fread3(fh);
     vertex_value[read_idx] = readBin(fh, numeric(), size = 4, n = 1, endian = "big");
   }
-  return(list("vertex_indices"=vertex_index + 1, "values"=vertex_value));
+  return(list("vertex_indices"=vertex_index + 1L, "values"=vertex_value));
 }
 
 
