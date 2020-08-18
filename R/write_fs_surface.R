@@ -727,3 +727,78 @@ write.fs.surface.byu <- function(filepath, vertex_coords, faces) {
 
   close(fh);
 }
+
+
+#' @title Write surface to Brainvoyager SRF file.
+#'
+#' @inheritParams write.fs.surface
+#'
+#' @param normals matrix of nx3 vertex normals (x,y,z)
+#'
+#' @param neighborhoods list of integer lists, the indices of the nearest neighbors for each vertex (an adjacency list). The sublist at index n contains the indices of the vertices in the 1-neighborhood of vertex n.
+#'
+#' @note This function is experimental. Only SRF file format version 4 is supported.
+#'
+#' @export
+write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL, neighborhoods=NULL) {
+  num_verts = nrow(vertex_coords);
+  num_faces = nrow(faces);
+  endian = 'little';
+
+  check.verts.faces(vertex_coords, faces);
+
+  if(is.null(normals)) {
+    normals = rep(0.0, (num_verts * 3L));
+    normals = matrix(normals, ncol = 3);
+  }
+
+  fh = file(filepath, "wb");
+  writeBin(as.double(4.0), fh, size = 1, endian = endian);
+  writeBin(as.integer(0L), fh, size = 4, endian = endian);
+  writeBin(as.integer(num_verts), fh, size = 4, endian = endian);
+  writeBin(as.integer(num_faces), fh, size = 4, endian = endian);
+
+  writeBin(as.double(128.0), fh, size = 4, endian = endian); # next 3 are mesh center x,y,z
+  writeBin(as.double(128.0), fh, size = 4, endian = endian);
+  writeBin(as.double(128.0), fh, size = 4, endian = endian);
+
+  writeBin(as.double(vertex_coords[,1]), fh, size = 4, endian = endian); # vert coord x, z, y
+  writeBin(as.double(vertex_coords[,2]), fh, size = 4, endian = endian);
+  writeBin(as.double(vertex_coords[,3]), fh, size = 4, endian = endian);
+
+  writeBin(as.double(normals[,1]), fh, size = 4, endian = endian); # vert normals x, z, y
+  writeBin(as.double(normals[,2]), fh, size = 4, endian = endian);
+  writeBin(as.double(normals[,3]), fh, size = 4, endian = endian);
+
+  writeBin(as.double(0.322), fh, size = 4, endian = endian); # convex vert color RGBA
+  writeBin(as.double(0.733), fh, size = 4, endian = endian);
+  writeBin(as.double(0.980), fh, size = 4, endian = endian);
+  writeBin(as.double(1.000), fh, size = 4, endian = endian);
+
+  writeBin(as.double(0.100), fh, size = 4, endian = endian); # concave vert color RGBA
+  writeBin(as.double(0.240), fh, size = 4, endian = endian);
+  writeBin(as.double(0.320), fh, size = 4, endian = endian);
+  writeBin(as.double(1.000), fh, size = 4, endian = endian);
+
+  mesh_col = rep(0L, num_verts);
+  writeBin(as.integer(mesh_col), fh, size = 4, endian = endian);
+
+  # nearest neighbor data
+  if(is.null(neighborhoods)) {
+    neighborhood_sizes = rep(0L, num_verts); # we do not have neighborhood data
+    writeBin(as.integer(neighborhood_sizes), fh, size = 4, endian = endian);
+  } else {
+    for(neighbors in neighborhoods) {
+      writeBin(as.integer(length(neighbors)), fh, size = 4, endian = endian);
+      writeBin(as.integer(neighbors), fh, size = 4, endian = endian);     # TODO: decide whether to substract 1 from these.
+    }
+  }
+
+  # writes faces
+  writeBin(as.integer(t(faces)), fh, size = 4, endian = endian);
+  writeBin(as.integer(0L), fh, size = 4, endian = endian); # num triangle strips
+  writeBin("", fh, size = 1, endian = endian); # associated file name
+  close(fh);
+}
+
+
