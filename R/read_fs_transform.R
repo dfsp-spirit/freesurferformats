@@ -20,8 +20,8 @@
 #' @export
 read.fs.transform <- function(filepath, format='auto') {
 
-  if( ! format %in% c('auto', 'xfm', 'dat')) {
-    stop("Format must be 'xfm'.");
+  if( ! format %in% c('auto', 'xfm', 'dat', 'lta')) {
+    stop("Format must be one of 'auto', 'xfm', 'dat', or 'lta'.");
   }
 
   if(format == "xfm" || (format == 'auto' & endsWith(filepath, '.xfm') )) {
@@ -33,6 +33,7 @@ read.fs.transform <- function(filepath, format='auto') {
   if(format == "lta" || (format == 'auto' & endsWith(filepath, '.lta') )) {
     return(read.fs.transform.lta(filepath));
   }
+  stop("Could not auto-detect transform file format from file extension, please specify.");
 }
 
 
@@ -79,12 +80,6 @@ read.fs.transform.xfm <- function(filepath) {
     }
 
     current_line_idx = current_line_idx + 1L;
-  }
-  if(is.null(transform$type) | is.null(transform$matrix)) {
-    if(is.null(transform$type)) {
-      stop("Invalid xfm file, did not find required transform type.");
-    }
-    stop("Invalid xfm file, did not find required transform matrix.");
   }
   return(transform);
 }
@@ -141,7 +136,16 @@ read.fs.transform.lta <- function(filepath) {
 
   transform = list('type'=NULL, 'matrix'=NULL);
 
+  current_line_idx = 0L;
   all_lines = readLines(filepath);
+  for(tfline in all_lines) {
+    current_line_idx = current_line_idx + 1L;
+    if(startsWith(tfline, '#')) { next; }          # ignore comment lines
+    if(length(strsplit(tfline, "#")[[1]]) > 1L) {  # check whether a comment character occurs later in the line.
+      tfline = strsplit(tfline, "#")[[1]][1]; # remove line parts after comment character (keep only part before 1st comment char).
+    }
+    print(tfline);
+  }
 
   stop("not implemented yet")
 
