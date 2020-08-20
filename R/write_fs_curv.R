@@ -171,7 +171,7 @@ write.fs.morph.gii <- function(filepath, data) {
 #'
 #' @param filepath, string. A path to a file.
 #'
-#' @return format, string. The format, one of c("mgz", "mgh", "curv", "gii").
+#' @return format, string. The format, one of c("mgz", "mgh", "curv", "gii", "smp").
 #'
 #' @family morphometry functions
 #'
@@ -186,6 +186,9 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
         }
         if(tolower(ext) == "mgz") {
             return("mgz");
+        }
+        if(tolower(ext) == "smp") {
+          return("smp");
         }
         if(tolower(ext) == "gii") {
           return("gii");
@@ -248,6 +251,6 @@ fs.get.morph.file.ext.for.format <- function(format) {
 #' @export
 write.fs.morph.smp <- function(filepath, data, ...) {
   write.smp.brainvoyager(filepath, bvsmp(data), ...);
-  return("smp");
+  return(invisible("smp"));
 }
 

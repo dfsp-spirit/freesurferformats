@@ -2,7 +2,7 @@
 % Please edit documentation in R/brainvoyager.R
 \name{bvsmp}
 \alias{bvsmp}
-\title{Create new bvsmp instance.}
+\title{Create new bvsmp instance encoding morph data for Brainvoyager.}
 \usage{
 bvsmp(morph_data)
 }
@@ -10,8 +10,8 @@ bvsmp(morph_data)
 \item{morph_data}{numeric vector, the morphometry data to store in the bvsmp instance (one value per mesh vertex).}
 }
 \value{
-bvsmp instance
+bvsmp instance, can be used to write Brainvoyager SMP format morphometry files using \code{\link{write.smp.brainvoyager}}. Modify as needed before writing.
 }
 \description{
-Create new bvsmp instance.
+Create new bvsmp instance encoding morph data for Brainvoyager.
 }

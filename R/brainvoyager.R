@@ -115,7 +115,7 @@ read.smp.brainvoyager.v2 <- function(filepath) {
 #'
 #' @references see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec
 #'
-#' @note Currently only SMP file versions 2 and 3 are supported, as these are the only ones for which a spec is available.
+#' @note Currently only SMP file versions 2 and 3 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
 #'
 #' @return named list of file contents
 #'
@@ -217,7 +217,7 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
       writeBin(as.integer(vm$color_max_rgb), fh, size = 1, endian = endian); # color_max_rgb is vector of length 3
       writeBin(as.integer(vm$enable_smp_color), fh, size = 1, endian = endian);
       writeBin(as.double(vm$transparent_color_factor), fh, size = 4, endian = endian);
-      writeBin(bvsmp$map_name, fh, endian = endian);
+      writeBin(as.character(bvsmp$map_name), fh, endian = endian);
     }
 
     for(vm in bvsmp$vertex_maps) { # write data
@@ -228,11 +228,12 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
 }
 
 
-#' @title Create new bvsmp instance.
+#' @title Create new bvsmp instance encoding morph data for Brainvoyager.
 #'
 #' @param morph_data numeric vector, the morphometry data to store in the bvsmp instance (one value per mesh vertex).
 #'
-#' @return bvsmp instance
+#' @return bvsmp instance, can be used to write Brainvoyager SMP format morphometry files using \code{\link{write.smp.brainvoyager}}. Modify as needed before writing.
+#' @export
 bvsmp <- function(morph_data) {
   ret_list = list();
   ret_list$smp_version = 3L;

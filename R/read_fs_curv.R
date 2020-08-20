@@ -128,8 +128,8 @@ fread3 <- function(filehandle) {
 #'
 #' @export
 read.fs.morph <- function(filepath, format='auto') {
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii")) {
-        stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', or 'gii'.");
+    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp")) {
+        stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', or 'gii'.");
     }
 
     if(format == 'auto') {
@@ -140,6 +140,8 @@ read.fs.morph <- function(filepath, format='auto') {
         data = read.fs.mgh(filepath, flatten=TRUE);
     } else if(format == "gii") {
         data = read.fs.morph.gii(filepath);
+    } else if(format == "smp") {
+      data = read.fs.morph.bvsmp(filepath);
     } else {
         data = read.fs.curv(filepath);
     }
