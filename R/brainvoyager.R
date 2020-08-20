@@ -197,7 +197,8 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
   writeBin(as.integer(smp_version), fh, size = 2, endian = endian);
   writeBin(as.integer(bvsmp$num_mesh_vertices), fh, size = 4, endian = endian);
   writeBin(as.integer(bvsmp$num_maps), fh, size = 2, endian = endian);
-  writeBin(bvsmp$srf_file_name, fh, endian = endian);
+  bvsmp$srf_file_name = 'test.txt';
+  writeChar(bvsmp$srf_file_name, fh);
   if(bvsmp$num_maps > 0L) {
     for(vm in bvsmp$vertex_maps) {
 
@@ -217,7 +218,7 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
       writeBin(as.integer(vm$color_max_rgb), fh, size = 1, endian = endian); # color_max_rgb is vector of length 3
       writeBin(as.integer(vm$enable_smp_color), fh, size = 1, endian = endian);
       writeBin(as.double(vm$transparent_color_factor), fh, size = 4, endian = endian);
-      writeBin(as.character(bvsmp$map_name), fh, endian = endian);
+      writeChar(vm$map_name, fh);
     }
 
     for(vm in bvsmp$vertex_maps) { # write data

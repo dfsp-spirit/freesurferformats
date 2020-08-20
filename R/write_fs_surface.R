@@ -798,7 +798,7 @@ write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL,
   faces = faces - 1L;
   writeBin(as.integer(t(faces)), fh, size = 4, endian = endian);
   writeBin(as.integer(0L), fh, size = 4, endian = endian); # num triangle strips
-  writeBin("", fh, size = 1, endian = endian); # associated file name
+  writeChar("", fh); # associated file name
   close(fh);
 }
 
