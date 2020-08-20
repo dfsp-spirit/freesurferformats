@@ -131,26 +131,110 @@ read.fs.transform.dat <- function(filepath) {
 #'     transform = read.fs.transform.lta(tf_file);
 #'     transform$matrix;
 #'
+#' @note I found no spec for the LTA file format, only example files, so this function should be used with care. If you have a file that is not parsed correctly, please open an issue and attach it.
+#'
 #' @export
 read.fs.transform.lta <- function(filepath) {
 
   transform = list('type'=NULL, 'matrix'=NULL);
+  transform$header = list();
+  transform$volumes = list();
 
-  current_line_idx = 0L;
   all_lines = readLines(filepath);
+
+  # Cleaning
+  current_line_idx = 0L;
   for(tfline in all_lines) {
     current_line_idx = current_line_idx + 1L;
+    # Cleanup: remove comments and extra whitespace
     if(startsWith(tfline, '#')) { next; }          # ignore comment lines
     if(length(strsplit(tfline, "#")[[1]]) > 1L) {  # check whether a comment character occurs later in the line.
       tfline = strsplit(tfline, "#")[[1]][1]; # remove line parts after comment character (keep only part before 1st comment char).
     }
-    print(tfline);
+    all_lines[current_line_idx] = trimws(tfline);
   }
 
-  stop("not implemented yet")
+  # Parsing
+  current_line_idx = 0L;
+  sections = c('header', 'matrix', 'volume_info');
+  current_section = 'header';
+  current_volume = NULL;
+  while(current_line_idx < length(all_lines)) {
+    current_line_idx = current_line_idx + 1L;
+    tfline = all_lines[current_line_idx];
 
+    #cat(sprintf("At line %d: '%s'\n", current_line_idx, tfline));
+
+    if(startsWith(tfline, '#')) { next; }          # ignore comment lines
+    if(nchar(tfline) < 1L) { next; }               # ignore empty lines
+
+    # parse data
+    if(current_section == 'header') {
+      if(length(strsplit(tfline, "=")[[1]]) > 1L) {  # It's a line of the form key = value
+        lkey = trimws(strsplit(tfline, "=")[[1]][1]);
+        lvalue = trimws(strsplit(tfline, "=")[[1]][2]);
+        transform$header[[lkey]] = lvalue;
+      } else {
+        transform$header$matrixdim = scann(tfline, 3L, line_number = current_line_idx);
+        current_section = sections[2];
+        num_matrix_rows = transform$header$matrixdim[2];
+        matrix_start = current_line_idx + 1L;
+        matrix_end = current_line_idx + num_matrix_rows;
+        #cat(sprintf("Parsing %d matrix rows from file lines %d to %d.\n", num_matrix_rows, matrix_start, matrix_end));
+        transform$matrix = parse.transform.matrix.lines(all_lines[matrix_start:matrix_end]);
+        current_line_idx = current_line_idx + num_matrix_rows;
+        current_section = sections[3];
+      }
+
+    } else if(current_section == 'volume_info') {
+      if(endsWith(tfline, "volume info")) {
+        current_volume = scann(tfline, 3L, what=character(), line_number = current_line_idx)[1];
+        transform$volumes[[current_volume]] = list();
+      } else {
+        if(is.null(current_volume)) {
+          warning(sprintf("Skipping line '%s' number %d in LTA file volume_info section: no volume defined yet.\n", tfline, current_line_idx)); # nocov
+        } else {
+          lkey = trimws(strsplit(tfline, "=")[[1]][1]);
+          lvalue = trimws(strsplit(tfline, "=")[[1]][2]);
+          if(lkey %in% c('voxelsize', 'xras', 'yras', 'zras', 'cras')) {
+            transform$volumes[[current_volume]][[lkey]] = scann(lvalue, 3L, what = numeric(), line_number = current_line_idx);
+          } else if(lkey %in% c('volume')) {
+            transform$volumes[[current_volume]][[lkey]] = scann(lvalue, 3L, what = integer(), line_number = current_line_idx);
+          } else {
+            transform$volumes[[current_volume]][[lkey]] = lvalue;
+          }
+        }
+
+      }
+
+    } else {
+      stop(sprintf("Invalid LTA file section '%s' reached while parsing.\n", current_section));
+    }
+
+  }
   return(transform);
 }
+
+
+#' @title Scan exactly n values from source string.
+#'
+#' @param cstring the input character string
+#'
+#' @param num integer, the number of expected resulting items.
+#'
+#' @param line_number optional integer, the line number (if the string represents a line from a text file). Will be printed in error message, if any.
+#'
+#' @return vector of type integer or double
+#' @keywords internal
+scann <- function(cstring, num = 1L, what = integer(), line_number=NULL) {
+  res = scan(text=cstring, what=what, quiet = TRUE);
+  if(length(res) == num) {
+    return(res);
+  }
+  line_info = ifelse(is.null(line_number), "", sprintf(" at line %d", line_number));
+  stop(sprintf("Expected %d entries but found %d in '%s'%s.\n", num, length(res), cstring, line_info));
+}
+
 
 
 
