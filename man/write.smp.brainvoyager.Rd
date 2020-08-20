@@ -11,7 +11,7 @@ write.smp.brainvoyager(filepath, bvsmp, smp_version = 3L)
 
 \item{bvsmp}{bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.}
 
-\item{smp_version}{integer, the SMP file format version to use when writing. Only v3 is supported.}
+\item{smp_version}{integer, the SMP file format version to use when writing. Only versions 2 and 3 are supported.}
 }
 \description{
 Write a brainvoyager SMP file, which contains one or more vertex-wise data maps (stats or morphometry data).

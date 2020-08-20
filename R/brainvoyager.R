@@ -164,7 +164,7 @@ is.bvsmp <- function(x) inherits(x, "bvsmp")
 #'
 #' @param bvsmp bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.
 #'
-#' @param smp_version integer, the SMP file format version to use when writing. Only v3 is supported.
+#' @param smp_version integer, the SMP file format version to use when writing. Only versions 2 and 3 are supported.
 #'
 #' @seealso \code{\link{write.fs.morph.smp}}
 #'
@@ -175,8 +175,10 @@ write.smp.brainvoyager <- function(filepath, bvsmp, smp_version = 3L) {
   }
   if(smp_version == 3L) {
     return(write.smp.brainvoyager.v3(filepath, bvsmp));
+  } else if(smp_version == 2L) {
+    return(write.smp.brainvoyager.v2(filepath, bvsmp));
   } else {
-    stop(sprintf("Brainvoyager SMP file format version not supported, only version 3 is supported.\n"));
+    stop(sprintf("Brainvoyager SMP file format version not supported, only versions 2 and 3 is supported.\n"));
   }
 }
 
@@ -197,7 +199,6 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
   writeBin(as.integer(smp_version), fh, size = 2, endian = endian);
   writeBin(as.integer(bvsmp$num_mesh_vertices), fh, size = 4, endian = endian);
   writeBin(as.integer(bvsmp$num_maps), fh, size = 2, endian = endian);
-  bvsmp$srf_file_name = 'test.txt';
   writeChar(bvsmp$srf_file_name, fh);
   if(bvsmp$num_maps > 0L) {
     for(vm in bvsmp$vertex_maps) {
@@ -207,6 +208,51 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
       writeBin(as.integer(vm$min_lag), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$max_lag), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$cc_overlay), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$cluster_size), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$enable_cluster_check), fh, size = 1, endian = endian);
+      writeBin(as.double(vm$stat_threshold_critical), fh, size = 4, endian = endian);
+      writeBin(as.double(vm$stat_threshold_max), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$degrees_of_freedom_1_fnom), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$degrees_of_freedom_2_fdenom), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$cortex_bonferroni_correct), fh, size = 4, endian = endian);
+      writeBin(as.integer(vm$color_critical_rgb), fh, size = 1, endian = endian); # color_critical_rgb is vector of length 3
+      writeBin(as.integer(vm$color_max_rgb), fh, size = 1, endian = endian); # color_max_rgb is vector of length 3
+      writeBin(as.integer(vm$enable_smp_color), fh, size = 1, endian = endian);
+      writeBin(as.double(vm$transparent_color_factor), fh, size = 4, endian = endian);
+      writeChar(vm$map_name, fh);
+    }
+
+    for(vm in bvsmp$vertex_maps) { # write data
+      writeBin(as.double(vm$data), fh, size = 4, endian = endian);
+    }
+  }
+  close(fh);
+}
+
+
+#' @title Write a brainvoyager v2 SMP file.
+#'
+#' @inheritParams write.smp.brainvoyager
+#'
+#' @note Called by \code{\link{write.smp.brainvoyager}}.
+#'
+#' @note The map_type and num_lags of the first vertex map will be used for the top header,i.e., for all maps. The v2 format does not support per-map settings for these values. Also min_alg, max_lag and cc_overlay are ignored.
+#'
+#' @keywords internal
+write.smp.brainvoyager.v2 <- function(filepath, bvsmp) {
+  endian = "little";
+  fh = file(filepath, "wb", blocking = TRUE);
+
+  smp_version = 2L;
+
+  writeBin(as.integer(smp_version), fh, size = 2, endian = endian);
+  writeBin(as.integer(bvsmp$num_mesh_vertices), fh, size = 4, endian = endian);
+  writeBin(as.integer(bvsmp$num_maps), fh, size = 2, endian = endian);
+  writeBin(as.integer(bvsmp$vertex_maps[[1]]$map_type), fh, size = 4, endian = endian);
+  writeBin(as.integer(bvsmp$vertex_maps[[1]]$num_lags), fh, size = 4, endian = endian);
+  writeChar(bvsmp$srf_file_name, fh);
+  if(bvsmp$num_maps > 0L) {
+    for(vm in bvsmp$vertex_maps) {
       writeBin(as.integer(vm$cluster_size), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$enable_cluster_check), fh, size = 1, endian = endian);
       writeBin(as.double(vm$stat_threshold_critical), fh, size = 4, endian = endian);

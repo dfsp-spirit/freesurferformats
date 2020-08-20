@@ -47,12 +47,16 @@ test_that("A bvsmp instance for writing Brainvoyager morph data can be created."
 })
 
 
-test_that("Morphometry data can be written to and re-read from a Brainvoyager SMP file.", {
+test_that("Morphometry data can be written to and re-read from a Brainvoyager v3 SMP file.", {
   data_length = 100L;
   morph_data = rnorm(data_length, 3.0, 1.0);
 
   bvsmp_file = tempfile(fileext = '.smp');
-  write.fs.morph.smp(bvsmp_file, morph_data);
+  write.fs.morph.smp(bvsmp_file, morph_data, smp_version = 3L);
+
+  bvsmp = read.smp.brainvoyager(bvsmp_file);
+  expect_equal(bvsmp$smp_version, 3L);
+  expect_equal(bvsmp$num_mesh_vertices, 100L);
 
   morph_data_reread = read.fs.morph(bvsmp_file);
 
@@ -60,4 +64,21 @@ test_that("Morphometry data can be written to and re-read from a Brainvoyager SM
   expect_equal(morph_data_reread, morph_data, tolerance = 1e-3);
 })
 
+
+test_that("Morphometry data can be written to and re-read from a Brainvoyager v2 SMP file.", {
+  data_length = 100L;
+  morph_data = rnorm(data_length, 3.0, 1.0);
+
+  bvsmp_file = tempfile(fileext = '.smp');
+  write.fs.morph.smp(bvsmp_file, morph_data, smp_version = 2L);
+
+  bvsmp = read.smp.brainvoyager(bvsmp_file);
+  expect_equal(bvsmp$smp_version, 2L);
+  expect_equal(bvsmp$num_mesh_vertices, 100L);
+
+  morph_data_reread = read.fs.morph(bvsmp_file);
+
+  expect_equal(length(morph_data_reread), data_length);
+  expect_equal(morph_data_reread, morph_data, tolerance = 1e-3);
+})
 
