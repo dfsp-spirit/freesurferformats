@@ -8,10 +8,12 @@ Version 0.1.12
 - add support for reading meshes in OFF format, the Object File Format
 - add support for reading meshes in OBJ format, the Wavefront object format
 - add support for writing FreeSurfer patch files in the ASCII format version
+- add support for reading and writing meshes in Brainvoyager SRF format
+- add support for reading and writing morphometry data maps in Brainvoyager SMP format
 - add many unit tests and test files, use covr
 - deprecate (imo) useless parameter 'empty_label_name' to read.fs.annot. using it will show a deprecation notice. (Please open issue if you feel you need it.)
 - add experimental support for CIFTI v2 morphometry data files (.dscalar.nii), based on the 'cifti' package by J. Muschelli
-
+- add support for reading transformation matrices from files in LTA and register.dat formats
 
 
 Version 0.1.11
