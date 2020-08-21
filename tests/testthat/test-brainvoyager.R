@@ -82,3 +82,24 @@ test_that("Morphometry data can be written to and re-read from a Brainvoyager v2
   expect_equal(morph_data_reread, morph_data, tolerance = 1e-3);
 })
 
+
+test_that("Morphometry data can be read from Brainvoyager SMP files by map index and name.", {
+  data_length = 100L;
+  morph_data = rnorm(data_length, 3.0, 1.0);
+
+  bvsmp_file = tempfile(fileext = '.smp');
+  write.fs.morph.smp(bvsmp_file, morph_data);
+
+  morph_data_reread_by_index = read.fs.morph.bvsmp(bvsmp_file, map_index = 1L);
+  morph_data_reread_by_name = read.fs.morph.bvsmp(bvsmp_file, map_index = "data");
+
+  expect_equal(length(morph_data_reread_by_index), data_length);
+  expect_equal(morph_data_reread_by_index, morph_data, tolerance = 1e-3);
+  expect_equal(length(morph_data_reread_by_name), data_length);
+  expect_equal(morph_data_reread_by_name, morph_data, tolerance = 1e-3);
+
+  # check for expected errors
+  expect_error(read.fs.morph.bvsmp(bvsmp_file, map_index = 3L)); # only 1 map in file, but 3rd map requested
+})
+
+

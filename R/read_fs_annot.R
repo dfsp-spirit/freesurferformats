@@ -402,13 +402,13 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
       b = colortable$table[,3];
       a = colortable$table[,4];
       code = colortable$table[,5];
+
+      max_color_value = 1.0;
       if(max(r) > 1.1) { # colors are in range 0-255
-        hex_color_string_rgb = grDevices::rgb(r/255., g/255., b/255.);
-        hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
-      } else { # colors are in range 0-1
-        hex_color_string_rgb = grDevices::rgb(r, g, b);
-        hex_color_string_rgba = grDevices::rgb(r, g, b, a);
+        max_color_value = 255;
       }
+      hex_color_string_rgb = grDevices::rgb(r, g, b, maxColorValue = max_color_value);
+      hex_color_string_rgba = grDevices::rgb(r, g, b, a, maxColorValue = max_color_value);
 
       colortable_df = data.frame(colortable$struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba, stringsAsFactors = FALSE);
       colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");

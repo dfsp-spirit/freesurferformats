@@ -143,4 +143,29 @@ test_that("A color lookup table can be extracted from an annotation", {
 })
 
 
+test_that("An annotation can be read in GIFTI format.", {
+  # we first write the annot file.
+  annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
+  annot = read.fs.annot(annotfile);
+
+  output_file = tempfile(fileext = ".annot.gii");
+  write.fs.annot.gii(output_file, annot);
+
+  # now read it
+  annot2 = read.fs.annot.gii(output_file);
+
+  expect_equal(annot$vertices, annot2$vertices, tolerance = 1e-2);
+  expect_equal(annot$label_codes, annot2$label_codes);
+  expect_equal(annot$label_names, annot2$label_names);
+  expect_equal(annot$hex_colors_rgb, annot2$hex_colors_rgb);
+
+  annot2_lables_only = read.fs.annot.gii(output_file, labels_only = TRUE);
+
+  # check for expected errors
+  testthat::expect_error(read.fs.annot.gii(output_file, rgb_column_names = c('Red', 'Green'))); # only 2 color columns given, 4 required
+  testthat::expect_error(read.fs.annot.gii(output_file, key_column_name = "no_such_column"));  # key column does not exist
+  testthat::expect_warning(read.fs.annot.gii(output_file, rgb_column_names = c('Red', 'Green', 'nosuchcolor', 'nope'))); # 4 color columns given, but 2 do not occur in file
+})
+
+
 

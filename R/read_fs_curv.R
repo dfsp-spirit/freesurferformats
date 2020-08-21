@@ -35,7 +35,7 @@ read.fs.curv <- function(filepath, format='auto') {
     }
 
     if(guess.filename.is.gzipped(filepath)) {
-        fh = gzfile(filepath, "rb");
+        fh = gzfile(filepath, "rb");  # nocov
     } else {
         fh = file(filepath, "rb");
     }
@@ -43,7 +43,7 @@ read.fs.curv <- function(filepath, format='auto') {
 
     magic_byte = fread3(fh);
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
-        stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath));
+        stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath)); # nocov
     }
     num_verts = readBin(fh, integer(), n = 1, size = 4, endian = "big");
     num_faces = readBin(fh, integer(), n = 1, size = 4, endian = "big");
@@ -167,22 +167,22 @@ read.fs.morph <- function(filepath, format='auto') {
 #' @export
 read.fs.morph.gii <- function(filepath, element_index=1L) {
   if(element_index < 1L) {
-    stop("Parameter 'element_index' must be a positive integer.");
+    stop("Parameter 'element_index' must be a positive integer."); # nocov
   }
   if (requireNamespace("gifti", quietly = TRUE)) {
       # Try to read via gifti package
       gii = gifti::read_gifti(filepath);
       if(element_index > length(gii$data)) {
-        stop(sprintf("Requested data element at index '%d', but GIFTI file contains %d elements only.\n", element_index, length(gii$data)));
+        stop(sprintf("Requested data element at index '%d', but GIFTI file contains %d elements only.\n", element_index, length(gii$data))); # nocov
       }
       # Data may be stored in a matrix or higher dim array (with empty dimensions in case of vertex-wise data). Drop the empty dims to get a vector.
       morph_data = drop(gii$data[[element_index]]);
       if(! is.null(dim(morph_data))) {
-        stop("Dropping empty dimensions of the GIFTI data did not result in a vector. The data in the file cannot be interpreted as scalar per-vertex data.");
+        stop("Dropping empty dimensions of the GIFTI data did not result in a vector. The data in the file cannot be interpreted as scalar per-vertex data."); # nocov
       }
       return(morph_data);
   } else {
-    stop("Reading files in GIFTI format requires the 'gifti' package to be installed.");
+    stop("Reading files in GIFTI format requires the 'gifti' package to be installed."); # nocov
   }
 }
 
@@ -209,10 +209,10 @@ read.fs.morph.bvsmp <- function(filepath, map_index = 1L) {
     }
     return(smp$vertex_maps[[map_index]]$data);
   } else {
-    map_name = map_index;
+    requested_map_name = map_index;
     available_maps = c();
     for(mi in seq.int(smp$num_maps)) {
-      if(smp$vertex_maps[[mi]]$name == map_name) {
+      if(smp$vertex_maps[[mi]]$map_name == requested_map_name) {
         return(smp$vertex_maps[[mi]]$data);
         available_maps = c(available_maps, smp$vertex_maps[[mi]]$name);
       }
