@@ -23,5 +23,5 @@ gca = read.fs.gca(gca_file);
 
 }
 \author{
-This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferOpenSourceLicense}. The R version was written by Tim Schaefer.
+This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense}. The R version was written by Tim Schaefer.
 }

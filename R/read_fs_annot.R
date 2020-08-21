@@ -448,7 +448,7 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
 #'
 #' @return named list, the file fields. The GCA data is in the data field.
 #'
-#' @author This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferOpenSourceLicense}. The R version was written by Tim Schaefer.
+#' @author This function is based on Matlab code by Bruce Fischl, published under the FreeSurfer Open Source License available at \url{https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense}. The R version was written by Tim Schaefer.
 #'
 #' @examples
 #' \dontrun{
