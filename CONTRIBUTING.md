@@ -17,12 +17,12 @@ Most likely you already have your development environment setup the way you pref
 
 Note that you do not have to use rstudio of follow these suggestions, any editor or IDE will do.
 
-- Make sure you have a recent R version installed
-- Download and install the latest version of rstudio (I use the free RStudio Desktop Open Source Edition)
-- In your shell, change into your checkout of your fork of freesurferformats (see above)
-- run 'rstudio freesurferformats.Rproj'
-- install the required development packages listed on the freesurferformats website
+- Make sure you have a recent R version installed.
+- Download and install the latest version of rstudio (I use the free RStudio Desktop Open Source Edition).
+- In your shell, change into your checkout of your fork of freesurferformats (see above) and run `rstudio freesurferformats.Rproj`.
+- Install the required development packages listed on the freesurferformats website.
 - In rstudio, make sure all required development packages are installed and you are ready to go:
   * Build the package including the documentation (`Menu > Build > Build Source Package`) and install/load it (`Menu > Build > Clean and Rebuild`).
   * Run the unit tests (`Menu > Build > Check Package`).
   * Generate the test coverage report (`Item bar > Addins > Report test coverage for a package`). Wait until the report shows up in the Viewer.
+- If this completed without errors, you are ready to make your changes in a new branch, as explained above.
