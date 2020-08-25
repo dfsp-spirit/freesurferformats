@@ -193,7 +193,7 @@ readcolortable <- function(fh, ctable_num_entries) {
     # There is another field here which also encodes the number of entries.
     ctable_num_entries_2nd = readBin(fh, integer(), n = 1, endian = "big");
     if(ctable_num_entries != ctable_num_entries_2nd) {
-      warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));
+      warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));   # nocov
     }
 
     for (i in seq_len(ctable_num_entries)) {
@@ -334,15 +334,15 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
     gii = gifti::read_gifti(filepath);
     intent = gii$data_info$Intent[[element_index]];
     if(intent != 'NIFTI_INTENT_LABEL') {
-      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));  # nocov
     }
     if(is.null(gii$label)) {
-      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));   # nocov
     } else {
 
-      label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
+      #label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
       if(gii$data_info$Dimensionality != 1L) {
-        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));  # nocov
       }
 
       labels = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
@@ -437,7 +437,7 @@ read.fs.annot.gii <- function(filepath, element_index=1L, labels_only=FALSE, rgb
     }
 
   } else {
-    stop("The 'gifti' package must be installed to use this functionality.");
+    stop("The 'gifti' package must be installed to use this functionality.");    # nocov
   }
 }
 
@@ -487,13 +487,13 @@ read.fs.gca <- function(filepath) {
   flags = readBin(fh, integer(), size = 4, n = 1, endian = endian);
 
   gca = matrix(nrow = (prior_width * prior_height * prior_depth), ncol = (2L * max_labels + 1L));
-  cat(sprintf("Prior dimension: %d x %d x %d, spacing=%d, version=%f\n", prior_width, prior_height, prior_depth, ret_list$prior_spacing, ret_list$gca_version));
-  cat(sprintf("Node dimension: %d x %d x %d, num_inputs=%d, flags=%d\n", node_width, node_height, node_depth, ret_list$num_inputs, flags));
-  cat(sprintf("GCA dimension: %d x %d\n", dim(gca)[1], dim(gca)[2]));
+  #cat(sprintf("Prior dimension: %d x %d x %d, spacing=%d, version=%f\n", prior_width, prior_height, prior_depth, ret_list$prior_spacing, ret_list$gca_version));
+  #cat(sprintf("Node dimension: %d x %d x %d, num_inputs=%d, flags=%d\n", node_width, node_height, node_depth, ret_list$num_inputs, flags));
+  #cat(sprintf("GCA dimension: %d x %d\n", dim(gca)[1], dim(gca)[2]));
 
   gca_row_idx = 1L;
   for(idx_x in seq.int(node_width)) {
-    cat(sprintf("[Node] Reading slice %d of %d.\n", idx_x, node_width));
+    #cat(sprintf("[Node] Reading slice %d of %d.\n", idx_x, node_width));
     for(idx_y in seq.int(node_height)) {
       for(idx_z in seq.int(node_depth)) {
         num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);
@@ -529,7 +529,7 @@ read.fs.gca <- function(filepath) {
 
   gca_row_idx = 1L;
   for(idx_x in seq.int(prior_width)) {
-    cat(sprintf("[Prior] Reading slice %d of %d.\n", idx_x, prior_width));
+    #cat(sprintf("[Prior] Reading slice %d of %d.\n", idx_x, prior_width));
     for(idx_y in seq.int(prior_height)) {
       for(idx_z in seq.int(prior_depth)) {
         num_labels = readBin(fh, integer(), size = 4, n = 1, endian = endian);

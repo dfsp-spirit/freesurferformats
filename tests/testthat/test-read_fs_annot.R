@@ -169,3 +169,14 @@ test_that("An annotation can be read in GIFTI format.", {
 
 
 
+test_that("An file in FreeSurfer GCA format can be read.", {
+  fs_home = Sys.getenv('FREESURFER_HOME');
+  gca_file = file.path(fs_home, 'average', 'face.gca');
+  skip_if_not(file.exists(gca_file), message="Freesurfer installation with GCA file available.");
+
+  gca = read.fs.gca(gca_file);
+  testthat::expect_equal(gca$gca_version, 4L);
+  testthat::expect_equal(gca$prior_spacing, 2L);
+})
+
+
