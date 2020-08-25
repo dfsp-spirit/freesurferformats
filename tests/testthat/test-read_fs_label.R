@@ -53,6 +53,9 @@ test_that("Our demo label file can be read with one-based R indices", {
 test_that("Our demo label file can be read into an fs.label instance", {
   labelfile = system.file("extdata", "lh.entorhinal_exvivo.label", package = "freesurferformats", mustWork = TRUE);
 
+  label_zero_based = read.fs.label(labelfile, full=TRUE, return_one_based_indices = FALSE);
+  expect_true(is.fs.label(label_zero_based));
+
   label = read.fs.label(labelfile, full=TRUE);
   known_vertex_count_label = 1085;
 

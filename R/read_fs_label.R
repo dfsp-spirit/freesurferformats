@@ -65,7 +65,7 @@ read.fs.label.native <- function(filepath, return_one_based_indices=TRUE, full=F
     vertices = vertices_df$vertex_index;
 
     if(length(vertices) != num_verts) {
-      stop(sprintf("Expected %d vertex rows in label file '%s' from header, but received %d.\n", num_verts, filepath, length(vertices)));
+      stop(sprintf("Expected %d vertex rows in label file '%s' from header, but received %d.\n", num_verts, filepath, length(vertices)));   # nocov
     }
 
     if(any(vertices < 0L)) {
@@ -172,15 +172,15 @@ read.fs.label.gii <- function(filepath, label_value=1L, element_index=1L) {
     gii = gifti::read_gifti(filepath);
     intent = gii$data_info$Intent[[element_index]];
     if(intent != 'NIFTI_INTENT_LABEL') {
-      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent));
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent)); # nocov
     }
     if(is.null(gii$label)) {
-      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));  # nocov
     } else {
 
       #label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
       if(gii$data_info$Dimensionality != 1L) {
-        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));  # nocov
       }
 
       annot_data = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
