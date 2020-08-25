@@ -148,7 +148,7 @@ read.fs.surface.ply <- function(filepath) {
   current_line_idx = current_line_idx + nrow(faces_df);
 
   if(current_line_idx != length(ply_lines)) {
-    warning(sprintf("At line %d after reading vertices and faces, but PLY file has %d lines. Ignored remaining lines.\n", current_line_idx, length(ply_lines)));
+    warning(sprintf("At line %d after reading vertices and faces, but PLY file has %d lines. Ignored remaining lines.\n", current_line_idx, length(ply_lines))); # nocov
   }
 
   if(is.null(vertices_df) | is.null(faces_df)) {
@@ -816,7 +816,7 @@ polygon.soup.to.indexed.mesh <- function(faces_vertex_coords, digits=6) {
   }
 
   if((nrow(faces_vertex_coords) %% 3L) != 0L) {
-    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with row count a multiple of 3, but found %d rows.\n", nrow(faces_vertex_coords)));
+    stop(sprintf("Parameter 'faces_vertex_coords' must be a matrix with row count a multiple of 3, but found %d rows.\n", nrow(faces_vertex_coords))); # nocov
   }
   #num_initial_faces = as.integer(nrow(faces_vertex_coords) / 3L);
   num_initial_vertices = nrow(faces_vertex_coords);
@@ -910,14 +910,14 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
     if(vertices_per_face == 4L) {
       message(sprintf("Mesh has %d vertices per face (quadrangular faces), remeshing to triangular faces.\n", vertices_per_face));
     } else {
-      stop(sprintf("Only triangular or quadrangular meshes in BYU files are supported: expected %d edges for %d triangular faces, but found %d. Mesh has %d vertices per face.\n", (3L * num_faces), num_faces, num_connects, vertices_per_face));
+      stop(sprintf("Only triangular or quadrangular meshes in BYU files are supported: expected %d edges for %d triangular faces, but found %d. Mesh has %d vertices per face.\n", (3L * num_faces), num_faces, num_connects, vertices_per_face)); # nocov
     }
   }
   if(part > num_parts) {
     stop(sprintf("Requested to load mesh # %d from BYU file, but the file contains %d meshes only.\n", part, num_parts));
   }
   if(num_vertices < vertices_per_face | num_faces < 1L) {
-    stop("Mesh file does not contain any faces.");
+    stop("Mesh file does not contain any faces.");   # nocov
   }
   #relevant_part_info_line_index = part + 1L;
   #part_info = as.integer(linesplit.fixed(byu_lines[relevant_part_info_line_index], length_per_part=6L, num_parts_expected=2L, error_tag = relevant_part_info_line_index));
@@ -940,7 +940,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
     } else if(length(coords) == 3L) {
       num_verts_left_to_parse = num_verts_left_to_parse - 1L;
     } else {
-      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not 3-dimensional?\n", length(coords), current_line_idx));
+      stop(sprintf("Expected 3 or 6 vertex coordinates per BYU file line, but found %d in line # %d. Mesh not 3-dimensional?\n", length(coords), current_line_idx)); # nocov
     }
     coords = matrix(coords, ncol = 3L, byrow = TRUE);
     if(is.null(all_coords)) {
@@ -952,7 +952,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   }
 
   if(nrow(all_coords) != num_vertices) {
-    stop(sprintf("BYU data mismatch: expected %d vertices from header, but found %d.\n", num_vertices, nrow(all_coords)));
+    stop(sprintf("BYU data mismatch: expected %d vertices from header, but found %d.\n", num_vertices, nrow(all_coords)));   # nocov
   }
 
   # Parse faces. For now, we only parse the vertex indices. We construct faces from them later.
@@ -976,7 +976,7 @@ read.fs.surface.byu <- function(filepath, part = 1L) {
   # Now create faces from the vector of vertex indices. If an index is negative, it is the last one in the current face.
   last_vertex_of_face_indices = which(all_faces_vert_indices < 0L);
   if(length(last_vertex_of_face_indices) != num_faces) {
-    stop(sprintf("BYU data mismatch: expected %d face end vertices from header, but found %d.\n", num_faces, length(last_vertex_of_face_indices)));
+    stop(sprintf("BYU data mismatch: expected %d face end vertices from header, but found %d.\n", num_faces, length(last_vertex_of_face_indices)));   # nocov
   }
 
   all_faces_vert_indices = as.integer(abs(all_faces_vert_indices));
@@ -1085,10 +1085,10 @@ read.fs.surface.ico <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in ICO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in ICO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));   # nocov
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in ICO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in ICO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));    # nocov
   }
 
   return(ret_list);
@@ -1155,10 +1155,10 @@ read.fs.surface.geo <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in GEO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in GEO mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));  # nocov
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in GEO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in GEO mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));   # nocov
   }
 
   return(ret_list);
@@ -1225,10 +1225,10 @@ read.fs.surface.off <- function(filepath) {
   class(ret_list) = c("fs.surface", class(ret_list));
 
   if(nrow(ret_list$vertices) != num_verts) {
-    stop(sprintf("Expected %d vertices in OFF mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));
+    stop(sprintf("Expected %d vertices in OFF mesh file '%s' from header, but received %d.\n", num_verts, filepath, nrow(ret_list$vertices)));   # nocov
   }
   if(nrow(ret_list$faces) != num_faces) {
-    stop(sprintf("Expected %d faces in OFF mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));
+    stop(sprintf("Expected %d faces in OFF mesh file '%s' from header, but received %d.\n", num_faces, filepath, nrow(ret_list$faces)));    # nocov
   }
 
   return(ret_list);

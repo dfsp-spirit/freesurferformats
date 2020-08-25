@@ -185,6 +185,9 @@ test_that("A surface file in BYU ASCII mesh format can be read using read.fs.sur
   expect_equal(ncol(surf$metadata$faces_quads), 4);      # the 4 vertex indices of a quad
   expect_equal(nrow(surf$metadata$faces_quads), known_face_count / 2L);
   expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
+
+  # expected errors
+  expect_error(read.fs.surface.byu(byu_surface_file, part = 3L));
 })
 
 
