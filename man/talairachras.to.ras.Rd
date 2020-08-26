@@ -7,10 +7,12 @@
 talairachras.to.ras(tal_ras_coords, talairach)
 }
 \arguments{
+\item{tal_ras_coords}{coordinate matrix in Talairach RAS space}
+
 \item{talairach}{the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).}
 }
 \value{
-the Talairach RAS coordinates for the given RAS coordinates
+the Talairach RAS coordinates for the given RAS coordinates. They are based on a linear transform.
 }
 \description{
 Compute MNI talairach coordinates from RAS coords.

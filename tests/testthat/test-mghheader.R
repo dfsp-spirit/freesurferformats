@@ -218,3 +218,20 @@ test_that("Transformation from Talairach RAS to RAS and back works", {
   testthat::expect_equal(ras, orig_ras);
 })
 
+
+test_that("Transformation from surface vertex coord to Talairach space works", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  mghheader = mgh$header;
+
+  # get RAS data: we use mesh coords of a surface (in sras) and transform to RAS.
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  surface = read.fs.surface(surface_file);
+  ras = surfaceras.to.ras(mghheader, surface$vertices);
+
+  # transform to Talairach
+  talairach = system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE);
+  talras = surfaceras.to.talairach(surface$vertices, header_cras = mghheader, talairach = talairach);
+  testthat::expect_equal(nrow(ras), nrow(talras));
+})
+

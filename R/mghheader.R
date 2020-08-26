@@ -632,16 +632,31 @@ ras.to.talairachras <- function(ras_coords, talairach, invert_transform = FALSE)
 
 #' @title Compute MNI talairach coordinates from RAS coords.
 #'
-#' @inheritParams ras.to.surfaceras
+#' @param tal_ras_coords coordinate matrix in Talairach RAS space
 #'
 #' @note You can use this to compute the Talairach coordinate of a voxel, based on its RAS coordinate.
 #'
 #' @param talairach the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).
 #'
-#' @return the Talairach RAS coordinates for the given RAS coordinates
+#' @return the Talairach RAS coordinates for the given RAS coordinates. They are based on a linear transform.
 #'
 #' @export
 talairachras.to.ras <- function(tal_ras_coords, talairach) {
   return(ras.to.talairachras(tal_ras_coords, talairach, invert_transform = TRUE));
+}
+
+
+#' @title Compute Talairach RAS for surface RAS (e.g., vertex coordinates).
+#'
+#' @inheritParams talairachras.to.ras
+#' @inheritParams surfaceras.to.ras
+#'
+#' @return The Talairach RAS coordinates for the vertices (or coords in surface RAS space). Based on linear transform.
+#'
+#' @export
+surfaceras.to.talairach <- function(sras_coords, talairach, header_cras, first_voxel_RAS=c(1, 1, 1)) {
+  ras = surfaceras.to.ras(header_cras = header_cras, sras_coords = sras_coords, first_voxel_RAS = first_voxel_RAS);
+  talras = ras.to.talairachras(ras, talairach);
+  return(talras);
 }
 
