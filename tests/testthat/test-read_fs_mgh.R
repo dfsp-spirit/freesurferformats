@@ -51,7 +51,7 @@ test_that("The header can be read", {
   expect_true(is.fs.volume(ret2));
 
   header = ret$header;
-  expect_equal(class(header), "list");
+  expect_true(is.mghheader(header));
   expect_equal(header$dtype, 0);  # MRI_UCHAR
   expect_equal(header$dof, 0);
   expect_equal(header$ras_good_flag, 1);
@@ -72,7 +72,7 @@ test_that("The header can be read", {
   expect_equal(header$vox2ras_matrix, matrix(c(-1,0,0,0,  0,0,-1,0,  0,1,0,0,  127.5,-98.6273,79.0953,1.000), nrow=4, byrow = FALSE), tolerance=1e-2);
 
   header2 = ret2$header;
-  expect_equal(class(header2), "list");
+  expect_true(is.mghheader(header2));
   expect_equal(header2$dtype, 0);  # MRI_UCHAR
   expect_equal(header2$dof, 0);
   expect_equal(header2$ras_good_flag, 1);
@@ -130,7 +130,7 @@ test_that("A real MGH can be read, rewritten, read again, and the data and heade
 
   ret = read.fs.mgh(new_copy, with_header=TRUE);
   header = ret$header;
-  expect_equal(class(header), "list");
+  expect_true(is.mghheader(header));
   expect_equal(header$dtype, 1);  # IMPORTANT: The data type will have changed from MRI_UCHAR to MRI_INTEGER. This is fine with us for now.
   expect_equal(header$dof, 0);
   expect_equal(header$ras_good_flag, 1);

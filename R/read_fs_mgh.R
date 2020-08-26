@@ -39,6 +39,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
 
     header = list();
+    class(header) = c('mghheader', class(header));
 
     if(typeof(is_gzipped) == "logical") {
         is_gz = is_gzipped;
@@ -398,6 +399,16 @@ translate.mri.dtype <- function(dtype) {
 #'
 #' @export
 is.fs.volume <- function(x) inherits(x, "fs.volume")
+
+
+#' @title Check whether object is an mghheader
+#'
+#' @param x any `R` object
+#'
+#' @return TRUE if its argument is an MGH header (that is, has "mghheader" amongst its classes) and FALSE otherwise.
+#'
+#' @export
+is.mghheader <- function(x) inherits(x, "mghheader")
 
 
 #' @title Print description of a brain volume.

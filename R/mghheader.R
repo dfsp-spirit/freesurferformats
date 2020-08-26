@@ -413,6 +413,8 @@ mghheader <- function(dims, mri_dtype_code) {
 
   header$has_mr_params = 0L;
   header$mr = list("tr"=0.0, "te"=0.0, "ti"=0.0, "flip_angle_degrees"=0.0, "fov"=0.0);
+
+  class(header) = c('mghheader', class(header));
   return(header);
 }
 
@@ -486,7 +488,7 @@ mghheader.update.from.vox2ras <- function(header, vox2ras) {
 
 #' @title Compute RAS coords of center voxel.
 #'
-#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}. The `c_r`, `c_a` and `c_s` values in do not matter of course, they are what is computed by this function.
+#' @param header Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}. The `c_r`, `c_a` and `c_s` values in the header do not matter of course, they are what is computed by this function.
 #'
 #' @param first_voxel_RAS numerical vector of length 3, the RAS coordinate of the first voxel in the volume. The first voxel is the voxel with `CRS=1,1,1` in R, or `CRS=0,0,0` in C/FreeSurfer. This value is also known as *P0 RAS*.
 #'
@@ -554,5 +556,92 @@ sm1to0 <- function(tf_matrix) {
   q = matrix(rep(0, 16L), ncol = 4L);
   q[1:3,4] = -1;
   return(solve(solve(tf_matrix + q)));
+}
+
+#' @title Translate surface RAS coordinates, as used in surface vertices and surface labels, to volume RAS.
+#'
+#' @param header_cras an MGH header instance from which to extract the cras (center RAS), or the cras vector, i.e., a numerical vector of length 3
+#'
+#' @param sras_coords nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.
+#'
+#' @param first_voxel_RAS the RAS of the first voxel, see \code{\link{mghheader.centervoxelRAS.from.firstvoxelRAS}} for details. Ignored if 'header_cras' is a vector.
+#'
+#' @param invert_transform logical, whether to invert the transform. Do not use this, call \code{link{ras.to.surfaceras}} instead.
+#'
+#' @note The RAS can be computed from Surface RAS by adding the center RAS coordinates, i.e., it is nothing but a translation.
+#'
+#' @return the RAS coords for the input sras_coords
+#' @export
+surfaceras.to.ras <- function(header_cras, sras_coords, first_voxel_RAS=c(1, 1, 1), invert_transform = FALSE) {
+  if(is.mghheader(header_cras)) {  # its an MGH header, compute the center RAS from it
+    cras = mghheader.centervoxelRAS.from.firstvoxelRAS(header_cras, first_voxel_RAS);
+  } else { # it is the center RAS already
+    cras = header_cras;
+  }
+  tf = matrix(c(1, 0, 0, cras[1], 0, 1, 0, cras[2], 0, 0, 1, cras[3], 0, 0, 0, 1), ncol = 4, byrow = TRUE);
+  if(invert_transform) {
+    tf = solve(tf);
+  }
+  sras_coords_hom = cbind(sras_coords, 1);
+  ras = t(tf %*% t(sras_coords_hom));
+  return(ras[,1:3]);
+}
+
+
+#' @title Translate RAS coordinates, as used in volumes by applying vox2ras, to surface RAS.
+#'
+#' @inheritParams surfaceras.to.ras
+#'
+#' @param ras_coords nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.
+#'
+#' @note The RAS can be computed from Surface RAS by adding the center RAS coordinates, i.e., it is nothing but a translation.
+#'
+#' @return the surface RAS coords for the input RAS coords
+#' @export
+ras.to.surfaceras <- function(header_cras, ras_coords, first_voxel_RAS=c(1, 1, 1)) {
+  return(surfaceras.to.ras(header_cras, ras_coords, first_voxel_RAS = first_voxel_RAS, invert_transform = TRUE));
+}
+
+
+#' @title Compute MNI talairach coordinates from RAS coords.
+#'
+#' @inheritParams ras.to.surfaceras
+#' @inheritParams surfaceras.to.ras
+#'
+#' @note You can use this to compute the Talairach coordinate of a voxel, based on its RAS coordinate.
+#'
+#' @param talairach the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).
+#'
+#' @param invert_transform logical, whether to invert the transform. Do not use this, call \code{link{talairachras.to.ras}} instead.
+#'
+#' @return the Talairach RAS coordinates for the given RAS coordinates
+#'
+#' @export
+ras.to.talairachras <- function(ras_coords, talairach, invert_transform = FALSE) {
+  if(is.character(talairach)) {
+    talairach = read.fs.transform(talairach)$matrix;
+  }
+  if(invert_transform) {
+    talairach = solve(talairach);
+  }
+  ras_coords_hom = cbind(ras_coords, 1);
+  mni_talairach = t(talairach %*% t(ras_coords_hom));
+  return(mni_talairach[,1:3]);
+}
+
+
+#' @title Compute MNI talairach coordinates from RAS coords.
+#'
+#' @inheritParams ras.to.surfaceras
+#'
+#' @note You can use this to compute the Talairach coordinate of a voxel, based on its RAS coordinate.
+#'
+#' @param talairach the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).
+#'
+#' @return the Talairach RAS coordinates for the given RAS coordinates
+#'
+#' @export
+talairachras.to.ras <- function(tal_ras_coords, talairach) {
+  return(ras.to.talairachras(tal_ras_coords, talairach, invert_transform = TRUE));
 }
 

@@ -182,3 +182,39 @@ test_that("Transformation matrices can be adapted to 0-based and 1-based indices
   expect_equal(vox2ras, vox2ras_for_0based, tolerance=1e-2);
 })
 
+
+test_that("Transformation from surface RAS to RAS and back works", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  mghheader = mgh$header;
+
+  # get surface RAS data: we use mesh coords of a surface.
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  surface = read.fs.surface(surface_file);
+
+  ras = surfaceras.to.ras(mghheader, surface$vertices);
+  # transform back
+  sras = ras.to.surfaceras(mghheader, ras);
+  testthat::expect_equal(surface$vertices, sras);
+})
+
+
+test_that("Transformation from Talairach RAS to RAS and back works", {
+  brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
+  mgh = read.fs.mgh(brain_image, with_header=TRUE);
+  mghheader = mgh$header;
+
+  # get RAS data: we use mesh coords of a surface (in sras) and transform to RAS.
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  surface = read.fs.surface(surface_file);
+  ras = surfaceras.to.ras(mghheader, surface$vertices);
+
+  # transform to Talairach
+  talairach = system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE);
+  talras = ras.to.talairachras(ras, talairach = talairach);
+
+  # transform back
+  orig_ras = talairachras.to.ras(talras, talairach = talairach);
+  testthat::expect_equal(ras, orig_ras);
+})
+
