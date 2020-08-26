@@ -640,6 +640,8 @@ ras.to.talairachras <- function(ras_coords, talairach, invert_transform = FALSE)
 #'
 #' @return the Talairach RAS coordinates for the given RAS coordinates. They are based on a linear transform.
 #'
+#' @references see \url{https://en.wikipedia.org/wiki/Talairach_coordinates}
+#'
 #' @export
 talairachras.to.ras <- function(tal_ras_coords, talairach) {
   return(ras.to.talairachras(tal_ras_coords, talairach, invert_transform = TRUE));
