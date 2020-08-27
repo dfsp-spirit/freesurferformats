@@ -1,6 +1,8 @@
 ## Contributing to freesurferformats
 
-I am very happy to accept [pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request), provided you are fine with publishing your work under the [license of this project](https://github.com/dfsp-spirit/freesurferformats#license). If your PR is not just a fix but changes or adds lots of code, please get in touch by [opening an issue](https://github.com/dfsp-spirit/freesurferformats/issues) before starting the project so we can discuss it first. Development currently happends on the develop branch.
+I am very happy to accept [pull requests](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request), provided you are fine with publishing your work under the [license of this project](https://github.com/dfsp-spirit/freesurferformats#license). If your PR is not just a fix but changes or adds lots of code, please get in touch by [opening an issue](https://github.com/dfsp-spirit/freesurferformats/issues) before starting the project so we can discuss it first. Development currently happens on the *develop* branch.
+
+### Contribution workflow
 
 If you want to contribute something, the general workflow is:
 
@@ -11,7 +13,7 @@ If you want to contribute something, the general workflow is:
 - Make sure the existing unit tests are all green (see below). Adding new tests for your fix or the new features is even better.
 - Create a pull request, requesting to merge your branch into the develop branch of my freesurferformats repo.
 
-## Setting up the development environment
+### Setting up the development environment
 
 Most likely you already have your development environment setup the way you prefer it when you decide to contribute. If not, here is a quick way to get started.
 
