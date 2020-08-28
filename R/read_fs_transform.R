@@ -66,7 +66,10 @@ read.fs.transform.xfm <- function(filepath) {
     if(startsWith(current_line, 'Transform_Type')) {
       transform_type_definition_parts = strsplit(current_line, "=")[[1]];
       transform_type_definition_parts_trimmed = trimws(transform_type_definition_parts);
-      transform$type = trimws(transform_type_definition_parts_trimmed[2], which = "right", whitespace = "[;]");
+      transform$type = trimws(transform_type_definition_parts_trimmed[2], which = "right");
+      if(endsWith(transform$type, ';')) {
+        transform$type = substring(transform$type, 1L, (nchar(transform$type) - 1L));
+      }
     }
 
     if(endsWith(trimws(current_line), 'Transform =')) {

@@ -20,3 +20,6 @@ Compute MNI talairach coordinates from RAS coords.
 \note{
 You can use this to compute the Talairach coordinate of a voxel, based on its RAS coordinate.
 }
+\references{
+see \url{https://en.wikipedia.org/wiki/Talairach_coordinates}
+}
