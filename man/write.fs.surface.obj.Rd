@@ -4,7 +4,7 @@
 \alias{write.fs.surface.obj}
 \title{Write mesh to file in Wavefront object (.obj) format}
 \usage{
-write.fs.surface.obj(filepath, vertex_coords, faces)
+write.fs.surface.obj(filepath, vertex_coords, faces, vertex_colors = NULL)
 }
 \arguments{
 \item{filepath}{string. Full path to the output surface file, should end with '.vtk', but that is not enforced.}
@@ -12,6 +12,8 @@ write.fs.surface.obj(filepath, vertex_coords, faces)
 \item{vertex_coords}{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
 
 \item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+
+\item{vertex_colors}{vector of vertex colors. Will be written after the x, y, z coords on vertex lines. WARNING: This is NOT part of the official OBJ standard, and may not work with other software and even break some parsers.}
 }
 \value{
 string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.

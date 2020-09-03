@@ -246,6 +246,8 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 #'
 #' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
+#' @param vertex_colors vector of vertex colors. Will be written after the x, y, z coords on vertex lines. WARNING: This is NOT part of the official OBJ standard, and may not work with other software and even break some parsers.
+#'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
 #' @family mesh export functions
@@ -264,7 +266,7 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 #' }
 #'
 #' @export
-write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
+write.fs.surface.obj <- function(filepath, vertex_coords, faces, vertex_colors=NULL) {
 
   check.verts.faces(vertex_coords, faces);
 
@@ -274,6 +276,24 @@ write.fs.surface.obj <- function(filepath, vertex_coords, faces) {
   # Write the vertex data
   vs = matrix(rep('v', num_verts), ncol=1L);
   verts = cbind(vs, vertex_coords);
+
+  use_vertex_colors = !is.null(vertex_colors);
+  if(use_vertex_colors) {
+    if(is.character(vertex_colors)) {
+      vertex_colors = t(grDevices::col2rgb(vertex_colors, alpha = FALSE));
+    }
+    if((! is.integer(vertex_colors)) | ncol(vertex_colors) != 3L) {
+      stop("Parameter 'vertex_colors' must be a matrix of integers with 3 columns (RGB) in range 0-255.");
+    }
+    vertex_data = data.frame(verts);
+    vertex_colors_df = data.frame(vertex_colors/ 255.0);
+    if(nrow(vertex_data) != nrow(vertex_colors_df)) {
+      stop(sprintf("Data mismatch, received %d vertices but %d vertex colors.\n", nrow(vertex_data), nrow(vertex_colors_df)));
+    }
+    colnames(vertex_colors_df) = c('r', 'g', 'b');
+    verts = cbind(vertex_data, vertex_colors_df);
+  }
+
   write.table(verts, file = filepath, append = FALSE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
 
   # Append the face data
@@ -802,4 +822,9 @@ write.fs.surface.bvsrf <- function(filepath, vertex_coords, faces, normals=NULL,
   close(fh);
 }
 
-
+# lh = freesurferformats::read.fs.surface('~/data/tim_only/tim/surf/lh.white')
+# cm = fsbrain::coloredmesh.from.morph.native('~/data/tim_only', 'tim', 'sulc', hemi='lh')
+# freesurferformats::write.fs.surface.obj("~/lh.obj", lh$vertices, lh$faces, vertex_colors=cm$col)
+# library('rayrender')
+# bscene = generate_ground() %>% add_object(rayrender::obj_model("~/lh.obj", x= 20, y = 200, z = 20, material = diffuse(sigma=90), vertex_colors = TRUE))
+# render_scene(bscene, parallel = TRUE, width = 800, height = 800, samples = 1000, lookfrom = c(-550, 160, 0), lookat = c(0, 180, 80))
