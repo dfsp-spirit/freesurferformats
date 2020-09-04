@@ -562,7 +562,7 @@ sm1to0 <- function(tf_matrix) {
 #'
 #' @param header_cras an MGH header instance from which to extract the cras (center RAS), or the cras vector, i.e., a numerical vector of length 3
 #'
-#' @param sras_coords nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.
+#' @param sras_coords nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label. Use the orig surfaces.
 #'
 #' @param first_voxel_RAS the RAS of the first voxel, see \code{\link{mghheader.centervoxelRAS.from.firstvoxelRAS}} for details. Ignored if 'header_cras' is a vector.
 #'
@@ -653,7 +653,7 @@ talairachras.to.ras <- function(tal_ras_coords, talairach) {
 #' @inheritParams talairachras.to.ras
 #' @inheritParams surfaceras.to.ras
 #'
-#' @return The Talairach RAS coordinates for the vertices (or coords in surface RAS space). Based on linear transform.
+#' @return The Talairach RAS coordinates for the vertices of the orig surfaces (or coords in surface RAS space). Based on linear transform.
 #'
 #' @export
 surfaceras.to.talairach <- function(sras_coords, talairach, header_cras, first_voxel_RAS=c(1, 1, 1)) {
@@ -661,4 +661,3 @@ surfaceras.to.talairach <- function(sras_coords, talairach, header_cras, first_v
   talras = ras.to.talairachras(ras, talairach);
   return(talras);
 }
-
