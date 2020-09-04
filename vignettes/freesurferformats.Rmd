@@ -216,7 +216,7 @@ That's all the information you can get from an annotation file.
 
 
 
-## Reading surface files
+## Reading surface files (meshes)
 
 A surface file contains a brain surface mesh, i.e., a list of vertices and a list of faces. A vertex is defined by its three x,y,z coordinates, which are doubles. A face is defined by three vertex indices. Example files are `surf/lh.white` or `surf/rh.pial`.
 
@@ -245,6 +245,18 @@ And also the 3 vertices that make up face 2:
 ```
 
 Note that the vertex indices start with 1 in GNU R. The vertex indices in the file are 0-based, but this is handled transparently by the 'read.fs.surface' and 'write.fs.surface' functions.
+
+
+### Reading arbitrary triangular meshes and converting to rgl mesh3d
+
+Note that freesurferformats supports not only FreeSurfer meshes, but also a range of standard mesh file formats. You can use the `read.fs.surface()` function to read meshes in formats like Wavefront Object Format (`obj`), Stanford Triangle Format (`PLY`), Object File Format (`OFF`), and many more. Many mesh packages in R use the `mesh3d` datastructure from the `rgl` package to store or manipulate meshes. Here we show how to load a mesh and transform in to a `tmesh3d` instance. This requires the `rgl` package.
+
+```{r, eval = FALSE}
+pmesh = read.fs.surface("~/path/to/mesh.ply");
+my_mesh3d = rgl::tmesh3d(c(t(pmesh$vertices)), c(t(pmesh$faces)), homogeneous=FALSE);
+```
+
+One can now use this mesh in `rgl` or other packages like `Rvcg` that use the mesh3d datastructure. 
 
 ## Reading labels
 
