@@ -249,14 +249,19 @@ Note that the vertex indices start with 1 in GNU R. The vertex indices in the fi
 
 ### Reading arbitrary triangular meshes and converting to rgl mesh3d
 
-Note that freesurferformats supports not only FreeSurfer meshes, but also a range of standard mesh file formats. You can use the `read.fs.surface()` function to read meshes in formats like Wavefront Object Format (`obj`), Stanford Triangle Format (`PLY`), Object File Format (`OFF`), and many more. Many mesh packages in R use the `mesh3d` datastructure from the `rgl` package to store or manipulate meshes. Here we show how to load a mesh and transform in to a `tmesh3d` instance. This requires the `rgl` package.
+Note that freesurferformats supports not only FreeSurfer meshes, but also a range of standard mesh file formats. You can use the `read.fs.surface()` function to read meshes in formats like Wavefront Object Format (`obj`), Stanford Triangle Format (`PLY`), Object File Format (`OFF`), and many more. Many mesh packages in R use the `mesh3d` datastructure from the `rgl` package to store or manipulate meshes, so it is useful to know how to covert our `fs.surface` mesh instance into a `mesh3d` instance. Here we show how to load a mesh and transform in to a `tmesh3d` instance (requires the `rgl` package):
 
 ```{r, eval = FALSE}
 pmesh = read.fs.surface("~/path/to/mesh.ply");
 my_mesh3d = rgl::tmesh3d(c(t(pmesh$vertices)), c(t(pmesh$faces)), homogeneous=FALSE);
 ```
 
-One can now use this mesh in `rgl` or other packages like `Rvcg` that use the mesh3d datastructure. 
+One can now use this mesh in `rgl` or other packages like `Rvcg` that use the mesh3d datastructure. Here we compute the curvature of the mesh using the `Rvcg` package:
+
+```{r, eval = FALSE}
+curv = Rvcg::vcgCurve(my_mesh3d);
+```
+
 
 ## Reading labels
 
