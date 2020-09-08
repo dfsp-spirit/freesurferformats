@@ -8,13 +8,13 @@
 #'
 #' @return named list with NIFTI 1 header fields.
 #'
-#' @note The FreeSurfer hack is a non-standard way to save long vectors in NIFTI v1 files.
+#' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
 #' @export
 nifti.header.fshack <- function(filepath, little_endian = TRUE) {
 
   endian = ifelse(little_endian, "little", 'big');
-  niiheader = list();
+  niiheader = list('endian' = endian);
 
   if (endsWith(filepath, '.gz')) {
     fh = gzfile(filepath, "rb");
@@ -81,6 +81,13 @@ nifti.header.fshack <- function(filepath, little_endian = TRUE) {
   niiheader$qoffset_y = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
   niiheader$qoffset_z = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
 
+  niiheader$srow_x = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
+  niiheader$srow_y = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
+  niiheader$srow_z = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
+
+  niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
+  niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
+
   if(niiheader$uses_freesurfer_hack) {
     if(niiheader$dim[4] > 0L) {
       niiheader$dim = c(niiheader$glmin, 1L, 1L, niiheader$dim[4]);
@@ -90,4 +97,51 @@ nifti.header.fshack <- function(filepath, little_endian = TRUE) {
   }
 
   return(niiheader);
+}
+
+
+#' @title Read raw NIFTI v1 data from file with FreeSurfer hack.
+#'
+#' @inheritParams nifti.header.fshack
+#'
+#' @param header optional nifti header obtained from \code{\link{nifti.header.fshack}}. Will be loaded automatically if left at `NULL`.
+#'
+#' @param drop_empty_dims logical, whether to drop empty dimensions in the loaded data matrix.
+#'
+#' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
+#'
+#' @return the data in the NIFTI file. Note that the NIFTI header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file.
+#'
+#' @export
+nifti.data.fshack <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
+  if(is.null(header)) {
+    header = nifti.header.fshack(filepath);
+  }
+
+  if(! header$uses_freesurfer_hack) {
+    warning(sprintf("NIFTI file does not use FreeSurfer hack, this function may not be suitable to load it.\n"));
+  }
+
+  if (endsWith(filepath, '.gz')) {
+    fh = gzfile(filepath, "rb");
+  }
+  else {
+    fh = file(filepath, "rb");
+  }
+  on.exit({ close(fh) }, add=TRUE);
+
+  endian = header$endian;
+
+  # move to data part
+  num_skip = header$vox_offset;
+  discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian); # TODO: check NIFTI data type (int vs float).
+  discarded = NULL;
+
+  num_values = prod(header$dim);
+  data = readBin(fh, numeric(), n = num_values, size = 4L, endian = endian);
+  data = array(data, dim = header$dim);
+  if(drop_empty_dims) {
+    return(drop(data));
+  }
+  return(data);
 }

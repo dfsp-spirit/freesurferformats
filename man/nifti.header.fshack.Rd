@@ -18,5 +18,5 @@ named list with NIFTI 1 header fields.
 Read NIFTI v1 header from file with FreeSurfer hack.
 }
 \note{
-The FreeSurfer hack is a non-standard way to save long vectors in NIFTI v1 files.
+The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 }
