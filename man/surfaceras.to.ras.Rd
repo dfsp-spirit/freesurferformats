@@ -14,7 +14,7 @@ surfaceras.to.ras(
 \arguments{
 \item{header_cras}{an MGH header instance from which to extract the cras (center RAS), or the cras vector, i.e., a numerical vector of length 3}
 
-\item{sras_coords}{nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.}
+\item{sras_coords}{nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label. Use the orig surfaces.}
 
 \item{first_voxel_RAS}{the RAS of the first voxel, see \code{\link{mghheader.centervoxelRAS.from.firstvoxelRAS}} for details. Ignored if 'header_cras' is a vector.}
 

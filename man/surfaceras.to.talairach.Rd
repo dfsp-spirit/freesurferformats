@@ -12,7 +12,7 @@ surfaceras.to.talairach(
 )
 }
 \arguments{
-\item{sras_coords}{nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.}
+\item{sras_coords}{nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label. Use the orig surfaces.}
 
 \item{talairach}{the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).}
 
@@ -21,7 +21,7 @@ surfaceras.to.talairach(
 \item{first_voxel_RAS}{the RAS of the first voxel, see \code{\link{mghheader.centervoxelRAS.from.firstvoxelRAS}} for details. Ignored if 'header_cras' is a vector.}
 }
 \value{
-The Talairach RAS coordinates for the vertices (or coords in surface RAS space). Based on linear transform.
+The Talairach RAS coordinates for the vertices of the orig surfaces (or coords in surface RAS space). Based on linear transform.
 }
 \description{
 Compute Talairach RAS for surface RAS (e.g., vertex coordinates).
