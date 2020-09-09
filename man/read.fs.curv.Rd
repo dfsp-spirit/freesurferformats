@@ -9,7 +9,7 @@ read.fs.curv(filepath, format = "auto")
 \arguments{
 \item{filepath}{string. Full path to the input curv file. Note: gzipped binary curv files are supported and gz binary format is assumed if the filepath ends with ".gz".}
 
-\item{format}{one of 'auto', 'asc', 'bin', or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.}
+\item{format}{one of 'auto', 'asc', 'bin', 'nii' or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.}
 }
 \value{
 data vector of floats. The brain morphometry data, one value per vertex.

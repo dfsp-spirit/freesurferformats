@@ -57,6 +57,21 @@ test_that("NIFTI files with FreeSurfer hack can be read.", {
 })
 
 
+test_that("NIFTI files with FreeSurfer hack can be read using read.fs.morph.", {
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
+
+  morph_file_curv = file.path(subjects_dir, "subject1", "surf", "lh.thickness");
+  morph_file_nii = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
+
+  morph_data_curv = read.fs.morph(morph_file_curv);
+  morph_data_nii = read.fs.morph(morph_file_nii);
+
+  testthat::expect_equal(morph_data_curv, morph_data_nii);
+})
+
+
+
 
 
 

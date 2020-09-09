@@ -5,7 +5,7 @@
 #'
 #' @param filepath string. Full path to the input curv file. Note: gzipped binary curv files are supported and gz binary format is assumed if the filepath ends with ".gz".
 #'
-#' @param format one of 'auto', 'asc', 'bin', or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.
+#' @param format one of 'auto', 'asc', 'bin', 'nii' or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.
 #'
 #' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
@@ -22,8 +22,8 @@
 read.fs.curv <- function(filepath, format='auto') {
     MAGIC_FILE_TYPE_NUMBER = 16777215L;
 
-    if(!(format %in% c('auto', 'bin', 'asc', 'txt'))) {
-      stop("Format must be one of c('auto', 'bin', 'asc', 'txt').");
+    if(!(format %in% c('auto', 'bin', 'asc', 'txt', 'nii'))) {
+      stop("Format must be one of c('auto', 'bin', 'asc', 'txt', 'nii').");
     }
 
     if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -32,6 +32,10 @@ read.fs.curv <- function(filepath, format='auto') {
 
     if(format == 'txt' | (format == 'auto' & filepath.ends.with(filepath, c('.txt')))) {
       return(read.fs.morph.txt(filepath));
+    }
+
+    if(format == 'nii' | (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
+      return(read.fs.morph.nii(filepath));
     }
 
     if(guess.filename.is.gzipped(filepath)) {
@@ -65,6 +69,20 @@ read.fs.curv <- function(filepath, format='auto') {
 read.fs.morph.asc <- function(filepath) {
   curv_df = read.table(filepath, header=FALSE, col.names=c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
   return(curv_df$morph_data);
+}
+
+
+#' @title Read morphometry data from FreeSurfer NIFTI v1 format files.
+#'
+#' @param filepath path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{nifti.data.fshack}} for details.
+#'
+#' @return numeric vector, the morphometry data
+#'
+#' @note This function uses our internal NIFTI reader that supports NIFTI v1 files with the FreeSurfer hack. This function assumes that the data in a file is a 1D vector and flattens it accordingly. It is not suitable to load NIFTI files with arbitrary dimensions.
+#'
+#' @export
+read.fs.morph.nii <- function(filepath) {
+  return(nifti.data.fshack(filepath));
 }
 
 
