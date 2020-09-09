@@ -7,9 +7,22 @@
 #'
 #' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
-#' @keywords internal
+#' @export
 nifti.header.fshack <- function(filepath) {
   return(nifti.header.fshack.internal(filepath, little_endian = TRUE));
+}
+
+
+#' @title Determine whether NIFTI v1 file uses the FreeSurfer hack.
+#'
+#' @inheritParams nifti.header.fshack
+#'
+#' @return logical, whether the file header contains the FreeSurfer format hack. See \code{\link{nifti.header.fshack}} for details.
+#'
+#' @export
+nifti.file.uses.fshack <- function(filepath) {
+  nh = nifti.header.fshack(filepath);
+  return(nh$uses_freesurfer_hack);
 }
 
 
