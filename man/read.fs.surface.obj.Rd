@@ -7,7 +7,7 @@
 read.fs.surface.obj(filepath)
 }
 \arguments{
-\item{filepath}{string. Full path to the input surface file in Wavefront object mesh format.}
+\item{filepath}{string. Full path to the input surface file in Wavefront object mesh format. Files with non-standard vertex colors (3 additional float fields after the vertex coordinates in order R, G, B) are supported, and the colors will be returned in the field 'vertex_colors' if present.}
 }
 \value{
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.

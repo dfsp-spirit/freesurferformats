@@ -1169,7 +1169,7 @@ read.fs.surface.geo <- function(filepath) {
 #'
 #' @description This reads meshes from text files in Wavefront OBJ mesh format. This is an ASCII format.
 #'
-#' @param filepath string. Full path to the input surface file in Wavefront object mesh format.
+#' @param filepath string. Full path to the input surface file in Wavefront object mesh format. Files with non-standard vertex colors (3 additional float fields after the vertex coordinates in order R, G, B) are supported, and the colors will be returned in the field 'vertex_colors' if present.
 #'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
@@ -1178,16 +1178,36 @@ read.fs.surface.geo <- function(filepath) {
 #' @family mesh functions
 #' @export
 read.fs.surface.obj <- function(filepath) {
-  verts_and_faces_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type', 'val1', 'val2', 'val3'));
+
+  verts_and_faces_df = NULL;
+  uses_vertex_color = FALSE;
+  verts_and_faces_df = tryCatch({
+    read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type', 'val1', 'val2', 'val3'));
+  }, error = function(e) {
+    NULL;
+  });
+
+  if(is.null(verts_and_faces_df)) {
+    uses_vertex_color = TRUE;
+    verts_and_faces_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric'), col.names = c('type', 'val1', 'val2', 'val3', 'col_r', 'col_b', 'col_g'), fill = TRUE);
+  }
+
   first_face_row_idx = min(which(verts_and_faces_df$type == 'f'));
 
   num_vertices = first_face_row_idx - 1L;
   num_faces = nrow(verts_and_faces_df) - num_vertices;
 
-  vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type_vertex', 'coordx', 'coordy', 'coordz'), nrows = num_vertices);
+  ret_list = list();
+
+  if(uses_vertex_color) {
+    vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric'), col.names = c('type_vertex', 'coordx', 'coordy', 'coordz', 'col_r', 'col_b', 'col_g'), nrows = num_vertices);
+    ret_list$vertex_colors = unname(data.matrix(vertices_df[5:7]));
+  } else {
+    vertices_df = read.table(filepath, colClasses = c('character', 'numeric', 'numeric', 'numeric'), col.names = c('type_vertex', 'coordx', 'coordy', 'coordz'), nrows = num_vertices);
+  }
   faces_df = read.table(filepath, skip=num_vertices, colClasses = c('character', 'integer', 'integer', 'integer'), col.names = c('type_face', 'v1', 'v2', 'v3'), nrows = num_faces);
 
-  ret_list = list();
+
   ret_list$vertices = unname(data.matrix(vertices_df[2:4]));
   ret_list$faces = unname(data.matrix(faces_df[2:4]));
   class(ret_list) = c("fs.surface", class(ret_list));

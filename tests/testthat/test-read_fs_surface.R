@@ -279,6 +279,37 @@ test_that("Surface files in Wavefront OBJ format can be read using read.fs.surfa
 })
 
 
+test_that("Surface files in Wavefront OBJ format with non-standard vertex colors can be read and written.", {
+
+  # I had to change the file extension of demo .obj files that come with this package to
+  # '.wobj', because the file extension '.obj' triggered false positive warnings on CRAN. ~
+  surface_file = system.file("extdata", "cube.wobj", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file, format = 'obj');
+
+  # Test writing vertex colors as strings and re-reading. (Will be converted to floats before writing.)
+  known_vertex_count = 8L;
+  known_face_count = 12L;
+  vertex_colors_string = rep("green", known_vertex_count);
+  vertex_colors_string[3:5] = 'blue';
+
+  tfile = tempfile(fileext = '.wobj');
+  write.fs.surface.obj(tfile, surf$vertices, surf$faces, vertex_colors = vertex_colors_string);
+  surf_col_string = read.fs.surface.obj(tfile);
+
+  expect_false(is.null(surf_col_string$vertex_colors));
+  expect_equal(nrow(surf_col_string$vertex_colors), known_vertex_count);
+  expect_equal(ncol(surf_col_string$vertex_colors), 3L); # RGB
+
+  expect_equal(nrow(surf_col_string$vertices), known_vertex_count);
+  expect_equal(ncol(surf_col_string$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf_col_string$vertices), "double");
+
+  expect_equal(nrow(surf_col_string$faces), known_face_count);
+  expect_equal(ncol(surf_col_string$faces), 3);      # the 3 vertex indices of a triangle
+  expect_equal(min(surf_col_string$faces), 1L);  # vertex indices must start at 1
+})
+
+
 test_that("Surface files in Object File Format (OFF) can be read using read.fs.surface", {
 
   surface_file = system.file("extdata", "cube.off", package = "freesurferformats", mustWork = TRUE);
