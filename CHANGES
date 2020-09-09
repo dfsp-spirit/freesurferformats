@@ -1,6 +1,12 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.13
+--------------
+- support reading and writing Wavefront object files with non-standard vertex colors
+- support reading NIFTI v1 files with FreeSurfer hack through our own, new NIFTI reader
+
+
 Version 0.1.12
 --------------
 - add support for reading meshes in GEO format
