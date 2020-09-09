@@ -145,11 +145,15 @@ nifti.data.fshack <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
 
   # move to data part
   num_skip = header$vox_offset;
-  discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian); # TODO: check NIFTI data type (int vs float).
+  discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
   discarded = NULL;
 
   num_values = prod(header$dim);
-  data = readBin(fh, numeric(), n = num_values, size = 4L, endian = endian);
+
+  read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.
+  dti = nifti.dtype.info(header$datatype, header$bitpix);
+
+  data = readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian);
   data = array(data, dim = header$dim);
   if(drop_empty_dims) {
     return(drop(data));

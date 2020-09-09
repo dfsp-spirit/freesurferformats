@@ -81,26 +81,10 @@ read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, dro
     MRI_SHORT = translate.mri.dtype("MRI_SHORT");
 
     # the @datatype is the NIFTI data type integer code
-    if(nifti_img@datatype == 2L & nifti_img@bitpix == 8L) {   # NIFTI: 'unsigned char'
-      dtype = MRI_UCHAR;
-    } else if(nifti_img@datatype == 4L & nifti_img@bitpix == 16L) {  # NIFTI: 'signed short'
-      dtype = MRI_SHORT;
-    } else if(nifti_img@datatype == 8L & nifti_img@bitpix == 32L) {  # NIFTI: 'signed int'
-      dtype = MRI_INT;
-    } else if(nifti_img@datatype == 512L & nifti_img@bitpix == 16L) {  # NIFTI: 'unsigned short', we map this to MRI_INT
-        dtype = MRI_INT;
-    } else if(nifti_img@datatype == 768L & nifti_img@bitpix == 32L) {  # NIFTI: 'unsigned int', we map this to MRI_INT and print a notice
-      dtype = MRI_INT;
-    } else if(nifti_img@datatype == 16L & nifti_img@bitpix == 32L) {  # NIFTI: 'float'
-      dtype = MRI_FLOAT;
-    } else if(nifti_img@datatype == 64L & nifti_img@bitpix == 64L) {  # NIFTI: 'double', but we treat this as MRI_FLOAT, there is no double support for MGH afaik.
-      dtype = MRI_FLOAT;
-    } else {
-      stop(sprintf("Nifti images with @datatype=%d and @bitpix=%d not supported yet.\n", nifti_img@datatype, nifti_img@bitpix));
-    }
+    dti = nifti.dtype.info(nifti_img@datatype, nifti_img@bitpix);
+    dtype = dti$mri_dtype;
 
     #bytes_per_voxel = mri_dtype_numbytes(dtype); # Note that we store the size in **bytes** per voxel, while the Nifti header uses **bits**.
-
     #message(sprintf("Nifti header: Nifti datatype=%d with %d bitpix. MRI datatype '%s' (code %d), with %d bytes per voxel.\n", nifti_img@datatype, nifti_img@bitpix, translate.mri.dtype(dtype), dtype, bytes_per_voxel));
 
     ## ----- Check image dimensions -----
@@ -340,6 +324,40 @@ nifti.space.info <- function(xyzt_units) {
   if(nifti_unit_code == 2L) { nifti_unit_name = "mm"; scaling = 1.0; }
   if(nifti_unit_code == 3L) { nifti_unit_name = "mum";  scaling = 0.001; }
   return(list("code"=nifti_unit_code, "name"=nifti_unit_name, "scaling"=scaling));
+}
+
+
+#' @title Compute NIFTI v1 data type info from datatype and bitpix header field.
+#'
+#' @param datatype integer, the `datatype` NIFTI v1 header field
+#'
+#' @param bitpix integer, the `bitpix` NIFTI v1 header field
+#'
+#' @return named list with entries: `mri_dtype`: the MRI data type, as used by FreeSurfer for MGH files, `r_dtype`: the R data type.
+#'
+#' @keywords internal
+nifti.dtype.info <- function(datatype, bitpix) {
+  MRI_UCHAR = translate.mri.dtype("MRI_UCHAR");
+  MRI_INT = translate.mri.dtype("MRI_INT");
+  MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
+  MRI_SHORT = translate.mri.dtype("MRI_SHORT");
+  if(datatype == 2L & bitpix == 8L) {   # NIFTI: 'unsigned char'
+    return(list('mri_dtype' = MRI_UCHAR, 'r_dtype' = integer()));
+  } else if(datatype == 4L & bitpix == 16L) {  # NIFTI: 'signed short'
+    return(list('mri_dtype' = MRI_SHORT, 'r_dtype' = integer()));
+  } else if(datatype == 8L & bitpix == 32L) {  # NIFTI: 'signed int'
+    return(list('mri_dtype' = MRI_INT, 'r_dtype' = integer()));
+  } else if(datatype == 512L & bitpix == 16L) {  # NIFTI: 'unsigned short', we map this to MRI_INT
+    return(list('mri_dtype' = MRI_INT, 'r_dtype' = integer()));
+  } else if(datatype == 768L & bitpix == 32L) {  # NIFTI: 'unsigned int', we map this to MRI_INT and print a notice
+    return(list('mri_dtype' = MRI_INT, 'r_dtype' = integer()));
+  } else if(datatype == 16L & bitpix == 32L) {  # NIFTI: 'float'
+    return(list('mri_dtype' = MRI_FLOAT, 'r_dtype' = numeric()));
+  } else if(datatype == 64L & bitpix == 64L) {  # NIFTI: 'double', but we treat this as MRI_FLOAT, there is no double support for MGH afaik.
+    return(list('mri_dtype' = MRI_FLOAT, 'r_dtype' = numeric()));
+  } else {
+    stop(sprintf("Nifti images with datatype=%d and bitpix=%d not supported yet.\n", datatype, bitpix));
+  }
 }
 
 
