@@ -93,7 +93,7 @@ read.fs.volume.nii <- function(filepath, flatten = FALSE, with_header=FALSE, dro
     if(num_used_dimensions < 1L | num_used_dimensions > 7L) {
       # If the first field is outside the range 1-7, it means that the data has opposite endianness and must be byte-swapped.
       # The oro.nifti library most likely handles this just fine, but I did not check that yet, so we assume its NOT okay for now.
-      byte_swap = TRUE;
+      byte_swap = TRUE; # should never happen
       stop(sprintf("Byte-swapped Nifti images not supported yet.\n"));
     }
 

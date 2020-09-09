@@ -5,7 +5,7 @@
 #'
 #' @return named list with NIFTI 1 header fields.
 #'
-#' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
+#' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32767 entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
 #' @export
 nifti.header.fshack <- function(filepath) {
@@ -50,7 +50,10 @@ nifti.header.fshack.internal <- function(filepath, little_endian = TRUE) {
 
   niiheader$sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = endian);
   if(niiheader$sizeof_hdr != 348L) {
-    if(little_endian == FALSE) {
+    if(niiheader$sizeof_hdr == 540L) {
+      stop("File not in NIFTI 1 format: header size 540 looks like a NIFTI v2 file.");
+    }
+    if(little_endian == FALSE) { # if called with FALSE, the TRUE option was already checked.
       stop(sprintf("File not in NIFTI 1 format: invalid header size %d, expected 348.\n", niiheader$sizeof_hdr)); # nocov
     } else {
       return(nifti.header.fshack, filepath, little_endian = FALSE);
@@ -75,7 +78,7 @@ nifti.header.fshack.internal <- function(filepath, little_endian = TRUE) {
   niiheader$slice_start = readBin(fh, integer(), n = 1, size = 2, endian = endian);
 
   niiheader$pix_dim = readBin(fh, numeric(), n = 8, size = 4, endian = endian);
-  niiheader$vox_offset = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$vox_offset = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # int would make more sense, but the standard says float
   niiheader$scl_slope = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
   niiheader$scl_inter = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
 
