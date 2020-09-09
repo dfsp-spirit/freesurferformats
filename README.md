@@ -36,6 +36,8 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer spatial transformation matrices can be read from LTA, register.dat, and xfm files.
 
+* FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files that use the (non-standard) FreeSurfer NIFTI hack can be read with our own NIFTI reader. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard.
+
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
 * NIFTI volumes (v1, single file): Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.)
