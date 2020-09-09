@@ -1,17 +1,28 @@
 
-
 #' @title Read NIFTI v1 header from file with FreeSurfer hack.
 #'
 #' @param filepath path to a NIFTI v1 file (single file version), which can contain the FreeSurfer hack.
-#'
-#' @param little_endian internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.
 #'
 #' @return named list with NIFTI 1 header fields.
 #'
 #' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
-#' @export
-nifti.header.fshack <- function(filepath, little_endian = TRUE) {
+#' @keywords internal
+nifti.header.fshack <- function(filepath) {
+  return(nifti.header.fshack.internal(filepath, little_endian = TRUE));
+}
+
+
+#' @title Read NIFTI v1 header from file with FreeSurfer hack.
+#'
+#' @inheritParams nifti.header.fshack
+#'
+#' @param little_endian internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.
+#'
+#' @return named list with NIFTI 1 header fields.
+#'
+#' @keywords internal
+nifti.header.fshack.internal <- function(filepath, little_endian = TRUE) {
 
   endian = ifelse(little_endian, "little", 'big');
   niiheader = list('endian' = endian);
