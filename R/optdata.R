@@ -31,7 +31,9 @@ download_opt_data <- function() {
                                   c(base_path_subject1, 'label', 'lh.aparc.a2005s.annot'),
                                   c(base_path_subject1, 'label', 'rh.aparc.a2005s.annot'),
                                   c(base_path_subject1, 'ext', 'lh.cortex.patch.3d'),
-                                  c(base_path_subject1, 'ext', 'lh.cortex.patch.3d.asc')
+                                  c(base_path_subject1, 'ext', 'lh.cortex.patch.3d.asc'),
+                                  c(base_path_subject1, 'surf', 'lh.thickness.nii.gz')
+
   );
 
   base_path_cifti = c('cifti');
@@ -63,7 +65,8 @@ download_opt_data <- function() {
                        '718c140022bf14a33b2ea6d6e04686a5',
                        '6c845df28caa47e362ab0ec784fb64e9',
                        '66abb5e91095754d01bcb3f445494141', # lh.cortex.patch.3d
-                       '47b92cb02f4b080b5602fef8d327e37d'
+                       '47b92cb02f4b080b5602fef8d327e37d',
+                       '27cdad54c091cb0ada615f5ac0b780b9'  # lh.thickness.nii.gz
   );
 
   md5sums_cifti = c('5aa64e146839f0332b5744d0a6e7f737',
@@ -94,7 +97,8 @@ download_opt_data <- function() {
                                  'label/lh.aparc.a2005s.annot',
                                  'label/rh.aparc.a2005s.annot',
                                  'ext/lh.cortex.patch.3d',
-                                 'ext/lh.cortex.patch.3d.asc'
+                                 'ext/lh.cortex.patch.3d.asc',
+                                 'surf/lh.thickness.nii.gz'
   );
   ext_urls_subject1 = paste(ext_url_subject_part_subject1, ext_url_parts_each_subject, sep='');
 

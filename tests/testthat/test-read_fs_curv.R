@@ -38,8 +38,25 @@ test_that("Our demo morphometry data GIFTI file can be read using read.fs.morph"
 
 test_that("Invalid arguments to read.fs.curv lead to errors", {
   filepath = tempfile(fileext=".curv");
-  expect_error(read.fs.curv(tmp_file, format = "invalid")); # invalid format
-  expect_error(read.fs.morph(tmp_file, format = "invalid")); # invalid format
+  expect_error(read.fs.curv(filepath, format = "invalid")); # invalid format
+  expect_error(read.fs.morph(filepath, format = "invalid")); # invalid format
 })
+
+
+test_that("NIFTI files with FreeSurfer hack can be read.", {
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
+
+  morph_file_curv = file.path(subjects_dir, "subject1", "surf", "lh.thickness");
+  morph_file_nii = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
+
+  morph_data_curv = read.fs.morph(morph_file_curv);
+  morph_data_nii = nifti.data.fshack(morph_file_nii);
+
+  testthat::expect_equal(morph_data_curv, morph_data_nii);
+})
+
+
+
 
 
