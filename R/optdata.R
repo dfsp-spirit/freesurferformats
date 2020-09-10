@@ -42,7 +42,11 @@ download_opt_data <- function() {
                                c(base_path_cifti, 'Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii')
                           );
 
-  local_filenames = c(local_filenames_subject1, local_filenames_cifti);
+
+  base_path_nifti2 = c('nifti2');
+  local_filenames_nifti2 = list(c(base_path_nifti2, 'avg152T1_LR_nifti2.nii.gz'));
+
+  local_filenames = c(local_filenames_subject1, local_filenames_cifti, local_filenames_nifti2);
 
 
   md5sums_subject1 = c('099e738654aedc71cd580256f4f3914b',
@@ -74,7 +78,9 @@ download_opt_data <- function() {
                     '66feaa6d0b5dabc448c8557426c8dbbb'
   );
 
-  md5sums = c(md5sums_subject1, md5sums_cifti);
+  md5sums_nifti2 = '87524a733b65186a458fe2fc4a18041a';
+
+  md5sums = c(md5sums_subject1, md5sums_cifti, md5sums_nifti2);
 
   ext_url_subject_part_subject1 = 'subjects_dir/subject1/';
   ext_url_parts_each_subject = c('label/lh.aparc.a2009s.annot',
@@ -107,11 +113,15 @@ download_opt_data <- function() {
                      'cifti/Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii'
                      );
 
+  ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti);
+  base_url_internal_data = 'http://rcmd.org/projects/nitestdata/'; # here 'internal' means data stored on our own rcmd.org server.
+  internal_data_urls = paste(base_url_internal_data, ext_urls_internal_data, sep='');
 
-  ext_urls = c(ext_urls_subject1, ext_urls_cifti);
+  ext_urls_niftiv2 = 'avg152T1_LR_nifti2.nii.gz';
+  base_url_nifti2_data = 'https://nifti.nimh.nih.gov/pub/dist/data/nifti2/';
+  nifti2_data_urls = paste(base_url_nifti2_data, ext_urls_niftiv2, sep='');
 
-  base_url = 'http://rcmd.org/projects/nitestdata/';
-  urls = paste(base_url, ext_urls, sep='');
+  urls = c(internal_data_urls, nifti2_data_urls);
 
   cfiles = pkgfilecache::ensure_files_available(pkg_info, local_filenames, urls, md5sums=md5sums);
   cfiles$file_status = NULL; # not exposed to end user
