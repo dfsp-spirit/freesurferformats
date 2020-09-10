@@ -18,6 +18,6 @@ named list with NIFTI 2 header fields.
 Read NIFTI v2 header from file.
 }
 \note{
-See https://nifti.nimh.nih.gov/pub/dist/data/nifti2/ for test data.
+See https://nifti.nimh.nih.gov/pub/dist/data/nifti2/ for test data. Thanks to Anderson Winkler for his post at https://brainder.org/2015/04/03/the-nifti-2-file-format/.
 }
 \keyword{internal}
