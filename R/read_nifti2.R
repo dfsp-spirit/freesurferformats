@@ -32,12 +32,7 @@ nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   }
   niiheader = list('endian' = endian);
 
-  if (endsWith(filepath, '.gz')) {
-    fh = gzfile(filepath, "rb");
-  }
-  else {
-    fh = file(filepath, "rb");
-  }
+  fh = fileopen.gz.or.not(filepath);
   on.exit({ close(fh) }, add=TRUE);
 
   niiheader$sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = endian);
@@ -183,12 +178,7 @@ nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
     header = nifti2.header(filepath);
   }
 
-  if (endsWith(filepath, '.gz')) {
-    fh = gzfile(filepath, "rb");
-  }
-  else {
-    fh = file(filepath, "rb");
-  }
+  fh = fileopen.gz.or.not(filepath);
   on.exit({ close(fh) }, add=TRUE);
 
   endian = header$endian;

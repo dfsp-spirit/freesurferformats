@@ -15,16 +15,25 @@ nifti1.header <- function(filepath) {
 }
 
 
-#' @title Determine whether NIFTI v1 file uses the FreeSurfer hack.
+#' @title Determine whether a NIFTI file uses the FreeSurfer hack.
 #'
 #' @inheritParams nifti1.header
 #'
-#' @return logical, whether the file header contains the FreeSurfer format hack. See \code{\link{nifti1.header}} for details.
+#' @return logical, whether the file header contains the FreeSurfer format hack. See \code{\link{nifti1.header}} for details. This function detects NIFTI v2 files, but as they cannot contain the hack, it will always return `FALSE` for them.
+#'
+#' @note Applying this function to files which are not in NIFTI format will result in an error. See \code{\link{nifti.file.version}} to determine whether a file is a NIFTI file.
 #'
 #' @export
 nifti.file.uses.fshack <- function(filepath) {
-  nh = nifti1.header(filepath);
-  return(nh$uses_freesurfer_hack);
+  nv = nifti.file.version(filepath);
+  if(nv == 1L) {
+    nh = nifti1.header(filepath);
+    return(nh$uses_freesurfer_hack);
+  } else if(nv == 2L) {
+    return(FALSE);
+  } else {
+    stop("Not a NIFTI v1 or v2 file.");
+  }
 }
 
 
@@ -42,12 +51,7 @@ nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   endian = ifelse(little_endian, "little", 'big');
   niiheader = list('endian' = endian);
 
-  if (endsWith(filepath, '.gz')) {
-    fh = gzfile(filepath, "rb");
-  }
-  else {
-    fh = file(filepath, "rb");
-  }
+  fh = fileopen.gz.or.not(filepath);
   on.exit({ close(fh) }, add=TRUE);
 
   niiheader$sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = endian);
@@ -124,6 +128,51 @@ nifti1.header.internal <- function(filepath, little_endian = TRUE) {
 }
 
 
+#' @title Determine NIFTI file version information and whether file is a NIFTI file.
+#'
+#' @param filepath path to a file in NIFTI v1 or v2 format.
+#'
+#' @return integer, the NIFTI file version. One if `1` for NIFTI v1 files, `2` for NIFTI v2 files, or `NULL` if the file is not a NIFTI file.
+#'
+#' @export
+nifti.file.version <- function(filepath) {
+  fh = fileopen.gz.or.not(filepath);
+
+  sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = 'little');
+  if(! sizeof_hdr %in% c(348L, 540L)) {
+    close(fh);
+    fh = fileopen.gz.or.not(filepath);
+    sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = 'big');
+  }
+  close(fh);
+
+
+  if(sizeof_hdr == 540L) {
+    return(2L);
+  } else if(sizeof_hdr == 348L) {
+    return(1L)
+  } else {
+    return(NULL);
+  }
+}
+
+
+#' @title Get connection to a binary file, gz or not.
+#'
+#' @param filepath path to the binary file.
+#'
+#' @keywords internal
+fileopen.gz.or.not <- function(filepath) {
+  if (endsWith(filepath, '.gz')) {
+    fh = gzfile(filepath, "rb");
+  }
+  else {
+    fh = file(filepath, "rb");
+  }
+  return(fh);
+}
+
+
 #' @title Read raw NIFTI v1 data from file (which may contain the FreeSurfer hack).
 #'
 #' @inheritParams nifti1.header
@@ -142,12 +191,7 @@ nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
     header = nifti1.header(filepath);
   }
 
-  if (endsWith(filepath, '.gz')) {
-    fh = gzfile(filepath, "rb");
-  }
-  else {
-    fh = file(filepath, "rb");
-  }
+  fh = fileopen.gz.or.not(filepath);
   on.exit({ close(fh) }, add=TRUE);
 
   endian = header$endian;
