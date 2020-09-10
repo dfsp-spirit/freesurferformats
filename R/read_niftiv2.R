@@ -54,7 +54,7 @@ nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   }
 
   niiheader$magic = read.fixed.char.binary(fh, 8L);
-  niiheader$data_type = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  niiheader$datatype = readBin(fh, integer(), n = 1, size = 2, endian = endian);
   niiheader$bitpix = readBin(fh, integer(), n = 1, size = 2, endian = endian);
   niiheader$dim = readBin(fh, integer(), n = 8, size = 8, endian = endian);
 
@@ -165,5 +165,68 @@ read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
   txt = readBin(filehandle, "raw", n);
   return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to));
 }
+
+
+#' @title Read raw data from NIFTI v2 file.
+#'
+#' @inheritParams nifti2.header
+#'
+#' @param header optional nifti v2 header obtained from \code{\link{nifti2.header}}. Will be loaded automatically if left at `NULL`.
+#'
+#'@param drop_empty_dims logical, whether to drop empty dimensions in the loaded data array.
+#'
+#' @return the data in the NIFTI v2 file. Note that the NIFTI v2 header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file. The information in the header is used to read the data with the proper data type and size.
+#'
+#' @export
+nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
+  if(is.null(header)) {
+    header = nifti2.header(filepath);
+  }
+
+  if (endsWith(filepath, '.gz')) {
+    fh = gzfile(filepath, "rb");
+  }
+  else {
+    fh = file(filepath, "rb");
+  }
+  on.exit({ close(fh) }, add=TRUE);
+
+  endian = header$endian;
+
+  # move to data part
+  num_skip = header$vox_offset;
+  discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
+  discarded = NULL;
+
+  data_dim = nifti.datadim(header$dim);
+  num_values = prod(data_dim);
+
+  read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.
+  dti = nifti.dtype.info(header$datatype, header$bitpix);
+
+  data = readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian);
+  data = array(data, dim = data_dim);
+  if(drop_empty_dims) {
+    return(drop(data));
+  }
+  return(data);
+}
+
+
+#' @title Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
+#'
+#' @param dim integer vector of length 8, the `dim` field of a NIFTI v1 or v2 header, as returned by \code{\link{nifti2.header}} or \code{\link{nifti.header.fshack}}.
+#'
+#' @return integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
+#'
+#' @export
+nifti.datadim <- function(dim) {
+  num_dim = dim[1];
+  if(num_dim == 1L) {
+    return(dim[2]);
+  }
+  return(dim[2:(num_dim + 1L)]);
+}
+
 
 

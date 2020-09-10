@@ -1,5 +1,7 @@
+# Read the header and data parts of NIFTI v1 files. These files may or may not have the FreeSurfer NIFTI hack.
 
-#' @title Read NIFTI v1 header from file with FreeSurfer hack.
+
+#' @title Read NIFTI v1 header from file (which may contain the FreeSurfer hack).
 #'
 #' @param filepath path to a NIFTI v1 file (single file version), which can contain the FreeSurfer hack.
 #'
@@ -26,7 +28,7 @@ nifti.file.uses.fshack <- function(filepath) {
 }
 
 
-#' @title Read NIFTI v1 header from file with FreeSurfer hack.
+#' @title Read NIFTI v1 header from file (which may contain the FreeSurfer hack).
 #'
 #' @inheritParams nifti.header.fshack
 #'
@@ -115,38 +117,29 @@ nifti.header.fshack.internal <- function(filepath, little_endian = TRUE) {
   niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
   niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
 
-  if(niiheader$uses_freesurfer_hack) {
-    if(niiheader$dim[4] > 0L) {
-      niiheader$dim = c(niiheader$glmin, 1L, 1L, niiheader$dim[4]);
-    } else {
-      niiheader$dim = c(niiheader$glmin, 1L, 1L);
-    }
+  if(niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field.
+    niiheader$dim[2] = niiheader$glmin;
   }
-
   return(niiheader);
 }
 
 
-#' @title Read raw NIFTI v1 data from file with FreeSurfer hack.
+#' @title Read raw NIFTI v1 data from file (which may contain the FreeSurfer hack).
 #'
 #' @inheritParams nifti.header.fshack
 #'
 #' @param header optional nifti header obtained from \code{\link{nifti.header.fshack}}. Will be loaded automatically if left at `NULL`.
 #'
-#' @param drop_empty_dims logical, whether to drop empty dimensions in the loaded data matrix.
+#' @param drop_empty_dims logical, whether to drop empty dimensions in the loaded data array.
 #'
 #' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32k entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
-#' @return the data in the NIFTI file. Note that the NIFTI header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file.
+#' @return the data in the NIFTI v1 file. Note that the NIFTI v1 header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file. The information in the header is used to read the data with the proper data type and size.
 #'
 #' @export
 nifti.data.fshack <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   if(is.null(header)) {
     header = nifti.header.fshack(filepath);
-  }
-
-  if(! header$uses_freesurfer_hack) {
-    warning(sprintf("NIFTI file does not use FreeSurfer hack, this function may not be suitable to load it.\n"));
   }
 
   if (endsWith(filepath, '.gz')) {
@@ -164,13 +157,14 @@ nifti.data.fshack <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
   discarded = NULL;
 
-  num_values = prod(header$dim);
+  data_dim = nifti.datadim(header$dim);
+  num_values = prod(data_dim);
 
   read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.
   dti = nifti.dtype.info(header$datatype, header$bitpix);
 
   data = readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian);
-  data = array(data, dim = header$dim);
+  data = array(data, dim = data_dim);
   if(drop_empty_dims) {
     return(drop(data));
   }

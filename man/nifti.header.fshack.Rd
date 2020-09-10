@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fs_nifti_hack.R
 \name{nifti.header.fshack}
 \alias{nifti.header.fshack}
-\title{Read NIFTI v1 header from file with FreeSurfer hack.}
+\title{Read NIFTI v1 header from file (which may contain the FreeSurfer hack).}
 \usage{
 nifti.header.fshack(filepath)
 }
@@ -13,7 +13,7 @@ nifti.header.fshack(filepath)
 named list with NIFTI 1 header fields.
 }
 \description{
-Read NIFTI v1 header from file with FreeSurfer hack.
+Read NIFTI v1 header from file (which may contain the FreeSurfer hack).
 }
 \note{
 The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32767 entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_fs_nifti_hack.R
 \name{nifti.header.fshack.internal}
 \alias{nifti.header.fshack.internal}
-\title{Read NIFTI v1 header from file with FreeSurfer hack.}
+\title{Read NIFTI v1 header from file (which may contain the FreeSurfer hack).}
 \usage{
 nifti.header.fshack.internal(filepath, little_endian = TRUE)
 }
@@ -15,6 +15,6 @@ nifti.header.fshack.internal(filepath, little_endian = TRUE)
 named list with NIFTI 1 header fields.
 }
 \description{
-Read NIFTI v1 header from file with FreeSurfer hack.
+Read NIFTI v1 header from file (which may contain the FreeSurfer hack).
 }
 \keyword{internal}
