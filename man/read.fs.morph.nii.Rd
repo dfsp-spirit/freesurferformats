@@ -7,7 +7,7 @@
 read.fs.morph.nii(filepath)
 }
 \arguments{
-\item{filepath}{path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{nifti.data.fshack}} for details.}
+\item{filepath}{path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{nifti1.data}} for details.}
 }
 \value{
 numeric vector, the morphometry data
