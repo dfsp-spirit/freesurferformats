@@ -6,3 +6,19 @@
 tests_running_on_cran_under_macos <- function() {
   return(tolower(Sys.info()[["sysname"]]) == 'darwin' && !identical(Sys.getenv("NOT_CRAN"), "true"));
 }
+
+
+#' @title Check whether currently running R version is less than the given one.
+rversion.less.than <- function(vmajor, vminor) {
+  if(as.numeric(R.version$major) < vmajor) {
+    return(TRUE);
+  }
+  if(as.numeric(R.version$major) == vmajor) {
+    if(as.numeric(R.version$minor) < vminor) {
+      return(TRUE);
+    }
+  }
+  return(FALSE);
+}
+
+

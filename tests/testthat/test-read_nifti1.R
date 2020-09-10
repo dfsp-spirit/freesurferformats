@@ -1,4 +1,5 @@
 test_that("NIFTI v1 files with FreeSurfer hack can be read.", {
+  skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
@@ -14,6 +15,7 @@ test_that("NIFTI v1 files with FreeSurfer hack can be read.", {
 
 
 test_that("NIFTI v1 files with FreeSurfer hack can be read using read.fs.morph.", {
+  skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
@@ -30,6 +32,7 @@ test_that("NIFTI v1 files with FreeSurfer hack can be read using read.fs.morph."
 
 
 test_that("NIFTI v1 file headers with FreeSurfer hack can be read.", {
+  skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
