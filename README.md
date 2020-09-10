@@ -36,11 +36,13 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer spatial transformation matrices can be read from LTA, register.dat, and xfm files.
 
-* FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files that use the (non-standard) FreeSurfer NIFTI hack can be read with our own NIFTI reader. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard.
+* NIFTI v1: FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files can be read with our own NIFTI v1 reader. FreeSurfer NIFTI v1 files that use the (non-standard) FreeSurfer NIFTI hack are also supported. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard. This affects virtually all surface-based data files because the brain surface meshes in FreeSurfer typically have moe than 100k vertices.
+
+* NIFTI v2: This package comes with its own NIFTI v2 reader.
 
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
-* NIFTI volumes (v1, single file): Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.)
+* NIFTI volumes (v1, single file): Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.) Alternatively, our internal reader can be used.
 
 * GIFTI: General reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. The *freesurferformats* also comes with GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
 
