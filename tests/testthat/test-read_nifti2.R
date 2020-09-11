@@ -31,6 +31,24 @@ test_that("Data from NIFTI v2 files can be read.", {
 
   hdr = nifti2.header(nii_v2_file);
   niidata = nifti2.data(nii_v2_file);
+  niidata2 = nifti2.data(nii_v2_file, drop_empty_dims = FALSE);
 
   testthat::expect_equal(dim(niidata), c(91, 109, 91));
 })
+
+
+test_that("Trying to read NIFTI v1 files with NIFTI v2 function leads to errors.", {
+  skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
+
+
+  nii_v1_file = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
+  not_nii_file = file.path(subjects_dir, "subject1", "surf", "lh.thickness");
+
+  testthat::expect_error(nifti2.header(nii_v2_file));
+  testthat::expect_error(nifti2.header(not_nii_file));
+})
+
+
