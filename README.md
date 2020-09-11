@@ -38,7 +38,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI v1: FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files can be read with our own NIFTI v1 reader. FreeSurfer NIFTI v1 files that use the (non-standard) FreeSurfer NIFTI hack are also supported. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard. This affects virtually all surface-based data files because the brain surface meshes in FreeSurfer typically have more than 100k vertices.
 
-* NIFTI v2: This package comes with its own NIFTI v2 reader.
+* NIFTI v2: This package comes with its own NIFTI v2 reader. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-like file formats.
 
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
