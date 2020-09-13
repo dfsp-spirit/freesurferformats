@@ -70,8 +70,10 @@ ni1header.template <- function() {
 #'
 #' @param niidata array of numeric (integer or double) data, can have up to 7 dimensions.
 #'
+#' @param allow_fshack logical, whether to allow data in which the first dimension is larger than 32767, and use the FreeSurfer NIFTI v1 hack to support his. The hack will be used only if needed. WARNING: Files written with the hack do not conform to the NIFTI v1 standard and will not be read correctly by most software. All FreeSurfer tools and the Python 'nibabel' module support it.
+#'
 #' @return a NIFTI v1 header (see \code{\link{ni1header.template}}) in which the datatype, bitpix, dim and dim_raw fields have been set to values suitable for the given data. Feel free to change the other fields.
-ni1header.for.data <- function(niidata) {
+ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
   niiheader = ni1header.template();
 
   if(is.integer(niidata)) {
@@ -84,8 +86,25 @@ ni1header.for.data <- function(niidata) {
     stop('Only integer or double data is supported by this function.');
   }
 
-  niiheader$dim = dim(niidata);
-  niiheader$dim_raw = nifti.datadim.to.dimfield(dim(niidata));
+  dd = dim(niidata);
+  niiheader$dim = dd;
+  niiheader$dim_raw = nifti.datadim.to.dimfield(dd);
+
+  nii1_max_vox = 32767L;
+
+  if(dd[1] > nii1_max_vox) {
+    if(allow_fshack) {
+      niiheader$glmin = dd[1];
+      niiheader$dim_raw[2] = -1L;
+    } else {
+      stop(sprintf("Data dimension #1: %d too large for NIFTI v1 without FreeSurfer hack, limit is %d.\n", dd[1], nii1_max_vox));
+    }
+  }
+
+  if(any(niiheader$dim_raw > nii1_max_vox)) {
+    stop("Data dimensions too large for NIFTI v1 format, consider using NIFTI v2.");
+  }
+
   return(niiheader);
 }
 
