@@ -209,14 +209,43 @@ nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
 #'
 #' @return integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
 #'
+#' @examples
+#'    nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1));
+#'
+#' @family NIFTI helper functions
+#'
 #' @export
-nifti.datadim <- function(dim) {
-  num_dim = dim[1];
-  if(num_dim == 1L) {
-    return(dim[2]);
+nifti.datadim.from.dimfield <- function(dimfield) {
+  if(length(dimfield) != 8L) {
+    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found %d.\n", length(dimfield)));
   }
-  return(dim[2:(num_dim + 1L)]);
+  num_dim = dimfield[1];
+  if(num_dim == 1L) {
+    return(dimfield[2]);
+  }
+  return(dimfield[2:(num_dim + 1L)]);
 }
 
 
+#' @title Compute NIFTI dim field for data dimension.
+#'
+#' @param datatim integer vector, the result of calling `dim` on your data. The length must be <= 7.
+#'
+#' @return NIFTI header `dim` field, an integer vector of length 8
+#'
+#' @examples
+#'    nifti.datadim.to.dimfield(c(256, 256, 256));
+#'
+#' @family NIFTI helper functions
+#'
+#' @export
+nifti.datadim.to.dimfield <- function(datadim) {
+  dim_field = rep(1L, 8L);
+  ndim = length(datadim);
+  if(ndim > 7L) {
+    stop(sprintf("Length of datadim must be <= 7, but is %d. Not supported by NIFTI format, please reshape.\n", ndim));
+  }
+  dim_field[1] = ndim;
+  dim_field[2:(2+ndim-1L)] = datadim;
+}
 
