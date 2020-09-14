@@ -71,7 +71,6 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   discarded = NULL;
 
   niiheader$dim = readBin(fh, integer(), n = 8, size = 2, endian = endian);
-  niiheader$dim_data = nifti.datadim.from.dimfield(niiheader$dim);
   niiheader$uses_freesurfer_hack = ifelse(niiheader$dim[2] == -1L, TRUE, FALSE);
 
   niiheader$intent_p1 = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
@@ -121,7 +120,8 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
   niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
 
-  if(niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field.
+  if(niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field. The original value is still available in dim_raw.
+    niiheader$dim_raw = niiheader$dim; # only differ for FreeSurfer hack files.
     niiheader$dim[2] = niiheader$glmin;
   }
   return(niiheader);

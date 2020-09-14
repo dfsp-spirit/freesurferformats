@@ -13,7 +13,6 @@ ni1header.template <- function() {
   niiheader$sizeof_hdr = 348L;
 
   niiheader$dim = c(3, 256, 256, 256, 1, 1, 1, 1);
-  niiheader$dim_raw = niiheader$dim;
 
   niiheader$intent_p1 = 0.0;
   niiheader$intent_p2 = 0.0;
@@ -87,8 +86,7 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
   }
 
   dd = dim(niidata);
-  niiheader$dim = dd;
-  niiheader$dim_raw = nifti.datadim.to.dimfield(dd);
+  niiheader$dim = nifti.datadim.to.dimfield(dd);
   niiheader$cal_min = min(niidata);
   niiheader$cal_max = max(niidata);
 
@@ -97,13 +95,14 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
   if(dd[1] > nii1_max_vox) {
     if(allow_fshack) {
       niiheader$glmin = dd[1];
-      niiheader$dim_raw[2] = -1L;
+      niiheader$dim[2] = -1L;
+      niiheader$magic = '';
     } else {
       stop(sprintf("Data dimension #1: %d too large for NIFTI v1 without FreeSurfer hack, limit is %d.\n", dd[1], nii1_max_vox));
     }
   }
 
-  if(any(niiheader$dim_raw > nii1_max_vox)) {
+  if(any(niiheader$dim > nii1_max_vox)) {
     stop("Data dimensions too large for NIFTI v1 format, consider using NIFTI v2.");
   }
 
@@ -136,7 +135,7 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
 
   writeBin(as.integer(niiheader$sizeof_hdr), fh, size = 4L, endian = endian);
   writeBin(as.integer(rep(0L, 36L)), fh, size = 1L, endian = endian); # Unused header part, for compatibility with old formats like ANALYZE. We fill it with zeroes.
-  writeBin(as.integer(niiheader$dim_raw), fh, size = 2L, endian = endian);
+  writeBin(as.integer(niiheader$dim), fh, size = 2L, endian = endian);
 
   writeBin(as.double(niiheader$intent_p1), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$intent_p2), fh, size = 4L, endian = endian);
@@ -145,15 +144,15 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$intent_code), fh, size = 2L, endian = endian);
   writeBin(as.integer(niiheader$datatype), fh, size = 2L, endian = endian);
   writeBin(as.integer(niiheader$bitpix), fh, size = 2L, endian = endian);
-  writeBin(as.integer(niiheader$sclice_start), fh, size = 2L, endian = endian);
+  writeBin(as.integer(niiheader$slice_start), fh, size = 2L, endian = endian);
 
   writeBin(as.double(niiheader$pix_dim), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$vox_offset), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$scl_slope), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$scl_inter), fh, size = 4L, endian = endian);
 
-  writeBin(as.integer(niiheader$sclice_end), fh, size = 2L, endian = endian);
-  writeBin(as.integer(niiheader$sclice_code), fh, size = 1L, endian = endian);
+  writeBin(as.integer(niiheader$slice_end), fh, size = 2L, endian = endian);
+  writeBin(as.integer(niiheader$slice_code), fh, size = 1L, endian = endian);
   writeBin(as.integer(niiheader$xyzt_units), fh, size = 1L, endian = endian);
 
   writeBin(as.double(niiheader$cal_max), fh, size = 4L, endian = endian);
@@ -164,8 +163,8 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$glmax), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$glmin), fh, size = 4L, endian = endian);
 
-  writeChar(niiheader$description, fh, nchars = 80L);
-  writeChar(niiheader$aux_file, fh, nchars = 24L);
+  writeChar(pad.string(niiheader$description, 80L), fh, nchars = 80L);
+  writeChar(pad.string(niiheader$aux_file, 24L), fh, nchars = 24L);
 
   writeBin(as.integer(niiheader$qform_code), fh, size = 2L, endian = endian);
   writeBin(as.integer(niiheader$sform_code), fh, size = 2L, endian = endian);
@@ -182,8 +181,8 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.double(niiheader$srow_y), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$srow_z), fh, size = 4L, endian = endian);
 
-  writeChar(niiheader$intent_name, fh, nchars = 16L);
-  writeChar(niiheader$magic, fh, nchars = 4L);
+  writeChar(pad.string(niiheader$intent_name, 16L), fh, nchars = 16L);
+  writeChar(pad.string(niiheader$magic, 4L), fh, nchars = 4L);
 
   # add zero padding up to 'vox_offset'.
   position_now = 348L;
@@ -206,5 +205,17 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   }
   close(fh);
   return(invisible(list('header'=niiheader, 'data'=data_written)));
+}
+
+
+#' @keywords internal
+pad.string <- function(input_string, req_length, fill_with = " ") {
+  num_missing = req_length - nchar(input_string);
+  if(num_missing > 0L) {
+    padding = paste(replicate(num_missing, fill_with), collapse = "");
+    return(paste(c(input_string, padding), collapse = ""));
+  } else {
+    return(input_string);
+  }
 }
 

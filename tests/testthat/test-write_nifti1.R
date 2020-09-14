@@ -7,7 +7,7 @@ test_that("NIFTI v1 files can be written based on integer data using write.nifti
   nifti_written = write.nifti1(int_nifti_file, int_data);
   testthat::expect_equal(nifti_written$header$cal_max, 100);
   testthat::expect_equal(nifti_written$header$cal_min, 1);
-  testthat::expect_equal(nifti_written$header$dim_data, c(50, 2));
+  testthat::expect_equal(nifti.datadim.from.dimfield(nifti_written$header$dim), c(50, 2));
   testthat::expect_equal(nifti_written$header$dim, c(2, 50, 2, 1, 1, 1, 1, 1));
   testthat::expect_equal(nifti_written$header$bitpix, 32L);
   testthat::expect_equal(nifti_written$header$datatype, 8L);
@@ -16,12 +16,16 @@ test_that("NIFTI v1 files can be written based on integer data using write.nifti
 
   header_reread = read.nifti1.header(int_nifti_file);
   testthat::expect_equal(header_reread$dim, c(2, 50, 2, 1, 1, 1, 1, 1));
-  testthat::expect_equal(header_reread$dim_data, c(50, 2));
+  testthat::expect_equal(nifti.datadim.from.dimfield(header_reread$dim), c(50, 2));
   testthat::expect_equal(header_reread$intent_p1, 0L);
   testthat::expect_equal(header_reread$intent_p2, 0L);
   testthat::expect_equal(header_reread$intent_p3, 0L);
   testthat::expect_equal(header_reread$pix_dim, rep(0.0, 8L));
   testthat::expect_equal(header_reread$vox_offset, 352);
+  testthat::expect_equal(header_reread$cal_max, 100);
+  testthat::expect_equal(header_reread$cal_min, 1);
+  testthat::expect_equal(header_reread$glmin, 0L);
+  testthat::expect_equal(header_reread$glmax, 0L);
 
   data_reread = read.nifti1.data(int_nifti_file);
   testthat::expect_equal(dim(data_reread), c(50, 2));

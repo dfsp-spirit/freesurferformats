@@ -43,8 +43,8 @@ test_that("NIFTI v1 file headers with FreeSurfer hack can be read.", {
   testthat::expect_equal(nh$endian, 'little');
   testthat::expect_equal(nh$glmin, 149244L);
   testthat::expect_equal(nh$vox_offset, 352L);
-  testthat::expect_equal(nh$dim, c(3, -1, 1, 1, 1, 1, 1, 1));
-  testthat::expect_equal(nh$dim_data, c(3, 149244, 1, 1, 1, 1, 1, 1));
+  testthat::expect_equal(nh$dim_raw, c(3, -1, 1, 1, 1, 1, 1, 1));
+  testthat::expect_equal(nh$dim, c(3, 149244, 1, 1, 1, 1, 1, 1));
 })
 
 
