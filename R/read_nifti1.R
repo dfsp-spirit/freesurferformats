@@ -71,7 +71,7 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   discarded = NULL;
 
   niiheader$dim = readBin(fh, integer(), n = 8, size = 2, endian = endian);
-  niiheader$dim_raw = niiheader$dim;
+  niiheader$dim_data = nifti.datadim.from.dimfield(niiheader$dim);
   niiheader$uses_freesurfer_hack = ifelse(niiheader$dim[2] == -1L, TRUE, FALSE);
 
   niiheader$intent_p1 = readBin(fh, numeric(), n = 1, size = 4, endian = endian);

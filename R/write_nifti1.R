@@ -25,7 +25,7 @@ ni1header.template <- function() {
   niiheader$slice_start = 0L;
 
   niiheader$pix_dim = rep(0.0, 8L);
-  niiheader$vox_offset = 352.0;
+  niiheader$vox_offset = 352.;
   niiheader$scl_slope = 0.0;
   niiheader$scl_inter = 0.0;
 
@@ -89,6 +89,8 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
   dd = dim(niidata);
   niiheader$dim = dd;
   niiheader$dim_raw = nifti.datadim.to.dimfield(dd);
+  niiheader$cal_min = min(niidata);
+  niiheader$cal_max = max(niidata);
 
   nii1_max_vox = 32767L;
 

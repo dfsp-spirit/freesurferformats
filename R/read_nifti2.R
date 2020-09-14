@@ -217,7 +217,7 @@ read.nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
 #' @export
 nifti.datadim.from.dimfield <- function(dimfield) {
   if(length(dimfield) != 8L) {
-    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found %d.\n", length(dimfield)));
+    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found length %d: '%s'.\n", length(dimfield), paste(dimfield, collapse=" ")));
   }
   num_dim = dimfield[1];
   if(num_dim == 1L) {
