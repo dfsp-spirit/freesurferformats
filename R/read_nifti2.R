@@ -247,5 +247,6 @@ nifti.datadim.to.dimfield <- function(datadim) {
   }
   dim_field[1] = ndim;
   dim_field[2:(2+ndim-1L)] = datadim;
+  return(dim_field);
 }
 

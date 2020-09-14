@@ -52,3 +52,20 @@ test_that("Trying to read NIFTI v1 files with NIFTI v2 function leads to errors.
 })
 
 
+test_that("NIFTI header dim field can be converted to dim_raw and back", {
+
+  dim_raw = c(3, 256, 256, 256, 1, 1, 1, 1);
+  datadim  = nifti.datadim.from.dimfield(dim_raw);
+  testthat::expect_equal(datadim, c(256, 256, 256));
+
+  # now test other way around
+  dim_raw_recomputed = nifti.datadim.to.dimfield(datadim);
+  testthat::expect_equal(dim_raw, dim_raw_recomputed);
+
+
+  # error handling
+  testthat::expect_error(nifti.datadim.from.dimfield(c(1, 2, 3, 4, 5)));  # field length 5 invalid, must be 8.
+  testthat::expect_error(nifti.datadim.to.dimfield(c(1, 2, 3, 4, 5, 6, 7, 8)));  # data array dimension length 8 invalid, must be <= 7.
+})
+
+

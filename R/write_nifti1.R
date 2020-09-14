@@ -111,6 +111,8 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
 
 #' @title Write header and data to a file in NIFTI v1 format.
 #'
+#' @param filepath the file to write. The extension should be '.nii' or '.nii.gz'.
+#'
 #' @param niidata array of numeric or integer data, with up to 7 dimensions. Will be written to the file with the datatype and bitpix specified in the 'niiheader' argument.
 #'
 #' @param niiheader an optional NIFTI v1 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni1header.for.data}}.
@@ -131,7 +133,7 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   endian = niiheader$endian;
 
   writeBin(as.integer(niiheader$sizeof_hdr), fh, size = 4L, endian = endian);
-  writeBin(as.integer(rep(0L, 36L)), fh, size = 4L, endian = endian); # Unused header part, for compatibility with old formats like ANALYZE. We fill it with zeroes.
+  writeBin(as.integer(rep(0L, 36L)), fh, size = 1L, endian = endian); # Unused header part, for compatibility with old formats like ANALYZE. We fill it with zeroes.
   writeBin(as.integer(niiheader$dim_raw), fh, size = 2L, endian = endian);
 
   writeBin(as.double(niiheader$intent_p1), fh, size = 4L, endian = endian);
@@ -187,18 +189,17 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(rep(0L, num_to_fill)), fh, size = 1L, endian = endian);
 
   # Write data.
-  # TODO: check storage order in NIFTI, or how we have to flatten the array into the vector for writing.
   if(as.integer(niiheader$datatype) %in% c(2L, 4L, 8L, 512L, 768L)) {  # integer NIFTI data types
     if(! is.integer(niidata)) {
       warning("Found NIFTI integer datatype '%d' in niiheader, but niidata datatype is not integer. Converting data to integer as specified in header.\n", niiheader$datatype);
     }
-    data_written = as.integer(niidata);
+    data_written = as.integer(t(niidata));
     writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   } else { # treat as double
     if(! is.double(niidata)) {
       warning("Found NIFTI floating point datatype '%d' in niiheader, but niidata datatype is not floating point. Converting data to float as specified in header.\n", niiheader$datatype);
     }
-    data_written = as.double(niidata);
+    data_written = as.double(t(niidata));
     writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   }
   close(fh);
