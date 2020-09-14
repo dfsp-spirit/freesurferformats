@@ -7,15 +7,15 @@
 #' @return named list with NIFTI 2 header fields.
 #'
 #' @export
-nifti2.header <- function(filepath) {
-  niiheader = nifti2.header.internal(filepath, little_endian = TRUE);
+read.nifti2.header <- function(filepath) {
+  niiheader = read.nifti2.header.internal(filepath, little_endian = TRUE);
   return(niiheader);
 }
 
 
 #' @title Read NIFTI v2 header from file.
 #'
-#' @inheritParams nifti2.header
+#' @inheritParams read.nifti2.header
 #'
 #' @param little_endian internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.
 #'
@@ -24,7 +24,7 @@ nifti2.header <- function(filepath) {
 #' @note See https://nifti.nimh.nih.gov/pub/dist/data/nifti2/ for test data. Thanks to Anderson Winkler for his post at https://brainder.org/2015/04/03/the-nifti-2-file-format/.
 #'
 #' @keywords internal
-nifti2.header.internal <- function(filepath, little_endian = TRUE) {
+read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
 
   endian = 'little';
   if(! little_endian) {
@@ -44,7 +44,7 @@ nifti2.header.internal <- function(filepath, little_endian = TRUE) {
     if(little_endian == FALSE) { # if called with FALSE, the TRUE option was already checked.
       stop(sprintf("File not in NIFTI 2 format: invalid header size %d, expected 540.\n", niiheader$sizeof_hdr)); # nocov
     } else {
-      return(nifti2.header.internal(filepath, little_endian = FALSE));
+      return(read.nifti2.header.internal(filepath, little_endian = FALSE));
     }
   }
 
@@ -164,18 +164,18 @@ read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
 
 #' @title Read raw data from NIFTI v2 file.
 #'
-#' @inheritParams nifti2.header
+#' @inheritParams read.nifti2.header
 #'
-#' @param header optional nifti v2 header obtained from \code{\link{nifti2.header}}. Will be loaded automatically if left at `NULL`.
+#' @param header optional nifti v2 header obtained from \code{\link{read.nifti2.header}}. Will be loaded automatically if left at `NULL`.
 #'
 #'@param drop_empty_dims logical, whether to drop empty dimensions in the loaded data array.
 #'
 #' @return the data in the NIFTI v2 file. Note that the NIFTI v2 header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file. The information in the header is used to read the data with the proper data type and size.
 #'
 #' @export
-nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
+read.nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
   if(is.null(header)) {
-    header = nifti2.header(filepath);
+    header = read.nifti2.header(filepath);
   }
 
   fh = fileopen.gz.or.not(filepath);
@@ -188,7 +188,7 @@ nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
   discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
   discarded = NULL;
 
-  data_dim = nifti.datadim(header$dim);
+  data_dim = nifti.datadim.from.dimfield(header$dim);
   num_values = prod(data_dim);
 
   read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.
@@ -205,7 +205,7 @@ nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
 
 #' @title Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
 #'
-#' @param dim integer vector of length 8, the `dim` field of a NIFTI v1 or v2 header, as returned by \code{\link{nifti2.header}} or \code{\link{nifti1.header}}.
+#' @param dimfield integer vector of length 8, the `dim` field of a NIFTI v1 or v2 header, as returned by \code{\link{read.nifti2.header}} or \code{\link{read.nifti1.header}}.
 #'
 #' @return integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
 #'
@@ -229,7 +229,7 @@ nifti.datadim.from.dimfield <- function(dimfield) {
 
 #' @title Compute NIFTI dim field for data dimension.
 #'
-#' @param datatim integer vector, the result of calling `dim` on your data. The length must be <= 7.
+#' @param datadim integer vector, the result of calling `dim` on your data. The length must be <= 7.
 #'
 #' @return NIFTI header `dim` field, an integer vector of length 8
 #'

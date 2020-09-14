@@ -7,7 +7,7 @@
 nifti.datadim.to.dimfield(datadim)
 }
 \arguments{
-\item{datatim}{integer vector, the result of calling `dim` on your data. The length must be <= 7.}
+\item{datadim}{integer vector, the result of calling `dim` on your data. The length must be <= 7.}
 }
 \value{
 NIFTI header `dim` field, an integer vector of length 8

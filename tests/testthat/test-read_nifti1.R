@@ -8,7 +8,7 @@ test_that("NIFTI v1 files with FreeSurfer hack can be read.", {
   morph_file_nii = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
 
   morph_data_curv = read.fs.morph(morph_file_curv);
-  morph_data_nii = nifti1.data(morph_file_nii);
+  morph_data_nii = read.nifti1.data(morph_file_nii);
 
   testthat::expect_equal(morph_data_curv, morph_data_nii);
 })
@@ -39,7 +39,7 @@ test_that("NIFTI v1 file headers with FreeSurfer hack can be read.", {
 
   morph_file_nii = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
 
-  nh = nifti1.header(morph_file_nii);
+  nh = read.nifti1.header(morph_file_nii);
   testthat::expect_equal(nh$endian, 'little');
   testthat::expect_equal(nh$glmin, 149244L);
   testthat::expect_equal(nh$vox_offset, 352L);

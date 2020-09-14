@@ -8,7 +8,7 @@ test_that("The header of NIFTI v2 files can be read using nifti2.header.", {
   data_dir = freesurferformats::get_opt_data_filepath("nifti2");
   nii_v2_file = file.path(data_dir, 'avg152T1_LR_nifti2.nii.gz');
 
-  hdr = nifti2.header(nii_v2_file);
+  hdr = read.nifti2.header(nii_v2_file);
 
   testthat::expect_true(is.list(hdr));
   testthat::expect_equal(hdr$description, 'FSL3.2beta');
@@ -29,9 +29,9 @@ test_that("Data from NIFTI v2 files can be read.", {
   data_dir = freesurferformats::get_opt_data_filepath("nifti2");
   nii_v2_file = file.path(data_dir, 'avg152T1_LR_nifti2.nii.gz');
 
-  hdr = nifti2.header(nii_v2_file);
-  niidata = nifti2.data(nii_v2_file);
-  niidata2 = nifti2.data(nii_v2_file, drop_empty_dims = FALSE);
+  hdr = read.nifti2.header(nii_v2_file);
+  niidata = read.nifti2.data(nii_v2_file);
+  niidata2 = read.nifti2.data(nii_v2_file, drop_empty_dims = FALSE);
 
   testthat::expect_equal(dim(niidata), c(91, 109, 91));
 })
@@ -47,8 +47,8 @@ test_that("Trying to read NIFTI v1 files with NIFTI v2 function leads to errors.
   nii_v1_file = file.path(subjects_dir, "subject1", "surf", "lh.thickness.nii.gz");
   not_nii_file = file.path(subjects_dir, "subject1", "surf", "lh.thickness");
 
-  testthat::expect_error(nifti2.header(nii_v2_file));
-  testthat::expect_error(nifti2.header(not_nii_file));
+  testthat::expect_error(read.nifti2.header(nii_v2_file));
+  testthat::expect_error(read.nifti2.header(not_nii_file));
 })
 
 

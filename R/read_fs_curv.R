@@ -74,7 +74,7 @@ read.fs.morph.asc <- function(filepath) {
 
 #' @title Read morphometry data from FreeSurfer NIFTI v1 format files.
 #'
-#' @param filepath path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{nifti1.data}} for details.
+#' @param filepath path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{read.nifti1.data}} for details.
 #'
 #' @return numeric vector, the morphometry data
 #'
@@ -82,7 +82,7 @@ read.fs.morph.asc <- function(filepath) {
 #'
 #' @export
 read.fs.morph.nii <- function(filepath) {
-  return(nifti1.data(filepath));
+  return(read.nifti1.data(filepath));
 }
 
 

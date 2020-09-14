@@ -10,16 +10,16 @@
 #' @note The FreeSurfer hack is a non-standard way to save long vectors (one dimension greater than 32767 entries) in NIFTI v1 files. Files with this hack are produced when converting MGH or MGZ files containing such long vectors with the FreeSurfer 'mri_convert' tool.
 #'
 #' @export
-nifti1.header <- function(filepath) {
-  return(nifti1.header.internal(filepath, little_endian = TRUE));
+read.nifti1.header <- function(filepath) {
+  return(read.nifti1.header.internal(filepath, little_endian = TRUE));
 }
 
 
 #' @title Determine whether a NIFTI file uses the FreeSurfer hack.
 #'
-#' @inheritParams nifti1.header
+#' @inheritParams read.nifti1.header
 #'
-#' @return logical, whether the file header contains the FreeSurfer format hack. See \code{\link{nifti1.header}} for details. This function detects NIFTI v2 files, but as they cannot contain the hack, it will always return `FALSE` for them.
+#' @return logical, whether the file header contains the FreeSurfer format hack. See \code{\link{read.nifti1.header}} for details. This function detects NIFTI v2 files, but as they cannot contain the hack, it will always return `FALSE` for them.
 #'
 #' @note Applying this function to files which are not in NIFTI format will result in an error. See \code{\link{nifti.file.version}} to determine whether a file is a NIFTI file.
 #'
@@ -27,7 +27,7 @@ nifti1.header <- function(filepath) {
 nifti.file.uses.fshack <- function(filepath) {
   nv = nifti.file.version(filepath);
   if(nv == 1L) {
-    nh = nifti1.header(filepath);
+    nh = read.nifti1.header(filepath);
     return(nh$uses_freesurfer_hack);
   } else if(nv == 2L) {
     return(FALSE);
@@ -39,14 +39,14 @@ nifti.file.uses.fshack <- function(filepath) {
 
 #' @title Read NIFTI v1 header from file (which may contain the FreeSurfer hack).
 #'
-#' @inheritParams nifti1.header
+#' @inheritParams read.nifti1.header
 #'
 #' @param little_endian internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.
 #'
 #' @return named list with NIFTI 1 header fields.
 #'
 #' @keywords internal
-nifti1.header.internal <- function(filepath, little_endian = TRUE) {
+read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
 
   endian = ifelse(little_endian, "little", 'big');
   niiheader = list('endian' = endian);
@@ -62,7 +62,7 @@ nifti1.header.internal <- function(filepath, little_endian = TRUE) {
     if(little_endian == FALSE) { # if called with FALSE, the TRUE option was already checked.
       stop(sprintf("File not in NIFTI 1 format: invalid header size %d, expected 348.\n", niiheader$sizeof_hdr)); # nocov
     } else {
-      return(nifti1.header.internal, filepath, little_endian = FALSE);
+      return(read.nifti1.header.internal(filepath, little_endian = FALSE));
     }
   }
 
@@ -175,9 +175,9 @@ fileopen.gz.or.not <- function(filepath) {
 
 #' @title Read raw NIFTI v1 data from file (which may contain the FreeSurfer hack).
 #'
-#' @inheritParams nifti1.header
+#' @inheritParams read.nifti1.header
 #'
-#' @param header optional nifti header obtained from \code{\link{nifti1.header}}. Will be loaded automatically if left at `NULL`.
+#' @param header optional nifti header obtained from \code{\link{read.nifti1.header}}. Will be loaded automatically if left at `NULL`.
 #'
 #' @param drop_empty_dims logical, whether to drop empty dimensions in the loaded data array.
 #'
@@ -186,9 +186,9 @@ fileopen.gz.or.not <- function(filepath) {
 #' @return the data in the NIFTI v1 file. Note that the NIFTI v1 header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file. The information in the header is used to read the data with the proper data type and size.
 #'
 #' @export
-nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
+read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   if(is.null(header)) {
-    header = nifti1.header(filepath);
+    header = read.nifti1.header(filepath);
   }
 
   fh = fileopen.gz.or.not(filepath);
@@ -201,7 +201,7 @@ nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
   discarded = NULL;
 
-  data_dim = nifti.datadim(header$dim);
+  data_dim = nifti.datadim.from.dimfield(header$dim);
   num_values = prod(data_dim);
 
   read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.

@@ -10,7 +10,7 @@ nifti.file.uses.fshack(filepath)
 \item{filepath}{path to a NIFTI v1 file (single file version), which can contain the FreeSurfer hack.}
 }
 \value{
-logical, whether the file header contains the FreeSurfer format hack. See \code{\link{nifti1.header}} for details. This function detects NIFTI v2 files, but as they cannot contain the hack, it will always return `FALSE` for them.
+logical, whether the file header contains the FreeSurfer format hack. See \code{\link{read.nifti1.header}} for details. This function detects NIFTI v2 files, but as they cannot contain the hack, it will always return `FALSE` for them.
 }
 \description{
 Determine whether a NIFTI file uses the FreeSurfer hack.

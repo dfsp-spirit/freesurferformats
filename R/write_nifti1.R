@@ -180,7 +180,6 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
 
   writeChar(niiheader$intent_name, fh, nchars = 16L);
   writeChar(niiheader$magic, fh, nchars = 4L);
-  close(fh);
 
   # add zero padding up to 'vox_offset'.
   position_now = 348L;
@@ -193,13 +192,16 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
     if(! is.integer(niidata)) {
       warning("Found NIFTI integer datatype '%d' in niiheader, but niidata datatype is not integer. Converting data to integer as specified in header.\n", niiheader$datatype);
     }
-    writeBin(as.integer(niidata), fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
+    data_written = as.integer(niidata);
+    writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   } else { # treat as double
     if(! is.double(niidata)) {
       warning("Found NIFTI floating point datatype '%d' in niiheader, but niidata datatype is not floating point. Converting data to float as specified in header.\n", niiheader$datatype);
     }
-    writeBin(as.double(niidata), fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
+    data_written = as.double(niidata);
+    writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   }
   close(fh);
+  return(invisible(list('header'=niiheader, 'data'=data_written)));
 }
 
