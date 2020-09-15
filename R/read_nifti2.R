@@ -111,55 +111,7 @@ read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
 
 
 
-# Copyright notice for the next function 'read.fixed.char.binary', which was taken from the '.readCharWithEmbeddedNuls' function in package 'oro.nifti'.
-# I only changed the coding style.
-#
-## Copyright (c) 2009-2014 Brandon Whitcher and Volker Schmid
-## All rights reserved.
-##
-## Redistribution and use in source and binary forms, with or without
-## modification, are permitted provided that the following conditions are
-## met:
-##
-##     * Redistributions of source code must retain the above copyright
-##       notice, this list of conditions and the following disclaimer.
-##     * Redistributions in binary form must reproduce the above
-##       copyright notice, this list of conditions and the following
-##       disclaimer in the documentation and/or other materials provided
-##       with the distribution.
-##     * The names of the authors may not be used to endorse or promote
-##       products derived from this software without specific prior
-##       written permission.
-##
-## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-## "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-## LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-## A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-## HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-## SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-## LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-## DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-## THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-## (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-## OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-#' @title Read fixed length char, possibly containing embedded zeroes, from binary file.
-#'
-#' @author The original version was written by Brandon Whitcher and Volker Schmid. See the source for the full legal info. The coding style was adapted to freesurferformats and the docs were added by Tim Schäfer.
-#'
-#' @param filehandle connection to read.
-#'
-#' @param n the number of bytes to read.
-#'
-#' @param to the target character encoding.
-#'
-#' @return the string in the target encoding.
-#'
-#' @keywords internal
-read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
-  txt = readBin(filehandle, "raw", n);
-  return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to));
-}
+
 
 
 #' @title Read raw data from NIFTI v2 file.
@@ -202,51 +154,4 @@ read.nifti2.data <- function(filepath, header = NULL, drop_empty_dims = TRUE) {
   return(data);
 }
 
-
-#' @title Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
-#'
-#' @param dimfield integer vector of length 8, the `dim` field of a NIFTI v1 or v2 header, as returned by \code{\link{read.nifti2.header}} or \code{\link{read.nifti1.header}}.
-#'
-#' @return integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
-#'
-#' @examples
-#'    nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1));
-#'
-#' @family NIFTI helper functions
-#'
-#' @export
-nifti.datadim.from.dimfield <- function(dimfield) {
-  if(length(dimfield) != 8L) {
-    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found length %d: '%s'.\n", length(dimfield), paste(dimfield, collapse=" ")));
-  }
-  num_dim = dimfield[1];
-  if(num_dim == 1L) {
-    return(dimfield[2]);
-  }
-  return(dimfield[2:(num_dim + 1L)]);
-}
-
-
-#' @title Compute NIFTI dim field for data dimension.
-#'
-#' @param datadim integer vector, the result of calling `dim` on your data. The length must be <= 7.
-#'
-#' @return NIFTI header `dim` field, an integer vector of length 8
-#'
-#' @examples
-#'    nifti.datadim.to.dimfield(c(256, 256, 256));
-#'
-#' @family NIFTI helper functions
-#'
-#' @export
-nifti.datadim.to.dimfield <- function(datadim) {
-  dim_field = rep(1L, 8L);
-  ndim = length(datadim);
-  if(ndim > 7L) {
-    stop(sprintf("Length of datadim must be <= 7, but is %d. Not supported by NIFTI format, please reshape.\n", ndim));
-  }
-  dim_field[1] = ndim;
-  dim_field[2:(2+ndim-1L)] = datadim;
-  return(dim_field);
-}
 

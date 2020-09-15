@@ -46,13 +46,13 @@ ni1header.template <- function() {
   niiheader$qform_code = 0L;
   niiheader$sform_code = 0L;
 
-  niiheader$quatern_b = rep(0.0, 4L);
-  niiheader$quatern_c = rep(0.0, 4L);
-  niiheader$quatern_d = rep(0.0, 4L);
+  niiheader$quatern_b = 0.0;
+  niiheader$quatern_c = 0.0;
+  niiheader$quatern_d = 0.0;
 
-  niiheader$qoffset_x = rep(0.0, 4L);
-  niiheader$qoffset_y = rep(0.0, 4L);
-  niiheader$qoffset_z = rep(0.0, 4L);
+  niiheader$qoffset_x = 0.0;
+  niiheader$qoffset_y = 0.0;
+  niiheader$qoffset_z = 0.0;
 
   niiheader$srow_x = rep(0.0, 4L);
   niiheader$srow_y = rep(0.0, 4L);
@@ -106,8 +106,11 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
     stop("Data dimensions too large for NIFTI v1 format, consider using NIFTI v2.");
   }
 
+  nifti.header.check(niiheader, nifti_version = 1L);
   return(niiheader);
 }
+
+
 
 
 #' @title Write header and data to a file in NIFTI v1 format.
@@ -123,6 +126,10 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
 
   if(is.null(niiheader)) {
     niiheader = ni1header.for.data(niidata);
+  }
+
+  if(! nifti.header.check(niiheader, nifti_version = 1L)) {
+    stop("Invalid NIFTI header.");
   }
 
   if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
@@ -194,13 +201,13 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
     if(! is.integer(niidata)) {
       warning("Found NIFTI integer datatype '%d' in niiheader, but niidata datatype is not integer. Converting data to integer as specified in header.\n", niiheader$datatype);
     }
-    data_written = as.integer(t(niidata));
+    data_written = as.integer(niidata);
     writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   } else { # treat as double
     if(! is.double(niidata)) {
       warning("Found NIFTI floating point datatype '%d' in niiheader, but niidata datatype is not floating point. Converting data to float as specified in header.\n", niiheader$datatype);
     }
-    data_written = as.double(t(niidata));
+    data_written = as.double(niidata);
     writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian);
   }
   close(fh);

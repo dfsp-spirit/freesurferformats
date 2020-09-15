@@ -99,8 +99,8 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$glmax = readBin(fh, integer(), n = 1, size = 4, endian = endian);
   niiheader$glmin = readBin(fh, integer(), n = 1, size = 4, endian = endian);
 
-  niiheader$description = readBin(fh, character(), n = 1, endian = endian); # 80 bytes
-  niiheader$aux_file = readBin(fh, character(), n = 1, endian = endian); # 24 bytes
+  niiheader$description = read.fixed.char.binary(fh, 80L); # 80 bytes
+  niiheader$aux_file = read.fixed.char.binary(fh, 24L); # 24 bytes
 
   niiheader$qform_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);
   niiheader$sform_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);
@@ -117,8 +117,10 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$srow_y = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
   niiheader$srow_z = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
 
-  niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
-  niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
+  #niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
+  #niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
+  niiheader$intent_name = read.fixed.char.binary(fh, 16L);
+  niiheader$magic = read.fixed.char.binary(fh, 4L);
 
   if(niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field. The original value is still available in dim_raw.
     niiheader$dim_raw = niiheader$dim; # only differ for FreeSurfer hack files.
