@@ -24,6 +24,10 @@ nifti.header.check <- function(niiheader, nifti_version = 1L) {
     is_okay_nifti1_specific_fields = nifti.field.check.length(niiheader, c('glmax', 'glmin'), 1L);
   }
 
+  print(is_okay_l8)
+  print(is_okay_l4)
+  print(is_okay_l1)
+  print(is_okay_nifti1_specific_fields)
   is_okay = (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_nifti1_specific_fields);
   return(is_okay);
 }
@@ -44,7 +48,7 @@ nifti.field.check.length <- function(niiheader, fields, dlength) {
   is_okay = TRUE;
   for(f in fields) {
     if(length(niiheader[[f]]) != dlength) {
-      warning(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])));
+      cat(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])));
       is_okay = FALSE;
     }
   }
