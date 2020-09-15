@@ -57,7 +57,7 @@ read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$intent_p2 = readBin(fh, numeric(), n = 1, size = 8, endian = endian);
   niiheader$intent_p3 = readBin(fh, numeric(), n = 1, size = 8, endian = endian);
 
-  niiheader$pixdim = readBin(fh, numeric(), n = 8, size = 8, endian = endian);
+  niiheader$pix_dim = readBin(fh, numeric(), n = 8, size = 8, endian = endian);
 
   niiheader$vox_offset = readBin(fh, integer(), n = 1, size = 8, endian = endian);
 
@@ -72,9 +72,9 @@ read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$slice_start = readBin(fh, integer(), n = 1, size = 8, endian = endian);
   niiheader$slice_end = readBin(fh, integer(), n = 1, size = 8, endian = endian);
 
-  #niiheader$description = readBin(fh, character(), n = 1, endian = endian); # 80 bytes
+  #niiheader$descrip = readBin(fh, character(), n = 1, endian = endian); # 80 bytes
   #niiheader$aux_file = readBin(fh, character(), n = 1, endian = endian); # 24 bytes
-  niiheader$description = read.fixed.char.binary(fh, 80L);
+  niiheader$descrip = read.fixed.char.binary(fh, 80L);
   niiheader$aux_file = read.fixed.char.binary(fh, 24L);
 
   niiheader$qform_code = readBin(fh, integer(), n = 1, size = 4, endian = endian);

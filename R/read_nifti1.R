@@ -100,7 +100,7 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$glmax = readBin(fh, integer(), n = 1, size = 4, endian = endian);
   niiheader$glmin = readBin(fh, integer(), n = 1, size = 4, endian = endian);
 
-  niiheader$description = read.fixed.char.binary(fh, 80L); # 80 bytes
+  niiheader$descrip = read.fixed.char.binary(fh, 80L); # 80 bytes
   niiheader$aux_file = read.fixed.char.binary(fh, 24L); # 24 bytes
 
   niiheader$qform_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);

@@ -13,5 +13,8 @@ named list, the NIFTI v1 header. All fields are present and filled with values o
 Create a template NIFTI v1 header. You will have to adapt it for your use case.
 }
 \note{
-Commonly used data type settings are: for signed integers datatype = `8L` and bitpix = `32L`; for floats datatype = `16L` and bitpix = `32L`. See the NIFTI v1 standard for more options.
+Commonly used data type settings are: for signed integers datatype = `8L` and bitpix = `32L`; for floats datatype = `16L` and bitpix = `32L`. See the NIFTI v1 standard for more options.  You may want to call \code{\link{ni1header.for.data}} instead of this function.
+}
+\seealso{
+\code{\link{ni1header.for.data}}
 }

@@ -11,7 +11,7 @@ test_that("The header of NIFTI v2 files can be read using nifti2.header.", {
   hdr = read.nifti2.header(nii_v2_file);
 
   testthat::expect_true(is.list(hdr));
-  testthat::expect_equal(hdr$description, 'FSL3.2beta');
+  testthat::expect_equal(hdr$descrip, 'FSL3.2beta');
   testthat::expect_equal(hdr$cal_max, 255); # max color display value (display range definition)
   testthat::expect_equal(hdr$cal_min, 0);   # min color display value
   testthat::expect_equal(hdr$vox_offset, 544L);   # start of data (offset in bytes)
