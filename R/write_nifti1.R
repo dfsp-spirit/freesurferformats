@@ -170,8 +170,8 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$glmax), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$glmin), fh, size = 4L, endian = endian);
 
-  writeChar(pad.string(niiheader$description, 80L), fh, nchars = 80L);
-  writeChar(pad.string(niiheader$aux_file, 24L), fh, nchars = 24L);
+  writeChar(pad.string(niiheader$description, 80L), fh, nchars = 80L, eos = NULL);
+  writeChar(pad.string(niiheader$aux_file, 24L), fh, nchars = 24L, eos = NULL);
 
   writeBin(as.integer(niiheader$qform_code), fh, size = 2L, endian = endian);
   writeBin(as.integer(niiheader$sform_code), fh, size = 2L, endian = endian);
@@ -188,8 +188,8 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.double(niiheader$srow_y), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$srow_z), fh, size = 4L, endian = endian);
 
-  writeChar(pad.string(niiheader$intent_name, 16L), fh, nchars = 16L);
-  writeChar(pad.string(niiheader$magic, 4L), fh, nchars = 4L);
+  writeChar(pad.string(niiheader$intent_name, 16L), fh, nchars = 16L, eos = NULL);
+  writeChar(pad.string(niiheader$magic, 4L), fh, nchars = 4L, eos = NULL);
 
   # add zero padding up to 'vox_offset'.
   position_now = 348L;

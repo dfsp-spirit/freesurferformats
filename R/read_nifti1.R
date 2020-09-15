@@ -88,6 +88,7 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$scl_inter = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
 
   niiheader$slice_end = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+
   niiheader$slice_code = readBin(fh, integer(), n = 1, size = 1, endian = endian);
   niiheader$xyzt_units = readBin(fh, integer(), n = 1, size = 1, endian = endian);
 

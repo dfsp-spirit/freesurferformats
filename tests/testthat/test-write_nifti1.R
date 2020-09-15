@@ -45,6 +45,6 @@ test_that("NIFTI v1 files can be written based on double data using write.nifti1
   header_reread = read.nifti1.header(double_nifti_file);
   data_reread = read.nifti1.data(double_nifti_file);
   testthat::expect_equal(dim(data_reread), c(50, 2));
-  testthat::expect_equal(double_data, data_reread);
+  testthat::expect_equal(double_data, data_reread, tolerance = 1e-5);
 })
 
