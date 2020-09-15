@@ -17,17 +17,13 @@ nifti.header.check <- function(niiheader, nifti_version = 1L) {
 
   is_okay_l8 = nifti.field.check.length(niiheader, c('dim', 'pix_dim'), 8L);
   is_okay_l4 = nifti.field.check.length(niiheader, c('srow_x', 'srow_y', 'srow_z'), 4L);
-  is_okay_l1 = nifti.field.check.length(niiheader, c('qform_code', 'sform_code', 'quatern_b', 'quatern_c', 'quatern_d', 'qoffset_x', 'qoffset_y', 'qoffset_z', 'sizeof_hdr', 'intent_p1', 'intent_p2', 'intent_p3', 'cal_max', 'cal_min'), 1L);
+  is_okay_l1 = nifti.field.check.length(niiheader, c('qform_code', 'sform_code', 'quatern_b', 'quatern_c', 'quatern_d', 'qoffset_x', 'qoffset_y', 'qoffset_z', 'sizeof_hdr', 'intent_p1', 'intent_p2', 'intent_p3', 'cal_max', 'cal_min', 'xyzt_units', 'slice_start', 'slice_end', 'slice_duration', 'toffset', 'slice_code', 'scl_slope', 'scl_inter', 'datatype', 'bitpix', 'intent_code', 'vox_offset'), 1L);
 
   is_okay_nifti1_specific_fields = TRUE;
   if(nifti_version == 1L) {
     is_okay_nifti1_specific_fields = nifti.field.check.length(niiheader, c('glmax', 'glmin'), 1L);
   }
 
-  print(is_okay_l8)
-  print(is_okay_l4)
-  print(is_okay_l1)
-  print(is_okay_nifti1_specific_fields)
   is_okay = (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_nifti1_specific_fields);
   return(is_okay);
 }
@@ -48,7 +44,7 @@ nifti.field.check.length <- function(niiheader, fields, dlength) {
   is_okay = TRUE;
   for(f in fields) {
     if(length(niiheader[[f]]) != dlength) {
-      cat(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])));
+      message(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])));
       is_okay = FALSE;
     }
   }
