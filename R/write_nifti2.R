@@ -124,7 +124,10 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   endian = niiheader$endian;
 
   writeBin(as.integer(niiheader$sizeof_hdr), fh, size = 4L, endian = endian);
-  writeChar(pad.string(niiheader$magic, 8L), fh, nchars = 8L, eos = NULL);
+
+  writeChar(niiheader$magic, fh, nchars = nchar(niiheader$magic), eos = NULL);
+  writeBin(as.raw(rep(0L, (8L - nchar(niiheader$magic)))), fh, endian = endian); # fill remaining space up to max 8 bytes with zeroes.
+
   writeBin(as.integer(niiheader$datatype), fh, size = 2L, endian = endian);
 
   writeBin(as.integer(niiheader$bitpix), fh, size = 2L, endian = endian);
@@ -149,8 +152,11 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$slice_start), fh, size = 8L, endian = endian);
   writeBin(as.integer(niiheader$slice_end), fh, size = 8L, endian = endian);
 
-  writeChar(pad.string(niiheader$descrip, 80L), fh, nchars = 80L, eos = NULL);
-  writeChar(pad.string(niiheader$aux_file, 24L), fh, nchars = 24L, eos = NULL);
+  writeChar(niiheader$descrip, fh, nchars = nchar(niiheader$descrip), eos = NULL);
+  writeBin(as.raw(rep(0L, (80L - nchar(niiheader$descrip)))), fh, endian = endian); # fill remaining space up to max 80 bytes with zeroes.
+
+  writeChar(niiheader$aux_file, fh, nchars = nchar(niiheader$aux_file), eos = NULL);
+  writeBin(as.raw(rep(0L, (24L - nchar(niiheader$aux_file)))), fh, endian = endian); # fill remaining space up to max 24 bytes with zeroes.
 
   writeBin(as.integer(niiheader$qform_code), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$sform_code), fh, size = 4L, endian = endian);
@@ -171,11 +177,13 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$xyzt_units), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$intent_code), fh, size = 4L, endian = endian);
 
-  writeChar(pad.string(niiheader$intent_name, 16L), fh, nchars = 16L, eos = NULL);
+  writeChar(niiheader$intent_name, fh, nchars = nchar(niiheader$intent_name), eos = NULL);
+  writeBin(as.raw(rep(0L, (16L - nchar(niiheader$intent_name)))), fh, endian = endian); # fill remaining space up to max 16 bytes with zeroes.
+
   writeBin(as.integer(niiheader$dim_info), fh, size = 1L, endian = endian);
 
   # add unused_str of length 15. Reserved for header extensions.
-  writeChar(pad.string("", 15L), fh, nchars = 15L, eos = NULL);
+  writeBin(as.raw(rep(0L, 15L)), fh, endian = endian); # fill with zeroes
 
   # add zero padding up to 'vox_offset'.
   position_now = 540L;
@@ -210,5 +218,20 @@ pad.string <- function(input_string, req_length, fill_with = " ") {
   } else {
     return(input_string);
   }
+}
+
+
+#' @title Write given dstring to binary file, fill with zeroes to reach a total length of 'nchars'.
+#' @keywords internal
+write.char.zero.fill <- function(dstring, filehandle, nchars) {
+  cat(sprintf("Writing string '%s'...\n", dstring));
+  tryCatch({
+    writeChar(as.character(dstring), filehandle, nchars = nchars, eos = NULL);
+  }, warning = function(w) {
+    cat(sprintf(w));
+  }, error = function(e) {
+    stop(sprintf("Could not write string '%s' of length %d to file handle: '%s'.\n", dstring, nchars, e));
+  });
+  return(invisible(NULL));
 }
 
