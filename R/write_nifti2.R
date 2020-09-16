@@ -216,30 +216,3 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   return(invisible(list('header'=niiheader, 'data'=data_written)));
 }
 
-
-#' @keywords internal
-pad.string <- function(input_string, req_length, fill_with = " ") {
-  num_missing = req_length - nchar(input_string);
-  if(num_missing > 0L) {
-    padding = paste(replicate(num_missing, fill_with), collapse = "");
-    return(paste(c(input_string, padding), collapse = ""));
-  } else {
-    return(input_string);
-  }
-}
-
-
-#' @title Write given dstring to binary file, fill with zeroes to reach a total length of 'nchars'.
-#' @keywords internal
-write.char.zero.fill <- function(dstring, filehandle, nchars) {
-  cat(sprintf("Writing string '%s'...\n", dstring));
-  tryCatch({
-    writeChar(as.character(dstring), filehandle, nchars = nchars, eos = NULL);
-  }, warning = function(w) {
-    cat(sprintf(w));
-  }, error = function(e) {
-    stop(sprintf("Could not write string '%s' of length %d to file handle: '%s'.\n", dstring, nchars, e));
-  });
-  return(invisible(NULL));
-}
-

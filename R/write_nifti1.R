@@ -172,8 +172,15 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$glmax), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$glmin), fh, size = 4L, endian = endian);
 
-  writeChar(pad.string(niiheader$descrip, 80L), fh, nchars = 80L, eos = NULL);
-  writeChar(pad.string(niiheader$aux_file, 24L), fh, nchars = 24L, eos = NULL);
+  if(nchar(niiheader$descrip) > 0L) {
+    writeChar(niiheader$descrip, fh, eos = NULL);
+  }
+  writeBin(as.raw(rep(0L, (80L - nchar(niiheader$descrip)))), fh, endian = endian); # fill remaining space up to max 80 bytes with zeroes.
+
+  if(nchar(niiheader$aux_file) > 0L) {
+    writeChar(niiheader$aux_file, fh, eos = NULL);
+  }
+  writeBin(as.raw(rep(0L, (24L - nchar(niiheader$aux_file)))), fh, endian = endian); # fill remaining space up to max 24 bytes with zeroes.
 
   writeBin(as.integer(niiheader$qform_code), fh, size = 2L, endian = endian);
   writeBin(as.integer(niiheader$sform_code), fh, size = 2L, endian = endian);
@@ -190,13 +197,20 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.double(niiheader$srow_y), fh, size = 4L, endian = endian);
   writeBin(as.double(niiheader$srow_z), fh, size = 4L, endian = endian);
 
-  writeChar(pad.string(niiheader$intent_name, 16L), fh, nchars = 16L, eos = NULL);
-  writeChar(pad.string(niiheader$magic, 4L), fh, nchars = 4L, eos = NULL);
+  if(nchar(niiheader$intent_name) > 0L) {
+    writeChar(niiheader$intent_name, fh, eos = NULL);
+  }
+  writeBin(as.raw(rep(0L, (16L - nchar(niiheader$intent_name)))), fh, endian = endian); # fill remaining space up to max 16 bytes with zeroes.
+
+  if(nchar(niiheader$magic) > 0L) {
+    writeChar(niiheader$magic, fh, eos = NULL);
+  }
+  writeBin(as.raw(rep(0L, (4L - nchar(niiheader$magic)))), fh, endian = endian); # fill remaining space up to max 4 bytes with zeroes.
 
   # add zero padding up to 'vox_offset'.
   position_now = 348L;
   num_to_fill = as.integer(niiheader$vox_offset) - position_now;
-  writeBin(as.integer(rep(0L, num_to_fill)), fh, size = 1L, endian = endian);
+  writeBin(as.raw(rep(0L, num_to_fill)), fh, endian = endian); # fill remaining space with zeroes.
 
   if(! is.null(niidata)) {
     # Write data.
@@ -219,14 +233,4 @@ write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
 }
 
 
-#' @keywords internal
-pad.string <- function(input_string, req_length, fill_with = " ") {
-  num_missing = req_length - nchar(input_string);
-  if(num_missing > 0L) {
-    padding = paste(replicate(num_missing, fill_with), collapse = "");
-    return(paste(c(input_string, padding), collapse = ""));
-  } else {
-    return(input_string);
-  }
-}
 
