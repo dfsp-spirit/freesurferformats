@@ -125,7 +125,9 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
 
   writeBin(as.integer(niiheader$sizeof_hdr), fh, size = 4L, endian = endian);
 
-  writeChar(niiheader$magic, fh, nchars = nchar(niiheader$magic), eos = NULL);
+  if(nchar(niiheader$magic) > 0L) {
+    writeChar(niiheader$magic, fh, nchars = nchar(niiheader$magic), eos = NULL);
+  }
   writeBin(as.raw(rep(0L, (8L - nchar(niiheader$magic)))), fh, endian = endian); # fill remaining space up to max 8 bytes with zeroes.
 
   writeBin(as.integer(niiheader$datatype), fh, size = 2L, endian = endian);
@@ -152,10 +154,14 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$slice_start), fh, size = 8L, endian = endian);
   writeBin(as.integer(niiheader$slice_end), fh, size = 8L, endian = endian);
 
-  writeChar(niiheader$descrip, fh, nchars = nchar(niiheader$descrip), eos = NULL);
+  if(nchar(niiheader$descrip) > 0L) {
+    writeChar(niiheader$descrip, fh, nchars = nchar(niiheader$descrip), eos = NULL);
+  }
   writeBin(as.raw(rep(0L, (80L - nchar(niiheader$descrip)))), fh, endian = endian); # fill remaining space up to max 80 bytes with zeroes.
 
-  writeChar(niiheader$aux_file, fh, nchars = nchar(niiheader$aux_file), eos = NULL);
+  if(nchar(niiheader$aux_file) > 0L) {
+    writeChar(niiheader$aux_file, fh, nchars = nchar(niiheader$aux_file), eos = NULL);
+  }
   writeBin(as.raw(rep(0L, (24L - nchar(niiheader$aux_file)))), fh, endian = endian); # fill remaining space up to max 24 bytes with zeroes.
 
   writeBin(as.integer(niiheader$qform_code), fh, size = 4L, endian = endian);
@@ -177,7 +183,9 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$xyzt_units), fh, size = 4L, endian = endian);
   writeBin(as.integer(niiheader$intent_code), fh, size = 4L, endian = endian);
 
-  writeChar(niiheader$intent_name, fh, nchars = nchar(niiheader$intent_name), eos = NULL);
+  if(nchar(niiheader$intent_name) > 0L) {
+    writeChar(niiheader$intent_name, fh, nchars = nchar(niiheader$intent_name), eos = NULL);
+  }
   writeBin(as.raw(rep(0L, (16L - nchar(niiheader$intent_name)))), fh, endian = endian); # fill remaining space up to max 16 bytes with zeroes.
 
   writeBin(as.integer(niiheader$dim_info), fh, size = 1L, endian = endian);
