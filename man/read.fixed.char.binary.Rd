@@ -14,7 +14,7 @@ read.fixed.char.binary(filehandle, n, to = "UTF-8")
 \item{to}{the target character encoding.}
 }
 \value{
-the string in the target encoding.
+the string in the target encoding, with the embedded zeroes removed.
 }
 \description{
 Read fixed length char, possibly containing embedded zeroes, from binary file.
