@@ -19,12 +19,23 @@ nifti.header.check <- function(niiheader, nifti_version = 1L) {
   is_okay_l4 = nifti.field.check.length(niiheader, c('srow_x', 'srow_y', 'srow_z'), 4L);
   is_okay_l1 = nifti.field.check.length(niiheader, c('qform_code', 'sform_code', 'quatern_b', 'quatern_c', 'quatern_d', 'qoffset_x', 'qoffset_y', 'qoffset_z', 'sizeof_hdr', 'intent_p1', 'intent_p2', 'intent_p3', 'cal_max', 'cal_min', 'xyzt_units', 'slice_start', 'slice_end', 'slice_duration', 'toffset', 'slice_code', 'scl_slope', 'scl_inter', 'datatype', 'bitpix', 'intent_code', 'vox_offset'), 1L);
 
+  is_okay_char_descrip = nifti.field.check.nchar.max(niiheader, c('descrip'), 80L);
+  is_okay_char_aux_file = nifti.field.check.nchar.max(niiheader, c('aux_file'), 24L);
+  is_okay_char_intent_name = nifti.field.check.nchar.max(niiheader, c('intent_name'), 16L);
+
+
   is_okay_nifti1_specific_fields = TRUE;
+  is_okay_nifti2_specific_fields = TRUE;
   if(nifti_version == 1L) {
-    is_okay_nifti1_specific_fields = nifti.field.check.length(niiheader, c('glmax', 'glmin'), 1L);
+    is_okay_nifti1_l1 = nifti.field.check.length(niiheader, c('glmax', 'glmin'), 1L);
+    is_okay_nifti1_char_magic = nifti.field.check.nchar.max(niiheader, c('magic'), 4L);
+    is_okay_nifti1_specific_fields = (is_okay_nifti1_l1 & is_okay_nifti1_char_magic);
+  } else {
+    is_okay_nifti2_char_magic = nifti.field.check.nchar.max(niiheader, c('magic'), 8L);
+    is_okay_nifti2_specific_fields = is_okay_nifti2_char_magic;
   }
 
-  is_okay = (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_nifti1_specific_fields);
+  is_okay = (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_char_descrip & is_okay_char_aux_file & is_okay_char_intent_name & is_okay_nifti1_specific_fields & is_okay_nifti2_specific_fields);
   return(is_okay);
 }
 
@@ -50,6 +61,37 @@ nifti.field.check.length <- function(niiheader, fields, dlength) {
   }
   return(is_okay);
 }
+
+
+#' @title Check whether character string fields have less than or equal to expected length.
+#'
+#' @param niiheader named list, representing a NIFTI v1 or v2 header
+#'
+#' @param fields vector of character string, the field names to check
+#'
+#' @param dlength integer, the max length of all fields
+#'
+#' @return logical, whether the checks were okay
+#'
+#' @keywords internal
+nifti.field.check.nchar.max <- function(niiheader, fields, dlength) {
+  is_okay = TRUE;
+  for(f in fields) {
+    if(is.character(niiheader[[f]])) {
+      if(nchar(niiheader[[f]]) > dlength) {
+        message(sprintf("Invalid '%s' field length: expected <= %d chars, found %d.\n", f, dlength, nchar(niiheader[[f]])));
+        is_okay = FALSE;
+      }
+    } else {
+      message(sprintf("Invalid '%s' field type: expected type 'character'.\n", f));
+      is_okay = FALSE;
+    }
+  }
+  return(is_okay);
+}
+
+
+
 
 #' @title Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
 #'
@@ -141,7 +183,7 @@ nifti.datadim.to.dimfield <- function(datadim) {
 #'
 #' @param to the target character encoding.
 #'
-#' @return the string in the target encoding.
+#' @return the string in the target encoding, with the embedded zeroes removed.
 #'
 #' @keywords internal
 read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
