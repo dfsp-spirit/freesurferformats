@@ -36,9 +36,9 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer spatial transformation matrices can be read from LTA, register.dat, and xfm files.
 
-* NIFTI v1: FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files can be read with our own NIFTI v1 reader. FreeSurfer NIFTI v1 files that use the (non-standard) FreeSurfer NIFTI hack are also supported. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard. This affects virtually all surface-based data files because the brain surface meshes in FreeSurfer typically have more than 100k vertices.
+* NIFTI v1: FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files can be read and written with our own NIFTI v1 support. FreeSurfer NIFTI v1 files that use the (non-standard) FreeSurfer NIFTI hack are also supported. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard. This affects virtually all surface-based data files because the brain surface meshes in FreeSurfer typically have more than 100k vertices.
 
-* NIFTI v2: This package comes with its own NIFTI v2 reader. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-like file formats.
+* NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
 
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
@@ -64,6 +64,8 @@ install.packages("freesurferformats")
 In case something goes wrong, don't worry. Just install the missing [system dependencies](#system-dependencies) and retry.
 
 ### System dependencies
+
+*Note:* You can ignore this section unless you want to build the freesurferformats package from the source code.
 
 A *system dependency* is a **non-R** software that is needed for the installation of a package. System dependencies cannot be installed automatically using the R package system, so you need to install them manually or using the package manager of your operating system.
 
