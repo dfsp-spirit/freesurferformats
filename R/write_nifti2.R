@@ -84,7 +84,11 @@ ni2header.for.data <- function(niidata) {
     stop('Only integer or double data is supported by this function.');
   }
 
-  dd = dim(niidata);
+  if(is.vector(niidata)) {
+    dd = length(niidata);
+  } else {
+    dd = dim(niidata);
+  }
   niiheader$dim = nifti.datadim.to.dimfield(dd);
   niiheader$cal_min = min(niidata);
   niiheader$cal_max = max(niidata);
@@ -103,6 +107,8 @@ ni2header.for.data <- function(niidata) {
 #' @param niidata array of numeric or integer data, with up to 7 dimensions. Will be written to the file with the datatype and bitpix specified in the 'niiheader' argument.
 #'
 #' @param niiheader an optional NIFTI v2 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni2header.for.data}}.
+#'
+#' @family nifti2 writers
 #'
 #' @export
 write.nifti2 <- function(filepath, niidata, niiheader = NULL) {

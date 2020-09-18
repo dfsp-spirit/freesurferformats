@@ -34,6 +34,8 @@ Other morphometry functions:
 \code{\link{write.fs.mgh}()},
 \code{\link{write.fs.morph.asc}()},
 \code{\link{write.fs.morph.gii}()},
+\code{\link{write.fs.morph.ni1}()},
+\code{\link{write.fs.morph.ni2}()},
 \code{\link{write.fs.morph.txt}()},
 \code{\link{write.fs.morph}()},
 \code{\link{write.fs.weight.asc}()},

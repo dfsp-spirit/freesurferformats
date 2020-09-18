@@ -2,19 +2,16 @@
 % Please edit documentation in R/read_fs_curv.R
 \name{read.fs.morph.nii}
 \alias{read.fs.morph.nii}
-\title{Read morphometry data from FreeSurfer NIFTI v1 format files.}
+\title{Read morphometry data from FreeSurfer NIFTI format files, determine NIFTI version automatically.}
 \usage{
 read.fs.morph.nii(filepath)
 }
 \arguments{
-\item{filepath}{path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{read.nifti1.data}} for details.}
+\item{filepath}{path to a file in FreeSurfer NIFTI v1 or v2 format, potentially with the FreeSurfer hack for v1. See \code{\link{read.nifti1.data}} and \code{\link{read.nifti2.data}} for details.}
 }
 \value{
 numeric vector, the morphometry data
 }
 \description{
-Read morphometry data from FreeSurfer NIFTI v1 format files.
-}
-\note{
-This function uses our internal NIFTI reader that supports NIFTI v1 files with the FreeSurfer hack. This function assumes that the data in a file is a 1D vector and flattens it accordingly. It is not suitable to load NIFTI files with arbitrary dimensions.
+Read morphometry data from FreeSurfer NIFTI format files, determine NIFTI version automatically.
 }

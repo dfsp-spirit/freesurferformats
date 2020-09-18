@@ -48,3 +48,32 @@ test_that("NIFTI v1 files can be written based on double data using write.nifti1
   testthat::expect_equal(double_data, data_reread, tolerance = 1e-5);
 })
 
+
+test_that("NIFTI v1 fileswith FreeSurfer hack can be written based on double data using write.nifti1", {
+
+  double_data = array(data=rnorm(50000L, 50.0, 4.0), dim = c(50000, 1, 1));
+  double_nifti_file = tempfile(fileext = ".nii");
+
+  testthat::expect_error(write.nifti1(double_nifti_file, double_data, allow_fshack = FALSE)); # 50k is too large without fs_hack
+
+  nifti_written = write.nifti1(double_nifti_file, double_data, allow_fshack = TRUE);
+  testthat::expect_equal(nifti_written$header$bitpix, 32L);
+  testthat::expect_equal(nifti_written$header$datatype, 16L);
+
+  header_reread = read.nifti1.header(double_nifti_file);
+  testthat::expect_true(header_reread$uses_freesurfer_hack);
+  testthat::expect_equal(header_reread$dim, c(3, 50000, 1, 1, 1, 1, 1, 1));
+  testthat::expect_equal(header_reread$dim_raw, c(3, -1, 1, 1, 1, 1, 1, 1));
+
+  # read with dropping empty dims
+  data_reread = read.nifti1.data(double_nifti_file);
+  testthat::expect_equal(length(data_reread), 50000L);
+  testthat::expect_equal(as.double(double_data), data_reread, tolerance = 1e-5);
+
+  # read without dropping empty dims
+  data_reread2 = read.nifti1.data(double_nifti_file, drop_empty_dims = FALSE);
+  testthat::expect_equal(dim(data_reread2), c(50000, 1, 1));
+  testthat::expect_equal(double_data, data_reread2, tolerance = 1e-5);
+})
+
+

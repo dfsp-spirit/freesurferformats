@@ -22,8 +22,8 @@
 read.fs.curv <- function(filepath, format='auto') {
     MAGIC_FILE_TYPE_NUMBER = 16777215L;
 
-    if(!(format %in% c('auto', 'bin', 'asc', 'txt', 'nii'))) {
-      stop("Format must be one of c('auto', 'bin', 'asc', 'txt', 'nii').");
+    if(!(format %in% c('auto', 'bin', 'asc', 'txt'))) {
+      stop("Format must be one of c('auto', 'bin', 'asc', 'txt').");
     }
 
     if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -32,10 +32,6 @@ read.fs.curv <- function(filepath, format='auto') {
 
     if(format == 'txt' | (format == 'auto' & filepath.ends.with(filepath, c('.txt')))) {
       return(read.fs.morph.txt(filepath));
-    }
-
-    if(format == 'nii' | (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
-      return(read.fs.morph.nii(filepath));
     }
 
     if(guess.filename.is.gzipped(filepath)) {
@@ -72,6 +68,25 @@ read.fs.morph.asc <- function(filepath) {
 }
 
 
+#' @title Read morphometry data from FreeSurfer NIFTI format files, determine NIFTI version automatically.
+#'
+#' @param filepath path to a file in FreeSurfer NIFTI v1 or v2 format, potentially with the FreeSurfer hack for v1. See \code{\link{read.nifti1.data}} and \code{\link{read.nifti2.data}} for details.
+#'
+#' @return numeric vector, the morphometry data
+#'
+#' @export
+read.fs.morph.nii <- function(filepath) {
+  nfv = nifti.file.version(filepath);
+  if(nfv == 1L) {
+    return(read.fs.morph.ni1(filepath));
+  } else if(nfv == 2L) {
+    return(read.fs.morph.ni2(filepath));
+  } else {
+    stop("File not in NIFTI v1 or v2 format.");
+  }
+}
+
+
 #' @title Read morphometry data from FreeSurfer NIFTI v1 format files.
 #'
 #' @param filepath path to a file in FreeSurfer NIFTI v1 format, potentially with the FreeSurfer hack. See \code{\link{read.nifti1.data}} for details.
@@ -81,8 +96,20 @@ read.fs.morph.asc <- function(filepath) {
 #' @note This function uses our internal NIFTI reader that supports NIFTI v1 files with the FreeSurfer hack. This function assumes that the data in a file is a 1D vector and flattens it accordingly. It is not suitable to load NIFTI files with arbitrary dimensions.
 #'
 #' @export
-read.fs.morph.nii <- function(filepath) {
-  return(read.nifti1.data(filepath));
+read.fs.morph.ni1 <- function(filepath) {
+  return(as.double(read.nifti1.data(filepath)));
+}
+
+
+#' @title Read morphometry data from FreeSurfer NIFTI v2 format files.
+#'
+#' @param filepath path to a file in FreeSurfer NIFTI v2 format, potentially with the FreeSurfer hack. See \code{\link{read.nifti2.data}} for details.
+#'
+#' @return numeric vector, the morphometry data
+#'
+#' @export
+read.fs.morph.ni2 <- function(filepath) {
+  return(as.double(read.nifti2.data(filepath)));
 }
 
 
@@ -146,8 +173,8 @@ fread3 <- function(filehandle) {
 #'
 #' @export
 read.fs.morph <- function(filepath, format='auto') {
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp")) {
-        stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', or 'gii'.");
+    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", 'nii', 'ni1', 'ni2')) {
+        stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii, 'nii', 'ni1', 'ni2''.");
     }
 
     if(format == 'auto') {
@@ -159,7 +186,13 @@ read.fs.morph <- function(filepath, format='auto') {
     } else if(format == "gii") {
         data = read.fs.morph.gii(filepath);
     } else if(format == "smp") {
-      data = read.fs.morph.bvsmp(filepath);
+        data = read.fs.morph.bvsmp(filepath);
+    } else if (format == 'nii' | (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
+        data = read.fs.morph.nii(filepath);
+    } else if(format == 'ni1') {
+        data = read.fs.morph.ni1(filepath);
+    } else if(format == 'ni2') {
+        data = read.fs.morph.ni2(filepath);
     } else {
         data = read.fs.curv(filepath);
     }

@@ -103,7 +103,7 @@ test_that("Trying to write invalid data with write.fs.curv or write.fs.morph lea
   filepath = tempfile(fileext = ".asc");
   data = rep(0.9, 100L);
   expect_error(write.fs.morph.asc(filepath, data, coords = matrix(seq(300), ncol = 4))); # wrong number of columns in coords
-  expect_error(write.fs.morph.asc(filepath, data, format = 'invalid')); # invalid format
+  expect_error(write.fs.morph(filepath, data, format = 'invalid')); # invalid format
   expect_error(write.fs.morph(filepath, data, format = 'invalid')); # invalid format
 })
 
@@ -125,4 +125,26 @@ test_that("Warning sare shown when writing integer data.", {
   expect_warning(write.fs.morph.txt(filepath, integer_data)); # should be double, will be coerced to double
   expect_warning(write.fs.curv(filepath, integer_data)); # should be double, will be coerced to double
 })
+
+
+test_that("Morph data without FreeSurfer hack can be written in NIFTI v1 format using write.fs.morph.", {
+  filepath = tempfile(fileext = ".nii");
+  ndata = rep(0.9, 100L);
+  write.fs.morph(filepath, ndata, format = 'ni1');
+  write.fs.morph(filepath, ndata);
+  write.fs.morph.ni1(filepath, ndata);
+  testthat::expect_equal(ndata, read.fs.morph(filepath), tolerance = 1e-2);
+  testthat::expect_equal(ndata, read.fs.morph(filepath, format = 'nii'), tolerance = 1e-2);
+})
+
+
+test_that("Morph data can be written in NIFTI v2 format using write.fs.morph.", {
+  filepath = tempfile(fileext = ".nii");
+  ndata = rep(0.9, 100L);
+  write.fs.morph(filepath, ndata, format = 'ni2');
+  write.fs.morph.ni2(filepath, ndata);
+  testthat::expect_equal(ndata, read.fs.morph(filepath, format = 'ni2'), tolerance = 1e-2);
+  testthat::expect_equal(ndata, read.fs.morph(filepath, format = 'nii'), tolerance = 1e-2);
+})
+
 

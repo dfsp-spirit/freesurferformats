@@ -7,7 +7,7 @@
 fwrite3(filehandle, data)
 }
 \arguments{
-\item{filehandle:}{file handle}
+\item{filehandle:}{file handle (connection)}
 
 \item{data:}{number to write}
 }

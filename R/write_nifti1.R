@@ -87,7 +87,11 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
     stop('Only integer or double data is supported by this function.');
   }
 
-  dd = dim(niidata);
+  if(is.vector(niidata)) {
+    dd = length(niidata);
+  } else {
+    dd = dim(niidata);
+  }
   niiheader$dim = nifti.datadim.to.dimfield(dd);
   niiheader$cal_min = min(niidata);
   niiheader$cal_max = max(niidata);
@@ -123,11 +127,15 @@ ni1header.for.data <- function(niidata, allow_fshack = FALSE) {
 #'
 #' @param niiheader an optional NIFTI v1 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni1header.for.data}}.
 #'
+#' @param ... additional parameters passed to \code{\link{ni1header.for.data}}. Only used if 'niiheader' is `NULL`.
+#'
+#' @family nifti1 writers
+#'
 #' @export
-write.nifti1 <- function(filepath, niidata, niiheader = NULL) {
+write.nifti1 <- function(filepath, niidata, niiheader = NULL, ...) {
 
   if(is.null(niiheader)) {
-    niiheader = ni1header.for.data(niidata);
+    niiheader = ni1header.for.data(niidata, ...);
   }
 
   if(! nifti.header.check(niiheader, nifti_version = 1L)) {

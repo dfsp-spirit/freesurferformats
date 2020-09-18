@@ -91,7 +91,7 @@ write.fs.morph.txt <- function(filepath, data) {
 #'
 #' @description Write a 3-byte integer to a binary file handle.
 #'
-#' @param filehandle: file handle
+#' @param filehandle: file handle (connection)
 #'
 #' @param data: number to write
 #'
@@ -111,36 +111,86 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @description Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 #'
-#' @param filepath, string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, everything else will be treated as curv format.
+#' @param filepath, string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, "smp" for Brainvoyager SMP format, "nii" or "nii.gz" for NIFTI v1 format, "gii" or "gii.gz" for GIFTI format, everything else will be treated as curv format.
 #'
 #' @param data, numerical vector. The data to write.
 #'
-#' @param format character string, the format to use. One of c("auto", "mgh", "mgz", "curv"). The default setting "auto" will determine the format from the file extension.
+#' @param format character string, the format to use. One of c("auto", "mgh", "mgz", "curv", "n1", "ni2", "gii"). The default setting "auto" will determine the format from the file extension.
 #'
-#' @param ... additional parameters to pass to \code{\link[freesurferformats]{write.fs.mgh}}. Only applicable for MGH and MGZ format output files, ignored for curv files.
+#' @param ... additional parameters to pass to the respective writer function.
 #'
-#' @return format, string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "gii").
+#' @return character string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "ni1", "ni2", "gii").
 #'
 #' @family morphometry functions
 #'
 #' @export
 write.fs.morph <- function(filepath, data, format='auto', ...) {
 
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp")) {
-      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', or 'gii'.");
+    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "ni1", "ni2")) {
+      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii', 'ni1', or 'ni2'.");
     }
 
-    if(format == 'auto') {
-      format = fs.get.morph.file.format.from.filename(filepath);
+    if(format %in% c('mgh', 'mgz') | (format == 'auto' & filepath.ends.with(filepath, c('.mgh', '.mgz')))) {
+      write.fs.mgh(filepath, data, ...); # handles MGZ as well, based on file name.
+    } else if(format == 'gii'| (format == 'auto' & filepath.ends.with(filepath, c('.gii', '.gii.gz')))) {
+      write.fs.morph.gii(filepath, data);
+    } else if(format == 'ni1'| (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
+      write.fs.morph.ni1(filepath, data, ...);
+    } else if(format == 'ni2') {
+      write.fs.morph.ni2(filepath, data, ...);
+    } else if(format == 'smp'| (format == 'auto' & filepath.ends.with(filepath, c('.smp')))) {
+      write.fs.morph.smp(filepath, data);
+    } else { # assume curv format, it has no defined file extension.
+      write.fs.curv(filepath, data);
     }
-    if(format == "mgh" || format == "mgz" ) {
-        write.fs.mgh(filepath, data, ...);
-    } else if (format == "gii") {
-        write.fs.morph.gii(filepath, data);
-    } else if (format == "curv") {
-        write.fs.curv(filepath, data);
-    }
-    return(invisible(format));
+
+    reported_format = fs.get.morph.file.format.from.filename(filepath);
+
+    return(invisible(reported_format));
+}
+
+
+#' @title Write morphometry data in NIFTI v1 format.
+#'
+#' @param filepath string, the full path of the output NIFTI file. Should end with '.nii' or '.nii.gz'.
+#'
+#' @param data numerical vector, the data to write. Will be coerced to double.
+#'
+#' @param ... extra parameters passed to \code{\link{write.nifti1}}.
+#'
+#' @return format, string. The format that was used to write the data: "ni1".
+#'
+#' @family morphometry functions
+#' @family nifti1 writers
+#'
+#' @export
+write.fs.morph.ni1 <- function(filepath, data, ...) {
+  write.nifti1(filepath, as.double(data), ...);
+  return(invisible('ni1'));
+}
+
+
+#' @title Write morphometry data in NIFTI v2 format.
+#'
+#' @param filepath string, the full path of the output NIFTI file. Should end with '.nii' or '.nii.gz'.
+#'
+#' @param data numerical vector, the data to write. Will be coerced to double.
+#'
+#' @param ... extra parameters passed to \code{\link{write.nifti2}}.
+#'
+#' @return format, string. The format that was used to write the data: "ni2".
+#'
+#' @note Not many software packages support NIFTI v2 format. If possible with your data, you may want to use NIFTI v1 instead.
+#'
+#' @seealso \code{\link{nifti.file.version}} can be used to check whether a file is NIFTI v1 or v2 file.
+#'
+#' @family morphometry functions
+#' @family nifti2 writers
+#'
+#' @export
+write.fs.morph.ni2 <- function(filepath, data, ...) {
+  write.nifti2(filepath, as.double(data), ...);
+  return(invisible('ni2'));
 }
 
 
@@ -190,6 +240,9 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
         if(tolower(ext) == "smp") {
           return("smp");
         }
+        if(tolower(ext) == "nii") {
+          return("nii");
+        }
         if(tolower(ext) == "gii") {
           return("gii");
         }
@@ -201,6 +254,9 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
             }
             if(tolower(deep_ext) == ".gii.gz") {
                 return("gii"); # The gifti reader function handles gii.gz.
+            }
+            if(tolower(deep_ext) == ".nii.gz") {
+              return("nii"); # The nifti reader function handles nii.gz.
             }
             # Otherwise we assume gzipped curv format.
         }
