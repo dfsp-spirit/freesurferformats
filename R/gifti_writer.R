@@ -15,7 +15,7 @@
 #'
 #' @param data_array list of data vectors and/or data matrices.
 #'
-#' @param intent vector of NIFTI intent strings for the data vectors in 'data_array' parameter, see \code{\link[gifti]{convert_intent}}. Example: 'NIFTI_INTENT_SHAPE'. See \url{https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/group__NIFTI1__INTENT__CODES.html}.
+#' @param intent vector of NIFTI intent strings for the data vectors in 'data_array' parameter, see \code{\link[gifti]{convert_intent}}. Example: 'NIFTI_INTENT_SHAPE'. See https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/group__NIFTI1__INTENT__CODES.html.
 #'
 #' @param datatype vector of NIFTI datatype strings. Example: 'NIFTI_TYPE_FLOAT32'. Should be suitable for your data.
 #'
@@ -29,7 +29,7 @@
 #'
 #' @return xml tree, see xml2 package. One could modify this tree as needed using xml2 functions, e.g., add metadata.
 #'
-#' @references \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
+#' @references See https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf
 #'
 #' @note Unless you want to modify the returned tree manually, you should not need to call this function. Use \code{\link{gifti_writer}} instead.
 #'
