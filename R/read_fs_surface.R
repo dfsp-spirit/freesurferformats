@@ -38,7 +38,7 @@ read.fs.surface.asc <- function(filepath) {
 
 #' @title Read VTK ASCII format mesh as surface.
 #'
-#' @description This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See \url{https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf} for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
+#' @description This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
 #'
 #' @param filepath string. Full path to the input surface file in VTK ASCII format.
 #'
@@ -513,7 +513,7 @@ read.fs.surface.gii <- function(filepath) {
 #'
 #' @return an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
 #'
-#' @references See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
+#' @references See https://github.com/neurolabusc/surf-ice for details on the format.
 #'
 #' @export
 read.fs.surface.mz3 <- function(filepath) {
@@ -605,7 +605,7 @@ read.fs.surface.mz3 <- function(filepath) {
 #'
 #' @return an `fs.surface` instance.
 #'
-#' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
+#' @references See https://en.wikipedia.org/wiki/STL_(file_format) for the format spec.
 #'
 #' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup').
 #'
@@ -710,7 +710,7 @@ stl.format.file.is.ascii <- function(filepath) {
 #'
 #' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
 #'
-#' @references \url{https://en.wikipedia.org/wiki/STL_(file_format)}
+#' @references See https://en.wikipedia.org/wiki/STL_(file_format) for a format description.
 #'
 #' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
 #'
@@ -885,7 +885,7 @@ coord.to.key <- function(coord, digits=6L) {
 #'
 #' @return an `fs.surface` instance, aka a mesh
 #'
-#' @references \url{http://www.eg-models.de/formats/Format_Byu.html}
+#' @references See http://www.eg-models.de/formats/Format_Byu.html for a format description.
 #'
 #' @importFrom stats na.omit
 #' @export
@@ -1300,7 +1300,7 @@ adjust.face.indices.to <- function(faces, target_min_index=1L) {
 #'
 #' @return fs.surface instance
 #'
-#' @references The srf format spec is at \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files}.
+#' @references The srf format spec is at https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files.
 #'
 #' @family mesh functions
 #' @export
@@ -1322,7 +1322,7 @@ read.fs.surface.bvsrf <- function(filepath) {
 #'
 #' @return named list of the elements in the file.
 #'
-#' @references The srf format spec is at \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files}.
+#' @references The srf format spec is at https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files.
 #'
 #' @family mesh functions
 #' @export
