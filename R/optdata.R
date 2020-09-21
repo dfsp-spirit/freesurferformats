@@ -113,15 +113,13 @@ download_opt_data <- function() {
                      'cifti/Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii'
                      );
 
-  ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti);
+  ext_urls_niftiv2 = 'nifti2/avg152T1_LR_nifti2.nii.gz';
+
+  ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti, ext_urls_niftiv2);
   base_url_internal_data = 'http://rcmd.org/projects/nitestdata/'; # here 'internal' means data stored on our own rcmd.org server.
   internal_data_urls = paste(base_url_internal_data, ext_urls_internal_data, sep='');
 
-  ext_urls_niftiv2 = 'avg152T1_LR_nifti2.nii.gz';
-  base_url_nifti2_data = 'https://nifti.nimh.nih.gov/pub/dist/data/nifti2/';
-  nifti2_data_urls = paste(base_url_nifti2_data, ext_urls_niftiv2, sep='');
-
-  urls = c(internal_data_urls, nifti2_data_urls);
+  urls = c(internal_data_urls);
 
   cfiles = pkgfilecache::ensure_files_available(pkg_info, local_filenames, urls, md5sums=md5sums);
   cfiles$file_status = NULL; # not exposed to end user
