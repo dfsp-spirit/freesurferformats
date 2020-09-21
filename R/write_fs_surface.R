@@ -446,7 +446,7 @@ write.fs.surface.ply2 <- function(filepath, vertex_coords, faces) {
 #'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
-#' @references \url{http://paulbourke.net/dataformats/ply/}
+#' @references See http://paulbourke.net/dataformats/ply/ for the PLY format spec.
 #'
 #' @family mesh export functions
 #'
@@ -594,7 +594,7 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #'     write.fs.surface.mz3(tempfile(fileext=".mz3"), mesh$vertices, mesh$faces);
 #' }
 #'
-#' @note This format is used by the surf-ice renderer. The format spec is at \url{https://github.com/neurolabusc/surf-ice/tree/master/mz3}.
+#' @note This format is used by the surf-ice renderer. The format spec is at https://github.com/neurolabusc/surf-ice/tree/master/mz3.
 #'
 #' @export
 write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
