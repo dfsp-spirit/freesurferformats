@@ -18,5 +18,5 @@ an `fs.surface` instance, aka a mesh
 The BYU or Brigham Young University format is an old ASCII mesh format that is based on fixed character positions in lines (as opposed to whitespace-separated elements). I consider it a bit counter-intuitive.
 }
 \references{
-\url{http://www.eg-models.de/formats/Format_Byu.html}
+See http://www.eg-models.de/formats/Format_Byu.html for a format description.
 }

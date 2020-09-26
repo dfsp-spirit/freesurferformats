@@ -22,7 +22,7 @@ string the format that was written. One of "tris" or "quads". Currently only tri
 Write mesh to file in mz3 binary format.
 }
 \note{
-This format is used by the surf-ice renderer. The format spec is at \url{https://github.com/neurolabusc/surf-ice/tree/master/mz3}.
+This format is used by the surf-ice renderer. The format spec is at https://github.com/neurolabusc/surf-ice/tree/master/mz3.
 }
 \examples{
 \donttest{

@@ -16,7 +16,7 @@ fs.surface instance
 Read a mesh and associated data like color and normals from a binary file in BrainVoyager SRF mesh format.
 }
 \references{
-The srf format spec is at \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files}.
+The srf format spec is at https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/344-users-guide-2-3-the-format-of-srf-files.
 }
 \seealso{
 Other mesh functions: 

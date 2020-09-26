@@ -39,7 +39,7 @@ The PLY format is a versatile ASCII format for storing meshes. Also known as Pol
 
 }
 \references{
-\url{http://paulbourke.net/dataformats/ply/}
+See http://paulbourke.net/dataformats/ply/ for the PLY format spec.
 }
 \seealso{
 Other mesh export functions: 

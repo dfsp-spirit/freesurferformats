@@ -17,7 +17,7 @@ gifti_xml(
 \arguments{
 \item{data_array}{list of data vectors and/or data matrices.}
 
-\item{intent}{vector of NIFTI intent strings for the data vectors in 'data_array' parameter, see \code{\link[gifti]{convert_intent}}. Example: 'NIFTI_INTENT_SHAPE'. See \url{https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/group__NIFTI1__INTENT__CODES.html}.}
+\item{intent}{vector of NIFTI intent strings for the data vectors in 'data_array' parameter, see \code{\link[gifti]{convert_intent}}. Example: 'NIFTI_INTENT_SHAPE'. See https://nifti.nimh.nih.gov/nifti-1/documentation/nifti1fields/nifti1fields_pages/group__NIFTI1__INTENT__CODES.html.}
 
 \item{datatype}{vector of NIFTI datatype strings. Example: 'NIFTI_TYPE_FLOAT32'. Should be suitable for your data.}
 
@@ -49,7 +49,7 @@ Unless you want to modify the returned tree manually, you should not need to cal
 
 }
 \references{
-\url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
+See https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf
 }
 \seealso{
 The example for \code{\link{gifti_xml_write}} shows how to modify the tree.

@@ -97,8 +97,8 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
       this_frame$translate = readBin(fh, numeric(), n = 3L, size = 4L);
       this_frame$name = readBin(fh, character());
       if(header$num_vertices > 0L) {
-        this_frame$vertex_coords = matrix(rep(NA, (3 * header$num_vertices), ncol = 3L));
-        this_frame$vertex_normals = matrix(rep(NA, (3 * header$num_vertices), ncol = 3L));
+        this_frame$vertex_coords = matrix(rep(NA, (3 * header$num_vertices)), ncol = 3L);
+        this_frame$vertex_normals = matrix(rep(NA, (3 * header$num_vertices)), ncol = 3L);
         for(j in 1:header$num_vertices) {
           this_vert_coords_raw = readBin(fh, integer(), n = 3L, size = 1L, signed = FALSE);
           this_vert_normal_index = readBin(fh, integer(), n = 1L, size = 1L, signed = FALSE);
@@ -108,6 +108,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
           this_frame$vertex_normals[j,] = pdn[this_vert_normal_index,];
         }
       }
+      header$frames[[i]] = this_frame;
     }
   }
 

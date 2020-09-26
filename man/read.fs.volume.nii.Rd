@@ -49,7 +49,7 @@ This is not supposed to be used to read 1D morphometry data from NIFTI files gen
 
 }
 \references{
-\href{https://nifti.nimh.nih.gov/nifti-1/}{NIfTI-1 data format spec}
+See https://nifti.nimh.nih.gov/nifti-1/ for the NIfTI-1 data format spec.
 }
 \seealso{
 \code{oro.nifti::readNIfTI}, \code{\link[freesurferformats]{read.fs.mgh}}
