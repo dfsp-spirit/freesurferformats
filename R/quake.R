@@ -2,6 +2,9 @@
 
 # md2f = '~/data/quake/barrel.md2';
 # md2 = read.quake.md2(md2f);
+# sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[1]]$vertex_coords)
+# class(sf) = c(class(sf), 'fs.surface')
+# fsbrain::vis.fs.surface(sf)
 #' @title Read Quake II model in MD2 format.
 #'
 #' @param filepath character string, the path to the MD2 file
@@ -17,6 +20,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
 
   endian = 'little';
 
+  md2 = list();
   header = list();
 
   header$ident = readBin(fh, integer(), n = 1, size = 4, endian = endian);
@@ -43,51 +47,50 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
   header$offset_glcmds = hdr_data[14];
   header$offset_end = hdr_data[15];
 
-  # read model data: textures aka skins
+  # read model data: skins (a.k.a. textures)
   seek(fh, where = header$offset_skins, origin = "start");
-  header$skins = list();
+  md2$skins = list();
   if(header$num_skins > 0L) {
     for(i in 1:header$num_skins) {
-      header$skins[[i]] = readBin(fh, character());
-      print(header$skins[[i]])
+      md2$skins[[i]] = readBin(fh, character());
     }
   }
 
   # read model data: texture coords
   seek(fh, where = header$offset_st, origin = "start");
-  header$texcoords = list();
+  md2$texcoords = list();
   if(header$num_st > 0L) {
-    header$texcoords$s= rep(NA, (header$num_st));
-    header$texcoords$t= rep(NA, (header$num_st));
+    md2$texcoords$s= rep(NA, (header$num_st));
+    md2$texcoords$t= rep(NA, (header$num_st));
     for(i in 1:header$num_st) {
-      header$texcoords$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
-      header$texcoords$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
+      md2$texcoords$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
+      md2$texcoords$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
     }
   }
 
   # read model data: triangles (vertex and texture indices)
   seek(fh, where = header$offset_tris, origin = "start");
-  header$triangles = list();
+  md2$triangles = list();
   if(header$num_tris > 0L) {
-    header$triangles$vertex = matrix(rep(NA, (header$num_tris * 3L)), ncol = 3); # vertex indices
-    header$triangles$st = matrix(rep(NA, (header$num_tris * 3L)), ncol = 3); # texture coord indices
+    md2$triangles$vertex = matrix(rep(NA, (header$num_tris * 3L)), ncol = 3); # vertex indices
+    md2$triangles$st = matrix(rep(NA, (header$num_tris * 3L)), ncol = 3); # texture coord indices
     for(i in 1:header$num_tris) {
-      header$triangles$vertex[i,] = readBin(fh, integer(), n = 3L, size = 2L, signed = FALSE);
-      header$triangles$st[i,] = readBin(fh, integer(), n = 3L, size = 2L, signed = FALSE);
+      md2$triangles$vertex[i,] = readBin(fh, integer(), n = 3L, size = 2L, signed = FALSE);
+      md2$triangles$st[i,] = readBin(fh, integer(), n = 3L, size = 2L, signed = FALSE);
     }
   }
 
   # read model data: openGL commands
   seek(fh, where = header$offset_glcmds, origin = "start");
   if(header$num_glcmds > 0L) {
-      header$glcmds[i] = readBin(fh, integer(), n = header$num_glcmds, size = 4L);
+      md2$glcmds[i] = readBin(fh, integer(), n = header$num_glcmds, size = 4L);
   }
 
 
   ## inside frame loop:
   seek(fh, where = header$offset_frames, origin = "start");
 
-  header$frames = list();
+  md2$frames = list();
   if(header$num_frames > 0L) {
     pdn = predefined.md2.normals();
     for(i in 1:header$num_frames) {
@@ -108,11 +111,12 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
           this_frame$vertex_normals[j,] = pdn[this_vert_normal_index,];
         }
       }
-      header$frames[[i]] = this_frame;
+      md2$frames[[i]] = this_frame;
     }
   }
 
-  return(list('header'=header));
+  md2$header = header;
+  return(md2);
 }
 
 
