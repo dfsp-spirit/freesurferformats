@@ -321,11 +321,15 @@ predefined.md2.normals <- function() {
   return(matrix(normals_raw, ncol = 3L, byrow = TRUE));
 }
 
+
 #quadf = '~/data/q2_pak/models/items/quaddama/tris.md2'
 #md2q = read.quake.md2(quadf);
+#' @note This function will be moved out of this package.
 #' @export
 is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
 
+
+#' @note This function will be moved out of this package.
 #' @export
 vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
   if(!is.quakemodel_md2(md2)) {
@@ -369,6 +373,7 @@ vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
 
 
 # pcxf = '~/data/q2_pak/models/items/quaddama/skin.pcx';
+#' @note This function will be moved out of this package.
 #' @export
 read.quake.image.pcx <- function(filepath) {
   fh = file(filepath, "rb");
