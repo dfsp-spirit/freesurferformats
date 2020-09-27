@@ -75,13 +75,18 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
   # read model data: texture coords
   seek(fh, where = header$offset_st, origin = "start");
   md2$texcoords = list();
+  md2$texcoords_unscaled = list();
   if(header$num_st > 0L) {
     md2$texcoords$s= rep(NA, (header$num_st));
     md2$texcoords$t= rep(NA, (header$num_st));
+    md2$texcoords_unscaled$s= rep(NA, (header$num_st));
+    md2$texcoords_unscaled$t= rep(NA, (header$num_st));
     for(i in 1:header$num_st) {
-      md2$texcoords$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinwidth;
-      md2$texcoords$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinheight;
+      md2$texcoords_unscaled$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinwidth;
+      md2$texcoords_unscaled$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinheight;
     }
+    md2$texcoords$s = md2$texcoords_unscaled$s / header$skinwidth;
+    md2$texcoords$t = md2$texcoords_unscaled$t / header$skinheight;
   }
 
   # read model data: triangles (vertex and texture indices)
@@ -316,6 +321,8 @@ predefined.md2.normals <- function() {
   return(matrix(normals_raw, ncol = 3L, byrow = TRUE));
 }
 
+#quadf = '~/data/q2_pak/models/items/quaddama/tris.md2'
+#md2q = read.quake.md2(quadf);
 #' @export
 is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
 
@@ -330,20 +337,31 @@ vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
   tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
 
   material = rgl::material3d();
-  material$color = '#333333';
-  material$specular = '#AAAAAA';
-  material$fog = FALSE;
+
 
   rgl::open3d();
 
   if(is.null(texture_file)) {
+    material$color = '#333333';
+    material$specular = '#AAAAAA';
+    material$fog = FALSE;
     rgl::shade3d(tm, material = material)
   } else {
     if(! file.exists(texture_file)) {
       stop(sprintf("Texture file '%s' not readable.\n", texture_file));
     }
+    material$color = '#FFFFFF';
     material$texture = texture_file;
-    texcoords = cbind(md2$texcoords$s, md2$texcoords$t);
+    material$specular = '#000000';
+
+    #scale_w = md2$header$skinwidth;
+    #scale_h = md2$header$skinheight;
+    #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
+    #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
+    scale_w = 1.0;
+    scale_h = 1.0;
+
+    texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
     tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
     rgl::shade3d(tm)
   }
