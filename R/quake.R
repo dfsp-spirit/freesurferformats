@@ -5,6 +5,21 @@
 # sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[1]]$vertex_coords)
 # class(sf) = c(class(sf), 'fs.surface')
 # fsbrain::vis.fs.surface(sf)
+#
+# # visualiyze with texture.
+# mt = rgl::material3d()
+# mt$texture = '~/data/quake/barrel.png'
+# mt$specular = '#000000'
+# texcoords = cbind(md2$texcoords$s, md2$texcoords$t)
+# tm = tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = mt, texcoords = texcoords)
+# rgl::shade3d(tm)
+#
+# texc_t = 1.0 - (md2$texcoords$t/max(md2$texcoords$t))
+# texc_s = md2$texcoords$s/max(md2$texcoords$s)
+# texcoords = cbind(texc_s, texc_t)
+# tm = tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = mt, texcoords = texcoords)
+# rgl::shade3d(tm)
+#
 #' @title Read Quake II model in MD2 format.
 #'
 #' @param filepath character string, the path to the MD2 file
