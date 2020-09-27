@@ -366,3 +366,50 @@ vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
     rgl::shade3d(tm)
   }
 }
+
+
+# pcxf = '~/data/q2_pak/models/items/quaddama/skin.pcx';
+#' @export
+read.quake.image.pcx <- function(filepath) {
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) });
+
+  endian = 'little';
+
+  pcx = list();
+  header = list();
+
+  header$ident = readBin(fh, integer(), n = 1, size = 1, endian = endian);
+  if(header$ident != 10L) {
+    stop("File not in PCX format.");
+  }
+  header$painbrush_version = readBin(fh, integer(), n = 1, size = 1, endian = endian);
+  header$encoding_type = readBin(fh, integer(), n = 1, size = 1, endian = endian); # 0 = none, 1 = runlength enc.
+  header$bitpix = readBin(fh, integer(), n = 1, size = 1, endian = endian); # bits per pixel, defines number of possible colors in image. 1 = 2, 2 = 4, 3 = 16, 4 = 256.
+
+  header$minx = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  header$miny = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  header$maxx = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  header$maxy = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  header$res_horizontal = readBin(fh, integer(), n = 1, size = 2, endian = endian); # DPI
+  header$res_vertical = readBin(fh, integer(), n = 1, size = 2, endian = endian); # DPI
+  header$ega_palette = readBin(fh, integer(), n = 16 * 3L, size = 1, endian = endian); # the EGA palette, used for 16-color images (pitpix = 3).
+  header$reserved1 = readBin(fh, integer(), n = 1, size = 1, endian = endian);
+  header$num_channels = readBin(fh, integer(), n = 1, size = 1, endian = endian);
+  header$bytes_per_channels_line = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  header$palette_mode = readBin(fh, integer(), n = 1, size = 2, endian = endian); # 1 = color/monochrome, 2=grayscale
+  header$screen_size_horizontal = readBin(fh, integer(), n = 1, size = 2, endian = endian); # horizontal screen resolution of source system
+  header$screen_size_vertical = readBin(fh, integer(), n = 1, size = 2, endian = endian); # vertical
+  header$reserved2 = readBin(fh, integer(), n = 54, size = 1, endian = endian);
+
+  pcx$header = header;
+
+  img_num_pixels = header$res_horizontal * header$res_vertical;
+  img_num_values = img_num_pixels * header$num_channels;
+  img_data = array(rep(NA, img_num_values), dim = c(header$res_horizontal, header$res_vertical, header$num_channels));
+
+  # TODO: read color data here
+
+  pcx$data = img_data;
+  return(pcx);
+}
