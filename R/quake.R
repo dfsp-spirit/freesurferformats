@@ -67,7 +67,8 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
   md2$skins = list();
   if(header$num_skins > 0L) {
     for(i in 1:header$num_skins) {
-      md2$skins[[i]] = readBin(fh, character());
+      #md2$skins[[i]] = readBin(fh, character());
+      md2$skins[[i]] = readChar(fh, 64L);
     }
   }
 
@@ -78,8 +79,8 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
     md2$texcoords$s= rep(NA, (header$num_st));
     md2$texcoords$t= rep(NA, (header$num_st));
     for(i in 1:header$num_st) {
-      md2$texcoords$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
-      md2$texcoords$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
+      md2$texcoords$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinwidth;
+      md2$texcoords$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinheight;
     }
   }
 
@@ -98,7 +99,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
   # read model data: openGL commands
   seek(fh, where = header$offset_glcmds, origin = "start");
   if(header$num_glcmds > 0L) {
-      md2$glcmds[i] = readBin(fh, integer(), n = header$num_glcmds, size = 4L);
+      md2$glcmds = readBin(fh, integer(), n = header$num_glcmds, size = 4L);
   }
 
 
@@ -113,7 +114,8 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
       # read model data: vertex coords (and normal vector indices into pre-defined normal vector)
       this_frame$scale = readBin(fh, numeric(), n = 3L, size = 4L);
       this_frame$translate = readBin(fh, numeric(), n = 3L, size = 4L);
-      this_frame$name = readBin(fh, character());
+      #this_frame$name = readBin(fh, character());
+      this_frame$name = readChar(fh, 16L);
       if(header$num_vertices > 0L) {
         this_frame$vertex_coords = matrix(rep(NA, (3 * header$num_vertices)), ncol = 3L);
         this_frame$vertex_normals = matrix(rep(NA, (3 * header$num_vertices)), ncol = 3L);
@@ -130,7 +132,13 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
     }
   }
 
+  expected_framesize = 12L + 12L + 16L + (4L * header$num_vertices);
+  if(header$framesize != expected_framesize) {
+    warning(sprintf("Framesize from header is %d, expected %d.\n", header$framesize, expected_framesize));
+  }
+
   md2$header = header;
+  class(md2) = c(class(md2), 'quakemodel_md2');
   return(md2);
 }
 
@@ -306,4 +314,37 @@ predefined.md2.normals <- function() {
     -0.688191, -0.587785, -0.425325
   );
   return(matrix(normals_raw, ncol = 3L, byrow = TRUE));
+}
+
+#' @export
+is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
+
+#' @export
+vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
+  if(!is.quakemodel_md2(md2)) {
+    md2 = read.quake.md2(md2);
+  }
+  sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[frame_idx]]$vertex_coords);
+  class(sf) = c(class(sf), 'fs.surface');
+
+  tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
+
+  material = rgl::material3d();
+  material$color = '#333333';
+  material$specular = '#AAAAAA';
+  material$fog = FALSE;
+
+  rgl::open3d();
+
+  if(is.null(texture_file)) {
+    rgl::shade3d(tm, material = material)
+  } else {
+    if(! file.exists(texture_file)) {
+      stop(sprintf("Texture file '%s' not readable.\n", texture_file));
+    }
+    material$texture = texture_file;
+    texcoords = cbind(md2$texcoords$s, md2$texcoords$t);
+    tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
+    rgl::shade3d(tm)
+  }
 }
