@@ -20,6 +20,68 @@
 # tm = tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = mt, texcoords = texcoords)
 # rgl::shade3d(tm)
 #
+
+#' @title Read Quake model in MDL format.
+#'
+#' @param filepath character string, the path to the MDL file
+#'
+#' @param anim logical, whether to load the whole animation (if present). Returns a list of models, the animation frames. If FALSE, only the first frame is returned.
+#'
+#' @note Ignore this function, it will be moved to a different package.
+#'
+#' @examples
+#' \dontrun{
+#'    mdlf = "~/data/q1_pak/progs/quaddama.mdl"
+#'    mdl = read.quake.mdl(mdlf);
+#' }
+#'
+#' @export
+read.quake.mdl <- function(filepath, anim = FALSE) {
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) });
+
+  endian = 'little';
+
+  mdl = list('header' = list());
+
+  mdl$header$id = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$version = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+
+  if(mdl$header$id != 1330660425L | mdl$header$version != 6L) {
+    stop(sprintf("File '%s' not in MDL format.\n", filepath));
+  }
+
+  mdl$header$scale = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
+  mdl$header$origin = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
+  mdl$header$radius = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # bbox radius
+  mdl$header$offsets = readBin(fh, numeric(), n = 3, size = 4, endian = endian); # eye pos
+  mdl$header$num_skins = readBin(fh, integer(), n = 1, size = 4, endian = endian); # number of skin textures
+  mdl$header$skin_width = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$skin_height = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$num_verts = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$num_tris = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$num_frames = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  mdl$header$sync_type = readBin(fh, integer(), n = 1, size = 4, endian = endian); # 0=synchron, 1=random
+  mdl$header$flags = readBin(fh, integer(), n = 1, size = 4, endian = endian); # 0
+  mdl$header$size = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # average tris size
+
+  # some sanity checks
+  if((mdl$header$skin_width %% 8) != 0L) {
+    warning(sprintf("Invalid skin texture width %d, must be multiple of 8.\n", mdl$header$skin_width));
+  }
+  if((mdl$header$skin_height %% 8) != 0L) {
+    warning(sprintf("Invalid skin texture height %d, must be multiple of 8.\n", mdl$header$skin_height));
+  }
+  if(! mdl$header$sync_type %in% c(0L, 1L)) {
+    warning("Invalid sync type, must be 0 or 1.");
+  }
+  if(mdl$header$flags != 0L) {
+    warning(sprintf("Invalid flags %d, must be 0.\n", mdl$header$flags));
+  }
+  return(mdl);
+}
+
+
 #' @title Read Quake II model in MD2 format.
 #'
 #' @param filepath character string, the path to the MD2 file
@@ -372,49 +434,3 @@ vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
 }
 
 
-# pcxf = '~/data/q2_pak/models/items/quaddama/skin.pcx';
-#' @note This function will be moved out of this package.
-#' @export
-read.quake.image.pcx <- function(filepath) {
-  fh = file(filepath, "rb");
-  on.exit({ close(fh) });
-
-  endian = 'little';
-
-  pcx = list();
-  header = list();
-
-  header$ident = readBin(fh, integer(), n = 1, size = 1, endian = endian);
-  if(header$ident != 10L) {
-    stop("File not in PCX format.");
-  }
-  header$painbrush_version = readBin(fh, integer(), n = 1, size = 1, endian = endian);
-  header$encoding_type = readBin(fh, integer(), n = 1, size = 1, endian = endian); # 0 = none, 1 = runlength enc.
-  header$bitpix = readBin(fh, integer(), n = 1, size = 1, endian = endian); # bits per pixel, defines number of possible colors in image. 1 = 2, 2 = 4, 3 = 16, 4 = 256.
-
-  header$minx = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  header$miny = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  header$maxx = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  header$maxy = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  header$res_horizontal = readBin(fh, integer(), n = 1, size = 2, endian = endian); # DPI
-  header$res_vertical = readBin(fh, integer(), n = 1, size = 2, endian = endian); # DPI
-  header$ega_palette = readBin(fh, integer(), n = 16 * 3L, size = 1, endian = endian); # the EGA palette, used for 16-color images (pitpix = 3).
-  header$reserved1 = readBin(fh, integer(), n = 1, size = 1, endian = endian);
-  header$num_channels = readBin(fh, integer(), n = 1, size = 1, endian = endian);
-  header$bytes_per_channels_line = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  header$palette_mode = readBin(fh, integer(), n = 1, size = 2, endian = endian); # 1 = color/monochrome, 2=grayscale
-  header$screen_size_horizontal = readBin(fh, integer(), n = 1, size = 2, endian = endian); # horizontal screen resolution of source system
-  header$screen_size_vertical = readBin(fh, integer(), n = 1, size = 2, endian = endian); # vertical
-  header$reserved2 = readBin(fh, integer(), n = 54, size = 1, endian = endian);
-
-  pcx$header = header;
-
-  img_num_pixels = header$res_horizontal * header$res_vertical;
-  img_num_values = img_num_pixels * header$num_channels;
-  img_data = array(rep(NA, img_num_values), dim = c(header$res_horizontal, header$res_vertical, header$num_channels));
-
-  # TODO: read color data here
-
-  pcx$data = img_data;
-  return(pcx);
-}
