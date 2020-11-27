@@ -21,6 +21,10 @@
 # rgl::shade3d(tm)
 #
 
+
+
+# seeQuake source, mdl_t struct in modelgen.h
+
 #' @title Read Quake model in MDL format.
 #'
 #' @param filepath character string, the path to the MDL file
@@ -44,8 +48,10 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
 
   mdl = list('header' = list());
 
-  mdl$header$id = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$version = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  int_size = 4L;
+
+  mdl$header$id = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$version = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
 
   if(mdl$header$id != 1330660425L | mdl$header$version != 6L) {
     stop(sprintf("File '%s' not in MDL format.\n", filepath));
@@ -55,14 +61,14 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
   mdl$header$origin = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
   mdl$header$radius = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # bbox radius
   mdl$header$offsets = readBin(fh, numeric(), n = 3, size = 4, endian = endian); # eye pos
-  mdl$header$num_skins = readBin(fh, integer(), n = 1, size = 4, endian = endian); # number of skin textures
-  mdl$header$skin_width = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$skin_height = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$num_verts = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$num_tris = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$num_frames = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  mdl$header$sync_type = readBin(fh, integer(), n = 1, size = 4, endian = endian); # 0=synchron, 1=random
-  mdl$header$flags = readBin(fh, integer(), n = 1, size = 4, endian = endian); # 0
+  mdl$header$num_skins = readBin(fh, integer(), n = 1, size = int_size, endian = endian); # number of skin textures
+  mdl$header$skin_width = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$skin_height = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$num_verts = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$num_tris = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$num_frames = readBin(fh, integer(), n = 1, size = int_size, endian = endian);
+  mdl$header$sync_type = readBin(fh, integer(), n = 1, size = int_size, endian = endian); # 0=synchron, 1=random
+  mdl$header$flags = readBin(fh, integer(), n = 1, size = int_size, endian = endian); # 0
   mdl$header$size = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # average tris size
 
   # some sanity checks
@@ -78,6 +84,77 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
   if(mdl$header$flags != 0L) {
     warning(sprintf("Invalid flags %d, must be 0.\n", mdl$header$flags));
   }
+
+  # next follow model skins. Could be one or a group.
+  mdl$skins = list();
+  mdl$skins$skin_type = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  if(mdl$skins$skin_type == 0L) { # single picture
+    mdl$skins$skin_pic = readBin(fh, integer(), n = (mdl$header$skin_width * mdl$header$skin_height) , size = 1, signed = FALSE, endian = endian);
+  } else {
+    mdl$skins$num_skins_in_group = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+    mdl$skins$time_per_skin = readBin(fh, numeric(), n = mdl$skins$num_skins_in_group, size = 4, endian = endian);
+    mdl$skins$skin_pics = list();
+    if(mdl$skins$num_skins_in_group > 0L) {
+      for(skin_idx in 1:mdl$skins$num_skins_in_group) {
+        mdl$skins$skin_pics[skin_idx] = readBin(fh, integer(), n = (mdl$header$skin_width * mdl$header$skin_height) , size = 1, signed = FALSE, endian = endian);
+      }
+    }
+  }
+
+  # skin texture coords
+  if(mdl$header$num_verts > 0L) {
+    mdl$skins$skinverts = matrix(rep(NA, (mdl$header$num_verts * 3L)), ncol = 3L);
+    for(skin_vert_idx in 1:mdl$header$num_verts) {
+      # The 3 values per vertex are: onseam (whether vertex is on seam between model front and back), s (horizontal texture coord in range [0, skinwidth[), t (vertical texture coord in range [0, skinheight[).
+      # The first value (onseam) must be 0 or 32L.
+      mdl$skins$skinverts[skin_vert_idx,] = readBin(fh, integer(), n = 3L, size = 1, signed = FALSE, endian = endian);
+    }
+  }
+
+  # triangles (as indices into vertex list)
+  mdl$mesh = list();
+  if(mdl$header$num_tris > 0L) {
+    mdl$mesh$triangles = matrix(rep(NA, (mdl$header$num_tris * 4L)), ncol = 4L);
+    # the 4 values are: flag face_is_front (0=FALSE, 1s=TRUE), and the 3 vertex indices of the triangle.
+    for(triangle_idx in 1:mdl$header$num_tris) {
+      mdl$mesh$triangles[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, signed = FALSE, endian = endian);
+    }
+  }
+
+  # next follow model frames. Each frame contains vertex positions (a model in a certain orientation).
+  mdl$mesh$frames = list();
+  if(mdl$header$num_frames > 0L) {
+    for(frame_idx in 1:mdl$header$num_frames) {
+      this_frame = list();
+      this_frame$frame_type = readBin(fh, integer(), n = 1, size = 4, endian = endian); # 0 = simple frame, everything else = full frame.
+      if(this_frame$frame_type == 0L) { # single simple frame
+        # min vertex position
+        this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+        # same for max vertex position.
+        this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+        this_frame$name = readChar(fh, 16L); # frame name.
+        this_frame$vertices = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+      } else {  # full frame: group of simple frames and extra data.
+        # min vertex position over all following frames. The 4 values are: 1..3=packed position in range 0..255. 4=normal index (into list of pre-defined normals, approximate value for Grouroud Shading).
+        this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+        # same for max vertex position.
+        this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+        this_frame$num_simple_frames = ?; # TODO: where to get this?
+        this_frame$frame_timings = readBin(fh, numeric(), n = this_frame$num_simple_frames, size = 4, endian = endian);
+        this_frame$simple_frames = list();
+        for(simple_frame_idx in 1:this_frame$num_simple_frames) {
+          this_simple_frame = list();
+          this_simple_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+          # same for max vertex position.
+          this_simple_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
+          this_simple_frame$name = readChar(fh, 16L); # frame name.
+          this_simple_frame$vertices = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+          this_frame$simple_frames[simple_frame_idx] = this_simple_frame;
+        }
+      }
+    }
+  }
+
   return(mdl);
 }
 
