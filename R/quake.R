@@ -117,7 +117,7 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
     mdl$mesh$triangles = matrix(rep(NA, (mdl$header$num_tris * 4L)), ncol = 4L);
     # the 4 values are: flag face_is_front (0=FALSE, 1s=TRUE), and the 3 vertex indices of the triangle.
     for(triangle_idx in 1:mdl$header$num_tris) {
-      mdl$mesh$triangles[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, signed = FALSE, endian = endian);
+      mdl$mesh$triangles[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, endian = endian);
     }
   }
 
@@ -139,7 +139,7 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
         this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
         # same for max vertex position.
         this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
-        this_frame$num_simple_frames = ?; # TODO: where to get this?
+        this_frame$num_simple_frames = this_frame$frame_type; # TODO: where to get this? the current value this_frame$frame_type is a guess.
         this_frame$frame_timings = readBin(fh, numeric(), n = this_frame$num_simple_frames, size = 4, endian = endian);
         this_frame$simple_frames = list();
         for(simple_frame_idx in 1:this_frame$num_simple_frames) {
@@ -149,9 +149,10 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
           this_simple_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
           this_simple_frame$name = readChar(fh, 16L); # frame name.
           this_simple_frame$vertices = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
-          this_frame$simple_frames[simple_frame_idx] = this_simple_frame;
+          this_frame$simple_frames[[simple_frame_idx]] = this_simple_frame;
         }
       }
+      mdl$mesh$frames[[frame_idx]] = this_frame;
     }
   }
 
