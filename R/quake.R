@@ -156,7 +156,7 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
           this_simple_frame$name = readChar(fh, 16L); # frame name.
           this_simple_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
           this_simple_frame$vertex_coords = unpack.vertex.coords(this_simple_frame$vertex_coords_raw[,2:4], mdl$header);
-          this_simple_frame$vertex_normals = lookup.q1.normals(this_simple_frame$vertex_coords_raw[,1]);
+          this_simple_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,1]);
           this_frame$simple_frames[[simple_frame_idx]] = this_simple_frame;
         }
       }
@@ -673,13 +673,24 @@ predefined.md2.normals <- function() {
 
 #quadf = '~/data/q2_pak/models/items/quaddama/tris.md2'
 #md2q = read.quake.md2(quadf);
-#' @note This function will be moved out of this package.
+#' @title Check whether object is Quake 2 MD2 model
+#'
+#' @param x any R object
+#'
 #' @export
 is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
 
 
-#' @note This function will be moved out of this package.
+#' @title Visualize Quake II alias model.
+#'
+#' @param md2 an MD2 model instance.
+#'
+#' @param texture_file character string, path to model skin.
+#'
+#' @param frame_idx integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.
+#'
 #' @export
+#' @importFrom rgl open3d material3d shade3d
 vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
   if(!is.quakemodel_md2(md2)) {
     md2 = read.quake.md2(md2);
@@ -716,7 +727,7 @@ vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
 
     texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
     tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
-    rgl::shade3d(tm)
+    rgl::shade3d(tm);
   }
 }
 
