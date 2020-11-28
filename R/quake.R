@@ -118,9 +118,10 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
     # the 4 values are: flag face_is_front (0=FALSE, 1s=TRUE), and the 3 vertex indices of the triangle.
     for(triangle_idx in 1:mdl$header$num_tris) {
       mdl$triangles$raw[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, endian = endian);
-      mdl$triangles$triangle_is_front = mdl$triangles$raw[, 1L];
-      mdl$triangles$vertex = mdl$triangles$raw[, 2:4] + 1L; # +1L due to 1-based indexing in R.
     }
+    mdl$triangles$triangle_is_front = mdl$triangles$raw[, 1L];
+    mdl$triangles$vertex = mdl$triangles$raw[, 2:4];
+    mdl$triangles$raw = NULL;
   }
 
   # next follow model frames. Each frame contains vertex positions (a model in a certain orientation).
@@ -136,10 +137,11 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
         this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
         this_frame$name = readChar(fh, 16L); # frame name.
 
-        # the 4 values are: 1-3=packed position 255 (x,y,z), 4=index into normal list. see q1_normals().
+        # the 4 values are: 1-3=packed position 255 (x,y,z), 4=index into normal list.
         this_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
-        this_frame$vertex_coords = unpack.vertex.coords(this_frame$vertex_coords_raw[,2:4], mdl$header);
-        this_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,1]);
+        this_frame$vertex_coords = unpack.vertex.coords(this_frame$vertex_coords_raw[,1:3], mdl$header);
+        this_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,4]);
+        this_frame$vertex_coords_raw = NULL;
       } else {  # full frame: group of simple frames and extra data.
         # min vertex position over all following frames. The 4 values are: 1..3=packed position in range 0..255. 4=normal index (into list of pre-defined normals, approximate value for Grouroud Shading).
         this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
@@ -155,8 +157,8 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
           this_simple_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
           this_simple_frame$name = readChar(fh, 16L); # frame name.
           this_simple_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
-          this_simple_frame$vertex_coords = unpack.vertex.coords(this_simple_frame$vertex_coords_raw[,2:4], mdl$header);
-          this_simple_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,1]);
+          this_simple_frame$vertex_coords = unpack.vertex.coords(this_simple_frame$vertex_coords_raw[,1:3], mdl$header);
+          this_simple_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,4]);
           this_frame$simple_frames[[simple_frame_idx]] = this_simple_frame;
         }
       }
