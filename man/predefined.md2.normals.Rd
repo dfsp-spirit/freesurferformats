@@ -2,14 +2,14 @@
 % Please edit documentation in R/quake.R
 \name{predefined.md2.normals}
 \alias{predefined.md2.normals}
-\title{Predefined MD2 normals.}
+\title{Predefined MD2 normals from Quake 2.}
 \usage{
 predefined.md2.normals()
 }
 \value{
-3xn matrix of normals
+3xn matrix of normals.
 }
 \description{
-Predefined MD2 normals.
+Predefined MD2 normals from Quake 2.
 }
 \keyword{internal}

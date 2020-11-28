@@ -112,17 +112,19 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
   }
 
   # triangles (as indices into vertex list)
-  mdl$mesh = list();
+  mdl$triangles = list();
   if(mdl$header$num_tris > 0L) {
-    mdl$mesh$triangles = matrix(rep(NA, (mdl$header$num_tris * 4L)), ncol = 4L);
+    mdl$triangles$raw = matrix(rep(NA, (mdl$header$num_tris * 4L)), ncol = 4L);
     # the 4 values are: flag face_is_front (0=FALSE, 1s=TRUE), and the 3 vertex indices of the triangle.
     for(triangle_idx in 1:mdl$header$num_tris) {
-      mdl$mesh$triangles[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, endian = endian);
+      mdl$triangles$raw[triangle_idx,] = readBin(fh, integer(), n = 4L, size = 4, endian = endian);
+      mdl$triangles$triangle_is_front = mdl$triangles$raw[, 1L];
+      mdl$triangles$vertex = mdl$triangles$raw[, 2:4] + 1L; # +1L due to 1-based indexing in R.
     }
   }
 
   # next follow model frames. Each frame contains vertex positions (a model in a certain orientation).
-  mdl$mesh$frames = list();
+  mdl$frames = list();
   if(mdl$header$num_frames > 0L) {
     for(frame_idx in 1:mdl$header$num_frames) {
       this_frame = list();
@@ -133,7 +135,11 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
         # same for max vertex position.
         this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
         this_frame$name = readChar(fh, 16L); # frame name.
-        this_frame$vertices = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+
+        # the 4 values are: 1-3=packed position 255 (x,y,z), 4=index into normal list. see q1_normals().
+        this_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+        this_frame$vertex_coords = unpack.vertex.coords(this_frame$vertex_coords_raw[,2:4], mdl$header);
+        this_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,1]);
       } else {  # full frame: group of simple frames and extra data.
         # min vertex position over all following frames. The 4 values are: 1..3=packed position in range 0..255. 4=normal index (into list of pre-defined normals, approximate value for Grouroud Shading).
         this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
@@ -148,15 +154,218 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
           # same for max vertex position.
           this_simple_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
           this_simple_frame$name = readChar(fh, 16L); # frame name.
-          this_simple_frame$vertices = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+          this_simple_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
+          this_simple_frame$vertex_coords = unpack.vertex.coords(this_simple_frame$vertex_coords_raw[,2:4], mdl$header);
+          this_simple_frame$vertex_normals = lookup.q1.normals(this_simple_frame$vertex_coords_raw[,1]);
           this_frame$simple_frames[[simple_frame_idx]] = this_simple_frame;
         }
       }
-      mdl$mesh$frames[[frame_idx]] = this_frame;
+      mdl$frames[[frame_idx]] = this_frame;
     }
   }
 
   return(mdl);
+}
+
+
+#' @title Unpack vertex coords from 0-255 representation.
+#'
+#' @param coords_packed matrix of n x 3 integers in range 0..255, the packed coords.
+#'
+#' @param mdl_header MDL header or named list, only the fields 'header$scale' and 'header$origin' are used.
+#'
+#' @keywords internal
+unpack.vertex.coords <- function(coords_packed, mdl_header) {
+  if(ncol(coords_packed) != 3L) {
+    stop("Parameter 'coords_packed' must be a matrix with 3 columns.");
+  }
+  return((mdl_header$scale *  coords_packed) + mdl_header$origin);
+}
+
+
+#' @title Return list of pre-defined Quake I normals.
+#'
+#' @return n x 3 matrix of doubles, the normals. Hardcoded.
+#'
+#' @keywords internal
+predefined.mdl.normals <- function() {
+  q1_norms = c( -0.525731, 0.000000, 0.850651 ,
+                -0.442863, 0.238856, 0.864188 ,
+                -0.295242, 0.000000, 0.955423 ,
+                -0.309017, 0.500000, 0.809017 ,
+                -0.162460, 0.262866, 0.951056 ,
+                0.000000, 0.000000, 1.000000 ,
+                0.000000, 0.850651, 0.525731 ,
+                -0.147621, 0.716567, 0.681718 ,
+                0.147621, 0.716567, 0.681718 ,
+                0.000000, 0.525731, 0.850651 ,
+                0.309017, 0.500000, 0.809017 ,
+                0.525731, 0.000000, 0.850651 ,
+                0.295242, 0.000000, 0.955423 ,
+                0.442863, 0.238856, 0.864188 ,
+                0.162460, 0.262866, 0.951056 ,
+                -0.681718, 0.147621, 0.716567 ,
+                -0.809017, 0.309017, 0.500000 ,
+                -0.587785, 0.425325, 0.688191 ,
+                -0.850651, 0.525731, 0.000000 ,
+                -0.864188, 0.442863, 0.238856 ,
+                -0.716567, 0.681718, 0.147621 ,
+                -0.688191, 0.587785, 0.425325 ,
+                -0.500000, 0.809017, 0.309017 ,
+                -0.238856, 0.864188, 0.442863 ,
+                -0.425325, 0.688191, 0.587785 ,
+                -0.716567, 0.681718, -0.147621 ,
+                -0.500000, 0.809017, -0.309017 ,
+                -0.525731, 0.850651, 0.000000 ,
+                0.000000, 0.850651, -0.525731 ,
+                -0.238856, 0.864188, -0.442863 ,
+                0.000000, 0.955423, -0.295242 ,
+                -0.262866, 0.951056, -0.162460 ,
+                0.000000, 1.000000, 0.000000 ,
+                0.000000, 0.955423, 0.295242 ,
+                -0.262866, 0.951056, 0.162460 ,
+                0.238856, 0.864188, 0.442863 ,
+                0.262866, 0.951056, 0.162460 ,
+                0.500000, 0.809017, 0.309017 ,
+                0.238856, 0.864188, -0.442863 ,
+                0.262866, 0.951056, -0.162460 ,
+                0.500000, 0.809017, -0.309017 ,
+                0.850651, 0.525731, 0.000000 ,
+                0.716567, 0.681718, 0.147621 ,
+                0.716567, 0.681718, -0.147621 ,
+                0.525731, 0.850651, 0.000000 ,
+                0.425325, 0.688191, 0.587785 ,
+                0.864188, 0.442863, 0.238856 ,
+                0.688191, 0.587785, 0.425325 ,
+                0.809017, 0.309017, 0.500000 ,
+                0.681718, 0.147621, 0.716567 ,
+                0.587785, 0.425325, 0.688191 ,
+                0.955423, 0.295242, 0.000000 ,
+                1.000000, 0.000000, 0.000000 ,
+                0.951056, 0.162460, 0.262866 ,
+                0.850651, -0.525731, 0.000000 ,
+                0.955423, -0.295242, 0.000000 ,
+                0.864188, -0.442863, 0.238856 ,
+                0.951056, -0.162460, 0.262866 ,
+                0.809017, -0.309017, 0.500000 ,
+                0.681718, -0.147621, 0.716567 ,
+                0.850651, 0.000000, 0.525731 ,
+                0.864188, 0.442863, -0.238856 ,
+                0.809017, 0.309017, -0.500000 ,
+                0.951056, 0.162460, -0.262866 ,
+                0.525731, 0.000000, -0.850651 ,
+                0.681718, 0.147621, -0.716567 ,
+                0.681718, -0.147621, -0.716567 ,
+                0.850651, 0.000000, -0.525731 ,
+                0.809017, -0.309017, -0.500000 ,
+                0.864188, -0.442863, -0.238856 ,
+                0.951056, -0.162460, -0.262866 ,
+                0.147621, 0.716567, -0.681718 ,
+                0.309017, 0.500000, -0.809017 ,
+                0.425325, 0.688191, -0.587785 ,
+                0.442863, 0.238856, -0.864188 ,
+                0.587785, 0.425325, -0.688191 ,
+                0.688191, 0.587785, -0.425325 ,
+                -0.147621, 0.716567, -0.681718 ,
+                -0.309017, 0.500000, -0.809017 ,
+                0.000000, 0.525731, -0.850651 ,
+                -0.525731, 0.000000, -0.850651 ,
+                -0.442863, 0.238856, -0.864188 ,
+                -0.295242, 0.000000, -0.955423 ,
+                -0.162460, 0.262866, -0.951056 ,
+                0.000000, 0.000000, -1.000000 ,
+                0.295242, 0.000000, -0.955423 ,
+                0.162460, 0.262866, -0.951056 ,
+                -0.442863, -0.238856, -0.864188 ,
+                -0.309017, -0.500000, -0.809017 ,
+                -0.162460, -0.262866, -0.951056 ,
+                0.000000, -0.850651, -0.525731 ,
+                -0.147621, -0.716567, -0.681718 ,
+                0.147621, -0.716567, -0.681718 ,
+                0.000000, -0.525731, -0.850651 ,
+                0.309017, -0.500000, -0.809017 ,
+                0.442863, -0.238856, -0.864188 ,
+                0.162460, -0.262866, -0.951056 ,
+                0.238856, -0.864188, -0.442863 ,
+                0.500000, -0.809017, -0.309017 ,
+                0.425325, -0.688191, -0.587785 ,
+                0.716567, -0.681718, -0.147621 ,
+                0.688191, -0.587785, -0.425325 ,
+                0.587785, -0.425325, -0.688191 ,
+                0.000000, -0.955423, -0.295242 ,
+                0.000000, -1.000000, 0.000000 ,
+                0.262866, -0.951056, -0.162460 ,
+                0.000000, -0.850651, 0.525731 ,
+                0.000000, -0.955423, 0.295242 ,
+                0.238856, -0.864188, 0.442863 ,
+                0.262866, -0.951056, 0.162460 ,
+                0.500000, -0.809017, 0.309017 ,
+                0.716567, -0.681718, 0.147621 ,
+                0.525731, -0.850651, 0.000000 ,
+                -0.238856, -0.864188, -0.442863 ,
+                -0.500000, -0.809017, -0.309017 ,
+                -0.262866, -0.951056, -0.162460 ,
+                -0.850651, -0.525731, 0.000000 ,
+                -0.716567, -0.681718, -0.147621 ,
+                -0.716567, -0.681718, 0.147621 ,
+                -0.525731, -0.850651, 0.000000 ,
+                -0.500000, -0.809017, 0.309017 ,
+                -0.238856, -0.864188, 0.442863 ,
+                -0.262866, -0.951056, 0.162460 ,
+                -0.864188, -0.442863, 0.238856 ,
+                -0.809017, -0.309017, 0.500000 ,
+                -0.688191, -0.587785, 0.425325 ,
+                -0.681718, -0.147621, 0.716567 ,
+                -0.442863, -0.238856, 0.864188 ,
+                -0.587785, -0.425325, 0.688191 ,
+                -0.309017, -0.500000, 0.809017 ,
+                -0.147621, -0.716567, 0.681718 ,
+                -0.425325, -0.688191, 0.587785 ,
+                -0.162460, -0.262866, 0.951056 ,
+                0.442863, -0.238856, 0.864188 ,
+                0.162460, -0.262866, 0.951056 ,
+                0.309017, -0.500000, 0.809017 ,
+                0.147621, -0.716567, 0.681718 ,
+                0.000000, -0.525731, 0.850651 ,
+                0.425325, -0.688191, 0.587785 ,
+                0.587785, -0.425325, 0.688191 ,
+                0.688191, -0.587785, 0.425325 ,
+                -0.955423, 0.295242, 0.000000 ,
+                -0.951056, 0.162460, 0.262866 ,
+                -1.000000, 0.000000, 0.000000 ,
+                -0.850651, 0.000000, 0.525731 ,
+                -0.955423, -0.295242, 0.000000 ,
+                -0.951056, -0.162460, 0.262866 ,
+                -0.864188, 0.442863, -0.238856 ,
+                -0.951056, 0.162460, -0.262866 ,
+                -0.809017, 0.309017, -0.500000 ,
+                -0.864188, -0.442863, -0.238856 ,
+                -0.951056, -0.162460, -0.262866 ,
+                -0.809017, -0.309017, -0.500000 ,
+                -0.681718, 0.147621, -0.716567 ,
+                -0.681718, -0.147621, -0.716567 ,
+                -0.850651, 0.000000, -0.525731 ,
+                -0.688191, 0.587785, -0.425325 ,
+                -0.587785, 0.425325, -0.688191 ,
+                -0.425325, 0.688191, -0.587785 ,
+                -0.425325, -0.688191, -0.587785 ,
+                -0.587785, -0.425325, -0.688191 ,
+                -0.688191, -0.587785, -0.425325 );
+  return(matrix(q1_norms, ncol = 3L, byrow = TRUE));
+}
+
+#' @title Lookup Quake I normals by index.
+#'
+#' @param normal_indices integer vector of length n, the normal indices (0-based).
+#'
+#' @return n x 3 matrix of doubles, the normals
+#'
+#' @keywords internal
+lookup.q1.normals <- function(normal_indices) {
+  if( ! is.vector(normal_indices)) {
+    stop("Parameter 'normal_indices' must be an integer vector.");
+  }
+  return(predefined.mdl.normals()[(normal_indices + 1L)]);
 }
 
 
@@ -288,9 +497,9 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
 }
 
 
-#' @title Predefined MD2 normals.
+#' @title Predefined MD2 normals from Quake 2.
 #'
-#' @return 3xn matrix of normals
+#' @return 3xn matrix of normals.
 #'
 #' @keywords internal
 predefined.md2.normals <- function() {
