@@ -72,11 +72,11 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
   mdl$header$size = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # average tris size
 
   # some sanity checks
-  if((mdl$header$skin_width %% 8) != 0L) {
-    warning(sprintf("Invalid skin texture width %d, must be multiple of 8.\n", mdl$header$skin_width));
+  if((mdl$header$skin_width %% 4) != 0L) {
+    warning(sprintf("Invalid skin texture width %d, must be multiple of 4.\n", mdl$header$skin_width));
   }
-  if((mdl$header$skin_height %% 8) != 0L) {
-    warning(sprintf("Invalid skin texture height %d, must be multiple of 8.\n", mdl$header$skin_height));
+  if((mdl$header$skin_height %% 4) != 0L) {
+    warning(sprintf("Invalid skin texture height %d, must be multiple of 4.\n", mdl$header$skin_height));
   }
   if(! mdl$header$sync_type %in% c(0L, 1L)) {
     warning("Invalid sync type, must be 0 or 1.");
@@ -96,7 +96,7 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
     mdl$skins$skin_pics = list();
     if(mdl$skins$num_skins_in_group > 0L) {
       for(skin_idx in 1:mdl$skins$num_skins_in_group) {
-        mdl$skins$skin_pics[skin_idx] = readBin(fh, integer(), n = (mdl$header$skin_width * mdl$header$skin_height) , size = 1, signed = FALSE, endian = endian);
+        mdl$skins$skin_pics[[skin_idx]] = readBin(fh, integer(), n = (mdl$header$skin_width * mdl$header$skin_height) , size = 1, signed = FALSE, endian = endian);
       }
     }
   }
@@ -107,7 +107,7 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
     for(skin_vert_idx in 1:mdl$header$num_verts) {
       # The 3 values per vertex are: onseam (whether vertex is on seam between model front and back), s (horizontal texture coord in range [0, skinwidth[), t (vertical texture coord in range [0, skinheight[).
       # The first value (onseam) must be 0 or 32L.
-      mdl$skins$skinverts[skin_vert_idx,] = readBin(fh, integer(), n = 3L, size = 1, signed = FALSE, endian = endian);
+      mdl$skins$skinverts[skin_vert_idx,] = readBin(fh, integer(), n = 3L, size = 4, endian = endian);
     }
   }
 
@@ -692,42 +692,46 @@ is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
 #' @export
 #' @importFrom rgl open3d material3d shade3d
 vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
-  if(!is.quakemodel_md2(md2)) {
-    md2 = read.quake.md2(md2);
-  }
-  sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[frame_idx]]$vertex_coords);
-  class(sf) = c(class(sf), 'fs.surface');
-
-  tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
-
-  material = rgl::material3d();
-
-
-  rgl::open3d();
-
-  if(is.null(texture_file)) {
-    material$color = '#333333';
-    material$specular = '#AAAAAA';
-    material$fog = FALSE;
-    rgl::shade3d(tm, material = material)
-  } else {
-    if(! file.exists(texture_file)) {
-      stop(sprintf("Texture file '%s' not readable.\n", texture_file));
+  if(requireNamespace('rgl', quietly = TRUE)) {
+    if(!is.quakemodel_md2(md2)) {
+      md2 = read.quake.md2(md2);
     }
-    material$color = '#FFFFFF';
-    material$texture = texture_file;
-    material$specular = '#000000';
+    sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[frame_idx]]$vertex_coords);
+    class(sf) = c(class(sf), 'fs.surface');
 
-    #scale_w = md2$header$skinwidth;
-    #scale_h = md2$header$skinheight;
-    #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
-    #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
-    scale_w = 1.0;
-    scale_h = 1.0;
+    tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
 
-    texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
-    tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
-    rgl::shade3d(tm);
+    material = rgl::material3d();
+
+
+    rgl::open3d();
+
+    if(is.null(texture_file)) {
+      material$color = '#333333';
+      material$specular = '#AAAAAA';
+      material$fog = FALSE;
+      rgl::shade3d(tm, material = material)
+    } else {
+      if(! file.exists(texture_file)) {
+        stop(sprintf("Texture file '%s' not readable.\n", texture_file));
+      }
+      material$color = '#FFFFFF';
+      material$texture = texture_file;
+      material$specular = '#000000';
+
+      #scale_w = md2$header$skinwidth;
+      #scale_h = md2$header$skinheight;
+      #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
+      #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
+      scale_w = 1.0;
+      scale_h = 1.0;
+
+      texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
+      tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
+      rgl::shade3d(tm);
+    }
+  } else {
+    stop("Visualization requires the 'rgl' package to be installed.");
   }
 }
 
