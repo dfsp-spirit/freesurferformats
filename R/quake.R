@@ -700,22 +700,25 @@ is.quakemodel_mdl <- function(x) inherits(x, 'quakemodel_mdl')
 is.quakemodel <- function(x) inherits(x, 'quakemodel')
 
 
-#' @title Visualize Quake II alias model.
+#' @title Visualize Quake or Quake II alias model.
 #'
-#' @param md2 an MD2 model instance.
+#' @param md2 an MDL or MD2 model instance.
 #'
-#' @param texture_file character string, path to model skin.
+#' @param texture_file character string, path to model skin. Q2 MD2 only, Q1 models include the skin.
 #'
 #' @param frame_idx integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.
 #'
 #' @export
 #' @importFrom rgl open3d material3d shade3d
-vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
+vis.quakemodel <- function(md2, texture_file = NULL, frame_idx=1L) {
   if(requireNamespace('rgl', quietly = TRUE)) {
     if(!(is.quakemodel_md2(md2) | is.quakemodel_mdl(md2))) {
       if(is.character(md2)) {
-        warning("Assuming MD2 format file.");
-        md2 = read.quake.md2(md2);
+        if(endsWith(md2, ".md2")) {
+          md2 = read.quake.md2(md2);
+        } else {
+          md2 = read.quake.mdl(md2);
+        }
       } else {
         stop("Parameter 'md2' must be quakemodel or path to a model file as character string.");
       }
