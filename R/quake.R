@@ -184,7 +184,7 @@ unpack.vertex.coords <- function(coords_packed, mdl_header) {
   if(ncol(coords_packed) != 3L) {
     stop("Parameter 'coords_packed' must be a matrix with 3 columns.");
   }
-  return((mdl_header$scale *  coords_packed) + mdl_header$origin);
+  return((mdl_header$scale * coords_packed) + mdl_header$origin);
 }
 
 
@@ -436,8 +436,8 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
     md2$texcoords_unscaled$s= rep(NA, (header$num_st));
     md2$texcoords_unscaled$t= rep(NA, (header$num_st));
     for(i in 1:header$num_st) {
-      md2$texcoords_unscaled$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinwidth;
-      md2$texcoords_unscaled$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L) / header$skinheight;
+      md2$texcoords_unscaled$s[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
+      md2$texcoords_unscaled$t[[i]] = readBin(fh, integer(), n = 1L, size = 2L);
     }
     md2$texcoords$s = md2$texcoords_unscaled$s / header$skinwidth;
     md2$texcoords$t = md2$texcoords_unscaled$t / header$skinheight;
