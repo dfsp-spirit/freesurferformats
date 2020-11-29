@@ -194,10 +194,13 @@ unpack.vertex.coords <- function(coords_packed, mdl_header) {
   if(is.null(mdl_header$origin) | is.null(mdl_header$scale)) {
     stop("Parameter 'mdl_header' must have 'origin' and 'scale' entries.")
   }
-  # TODO: the multiplciation in the next line breaks stuff. without it, the model looks fat in one direction but okay-ish in general (rough QUAD shape).
-  return((coords_packed * mdl_header$scale) + mdl_header$origin);
-  #return(coords_packed + mdl_header$origin);
-  #return(coords_packed);
+
+  nc = ncol(coords_packed);
+  coords_unpacked = matrix(rep(NA, (nc * nrow(coords_packed))), ncol = nc);
+  for(row_idx in 1:nrow(coords_packed)) {
+    coords_unpacked[row_idx,] = (coords_packed[row_idx,] * mdl_header$scale) + mdl_header$origin;
+  }
+  return(coords_unpacked);
 }
 
 
@@ -500,7 +503,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
           this_vert_normal_index = readBin(fh, integer(), n = 1L, size = 1L, signed = FALSE);
 
           # compute real vertex coords using frame scale and translation
-          this_frame$vertex_coords[j,] = (this_frame$scale * this_vert_coords_raw) + this_frame$translate;
+
           this_frame$vertex_normals[j,] = pdn[this_vert_normal_index,];
         }
       }

@@ -7,7 +7,7 @@
 vis.quakemodel(md2, texture_file = NULL, frame_idx = 1L)
 }
 \arguments{
-\item{md2}{an MDL or MD2 model instance.}
+\item{md2}{an MDL or MD2 model instance. Alternatively, a character string which will be interpreted as a file to load.}
 
 \item{texture_file}{character string, path to model skin. Q2 MD2 only, Q1 models include the skin.}
 
