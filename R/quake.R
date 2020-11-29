@@ -462,6 +462,10 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
     }
   }
 
+  if(max(md2$triangles$vertex) >= header$num_vertices){
+    warning(sprintf("Found triangle referencing 0-based vertex index %d, but there are only %d vertices.\n", max(md2$triangles$vertex) >= header$num_vertices));
+  }
+
   # read model data: openGL commands
   seek(fh, where = header$offset_glcmds, origin = "start");
   if(header$num_glcmds > 0L) {
