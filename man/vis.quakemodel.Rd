@@ -2,17 +2,17 @@
 % Please edit documentation in R/quake.R
 \name{vis.quakemodel}
 \alias{vis.quakemodel}
-\title{Visualize Quake II alias model.}
+\title{Visualize Quake or Quake II alias model.}
 \usage{
 vis.quakemodel(md2, texture_file = NULL, frame_idx = 1L)
 }
 \arguments{
-\item{md2}{an MD2 model instance.}
+\item{md2}{an MDL or MD2 model instance.}
 
-\item{texture_file}{character string, path to model skin.}
+\item{texture_file}{character string, path to model skin. Q2 MD2 only, Q1 models include the skin.}
 
 \item{frame_idx}{integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.}
 }
 \description{
-Visualize Quake II alias model.
+Visualize Quake or Quake II alias model.
 }

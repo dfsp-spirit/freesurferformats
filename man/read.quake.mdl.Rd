@@ -4,12 +4,12 @@
 \alias{read.quake.mdl}
 \title{Read Quake model in MDL format.}
 \usage{
-read.quake.mdl(filepath, anim = FALSE)
+read.quake.mdl(filepath, do_checks = FALSE)
 }
 \arguments{
 \item{filepath}{character string, the path to the MDL file}
 
-\item{anim}{logical, whether to load the whole animation (if present). Returns a list of models, the animation frames. If FALSE, only the first frame is returned.}
+\item{fo_checks}{logical, whether to perform some sanity checks on the data and warn on suspicious results.}
 }
 \description{
 Read Quake model in MDL format.

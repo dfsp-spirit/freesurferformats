@@ -29,7 +29,7 @@
 #'
 #' @param filepath character string, the path to the MDL file
 #'
-#' @param anim logical, whether to load the whole animation (if present). Returns a list of models, the animation frames. If FALSE, only the first frame is returned.
+#' @param fo_checks logical, whether to perform some sanity checks on the data and warn on suspicious results.
 #'
 #' @note Ignore this function, it will be moved to a different package.
 #'
@@ -40,7 +40,7 @@
 #' }
 #'
 #' @export
-read.quake.mdl <- function(filepath, anim = FALSE) {
+read.quake.mdl <- function(filepath, do_checks = FALSE) {
   fh = file(filepath, "rb");
   on.exit({ close(fh) });
 
@@ -71,18 +71,20 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
   mdl$header$flags = readBin(fh, integer(), n = 1, size = int_size, endian = endian); # 0
   mdl$header$size = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # average tris size
 
-  # some sanity checks
-  if((mdl$header$skin_width %% 4) != 0L) {
-    warning(sprintf("Invalid skin texture width %d, must be multiple of 4.\n", mdl$header$skin_width));
-  }
-  if((mdl$header$skin_height %% 4) != 0L) {
-    warning(sprintf("Invalid skin texture height %d, must be multiple of 4.\n", mdl$header$skin_height));
-  }
-  if(! mdl$header$sync_type %in% c(0L, 1L)) {
-    warning("Invalid sync type, must be 0 or 1.");
-  }
-  if(mdl$header$flags != 0L) {
-    warning(sprintf("Invalid flags %d, must be 0.\n", mdl$header$flags));
+  if(do_checks) {
+    # some sanity checks
+    if((mdl$header$skin_width %% 4) != 0L) {
+      warning(sprintf("Invalid skin texture width %d, must be multiple of 4.\n", mdl$header$skin_width));
+    }
+    if((mdl$header$skin_height %% 4) != 0L) {
+      warning(sprintf("Invalid skin texture height %d, must be multiple of 4.\n", mdl$header$skin_height));
+    }
+    if(! mdl$header$sync_type %in% c(0L, 1L)) {
+      warning("Invalid sync type, must be 0 or 1.");
+    }
+    if(mdl$header$flags != 0L) {
+      warning(sprintf("Invalid flags %d, must be 0.\n", mdl$header$flags));
+    }
   }
 
   # next follow model skins. Could be one or a group.
