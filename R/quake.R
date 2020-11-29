@@ -150,9 +150,9 @@ read.quake.mdl <- function(filepath, do_checks = FALSE) {
         this_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
         this_frame$vertex_coords = unpack.vertex.coords(this_frame$vertex_coords_raw[,1:3], mdl$header);
         this_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,4]);
-        this_frame$vertex_coords_raw = NULL;
+        #this_frame$vertex_coords_raw = NULL;
       } else {  # full frame: group of simple frames and extra data.
-        # min vertex position over all following frames. The 4 values are: 1..3=packed position in range 0..255. 4=normal index (into list of pre-defined normals, approximate value for Grouroud Shading).
+        # min vertex position over all following frames. The 4 values are: 1..3=packed position in range 0..255. 4=normal index (into list of pre-defined normals, approximate value for Gouroud Shading).
         this_frame$min_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
         # same for max vertex position.
         this_frame$max_vertex = readBin(fh, integer(), n = 4, size = 1, signed = FALSE, endian = endian);
@@ -180,9 +180,9 @@ read.quake.mdl <- function(filepath, do_checks = FALSE) {
 }
 
 
-#' @title Unpack vertex coords from 0-255 representation.
+#' @title Unpack vertex coords from Q1 0-255 representation.
 #'
-#' @param coords_packed matrix of n x 3 integers in range 0..255, the packed coords.
+#' @param coords_packed matrix of n x 3 integers in range 0..255, the packed coords from an MDL file.
 #'
 #' @param mdl_header MDL header or named list, only the fields 'header$scale' and 'header$origin' are used.
 #'
@@ -191,7 +191,13 @@ unpack.vertex.coords <- function(coords_packed, mdl_header) {
   if(ncol(coords_packed) != 3L) {
     stop("Parameter 'coords_packed' must be a matrix with 3 columns.");
   }
-  return((mdl_header$scale * coords_packed) + mdl_header$origin);
+  if(is.null(mdl_header$origin) | is.null(mdl_header$scale)) {
+    stop("Parameter 'mdl_header' must have 'origin' and 'scale' entries.")
+  }
+  # TODO: the multiplciation in the next line breaks stuff. without it, the model looks fat in one direction but okay-ish in general (rough QUAD shape).
+  return((coords_packed * mdl_header$scale) + mdl_header$origin);
+  #return(coords_packed + mdl_header$origin);
+  #return(coords_packed);
 }
 
 
@@ -715,7 +721,7 @@ is.quakemodel <- function(x) inherits(x, 'quakemodel')
 
 #' @title Visualize Quake or Quake II alias model.
 #'
-#' @param md2 an MDL or MD2 model instance.
+#' @param md2 an MDL or MD2 model instance. Alternatively, a character string which will be interpreted as a file to load.
 #'
 #' @param texture_file character string, path to model skin. Q2 MD2 only, Q1 models include the skin.
 #'
@@ -736,7 +742,7 @@ vis.quakemodel <- function(md2, texture_file = NULL, frame_idx=1L) {
         stop("Parameter 'md2' must be quakemodel or path to a model file as character string.");
       }
     }
-    sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[frame_idx]]$vertex_coords);
+    sf = list('faces'=(md2$triangles$vertex + 1L), 'vertices'=md2$frames[[frame_idx]]$vertex_coords);
     class(sf) = c(class(sf), 'fs.surface');
 
     tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
@@ -767,7 +773,7 @@ vis.quakemodel <- function(md2, texture_file = NULL, frame_idx=1L) {
       scale_h = 1.0;
 
       texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
-      tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = F, material = material, texcoords = texcoords)
+      tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE, material = material, texcoords = texcoords);
       rgl::shade3d(tm);
     }
   } else {
