@@ -158,14 +158,15 @@ read.quake.mdl <- function(filepath, anim = FALSE) {
           this_simple_frame$name = readChar(fh, 16L); # frame name.
           this_simple_frame$vertex_coords_raw = matrix(readBin(fh, integer(), n = (mdl$header$num_verts * 4L), size = 1, signed = FALSE, endian = endian), ncol = 4L, byrow = TRUE);
           this_simple_frame$vertex_coords = unpack.vertex.coords(this_simple_frame$vertex_coords_raw[,1:3], mdl$header);
-          this_simple_frame$vertex_normals = lookup.q1.normals(this_frame$vertex_coords_raw[,4]);
+          this_simple_frame$vertex_normals = lookup.q1.normals(this_simple_frame$vertex_coords_raw[,4]);
+          this_simple_frame$vertex_coords_raw = NULL;
           this_frame$simple_frames[[simple_frame_idx]] = this_simple_frame;
         }
       }
       mdl$frames[[frame_idx]] = this_frame;
     }
   }
-
+  class(mdl) = c(class(mdl), 'quakemodel_mdl', 'quakemodel');
   return(mdl);
 }
 
@@ -494,7 +495,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
   }
 
   md2$header = header;
-  class(md2) = c(class(md2), 'quakemodel_md2');
+  class(md2) = c(class(md2), 'quakemodel_md2', 'quakemodel');
   return(md2);
 }
 
@@ -675,12 +676,28 @@ predefined.md2.normals <- function() {
 
 #quadf = '~/data/q2_pak/models/items/quaddama/tris.md2'
 #md2q = read.quake.md2(quadf);
+
 #' @title Check whether object is Quake 2 MD2 model
 #'
 #' @param x any R object
 #'
 #' @export
 is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
+
+#' @title Check whether object is Quake 1 MDL model
+#'
+#' @param x any R object
+#'
+#' @export
+is.quakemodel_mdl <- function(x) inherits(x, 'quakemodel_mdl')
+
+
+#' @title Check whether object is Quake 1 or 2 alias model
+#'
+#' @param x any R object
+#'
+#' @export
+is.quakemodel <- function(x) inherits(x, 'quakemodel')
 
 
 #' @title Visualize Quake II alias model.
@@ -695,8 +712,13 @@ is.quakemodel_md2 <- function(x) inherits(x, 'quakemodel_md2')
 #' @importFrom rgl open3d material3d shade3d
 vis.quakemodel_md2 <- function(md2, texture_file = NULL, frame_idx=1L) {
   if(requireNamespace('rgl', quietly = TRUE)) {
-    if(!is.quakemodel_md2(md2)) {
-      md2 = read.quake.md2(md2);
+    if(!(is.quakemodel_md2(md2) | is.quakemodel_mdl(md2))) {
+      if(is.character(md2)) {
+        warning("Assuming MD2 format file.");
+        md2 = read.quake.md2(md2);
+      } else {
+        stop("Parameter 'md2' must be quakemodel or path to a model file as character string.");
+      }
     }
     sf = list('faces'=(md2$triangles$vertex + 1L), vertices=md2$frames[[frame_idx]]$vertex_coords);
     class(sf) = c(class(sf), 'fs.surface');
