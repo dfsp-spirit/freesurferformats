@@ -126,6 +126,13 @@ read.quake.mdl <- function(filepath, do_checks = FALSE) {
     mdl$triangles$raw = NULL;
   }
 
+  if(any(!(mdl$triangles$triangle_is_front %in% c(0L, 1L)))) {
+    warning("Found triangles with invalid 'triangle_is_front' value (expected 0 or 1).");
+  }
+  if(max(mdl$triangles$vertex) >= mdl$header$num_verts){
+    warning(sprintf("Found triangle referencing 0-based vertex index %d, but there are only %d vertices.\n", max(mdl$triangles$vertex) >= mdl$header$num_verts));
+  }
+
   # next follow model frames. Each frame contains vertex positions (a model in a certain orientation).
   mdl$frames = list();
   if(mdl$header$num_frames > 0L) {
