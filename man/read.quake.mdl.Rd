@@ -9,7 +9,7 @@ read.quake.mdl(filepath, do_checks = FALSE)
 \arguments{
 \item{filepath}{character string, the path to the MDL file}
 
-\item{fo_checks}{logical, whether to perform some sanity checks on the data and warn on suspicious results.}
+\item{do_checks}{logical, whether to perform some sanity checks on the data and warn on suspicious results.}
 }
 \description{
 Read Quake model in MDL format.

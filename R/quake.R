@@ -29,7 +29,7 @@
 #'
 #' @param filepath character string, the path to the MDL file
 #'
-#' @param fo_checks logical, whether to perform some sanity checks on the data and warn on suspicious results.
+#' @param do_checks logical, whether to perform some sanity checks on the data and warn on suspicious results.
 #'
 #' @note Ignore this function, it will be moved to a different package.
 #'
@@ -719,72 +719,72 @@ is.quakemodel_mdl <- function(x) inherits(x, 'quakemodel_mdl')
 #'
 #' @export
 is.quakemodel <- function(x) inherits(x, 'quakemodel')
-
-
-#' @title Visualize Quake or Quake II alias model.
 #'
-#' @param model a quakemodel instance, can be from a Quake 1 MDL file from a Quake II MD2 model file. Alternatively, a character string which will be interpreted as a file to load.
 #'
-#' @param texture_file character string, path to model skin. Q2 MD2 only, Q1 models include the skin.
+#' #' @title Visualize Quake or Quake II alias model.
+#' #'
+#' #' @param model a quakemodel instance, can be from a Quake 1 MDL file from a Quake II MD2 model file. Alternatively, a character string which will be interpreted as a file to load.
+#' #'
+#' #' @param texture_file character string, path to model skin. Q2 MD2 only, Q1 models include the skin.
+#' #'
+#' #' @param frame_idx integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.
+#' #'
+#' #' @return fs.surface instance, the mesh.
+#' #'
+#' #' @export
+#' #' @importFrom rgl open3d material3d shade3d
+#' vis.quakemodel <- function(model, texture_file = NULL, frame_idx=1L) {
+#'   md2 = model;
+#'   if(requireNamespace('rgl', quietly = TRUE)) {
+#'     if(!(is.quakemodel_md2(md2) | is.quakemodel_mdl(md2))) {
+#'       if(is.character(md2)) {
+#'         if(endsWith(md2, ".md2")) {
+#'           md2 = read.quake.md2(md2);
+#'         } else {
+#'           md2 = read.quake.mdl(md2);
+#'         }
+#'       } else {
+#'         stop("Parameter 'model' must be quakemodel or path to a model file as character string.");
+#'       }
+#'     }
+#'     sf = list('faces'=(md2$triangles$vertex + 1L), 'vertices'=md2$frames[[frame_idx]]$vertex_coords);
+#'     class(sf) = c(class(sf), 'fs.surface');
 #'
-#' @param frame_idx integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.
+#'     tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
 #'
-#' @return fs.surface instance, the mesh.
+#'     material = rgl::material3d();
 #'
-#' @export
-#' @importFrom rgl open3d material3d shade3d
-vis.quakemodel <- function(model, texture_file = NULL, frame_idx=1L) {
-  md2 = model;
-  if(requireNamespace('rgl', quietly = TRUE)) {
-    if(!(is.quakemodel_md2(md2) | is.quakemodel_mdl(md2))) {
-      if(is.character(md2)) {
-        if(endsWith(md2, ".md2")) {
-          md2 = read.quake.md2(md2);
-        } else {
-          md2 = read.quake.mdl(md2);
-        }
-      } else {
-        stop("Parameter 'model' must be quakemodel or path to a model file as character string.");
-      }
-    }
-    sf = list('faces'=(md2$triangles$vertex + 1L), 'vertices'=md2$frames[[frame_idx]]$vertex_coords);
-    class(sf) = c(class(sf), 'fs.surface');
-
-    tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE);
-
-    material = rgl::material3d();
-
-
-    rgl::open3d();
-
-    if(is.null(texture_file)) {
-      material$color = '#333333';
-      material$specular = '#AAAAAA';
-      material$fog = FALSE;
-      rgl::shade3d(tm, material = material)
-    } else {
-      if(! file.exists(texture_file)) {
-        stop(sprintf("Texture file '%s' not readable.\n", texture_file));
-      }
-      material$color = '#FFFFFF';
-      material$texture = texture_file;
-      material$specular = '#000000';
-
-      #scale_w = md2$header$skinwidth;
-      #scale_h = md2$header$skinheight;
-      #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
-      #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
-      #scale_w = 1.0;
-      #scale_h = 1.0;
-
-      texcoords = cbind((1.0 - md2$texcoords$s), (1.0 - md2$texcoords$t));
-      tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE, material = material, texcoords = texcoords);
-      rgl::shade3d(tm);
-    }
-    return(sf);
-  } else {
-    stop("Visualization requires the 'rgl' package to be installed.");
-  }
-}
-
+#'
+#'     rgl::open3d();
+#'
+#'     if(is.null(texture_file)) {
+#'       material$color = '#333333';
+#'       material$specular = '#AAAAAA';
+#'       material$fog = FALSE;
+#'       rgl::shade3d(tm, material = material)
+#'     } else {
+#'       if(! file.exists(texture_file)) {
+#'         stop(sprintf("Texture file '%s' not readable.\n", texture_file));
+#'       }
+#'       material$color = '#FFFFFF';
+#'       material$texture = texture_file;
+#'       material$specular = '#000000';
+#'
+#'       #scale_w = md2$header$skinwidth;
+#'       #scale_h = md2$header$skinheight;
+#'       #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
+#'       #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
+#'       #scale_w = 1.0;
+#'       #scale_h = 1.0;
+#'
+#'       texcoords = cbind((1.0 - md2$texcoords$s), (1.0 - md2$texcoords$t));
+#'       tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE, material = material, texcoords = texcoords);
+#'       rgl::shade3d(tm);
+#'     }
+#'     return(sf);
+#'   } else {
+#'     stop("Visualization requires the 'rgl' package to be installed.");
+#'   }
+#' }
+#'
 
