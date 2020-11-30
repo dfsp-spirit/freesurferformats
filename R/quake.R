@@ -729,6 +729,8 @@ is.quakemodel <- function(x) inherits(x, 'quakemodel')
 #'
 #' @param frame_idx integer, which frame to use for vertex positions. A model contains many vertex positions if it includes model animation data.
 #'
+#' @return fs.surface instance, the mesh.
+#'
 #' @export
 #' @importFrom rgl open3d material3d shade3d
 vis.quakemodel <- function(model, texture_file = NULL, frame_idx=1L) {
@@ -772,13 +774,14 @@ vis.quakemodel <- function(model, texture_file = NULL, frame_idx=1L) {
       #scale_h = md2$header$skinheight;
       #scale_w = dim(readbitmap::read.bitmap(texture_file))[1];
       #scale_h = dim(readbitmap::read.bitmap(texture_file))[2];
-      scale_w = 1.0;
-      scale_h = 1.0;
+      #scale_w = 1.0;
+      #scale_h = 1.0;
 
-      texcoords = cbind((md2$texcoords_unscaled$s / scale_w), (1.0 - (md2$texcoords_unscaled$t / scale_h)));
+      texcoords = cbind((1.0 - md2$texcoords$s), (1.0 - md2$texcoords$t));
       tm = rgl::tmesh3d(t(sf$vertices), t(sf$faces), homogeneous = FALSE, material = material, texcoords = texcoords);
       rgl::shade3d(tm);
     }
+    return(sf);
   } else {
     stop("Visualization requires the 'rgl' package to be installed.");
   }
