@@ -493,7 +493,6 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
       # read model data: vertex coords (and normal vector indices into pre-defined normal vector)
       this_frame$scale = readBin(fh, numeric(), n = 3L, size = 4L);
       this_frame$translate = readBin(fh, numeric(), n = 3L, size = 4L);
-      #this_frame$name = readBin(fh, character());
       this_frame$name = readChar(fh, 16L);
       if(header$num_vertices > 0L) {
         this_frame$vertex_coords = matrix(rep(NA, (3 * header$num_vertices)), ncol = 3L);
@@ -503,7 +502,7 @@ read.quake.md2 <- function(filepath, anim = FALSE) {
           this_vert_normal_index = readBin(fh, integer(), n = 1L, size = 1L, signed = FALSE);
 
           # compute real vertex coords using frame scale and translation
-
+          this_frame$vertex_coords[j,] = (this_frame$scale * this_vert_coords_raw) + this_frame$translate;
           this_frame$vertex_normals[j,] = pdn[this_vert_normal_index,];
         }
       }
@@ -724,7 +723,7 @@ is.quakemodel <- function(x) inherits(x, 'quakemodel')
 
 #' @title Visualize Quake or Quake II alias model.
 #'
-#' @param md2 an MDL or MD2 model instance. Alternatively, a character string which will be interpreted as a file to load.
+#' @param model a quakemodel instance, can be from a Quake 1 MDL file from a Quake II MD2 model file. Alternatively, a character string which will be interpreted as a file to load.
 #'
 #' @param texture_file character string, path to model skin. Q2 MD2 only, Q1 models include the skin.
 #'
@@ -732,7 +731,8 @@ is.quakemodel <- function(x) inherits(x, 'quakemodel')
 #'
 #' @export
 #' @importFrom rgl open3d material3d shade3d
-vis.quakemodel <- function(md2, texture_file = NULL, frame_idx=1L) {
+vis.quakemodel <- function(model, texture_file = NULL, frame_idx=1L) {
+  md2 = model;
   if(requireNamespace('rgl', quietly = TRUE)) {
     if(!(is.quakemodel_md2(md2) | is.quakemodel_mdl(md2))) {
       if(is.character(md2)) {
@@ -742,7 +742,7 @@ vis.quakemodel <- function(md2, texture_file = NULL, frame_idx=1L) {
           md2 = read.quake.mdl(md2);
         }
       } else {
-        stop("Parameter 'md2' must be quakemodel or path to a model file as character string.");
+        stop("Parameter 'model' must be quakemodel or path to a model file as character string.");
       }
     }
     sf = list('faces'=(md2$triangles$vertex + 1L), 'vertices'=md2$frames[[frame_idx]]$vertex_coords);
