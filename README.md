@@ -40,6 +40,8 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
 
+* Fiber track formats (DTI): read support for the '.trk' format used by the Diffusion Toolkit / TrackVis.
+
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
 * NIFTI volumes (v1, single file): Reading is supported based on the [oro.nifti](https://CRAN.R-project.org/package=oro.nifti) package. The result is transformed into an `fs.volume` instance, including computation of transformation matrices like vox2ras from the NIFTI header q-form/s-form, so NIFTI volumes can be used just like MGH/MGZ volumes. (Note: If you do not need the FreeSurfer-style transforms and all you want is to read NIFTI files, you should use `oro.nifti` directly.) Alternatively, our internal reader can be used.
