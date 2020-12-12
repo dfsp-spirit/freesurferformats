@@ -11,6 +11,8 @@
 #' @examples
 #' \dontrun{
 #' trk = read.dti.trk("~/simple.trk");
+#' trk2 = read.dti.trk("~/standard.trk");
+#' trk3 = read.dti.trk("~/complex_big_endian.trk");
 #' }
 #'
 #' @export
