@@ -6,7 +6,7 @@
 #'
 #' @param filepath character string, path to file in trk format.
 #'
-#' @return named list, the parsed file data.
+#' @return named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}.
 #'
 #' @examples
 #' \dontrun{

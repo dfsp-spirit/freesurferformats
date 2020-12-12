@@ -10,7 +10,7 @@ read.dti.trk(filepath)
 \item{filepath}{character string, path to file in trk format.}
 }
 \value{
-named list, the parsed file data.
+named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}.
 }
 \description{
 Read fiber tracks from Diffusion Toolkit in trk format.
@@ -18,6 +18,8 @@ Read fiber tracks from Diffusion Toolkit in trk format.
 \examples{
 \dontrun{
 trk = read.dti.trk("~/simple.trk");
+trk2 = read.dti.trk("~/standard.trk");
+trk3 = read.dti.trk("~/complex_big_endian.trk");
 }
 
 }
