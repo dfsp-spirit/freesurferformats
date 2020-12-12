@@ -31,9 +31,29 @@ read.dti.trk <- function(filepath) {
   trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian);
   trk$header$property_names = read.fixed.char.binary(fh, 200L);
   trk$header$vox2ras = matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE);
-  trk$header$reserved = read.fixed.char.binary(fh, 400L);
+  trk$header$reserved = read.fixed.char.binary(fh, 444L);
   trk$header$voxel_order = read.fixed.char.binary(fh, 4L);
+  trk$header$pad2 = read.fixed.char.binary(fh, 4L); # padding
+  trk$header$image_orientation_patient = readBin(fh, numeric(), n = 6, size = 4, endian = endian);
+  trk$header$pad1 = read.fixed.char.binary(fh, 2L); # padding
+  trk$header$invert_x = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$invert_y = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$invert_z = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$swap_xy = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$swap_yz = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$swap_zx = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
+  trk$header$n_count = readBin(fh, integer(), n = 1, size = 4, endian = endian); # number of tracks, 0=not stored/unknown.
+  trk$header$version = readBin(fh, integer(), n = 1, size = 4, endian = endian); # file format version
+  trk$header$hdr_size = readBin(fh, integer(), n = 1, size = 4, endian = endian); # size of hdr, for endianess checking.
 
+  if(trk$header$version != 2L) {
+    warning(sprintf("TRK file '%s' has version %d, only version 2 is supported.\n", filepath, trk$header$version));
+  }
+  if(trk$header$hdr_size != 1000L) {
+    warning(sprintf("TRK file '%s' header field hdr_size is '%d', must be 1000.\n", filepath, trk$header$hdr_size));
+  }
+
+  # TODO: read TRACK data
 
   return(trk);
 }
