@@ -26,9 +26,9 @@ read.dti.trk <- function(filepath) {
   trk$header$dim = readBin(fh, integer(), n = 3, size = 2, endian = endian);
   trk$header$voxel_size = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
   trk$header$origin = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
-  trk$header$n_scalars = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  trk$header$n_scalars = readBin(fh, integer(), n = 1, size = 2, endian = endian); # scalar: one value per point (on a track)
   trk$header$scalar_names = read.fixed.char.binary(fh, 200L);
-  trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian); # property: one value per track.
   trk$header$property_names = read.fixed.char.binary(fh, 200L);
   trk$header$vox2ras = matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE);
   trk$header$reserved = read.fixed.char.binary(fh, 444L);
@@ -53,8 +53,37 @@ read.dti.trk <- function(filepath) {
     warning(sprintf("TRK file '%s' header field hdr_size is '%d', must be 1000.\n", filepath, trk$header$hdr_size));
   }
 
-  # TODO: read TRACK data
+  tracks = list();
 
+  # Read TRACK data
+  if(trk$header$n_count > 0L) {
+    for(track_idx in 1L:trk$header$n_count) {
+      current_track = list('scalars' = NULL, 'properties' = NULL, 'coords' = NULL);
+      current_track$num_points = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+      current_track$coords = matrix(rep(NA, (current_track$num_points * 3L)), ncol = 3);
+
+      if(trk$header$n_scalars > 0L) {
+        current_track$scalars = matrix(rep(NA, (current_track$num_points * trk$header$n_scalars)), ncol = trk$header$n_scalars);
+      }
+
+      if(current_track$num_points > 0L) {
+        for(track_point_idx in 1L:current_track$num_points) {
+          current_track$coords[track_point_idx, ] = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
+          if(trk$header$n_scalars > 0L) {
+            current_track$scalars[track_point_idx, ] = readBin(fh, numeric(), n = trk$header$n_scalars, size = 4, endian = endian);
+          }
+        }
+      }
+
+      if(trk$header$n_properties > 0L) {
+        current_track$properties = readBin(fh, numeric(), n = trk$header$n_properties, size = 4, endian = endian);
+      }
+
+      tracks[[track_idx]] = current_track;
+    }
+  }
+
+  trk$tracks = tracks;
   return(trk);
 }
 
