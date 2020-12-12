@@ -21,5 +21,5 @@ The STL format is a mesh format that is often used for 3D printing, it stores ge
 The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup').
 }
 \references{
-\url{https://en.wikipedia.org/wiki/STL_(file_format)}
+See https://en.wikipedia.org/wiki/STL_(file_format) for the format spec.
 }

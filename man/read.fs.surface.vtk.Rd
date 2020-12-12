@@ -13,7 +13,7 @@ read.fs.surface.vtk(filepath)
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 }
 \description{
-This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See \url{https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf} for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
+This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
 }
 \note{
 This is by far not a complete VTK format reader.

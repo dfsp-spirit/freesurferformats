@@ -16,5 +16,5 @@ an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or sc
 The mz3 format is a binary file format that can store a mesh (vertices and faces), and optionally per-vertex colors or scalars.
 }
 \references{
-See \url{https://github.com/neurolabusc/surf-ice} for details on the format.
+See https://github.com/neurolabusc/surf-ice for details on the format.
 }
