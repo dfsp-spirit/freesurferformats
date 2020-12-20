@@ -35,7 +35,6 @@ read.dti.tck <- function(filepath) {
       line_parts = unlist(strsplit(current_line, ':'));
       lkey = trimws(line_parts[1]);
       lvalue = trimws(line_parts[2]);
-      #cat(sprintf("Key='%s', value='%s'\n", lkey, lvalue));
       tck$header[[lkey]] = lvalue;
       if(lkey == "file") {
         file_parts = unlist(strsplit(lvalue, ' '));
@@ -47,6 +46,12 @@ read.dti.tck <- function(filepath) {
       }
     }
   }
+
+  all_lines = NULL; # free, no longer needed.
+
+  # TODO: read binary track data at offset.
+  #tck$tracks =
+
   return(tck);
 }
 
