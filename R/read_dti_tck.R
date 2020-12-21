@@ -47,7 +47,18 @@ read.dti.tck <- function(filepath) {
     }
   }
 
+
   all_lines = NULL; # free, no longer needed.
+  valid_datatypes = c('Float32BE', 'Float32LE', 'Float64BE', 'Float64LE');
+  if(! tck$header$datatype %in% valid_datatypes) {
+    stop("Invalid datatype in TCK file header");
+  }
+
+  # Determine endianness of following binary data.
+  endian = "little";
+  if(endsWith(tck$header$datatype, 'BE')) {
+    endian = "big";
+  }
 
   # TODO: read binary track data at offset.
   #tck$tracks =
