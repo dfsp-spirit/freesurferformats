@@ -9,6 +9,9 @@ read.dti.tck(filepath)
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} file to read.}
 }
+\value{
+named list with entries 'header' and 'tracks'. The tracks are organized into a list of matrices. Each n x 3 matrix represents the coordinates for the n points of one track, the values in each row are the xyz coords.
+}
 \description{
 Read DTI tracking data from file in MRtrix 'TCK' format.
 }

@@ -1,4 +1,4 @@
-# Functions for reading DTI tracking data from filrs in TCK format.
+# Functions for reading DTI tracking data from files in MRtrix TCK format.
 # See http://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html?highlight=format#tracks-file-format-tck for a spec.
 
 
@@ -11,6 +11,8 @@
 #'  tckf = "~/simple.tck";
 #'  tck = read.dti.tck(tckf);
 #' }
+#'
+#' @return named list with entries 'header' and 'tracks'. The tracks are organized into a list of matrices. Each n x 3 matrix represents the coordinates for the n points of one track, the values in each row are the xyz coords.
 #'
 #' @export
 read.dti.tck <- function(filepath) {
@@ -54,14 +56,50 @@ read.dti.tck <- function(filepath) {
     stop("Invalid datatype in TCK file header");
   }
 
-  # Determine endianness of following binary data.
-  endian = "little";
-  if(endsWith(tck$header$datatype, 'BE')) {
-    endian = "big";
+  if(is.null(tck$header$derived$data_offset)) {
+    stop("Invalid TCK file, missing file offset header entry.");
   }
 
-  # TODO: read binary track data at offset.
-  #tck$tracks =
+  # Determine endianness of following binary data.
+  tck$header$derived$endian = "little";
+  if(endsWith(tck$header$datatype, 'BE')) {
+    tck$header$derived$endian = "big";
+  }
+
+  # Determine size of entries in bytes.
+  tck$header$derived$dsize = 4L; # default to 32bit
+  if(startsWith(tck$header$datatype, 'Float64')) {
+    tck$header$derived$dsize = 8L;
+  }
+
+  # Read binary track data.
+  fs = file.size(filepath);
+  num_to_read = (fs - tck$header$derived$data_offset) / tck$header$derived$dsize;
+
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) }, add=TRUE);
+
+  seek(fh, where = tck$header$derived$data_offset, origin = "start");
+  tracks_rawdata = readBin(fh, numeric(), n = num_to_read, size = tck$header$derived$dsize, endian = tck$header$derived$endian);
+
+  # Rows consisting of NaNs are track separators, and the final EOF row is all Inf.
+  tracks_raw_matrix = matrix(tracks_rawdata, ncol = 3, byrow = TRUE);
+
+  # Filter separators and end marker, organize into tracks list (of matrices).
+  tck$tracks = list();
+  current_track_idx = 1L;
+  for(row_idx in 1L:nrow(tracks_raw_matrix)) {
+    if(any(is.nan(tracks_raw_matrix[row_idx, ])) | any(is.infinite(tracks_raw_matrix[row_idx, ]))) {
+      current_track_idx = current_track_idx + 1L;
+      next;
+    } else {
+      if(length(tck$tracks) < current_track_idx) {
+        tck$tracks[[current_track_idx]] = tracks_raw_matrix[row_idx, ];
+      } else {
+        tck$tracks[[current_track_idx]] = rbind(tck$tracks[[current_track_idx]], tracks_raw_matrix[row_idx, ]);
+      }
+    }
+  }
 
   return(tck);
 }
