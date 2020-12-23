@@ -40,7 +40,7 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
 
-* Fiber track formats (DTI): read support for the '.trk' format used by the Diffusion Toolkit / TrackVis.
+* Fiber track formats (DTI, diffusion tensor imaging): there is read support for the '.trk' format used by the [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/) and the '.tck' and '.tsf' formats used by [MRtrix3](https://www.mrtrix.org/).
 
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
