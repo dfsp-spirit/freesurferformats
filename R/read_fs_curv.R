@@ -7,6 +7,8 @@
 #'
 #' @param format one of 'auto', 'asc', 'bin', 'nii' or 'txt'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc' or '.txt'. The latter is just one float value per line in a text file.
 #'
+#' @param with_header logical, whether to return named list with 'header' and 'data' parts. Only valid with FreeSurfer binary curv format.
+#'
 #' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
@@ -19,8 +21,9 @@
 #' @family morphometry functions
 #'
 #' @export
-read.fs.curv <- function(filepath, format='auto') {
+read.fs.curv <- function(filepath, format='auto', with_header = FALSE) {
     MAGIC_FILE_TYPE_NUMBER = 16777215L;
+    endian = "big";
 
     if(!(format %in% c('auto', 'bin', 'asc', 'txt'))) {
       stop("Format must be one of c('auto', 'bin', 'asc', 'txt').");
@@ -45,11 +48,17 @@ read.fs.curv <- function(filepath, format='auto') {
     if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
         stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath)); # nocov
     }
-    num_verts = readBin(fh, integer(), n = 1, size = 4, endian = "big");
-    num_faces = readBin(fh, integer(), n = 1, size = 4, endian = "big");
-    values_per_vertex = readBin(fh, integer(), n = 1, endian = "big");
-    data = readBin(fh, numeric(), size = 4, n = num_verts, endian = "big");
-    return(data);
+    header = list('magic' = magic_byte);
+    header$num_verts = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+    header$num_faces = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+    header$values_per_vertex = readBin(fh, integer(), n = 1, endian = endian);
+    data = readBin(fh, numeric(), size = 4, n = header$num_verts, endian = endian);
+
+    if(with_header) {
+      return(list('header' = header, 'data' = data));
+    } else {
+      return(data);
+    }
 }
 
 
