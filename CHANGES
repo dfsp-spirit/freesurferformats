@@ -1,16 +1,22 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.14
+--------------
+- support reading the MRtrix TCK format (in function read.dti.tck) and
+- support reading the TRK format used by the Diffusion Toolkit and TrackVis in (function read.dti.trk).
+- Delete test data after unit tests have been run if (and only if) running on CRAN
+
+
 Version 0.1.13
 --------------
 - support reading and writing Wavefront object files with non-standard vertex colors
-- support reading NIFTI v1 files with FreeSurfer hack through our own, new NIFTI v1 reader. See read.nifti1.header() and read.nifti1.data() functions. 
+- support reading NIFTI v1 files with FreeSurfer hack through our own, new NIFTI v1 reader. See read.nifti1.header() and read.nifti1.data() functions.
 - support reading NIFTI v2 files through our own, new NIFTI v2 reader. See read.nifti2.header() and read.nifti2.data() functions.
 - support writing NIFTI v1 files, see write.nifti1() ni1header.for.data() functions.
 - support writing NIFTI v2 files, see write.nifti2() ni2header.for.data() functions.
 - add function to check whether a file is in NIFTI v1 or NIFTI v2 format, see nifti.file.version() function.
 - the read.fs.morph() function can now handle morphometry data files in NIFTI v1 format, including files with the FreeSurfer hack.
-
 
 
 Version 0.1.12
