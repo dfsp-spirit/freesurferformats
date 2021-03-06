@@ -304,6 +304,9 @@ read.fs.surface <- function(filepath, format='auto') {
 
   ret_list = list();
 
+  #cur_pos = seek(fh, where=NA);
+  #cat(sprintf("At position %d before reading anything.\n", cur_pos));
+
   magic_byte = fread3(fh);
   if (magic_byte == OLD_QUAD_MAGIC_FILE_TYPE_NUMBER | magic_byte == NEW_QUAD_MAGIC_FILE_TYPE_NUMBER) {
     warning("Reading QUAD files in untested atm. Please use with care. This warning will be removed once we have an example input file and the code has unit tests.")
