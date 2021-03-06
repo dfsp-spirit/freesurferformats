@@ -100,7 +100,6 @@ read.dti.trk <- function(filepath) {
 #'
 #' @keywords internal
 get.dti.trk.endianness <- function(filepath) {
-
   fh = file(filepath, "rb");
   on.exit({ close(fh) }, add=TRUE);
 

@@ -148,6 +148,29 @@ test_that("A surface file in FreeSurfer ASCII format can be read using read.fs.s
   expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
 })
 
+test_that("The binary version of our FreeSurfer tiny surface file can be read using read.fs.surface", {
+
+  surface_file = system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE);
+  surf = read.fs.surface(surface_file);
+  expect_true(is.fs.surface(surf));
+  known_vertex_count = 5L;
+  known_face_count = 3L;
+
+
+  expect_equal(nrow(surf$vertices), known_vertex_count);
+  expect_equal(ncol(surf$vertices), 3);      # the 3 coords (x,y,z)
+  expect_equal(typeof(surf$vertices), "double");
+
+  expect_equal(nrow(surf$faces), known_face_count);
+  expect_equal(ncol(surf$faces), 3);      # the 3 vertex indices
+  expect_equal(typeof(surf$faces), "integer");
+
+  # Check whether vertex indices were incremented properly
+  num_faces_with_index_zero = sum(surf$faces==0);
+  expect_equal(num_faces_with_index_zero, 0);
+  expect_equal(min(surf$faces), 1L);  # vertex indices must start at 1
+})
+
 
 test_that("A surface file in STL binary format can be read using read.fs.surface", {
   stlbin_surface_file = system.file("extdata", "cube_bin.stl", package = "freesurferformats", mustWork = TRUE);
