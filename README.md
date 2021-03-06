@@ -55,8 +55,6 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 
 ## Installation
 
-**This software is for research puposes only and shall not be used for any clinical use.**
-
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
 
 ```r
