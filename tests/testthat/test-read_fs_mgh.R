@@ -23,6 +23,8 @@ test_that("The data values in the demo 3D MGZ file are read as in the reference 
   expect_equal(vd[100, 100, 100, 1], 77);      # try on command line: mri_info --voxel 99 99 99 inst/extdata/brain.mgz
   expect_equal(vd[110, 110, 110, 1], 71);
   expect_equal(vd[1, 1, 1, 1], 0);
+
+  expect_equal(sum(vd), 121035479);
 })
 
 
