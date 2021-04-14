@@ -1,5 +1,5 @@
 # freesurferformats
-GNU R package to read and write (not only) FreeSurfer neuroimaging file formats. Comes with support for many standard mesh file formats.
+GNU R package to read and write structural neuroimaging file formats. Comes with support for file formats used by FreeSurfer, CAT12/SPM,  BrainVoyager, MRtrix3, Diffusion Toolkit/TrackVis and other neuroimaging software packages.
 
 ![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
@@ -108,6 +108,8 @@ read.fs.colortable()  # read a color lookup table (LUT), like `$FREESURFER_HOME/
 read.fs.weight()      # read scalar data for a subset of vertices, defined by index. Known as `weight`, `paint` or simply `w` format.
 read.fs.patch()       # read a surface patch, which is a part of a surface.
 read.fs.transform()   # read spatial transformation matrix
+read.dti.tck()        # read DTI tracks from MRtrix3 'TCK' format
+read.dti.trk()        # read DTI tracks from Diffusion Toolkit/TrakVis 'TRK' format
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
