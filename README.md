@@ -36,6 +36,8 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer spatial transformation matrices can be read from LTA, register.dat, and xfm files.
 
+* FreeSurfer Group Descriptor (FSGD) files: please see the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) for FSGD read and write file support. This is very handy if you conducted GLM-based statistical analyses in FreeSurfer and want to visualize the results in R.
+
 * NIFTI v1: FreeSurfer morphometry data in NIFTI v1 format (including `.nii` and `.nii.gz`) files can be read and written with our own NIFTI v1 support. FreeSurfer NIFTI v1 files that use the (non-standard) FreeSurfer NIFTI hack are also supported. These files are created by FreeSurfer tools if NIFTI output is requested and one dimension of the data is larger than the 32k entries allowed by the NIFTI v1 standard. This affects virtually all surface-based data files because the brain surface meshes in FreeSurfer typically have more than 100k vertices.
 
 * NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
@@ -52,8 +54,6 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 
 
 ## Installation
-
-**This software is for research puposes only and shall not be used for any clinical use.**
 
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
 
