@@ -1419,3 +1419,15 @@ int.to.col.brainvoyager <- function(int_val) {
   return(grDevices::rgb(r/255., g/255., b/255.));
 }
 
+
+#' @title Find vertex index closest to given query coordinate.
+#'
+#' @param surface an fs.surface instance
+#'
+#' @param coords nx3 matrix of query coords, or a single 3-element vector for a single query point.
+#'
+#' @export
+closest.vert.to.coords <- function(surface, coords) {
+
+}
+

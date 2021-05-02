@@ -661,3 +661,59 @@ surfaceras.to.talairach <- function(sras_coords, talairach, header_cras, first_v
   talras = ras.to.talairachras(ras, talairach);
   return(talras);
 }
+
+
+#' @title Apply a spatial transformation matrix to the given coordinates.
+#'
+#' @param coords nx3 (cartesian) or nx4 (homogeneous) numerical matrix, the input coordinates. If nx4, left as is for homogeneous notation, if nx3 (cartesian) a 1 will be appended as the 4th position.
+#'
+#' @param mtx a 4x4 numerical transformation matrix
+#'
+#' @return the coords after applying the transformation. If coords was nx3, nx3 is returned, otherwise nx4.
+#'
+#' @examples
+#'     coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());
+#'     coords_tf;
+#'     doapply.transform.mtx(coords_tf, solve(mni152reg()));
+#'
+#' @export
+doapply.transform.mtx <- function(coords, mtx) {
+  if(is.vector(coords)) {
+    coords = matrix(coords, nrow = 1L);
+  }
+  was_cartesian = FALSE;
+  if(ncol(coords) == 3L) {
+    was_cartesian = TRUE;
+    coords = cbind(coords, 1.0);
+  }
+
+  if(ncol(coords) != 4L) {
+    stop(sprintf("Parameter coords must have 3 or 4 colums (or 3 or 4 entries for a vector), found %d.\n", ncol(coords)));
+  }
+
+  if(any(coords[,4] == 0)) {
+    warning("Invalid 'coords': last column must not be zero.");
+  }
+
+  transformed_coords = t(mtx %*% t(coords));
+  if(was_cartesian) {
+    transformed_coords = transformed_coords[,1:3] / transformed_coords[,4]; # convert from homogeneous to cartesian
+  }
+  return(transformed_coords);
+}
+
+
+#' @title Get fsaverage to MNI 152 transformation matrix.
+#'
+#' @note There are better ways to achieve this transformation than using this matrix, see Wu et al., 'Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate system', Hum Brain Mapp. 2018 Sep; 39(9): 3793–3808. doi: 10.1002/hbm.24213.
+#'
+#' @examples
+#'     coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());
+#'     coords_tf;
+#'     doapply.transform.mtx(coords_tf, solve(mni152reg()));
+#'
+#' @export
+mni152reg <- function() {
+  return(min152reg = matrix(c(9.975314e-01, -7.324822e-03, 1.760415e-02, 9.570923e-01, -1.296475e-02, -9.262221e-03, 9.970638e-01, -1.781596e+01, -1.459537e-02, -1.000945e+00, 2.444772e-03, -1.854964e+01, 0, 0, 0, 1), ncol = 4, byrow = TRUE));
+}
+
