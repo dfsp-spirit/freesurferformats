@@ -9,6 +9,7 @@ test_that("We can compute the vertex closest to an MNI152 coordinate on the fsav
   # freesurferformats. You have to replace this with the fsaverage surface for this demo to
   # do what you expect, e.g., if you have FreeSurfer installed and setup correctly:
   #surface_file = file.path(Sys.getenv("FREESURFER_HOME"), "subjects", "fsaverage", "surf", "lh.white");
+  # Also, keep in mind that the point could be on the other hemisphere and handle that.
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");
 
   skip_if_not(file.exists(surface_file), message="Test data missing.") ;
