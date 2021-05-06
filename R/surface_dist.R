@@ -51,6 +51,16 @@ closest.vert.to.point <- function(surface, point_coords) {
 }
 
 
+#' @title Compute Euclidian distance from all mesh vertices to given point.
+#'
+#' @param surface an fs.surface instance
+#'
+#' @param double vector of length 3, the xyz coords of a single point.
+vertexdists.to.point <- function(surface, point_coords) {
+  return(apply(surface$vertices, 1, euclidian.dist, point_coords));
+}
+
+
 #' @title Compute Euclidian distance.
 #'
 #' @param x1 numerical vector, coords of first point
@@ -61,4 +71,20 @@ closest.vert.to.point <- function(surface, point_coords) {
 #'
 #' @keywords internal
 euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
+
+
+#' @title Compute Euclidian distance between two vertices v1 and v2.
+#'
+#' @param surface an fs.surface instance
+#'
+#' @param x1 positive integer, vertex index of v1
+#'
+#' @param x2 positive integer, vertex index of v2
+#'
+#' @return the Euclidian distance between v1 and v2.
+#'
+#' @export
+vertex.euclid.dist <- function(surface, v1, v2) {
+  euclidian.dist(surface$vertices[v1, ], surface$vertices[v2, ])
+};
 

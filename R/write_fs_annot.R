@@ -150,7 +150,13 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
     writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
 
     for (region_idx in seq_len(num_regions)) {
-      writeBin(as.integer(region_idx - 1L), fh, size = 4, endian = "big");
+      if(is.null(colortable$struct_index)) {
+        region_num_to_write = region_idx - 1L;
+      } else {
+        region_num_to_write = colortable$struct_index[region_idx];
+      }
+
+      writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big");
       region_name = as.character(colortable$struct_name[[region_idx]]);
       writeBin(nchar(region_name), fh, size = 4, endian = "big");
       writeChar(region_name, fh, eos=NULL);

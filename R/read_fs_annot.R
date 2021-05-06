@@ -105,7 +105,11 @@ print.fs.annot <- function(x, ...) { # nocov start
   } else {
     cat(sprintf("Brain surface annotation assigning %d vertices to %d brain regions.\n", length(x$vertices), nrow(x$colortable_df)));
     for(region_idx in seq_len(nrow(x$colortable_df))) {
-      cat(sprintf(" - region #%d '%s': size %d vertices\n", region_idx, as.character(x$colortable_df$struct_name[[region_idx]]), sum(x$label_codes == x$colortable_df$code[[region_idx]])));
+      struct_index = region_idx;
+      if(! is.null(x$colortable_df$struct_index)) {
+        struct_index = x$colortable_df$struct_index[region_idx];
+      }
+      cat(sprintf(" - region #%d '%s': size %d vertices\n", struct_index, as.character(x$colortable_df$struct_name[[region_idx]]), sum(x$label_codes == x$colortable_df$code[[region_idx]])));
     }
   }
 } # nocov end
@@ -558,4 +562,56 @@ read.fs.gca <- function(filepath) {
 }
 
 
+# lh_annot = read.fs.annot("~/data/tim_only/tim/label/lh.aparc.annot");
+# rh_annot = read.fs.annot("~/data/tim_only/tim/label/rh.aparc.annot");
 
+
+#' @title Make the region names and indices unique across hemispheres for a parcellation.
+#'
+#' @description Sometimes you need an annotation to use unique IDs and region names across hemispheres, but that is not the case for the standard FreeSurfer parcellations. So what you need to do is change the codes and names for one hemi. Typically the left hemi annot will be left as is, and the right hemi annot will be modified using this function.
+#'
+#' @param annot the annot in which to change the ids and names.
+#'
+#' @param add_to_region_indices integer, a single value to add to the region indices. This is typically equal to the number of regions in the left hemisphere plus one (e.g., 36+1=37 for the 'aparc' atlas). Pass \code{0} to leave the IDs intact.
+#'
+#' @param region_name_prefix character string, a prefix to modify the region names to make them unique. Pass `NULL` if you do not want a prefix.
+#'
+#' @param region_name_suffix character string, a suffix to modify the region names to make them unique.  Pass `NULL` if you do not want a suffix.
+#'
+#' @examples
+#' \dontrun{
+#' lh_annot = read.fs.annot("~/data/study1/s1/label/lh.aparc.annot");
+#' rh_annot = read.fs.annot("~/data/study1/s1/label/rh.aparc.annot");
+#' rh_annot_mod = annot.unique(rh_annot, nrow(lh_annot$colortable_df)+1L, region_name_prefix='rh_');
+#' }
+#'
+#' @export
+annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL) {
+  if(! is.fs.annot(annot)) {
+    stop("Parameter 'annot' must be an fs.annot instance.");
+  }
+  if(! is.integer(add_to_region_indices)) {
+    stop("Parameter 'add_to_region_indices' must be of type integer.");
+  }
+
+  ### Adapt region indices. ###
+  # First make sure there is a struct index in the colortable, add if not.
+  if(is.null(annot$colortable_df$struct_index)) {
+    annot$colortable_df$struct_index = seq(0, nrow(annot$colortable_df) - 1);
+  }
+  # Now modify the struct_index as requested.
+  annot$colortable_df$struct_index = annot$colortable_df$struct_index + add_to_region_indices;
+
+  ### Add prefix/suffix to names. ###
+  if(! is.null(region_name_prefix)) {
+    annot$label_names = paste(region_name_prefix, annot$label_names, sep = "");
+    annot$colortable$struct_names = paste(region_name_prefix, annot$colortable$struct_names, sep = "");
+    annot$colortable_df$struct_name = paste(region_name_prefix, annot$colortable_df$struct_name, sep = "");
+  }
+  if(! is.null(region_name_suffix)) {
+    annot$label_names = paste(annot$label_names, region_name_suffix, sep = "");
+    annot$colortable$struct_names = paste(annot$colortable$struct_names, region_name_suffix, sep = "");
+    annot$colortable_df$struct_name = paste(annot$colortable_df$struct_name, region_name_suffix, sep = "");
+  }
+  return(annot);
+}
