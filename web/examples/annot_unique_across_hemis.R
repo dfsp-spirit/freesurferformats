@@ -18,6 +18,7 @@
 
 library("freesurferformats");
 args = commandArgs(trailingOnly=TRUE);
+apptag = "[R_annot_unique]";
 
 
 annot_unique <- function(lh_annot_in, rh_annot_in, lh_annot_out, rh_annot_out) {
@@ -33,10 +34,10 @@ annot_unique <- function(lh_annot_in, rh_annot_in, lh_annot_out, rh_annot_out) {
 
   # Save results as files.
   freesurferformats::write.fs.annot(lh_annot_out, fs.annot = lh_annot_unique);
-  cat(sprintf("Annot for left hemi written to '%s'.\n", lh_annot_out));
+  cat(sprintf("%s Annot for left hemi written to '%s'.\n", apptag, lh_annot_out));
 
   freesurferformats::write.fs.annot(rh_annot_out, fs.annot = rh_annot_unique);
-  cat(sprintf("Annot for right hemi written to '%s'.\n", rh_annot_out));
+  cat(sprintf("%s Annot for right hemi written to '%s'.\n", apptag, rh_annot_out));
 }
 
 
