@@ -9,7 +9,7 @@ closest.vert.to.point(surface, point_coords)
 \arguments{
 \item{surface}{an fs.surface instance or a nx3 numerical matrix representing mesh points.}
 
-\item{coords}{nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.}
+\item{point_coords}{nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.}
 }
 \value{
 named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.

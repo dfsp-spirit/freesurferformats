@@ -9,7 +9,10 @@ vertexdists.to.point(surface, point_coords)
 \arguments{
 \item{surface}{an fs.surface instance}
 
-\item{double}{vector of length 3, the xyz coords of a single point.}
+\item{point_coords}{double vector of length 3, the xyz coords of a single point.}
+}
+\value{
+double vector of distances
 }
 \description{
 Compute Euclidian distance from all mesh vertices to given point.

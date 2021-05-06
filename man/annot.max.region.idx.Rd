@@ -15,3 +15,6 @@ integer, the max region index. They typically start with 0 and are consecutive, 
 \description{
 Get max region index of an fs.annot instance.
 }
+\note{
+This is a helper function to be used with \code{annot.unique}, see the example there.
+}

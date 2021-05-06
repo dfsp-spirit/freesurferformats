@@ -3,7 +3,7 @@
 #'
 #' @param surface an fs.surface instance or a nx3 numerical matrix representing mesh points.
 #'
-#' @param coords nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.
+#' @param point_coords nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.
 #'
 #' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.
 #'
@@ -55,7 +55,9 @@ closest.vert.to.point <- function(surface, point_coords) {
 #'
 #' @param surface an fs.surface instance
 #'
-#' @param double vector of length 3, the xyz coords of a single point.
+#' @param point_coords double vector of length 3, the xyz coords of a single point.
+#'
+#' @return double vector of distances
 vertexdists.to.point <- function(surface, point_coords) {
   return(apply(surface$vertices, 1, euclidian.dist, point_coords));
 }
@@ -77,14 +79,15 @@ euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
 #'
 #' @param surface an fs.surface instance
 #'
-#' @param x1 positive integer, vertex index of v1
+#' @param v1 positive integer, vertex index of v1
 #'
-#' @param x2 positive integer, vertex index of v2
+#' @param v2 positive integer, vertex index of v2
 #'
-#' @return the Euclidian distance between v1 and v2.
+#' @return double, the Euclidian distance between v1 and v2.
 #'
 #' @export
 vertex.euclid.dist <- function(surface, v1, v2) {
   euclidian.dist(surface$vertices[v1, ], surface$vertices[v2, ])
-};
+}
+
 

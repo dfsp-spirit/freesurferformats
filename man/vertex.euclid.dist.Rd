@@ -9,12 +9,12 @@ vertex.euclid.dist(surface, v1, v2)
 \arguments{
 \item{surface}{an fs.surface instance}
 
-\item{x1}{positive integer, vertex index of v1}
+\item{v1}{positive integer, vertex index of v1}
 
-\item{x2}{positive integer, vertex index of v2}
+\item{v2}{positive integer, vertex index of v2}
 }
 \value{
-the Euclidian distance between v1 and v2.
+double, the Euclidian distance between v1 and v2.
 }
 \description{
 Compute Euclidian distance between two vertices v1 and v2.
