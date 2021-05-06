@@ -1,3 +1,4 @@
+web/
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^Meta$

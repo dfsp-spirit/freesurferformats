@@ -562,6 +562,23 @@ read.fs.gca <- function(filepath) {
 }
 
 
+#' @title Get max region index of an fs.annot instance.
+#'
+#' @param annot fs.annot instance
+#'
+#' @return integer, the max region index. They typically start with 0 and are consecutive, but this is not enforced or checked in any way.
+#'
+#' @note This is a helper function to be used with \code{annot.unique}, see the example there.
+#'
+#' @export
+annot.max.region.idx <- function(annot) {
+  if(is.null(annot$colortable_df$struct_index)) {
+    return(nrow(annot$colortable_df));
+  } else {
+    return(max(annot$colortable_df$struct_index));
+  }
+}
+
 # lh_annot = read.fs.annot("~/data/tim_only/tim/label/lh.aparc.annot");
 # rh_annot = read.fs.annot("~/data/tim_only/tim/label/rh.aparc.annot");
 
@@ -572,7 +589,7 @@ read.fs.gca <- function(filepath) {
 #'
 #' @param annot the annot in which to change the ids and names.
 #'
-#' @param add_to_region_indices integer, a single value to add to the region indices. This is typically equal to the number of regions in the left hemisphere plus one (e.g., 36+1=37 for the 'aparc' atlas). Pass \code{0} to leave the IDs intact.
+#' @param add_to_region_indices integer, a single value to add to the region indices. This is typically equal to the number of regions in the left hemisphere plus one (e.g., 36+1=37 for the 'aparc' atlas), as the region indices typically start at 0 and are consecutive, but you may want to check the maximal region id of the left hemi is in doubt. Pass \code{0} to leave the IDs intact.
 #'
 #' @param region_name_prefix character string, a prefix to modify the region names to make them unique. Pass `NULL` if you do not want a prefix.
 #'
@@ -581,8 +598,9 @@ read.fs.gca <- function(filepath) {
 #' @examples
 #' \dontrun{
 #' lh_annot = read.fs.annot("~/data/study1/s1/label/lh.aparc.annot");
+#' lh_annot; # shows info including region IDs
 #' rh_annot = read.fs.annot("~/data/study1/s1/label/rh.aparc.annot");
-#' rh_annot_mod = annot.unique(rh_annot, nrow(lh_annot$colortable_df)+1L, region_name_prefix='rh_');
+#' rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
 #' }
 #'
 #' @export
