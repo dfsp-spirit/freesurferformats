@@ -71,6 +71,7 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
         hex_color_string_rgba = grDevices::rgb(r/255., g/255., b/255., a/255);
         colortable_df = data.frame(struct_names, r, g, b, a, code, hex_color_string_rgb, hex_color_string_rgba, stringsAsFactors = FALSE);
         colnames(colortable_df) = c("struct_name", "r", "g", "b", "a", "code", "hex_color_string_rgb", "hex_color_string_rgba");
+        colortable_df$struct_index = colortable$struct_index;
         return_list$colortable_df = colortable_df;
 
         label_names = rep("", length(labels))
@@ -200,12 +201,15 @@ readcolortable <- function(fh, ctable_num_entries) {
       warning(sprintf("Meta data on number of color table mismatches: %d versus %d.\n", ctable_num_entries, ctable_num_entries_2nd));   # nocov
     }
 
+    struct_identifier = rep(NA, ctable_num_entries); # the IDs of the regions in the file.
     for (i in seq_len(ctable_num_entries)) {
-        struct_idx = readBin(fh, integer(), n = 1, endian = "big") + 1L;
+        struct_idx = i; # our internal index
+        current_struct_identifier = readBin(fh, integer(), n = 1, endian = "big"); # the region identifier field in the file.
+        struct_identifier[struct_idx] = current_struct_identifier;
 
         # Index must not be negative:
-        if (struct_idx < 0L) {
-            stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, struct_idx));   # nocov
+        if (current_struct_identifier < 0L) {
+            stop(sprintf("Invalid struct index in color table entry #%d: index must not be negative but is '%d'.\n", i, current_struct_identifier));   # nocov
         }
 
         name_so_far = colortable$struct_names[struct_idx];
@@ -230,6 +234,7 @@ readcolortable <- function(fh, ctable_num_entries) {
         colortable$table[i,3] = b;
         colortable$table[i,4] = a;
         colortable$table[i,5] = unique_color_label;
+        colortable$struct_index = struct_identifier;
     }
 
     return(colortable);

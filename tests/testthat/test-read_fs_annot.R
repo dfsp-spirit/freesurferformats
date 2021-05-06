@@ -58,7 +58,7 @@ test_that("Our demo annotation file can be read", {
     cdf = annot$colortable_df;
     expect_equal(class(cdf), "data.frame");
     expect_equal(nrow(cdf), 36);
-    expect_equal(ncol(cdf), 8);
+    expect_equal(ncol(cdf), 9);
     column_names = colnames(cdf);
     expect_true("struct_name" %in% column_names);
     expect_true("r" %in% column_names);
