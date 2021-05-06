@@ -153,7 +153,7 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
       if(is.null(colortable$struct_index)) {
         region_num_to_write = region_idx - 1L;
       } else {
-        region_num_to_write = colortable$struct_index[region_idx];
+        region_num_to_write = colortable$struct_index[[region_idx]];
       }
 
       writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big");
