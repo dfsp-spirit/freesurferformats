@@ -32,6 +32,8 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
     }
     on.exit({ close(fh) }, add=TRUE);
 
+    empty_label_name = "unknown";
+
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
     verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");
 
@@ -80,6 +82,11 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
         for (i in 1:length(colortable$struct_names)) {
           label_code = code[i];
           label_name = colortable$struct_names[i];
+          if(nchar(label_name) == 0) {
+            warning(sprintf("Replacing empty label name with '%s'\n", empty_label_name));
+            label_name = paste(empty_label_name, nempty, sep="");
+            nempty = nempty + 1L;
+          }
           hex_color_string_rgb = grDevices::rgb(colortable$table[i,1]/255., colortable$table[i,2]/255., colortable$table[i,3]/255.);
           label_names[labels==label_code] = label_name;
           hex_colors_rgb[labels==label_code] = hex_color_string_rgb;
