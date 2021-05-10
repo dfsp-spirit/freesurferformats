@@ -617,8 +617,10 @@ annot.max.region.idx <- function(annot) {
 #' rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
 #' }
 #'
+#' @note This function is not part of the official API and should not be used.
+#'
 #' @export
-annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL, set_first_idx_zero=TRUE) {
+annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL, set_first_idx_zero=FALSE) {
   if(! is.fs.annot(annot)) {
     stop("Parameter 'annot' must be an fs.annot instance.");
   }
@@ -629,7 +631,7 @@ annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_",
   ### Adapt region indices. ###
   # First make sure there is a struct index in the colortable, add if not.
   if(is.null(annot$colortable_df$struct_index)) {
-    annot$colortable_df$struct_index = seq(0, nrow(annot$colortable_df) - 1);
+    annot$colortable_df$struct_index = seq(0, nrow(annot$colortable_df) - 1) + 1L;
   }
   # Now modify the struct_index as requested.
   annot$colortable_df$struct_index = annot$colortable_df$struct_index + add_to_region_indices;
