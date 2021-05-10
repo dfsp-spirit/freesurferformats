@@ -607,16 +607,18 @@ annot.max.region.idx <- function(annot) {
 #'
 #' @param region_name_suffix character string, a suffix to modify the region names to make them unique.  Pass `NULL` if you do not want a suffix.
 #'
+#' @param set_first_idx_zero logical, whether to apply special treatment to first region (the 'unknown' region) in annot and set its ID to \code{0}.
+#'
 #' @examples
 #' \dontrun{
-#' lh_annot = read.fs.annot("~/data/study1/s1/label/lh.aparc.annot");
+#' lh_annot = read.fs.annot("~/data/study1/subject1/label/lh.aparc.annot");
 #' lh_annot; # shows info including region IDs
-#' rh_annot = read.fs.annot("~/data/study1/s1/label/rh.aparc.annot");
+#' rh_annot = read.fs.annot("~/data/study1/subject1/label/rh.aparc.annot");
 #' rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
 #' }
 #'
 #' @export
-annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL) {
+annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL, set_first_idx_zero=TRUE) {
   if(! is.fs.annot(annot)) {
     stop("Parameter 'annot' must be an fs.annot instance.");
   }
@@ -631,6 +633,10 @@ annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_",
   }
   # Now modify the struct_index as requested.
   annot$colortable_df$struct_index = annot$colortable_df$struct_index + add_to_region_indices;
+  if(set_first_idx_zero) {
+    annot$colortable_df$struct_index[1] = 0L;
+  }
+  annot$colortable$struct_index = annot$colortable_df$struct_index;
 
   ### Add prefix/suffix to names. ###
   if(! is.null(region_name_prefix)) {
