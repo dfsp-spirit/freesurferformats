@@ -10,7 +10,6 @@ web/
 ^CONTRIBUTING\.md$
 LICENSE_FULL
 CHANGES
-\.travis\.yml
 appveyor\.yml
 ^appveyor\.yml$
 
