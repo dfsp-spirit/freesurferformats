@@ -38,7 +38,7 @@ test_that("One can write and re-read triangular surface data", {
 test_that("One can read, write and re-read triangular surface data", {
 
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
-
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
   surface_file = file.path(subjects_dir, "subject1", "surf", "lh.white");

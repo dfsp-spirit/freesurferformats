@@ -4,6 +4,7 @@ test_that("We can load a CIFTI dscalar file as a morph data vector", {
   # The files used in this test are provided under the Open Data Commons Public Domain Dedication and Licence (PDDL), see http://opendatacommons.org/licenses/pddl/1.0/ for details.
   # These are the CIFTI 2 example files available on https://www.nitrc.org/projects/cifti/
 
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   cifti_dir = freesurferformats::get_opt_data_filepath("cifti");
