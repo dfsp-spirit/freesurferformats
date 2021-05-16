@@ -8,7 +8,8 @@ annot.unique(
   annot,
   add_to_region_indices,
   region_name_prefix = "rh_",
-  region_name_suffix = NULL
+  region_name_suffix = NULL,
+  set_first_idx_zero = FALSE
 )
 }
 \arguments{
@@ -19,16 +20,22 @@ annot.unique(
 \item{region_name_prefix}{character string, a prefix to modify the region names to make them unique. Pass `NULL` if you do not want a prefix.}
 
 \item{region_name_suffix}{character string, a suffix to modify the region names to make them unique.  Pass `NULL` if you do not want a suffix.}
+
+\item{set_first_idx_zero}{logical, whether to apply special treatment to first region (the 'unknown' region) in annot and set its ID to \code{0}.}
 }
 \description{
 Sometimes you need an annotation to use unique IDs and region names across hemispheres, but that is not the case for the standard FreeSurfer parcellations. So what you need to do is change the codes and names for one hemi. Typically the left hemi annot will be left as is, and the right hemi annot will be modified using this function.
 }
+\note{
+This function is not part of the official API and should not be used. It is currently broken.
+}
 \examples{
 \dontrun{
-lh_annot = read.fs.annot("~/data/study1/s1/label/lh.aparc.annot");
+lh_annot = read.fs.annot("~/data/study1/subject1/label/lh.aparc.annot");
 lh_annot; # shows info including region IDs
-rh_annot = read.fs.annot("~/data/study1/s1/label/rh.aparc.annot");
+rh_annot = read.fs.annot("~/data/study1/subject1/label/rh.aparc.annot");
 rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
 }
 
 }
+\keyword{internal}

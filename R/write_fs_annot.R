@@ -155,7 +155,7 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
       } else {
         region_num_to_write = colortable$struct_index[[region_idx]];
       }
-      cat(sprintf("Writing region ID '%d' (at idx %d).\n", region_num_to_write, region_idx));
+      #cat(sprintf("Writing region ID '%d' (at idx %d).\n", region_num_to_write, region_idx));
 
       writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big");
       region_name = as.character(colortable$struct_name[[region_idx]]);
