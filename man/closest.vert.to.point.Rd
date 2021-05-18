@@ -2,7 +2,7 @@
 % Please edit documentation in R/surface_dist.R
 \name{closest.vert.to.point}
 \alias{closest.vert.to.point}
-\title{Find vertex index closest to given query coordinate.}
+\title{Find vertex index closest to given query coordinate using Euclidean distance.}
 \usage{
 closest.vert.to.point(surface, point_coords)
 }
@@ -15,5 +15,5 @@ closest.vert.to.point(surface, point_coords)
 named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.
 }
 \description{
-Find vertex index closest to given query coordinate.
+Find vertex index closest to given query coordinate using Euclidean distance.
 }

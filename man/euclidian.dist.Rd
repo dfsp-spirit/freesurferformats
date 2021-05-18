@@ -2,7 +2,7 @@
 % Please edit documentation in R/surface_dist.R
 \name{euclidian.dist}
 \alias{euclidian.dist}
-\title{Compute Euclidian distance.}
+\title{Compute Euclidean distance.}
 \usage{
 euclidian.dist(x1, x2)
 }
@@ -12,9 +12,9 @@ euclidian.dist(x1, x2)
 \item{x2}{numerical vector, coords of second point}
 }
 \value{
-the Euclidian distance between x1 and x2.
+the Euclidean distance between x1 and x2.
 }
 \description{
-Compute Euclidian distance.
+Compute Euclidean distance.
 }
 \keyword{internal}
