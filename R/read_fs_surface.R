@@ -1420,3 +1420,18 @@ int.to.col.brainvoyager <- function(int_val) {
 }
 
 
+#' @title Stop unless surf is an fs.surface
+#'
+#' @param surf fs.surface instance or anything else
+#'
+#' @param param_name character string, used in stop message to identify the parameter.
+#'
+#' @return Called for the side effect of stopping if surf is not an fs.surface instance.
+#'
+#' @keywords internal
+assert.surface <- function(surface, param_name="surface") {
+  if(! is.fs.surface(surface)) {
+    stop(sprintf("Parameter '%s' must be an fs.surface instance.", param_name));
+  }
+  return(invisible(NULL));
+}

@@ -17,3 +17,9 @@ named list with entries: 'vertex_id' integer vector, the index of the closest ve
 \description{
 Find vertex index closest to given query coordinate using Euclidean distance.
 }
+\seealso{
+Other Euclidean distance util functions: 
+\code{\link{vertex.euclid.dist}()},
+\code{\link{vertexdists.to.point}()}
+}
+\concept{Euclidean distance util functions}

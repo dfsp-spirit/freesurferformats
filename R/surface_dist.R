@@ -8,6 +8,8 @@
 #'
 #' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.
 #'
+#' @family Euclidean distance util functions
+#'
 #' @export
 #' @importFrom stats dist
 closest.vert.to.point <- function(surface, point_coords) {
@@ -58,6 +60,8 @@ closest.vert.to.point <- function(surface, point_coords) {
 #'
 #' @param point_coords double vector of length 3, the xyz coords of a single point.
 #'
+#' @family Euclidean distance util functions
+#'
 #' @return double vector of distances
 vertexdists.to.point <- function(surface, point_coords) {
   assert.surface(surface);
@@ -76,24 +80,6 @@ vertexdists.to.point <- function(surface, point_coords) {
 #' @keywords internal
 euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
 
-
-#' @title Stop unless surf is an fs.surface
-#'
-#' @param surf fs.surface instance or anything else
-#'
-#' @param param_name character string, used in stop message to identify the parameter.
-#'
-#' @return Called for the side effect of stopping if surf is not an fs.surface instance.
-#'
-#' @keywords internal
-assert.surface <- function(surface, param_name="surface") {
-  if(! is.fs.surface(surface)) {
-    stop(sprintf("Parameter '%s' must be an fs.surface instance.", param_name));
-  }
-  return(invisible(NULL));
-}
-
-
 #' @title Compute Euclidean distance between two vertices v1 and v2.
 #'
 #' @param surface an fs.surface instance
@@ -102,7 +88,9 @@ assert.surface <- function(surface, param_name="surface") {
 #'
 #' @param v2 positive integer, vertex index of v2
 #'
-#' @return double, the Euclidean distance between v1 and v2.
+#' @return double, the Euclidean distance between v1 and v2
+#'
+#' @family Euclidean distance util functions
 #'
 #' @export
 vertex.euclid.dist <- function(surface, v1, v2) {
