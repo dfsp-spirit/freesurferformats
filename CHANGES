@@ -1,11 +1,19 @@
 freesurferformats Changes
 =========================
 
+
+Version 0.1.15
+--------------
+- disable all unit tests that require downloaded data on CRAN
+- add Euclidian distance util functions for surface vertices, like vertexdists.to.point and closest.vert.to.point
+- add doapply.transform.mtx function (it's just matmul with some input checks that are annoying to repeat)
+
+
 Version 0.1.14
 --------------
 - support reading the MRtrix TCK format (in function read.dti.tck) and
 - support reading the TRK format used by the Diffusion Toolkit and TrackVis in (function read.dti.trk).
-- Delete test data after unit tests have been run if (and only if) running on CRAN
+- delete test data after unit tests have been run if (and only if) running on CRAN
 
 
 Version 0.1.13
