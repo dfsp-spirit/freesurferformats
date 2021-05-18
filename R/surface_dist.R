@@ -1,4 +1,6 @@
-# Functions for computing Euclidian distance between vertex coordinates.
+# Functions for computing Euclidean distance between vertex coordinates.
+# These functions are not really specific for meshes as they simple work with vertex coords (=points) without
+# any knowledge or consideration of mesh topology (graph distance) or the surface (geodesic distance).
 
 #' @title Find vertex index closest to given query coordinate using Euclidean distance.
 #'
