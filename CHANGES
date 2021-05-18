@@ -5,7 +5,7 @@ freesurferformats Changes
 Version 0.1.15
 --------------
 - disable all unit tests that require downloaded data on CRAN
-- add Euclidian distance util functions for surface vertices, like vertexdists.to.point and closest.vert.to.point
+- add Euclidean distance util functions for surface vertices, like vertexdists.to.point and closest.vert.to.point
 - add doapply.transform.mtx function (it's just matmul with some input checks that are annoying to repeat)
 
 

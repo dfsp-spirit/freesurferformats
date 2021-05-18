@@ -8,7 +8,7 @@
 #'
 #' @param point_coords nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.
 #'
-#' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.
+#' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidean distance to that vertex.
 #'
 #' @family Euclidean distance util functions
 #'
