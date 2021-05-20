@@ -4,12 +4,14 @@
 \alias{doapply.transform.mtx}
 \title{Apply a spatial transformation matrix to the given coordinates.}
 \usage{
-doapply.transform.mtx(coords, mtx)
+doapply.transform.mtx(coords, mtx, as_mat = FALSE)
 }
 \arguments{
 \item{coords}{nx3 (cartesian) or nx4 (homogeneous) numerical matrix, the input coordinates. If nx4, left as is for homogeneous notation, if nx3 (cartesian) a 1 will be appended as the 4th position.}
 
 \item{mtx}{a 4x4 numerical transformation matrix}
+
+\item{as_mat}{logical, whether to force the output coords into a matrix (even if the input was a vector/a single coordinate triple).}
 }
 \value{
 the coords after applying the transformation. If coords was nx3, nx3 is returned, otherwise nx4.
