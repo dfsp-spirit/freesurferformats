@@ -254,9 +254,11 @@ gifti_xml_write <- function(filepath, xmltree, options=c('as_xml', 'format')) {
 #' @references \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
 #'
 #' @examples
+#' \dontrun{
 #'   outfile = tempfile(fileext = '.gii');
 #'   dataarrays = list(rep(3.1, 3L), matrix(seq(6), nrow=2L));
 #'   gifti_writer(outfile, dataarrays, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'));
+#' }
 #'
 #' @export
 gifti_writer <- function(filepath, ...) {
