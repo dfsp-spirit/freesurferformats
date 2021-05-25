@@ -36,6 +36,7 @@
 #' @seealso The example for \code{\link{gifti_xml_write}} shows how to modify the tree.
 #'
 #' @examples
+#' \dontrun{
 #'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
 #'   transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN',
 #'    'transformed_space'='NIFTI_XFORM_UNKNOWN'));
@@ -43,6 +44,7 @@
 #'   # Verify that the tree is a valid GIFTI file:
 #'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
 #'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
+#' }
 #'
 #' @importFrom xml2 xml_new_root xml_set_attr xml_add_child read_xml
 #' @export
@@ -224,6 +226,7 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #' @references \url{https://www.nitrc.org/frs/download.php/2871/GIFTI_Surface_Format.pdf}
 #'
 #' @examples
+#' \dontrun{
 #'   outfile = tempfile(fileext = '.gii');
 #'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
 #'   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
@@ -233,6 +236,7 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
 #'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
 #'   gifti_xml_write(outfile, xmltree);  # Write your custom tree to a file.
+#' }
 #'
 #' @export
 #' @importFrom xml2 write_xml
