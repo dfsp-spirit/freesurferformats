@@ -1,4 +1,71 @@
 
+#' @title Read Brainvoyager statistical surface results from v4 or v5 SMP file.
+#'
+#' @inheritParams read.smp.brainvoyager
+#'
+#' @note Do not call this, call \code{read.smp.brainvoyager} instead, which will figure out the version and call the appropriate function.
+#'
+#' @return named list of file contents
+#'
+#' @keywords internal
+read.smp.brainvoyager.v4or5 <- function(filepath, version) {
+  endian = "little";
+  fh = file(filepath, "rb");
+  on.exit({ close(fh) }, add=TRUE);
+
+  ret_list = list();
+  ret_list$smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
+
+  if(! (ret_list$smp_version %in% c(4L, 5L))) {
+    stop(sprintf("Found SMP file in file format version %d, only version 4 or 5 is supported by this function.\n", ret_list$smp_version));
+  }
+
+  ret_list$num_mesh_vertices = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+  ret_list$num_maps = readBin(fh, integer(), size = 2, n = 1, endian = endian);
+  ret_list$srf_file_name = readBin(fh, character(), n = 1);
+  ret_list$vertex_maps = list();
+  if(ret_list$num_maps > 0L) {
+    for(map_index in seq.int(ret_list$num_maps)) {
+      vm = list();
+      vm$map_type = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$num_lags = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$min_lag = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$max_lag = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$cc_overlay = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$cluster_size = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$enable_cluster_check = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+      vm$stat_threshold_critical = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+      vm$stat_threshold_max = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+      vm$includes_val_greater_threshold_max = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$degrees_of_freedom_1_fnom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$degrees_of_freedom_2_fdenom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      if(ret_list$smp_version == 5L) {
+        vm$pos_neg_flag = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      }
+      vm$cortex_bonferroni_correct = readBin(fh, integer(), size = 4, n = 1, endian = endian);
+      vm$color_min_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+      vm$color_max_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+      vm$color_negative_min_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+      vm$color_negative_max_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+
+      vm$enable_smp_color = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+      if(ret_list$smp_version == 5L) {
+        vm$map_lut_name = readBin(fh, character(), n = 1);
+      }
+
+      vm$transparent_color_factor = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+      vm$map_name = readBin(fh, character(), n = 1);
+      ret_list$vertex_maps[[map_index]] = vm;
+    }
+
+    # header done, now read the data
+    for(map_index in seq.int(ret_list$num_maps)) {
+      ret_list$vertex_maps[[map_index]]$data = readBin(fh, numeric(), size = 4, n = ret_list$num_mesh_vertices, endian = endian);
+    }
+  }
+  class(ret_list) = c("bvsmp", class(ret_list));
+  return(ret_list);
+}
 
 #' @title Read Brainvoyager statistical surface results from v3 SMP file.
 #'
@@ -18,7 +85,7 @@ read.smp.brainvoyager.v3 <- function(filepath) {
   ret_list$smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
 
   if(ret_list$smp_version != 3L) {
-    stop(sprintf("Found SMP file in file format version %d, only version 3 is supported.\n", ret_list$smp_version));
+    stop(sprintf("Found SMP file in file format version %d, only version 3 is supported by this function.\n", ret_list$smp_version));
   }
 
   ret_list$num_mesh_vertices = readBin(fh, integer(), size = 4, n = 1, endian = endian);
@@ -58,7 +125,7 @@ read.smp.brainvoyager.v3 <- function(filepath) {
 }
 
 
-#' @title Read Brainvoyager statistical surface results from v2 SMP file.
+#' @title Read Brainvoyager statistical surface results from v1 or v2 SMP file.
 #'
 #' @inheritParams read.smp.brainvoyager
 #'
@@ -67,7 +134,7 @@ read.smp.brainvoyager.v3 <- function(filepath) {
 #' @return named list of file contents
 #'
 #' @keywords internal
-read.smp.brainvoyager.v2 <- function(filepath) {
+read.smp.brainvoyager.v1or2 <- function(filepath, version) {
   endian = "little";
   fh = file(filepath, "rb");
   on.exit({ close(fh) }, add=TRUE);
@@ -75,8 +142,8 @@ read.smp.brainvoyager.v2 <- function(filepath) {
   ret_list = list();
   ret_list$smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
 
-  if(ret_list$smp_version != 2L) {
-    stop(sprintf("Found SMP file in file format version %d, only version 2 is supported.\n", ret_list$smp_version));
+  if(!(ret_list$smp_version %in% c(1L, 2L))) {
+    stop(sprintf("Found SMP file in file format version %d, only version 1 or 2 is supported by this function.\n", ret_list$smp_version));
   }
 
   ret_list$num_mesh_vertices = readBin(fh, integer(), size = 4, n = 1, endian = endian);
@@ -89,16 +156,26 @@ read.smp.brainvoyager.v2 <- function(filepath) {
     for(map_index in seq.int(ret_list$num_maps)) {
       vm = list();
       vm$cluster_size = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-      vm$enable_cluster_check = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+      if(ret_list$smp_version == 2L) {
+        vm$enable_cluster_check = readBin(fh, integer(), size = 1, n = 1, endian = endian);
+      } else {
+        vm$enable_cluster_check = 1L;
+      }
       vm$stat_threshold_critical = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
       vm$stat_threshold_max = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
       vm$degrees_of_freedom_1_fnom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
       vm$degrees_of_freedom_2_fdenom = readBin(fh, integer(), size = 4, n = 1, endian = endian);
       vm$cortex_bonferroni_correct = readBin(fh, integer(), size = 4, n = 1, endian = endian);
-      vm$color_critical_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
-      vm$color_max_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+      if(ret_list$smp_version == 2L) {
+        vm$color_critical_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);  # called min rgb in latest documentation
+        vm$color_max_rgb = readBin(fh, integer(), size = 1, n = 3, endian = endian);
+      }
       vm$enable_smp_color = readBin(fh, integer(), size = 1, n = 1, endian = endian);
-      vm$transparent_color_factor = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+      if(ret_list$smp_version == 2L) {
+        vm$transparent_color_factor = readBin(fh, numeric(), size = 4, n = 1, endian = endian);
+      } else {
+        vm$transparent_color_factor = 1.0;
+      }
       vm$map_name = readBin(fh, character(), n = 1);
       ret_list$vertex_maps[[map_index]] = vm;
     }
@@ -119,7 +196,7 @@ read.smp.brainvoyager.v2 <- function(filepath) {
 #'
 #' @references see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec
 #'
-#' @note Currently only SMP file versions 2 and 3 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
+#' @note Currently only SMP file versions 1 to 5 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
 #'
 #' @return named list of file contents
 #'
@@ -141,12 +218,18 @@ read.smp.brainvoyager <- function(filepath) {
   smp_version = readBin(fh, integer(), size = 2, n = 1, endian = endian);
   close(fh);
 
-  if(smp_version == 3L) {
+  if(smp_version == 5L) {
+    return(invisible(read.smp.brainvoyager.v4or5(filepath, version = 5L)));
+  } else if(smp_version == 4L) {
+    return(invisible(read.smp.brainvoyager.v4or5(filepath, version = 4L)));
+  } else if(smp_version == 3L) {
     return(invisible(read.smp.brainvoyager.v3(filepath)));
   } else if(smp_version == 2L) {
-    return(invisible(read.smp.brainvoyager.v2(filepath)));
+    return(invisible(read.smp.brainvoyager.v1or2(filepath, version = 2L)));
+  } else if(smp_version == 1L) {
+    return(invisible(read.smp.brainvoyager.v1or2(filepath, version = 1L)));
   } else {
-    stop(sprintf("Found SMP file in file format version %d, only versions 2 and 3 are supported.\n", smp_version));
+    stop(sprintf("Found SMP file in file format version %d, only versions 1 to 5 are supported.\n", smp_version));
   }
 }
 
