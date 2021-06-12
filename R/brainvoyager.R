@@ -243,45 +243,20 @@ read.smp.brainvoyager <- function(filepath) {
 is.bvsmp <- function(x) inherits(x, "bvsmp")
 
 
-#' @title Write a brainvoyager SMP file.
-#'
-#' @description Write a brainvoyager SMP file, which contains one or more vertex-wise data maps (stats or morphometry data).
-#'
-#' @param filepath character string, the output file
-#'
-#' @param bvsmp bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.
-#'
-#' @param smp_version integer, the SMP file format version to use when writing. Only versions 2 and 3 are supported.
-#'
-#' @seealso \code{\link{write.fs.morph.smp}}
-#'
-#' @export
-write.smp.brainvoyager <- function(filepath, bvsmp, smp_version = 3L) {
-  if(! is.bvsmp(bvsmp)) {
-    stop("Parameter 'bvsmp' must contain bvsmp instance.\n");
-  }
-  if(smp_version == 3L) {
-    return(write.smp.brainvoyager.v3(filepath, bvsmp));
-  } else if(smp_version == 2L) {
-    return(write.smp.brainvoyager.v2(filepath, bvsmp));
-  } else {
-    stop(sprintf("Brainvoyager SMP file format version not supported, only versions 2 and 3 is supported.\n"));
-  }
-}
-
-
-#' @title Write a brainvoyager v3 SMP file.
+#' @title Write a brainvoyager v3, v4 or v5 SMP file.
 #'
 #' @inheritParams write.smp.brainvoyager
 #'
 #' @note Called by \code{\link{write.smp.brainvoyager}}.
 #'
 #' @keywords internal
-write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
+write.smp.brainvoyager.v3or4or5 <- function(filepath, bvsmp, smp_version) {
   endian = "little";
   fh = file(filepath, "wb", blocking = TRUE);
 
-  smp_version = 3L;
+  if(!(smp_version %in% c(3L, 4L, 5L))) {
+    stop(sprintf("Found SMP file in file format version %d, only versions 3, 4 and 5 are supported by this function.\n", smp_version));
+  }
 
   writeBin(as.integer(smp_version), fh, size = 2, endian = endian);
   writeBin(as.integer(bvsmp$num_mesh_vertices), fh, size = 4, endian = endian);
@@ -289,6 +264,11 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
   writeChar(bvsmp$srf_file_name, fh);
   if(bvsmp$num_maps > 0L) {
     for(vm in bvsmp$vertex_maps) {
+
+      # set defaults
+      if(is.null(vm$enable_cluster_check)) {
+        vm$enable_cluster_check = 1L;
+      }
 
       writeBin(as.integer(vm$map_type), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$num_lags), fh, size = 4, endian = endian);
@@ -299,12 +279,33 @@ write.smp.brainvoyager.v3 <- function(filepath, bvsmp) {
       writeBin(as.integer(vm$enable_cluster_check), fh, size = 1, endian = endian);
       writeBin(as.double(vm$stat_threshold_critical), fh, size = 4, endian = endian);
       writeBin(as.double(vm$stat_threshold_max), fh, size = 4, endian = endian);
+
+      if(smp_version >= 4L) {
+        writeBin(as.integer(vm$includes_val_greater_threshold_max), fh, size = 4, endian = endian);
+      }
+
       writeBin(as.integer(vm$degrees_of_freedom_1_fnom), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$degrees_of_freedom_2_fdenom), fh, size = 4, endian = endian);
+
+      if(smp_version >= 5L) {
+        writeBin(as.integer(vm$pos_neg_flag), fh, size = 4, endian = endian);
+      }
+
       writeBin(as.integer(vm$cortex_bonferroni_correct), fh, size = 4, endian = endian);
       writeBin(as.integer(vm$color_critical_rgb), fh, size = 1, endian = endian); # color_critical_rgb is vector of length 3
       writeBin(as.integer(vm$color_max_rgb), fh, size = 1, endian = endian); # color_max_rgb is vector of length 3
+
+      if(smp_version >= 4L) {
+        writeBin(as.integer(vm$color_negative_min_rgb), fh, size = 1, endian = endian); # a vector of length 3
+        writeBin(as.integer(vm$color_negative_max_rgb), fh, size = 1, endian = endian); # a vector of length 3
+      }
+
       writeBin(as.integer(vm$enable_smp_color), fh, size = 1, endian = endian);
+
+      if(smp_version >= 5L) {
+        writeChar(vm$map_lut_name, fh);
+      }
+
       writeBin(as.double(vm$transparent_color_factor), fh, size = 4, endian = endian);
       writeChar(vm$map_name, fh);
     }
@@ -360,6 +361,35 @@ write.smp.brainvoyager.v2 <- function(filepath, bvsmp) {
   }
   close(fh);
 }
+
+
+
+#' @title Write a brainvoyager SMP file.
+#'
+#' @description Write a brainvoyager SMP file, which contains one or more vertex-wise data maps (stats or morphometry data).
+#'
+#' @param filepath character string, the output file
+#'
+#' @param bvsmp bvsmp instance, a named list as returned by \code{\link{read.smp.brainvoyager}}.
+#'
+#' @param smp_version integer, the SMP file format version to use when writing. Versions 2 to 5 are supported, but only versions 2 and 3 have been tested properly. Please report any problems you encounter. When converting between file versions (e.g., loading a v2 file and saving the result as a v5 file), some required fields may be missing, and for those without a default value according to the official spec, you will have to manually add the value you want in the bvsmp object before writing.
+#'
+#' @seealso \code{\link{write.fs.morph.smp}}
+#'
+#' @export
+write.smp.brainvoyager <- function(filepath, bvsmp, smp_version = 3L) {
+  if(! is.bvsmp(bvsmp)) {
+    stop("Parameter 'bvsmp' must contain bvsmp instance.\n");
+  }
+  if(smp_version %in% c(3L, 4L, 5L)) {
+    return(write.smp.brainvoyager.v3or4or5(filepath, bvsmp, smp_version));
+  } else if(smp_version == 2L) {
+    return(write.smp.brainvoyager.v2(filepath, bvsmp));
+  } else {
+    stop(sprintf("Brainvoyager SMP file format version not supported, only versions 2 to 5 are supported.\n"));
+  }
+}
+
 
 
 #' @title Create new bvsmp instance encoding morph data for Brainvoyager.
