@@ -3,6 +3,10 @@
 #'
 #' @param filepath string. Full path to the input surface file in ASCII surface format.
 #'
+#' @param with_values logical, whether to read per-vertex and per-face values.
+#'
+#' @param header_numlines scalar positive integer, the number of header lines.
+#'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @note This is also known as *srf* format.
@@ -10,15 +14,19 @@
 #' @family mesh functions
 #'
 #' @export
-read.fs.surface.asc <- function(filepath) {
+read.fs.surface.asc <- function(filepath, with_values = TRUE, header_numlines = 2L) {
 
-  num_verts_and_faces_df = read.table(filepath, skip=1L, nrows=1L, col.names = c('num_verts', 'num_faces'), colClasses = c("integer", "integer"));
+  num_verts_and_faces_df = read.table(filepath, skip=0L, nrows=1L, col.names = c('num_verts', 'num_faces'), colClasses = c("integer", "integer"));
   num_verts = num_verts_and_faces_df$num_verts[1];
   num_faces = num_verts_and_faces_df$num_faces[1];
 
-  vertices_df = read.table(filepath, skip=2L, col.names = c('coord1', 'coord2', 'coord3', 'value'), colClasses = c("numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
-
-  faces_df = read.table(filepath, skip=2L + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
+  if(with_values) {
+    vertices_df = read.table(filepath, skip=header_numlines, col.names = c('coord1', 'coord2', 'coord3', 'value'), colClasses = c("numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
+    faces_df = read.table(filepath, skip=header_numlines + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
+  } else {
+    vertices_df = read.table(filepath, skip=header_numlines, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_verts);
+    faces_df = read.table(filepath, skip=header_numlines + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer"), nrows=num_faces);
+  }
 
   ret_list = list();
   ret_list$vertices = unname(data.matrix(vertices_df[1:3]));
