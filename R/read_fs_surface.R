@@ -302,6 +302,7 @@ read.fs.surface <- function(filepath, format='auto') {
   OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215L;
   NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213L;
 
+  tags = integer(0);
 
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
@@ -398,6 +399,39 @@ read.fs.surface <- function(filepath, format='auto') {
       stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));  # nocov
     }
 
+    # We could read tags here.
+    do_read_tags = FALSE;
+    if(do_read_tags) {
+      ignored = 1L;
+      valid_tag_numbers = c(1L, 2L, 3L, 4L, 5L, 10L, 11L, 12L, 20L, 21L, 30L, 31L, 32L, 33L, 40L, 41L, 42L, 43L, 44L);
+      while(! is.null(ignored)) {
+        tag = NULL;
+        tag_len = NULL;
+        ignored = tryCatch({
+          tag  = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+          if(! (tag %in% valid_tag_numbers)) {
+            cat(sprintf("Read invalid tag %d.\n", tag));
+          } else {
+            if(tag %in% c(1L, 2L, 20L)) {
+              tag_len = 0L;
+            } else if(tag == 30L) {
+              tag_len = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+              tag_len = tag_len - 1L;
+            } else {
+              tag_len = readBin(fh, integer(), n = 1, size = 8, endian = "big");
+            }
+            #cat(sprintf("Found tag %d with length %d.\n", tag, tag_len));
+            tags = c(tags, tag);
+            if(tag_len > 0L) { # Skip to next tag.
+              #cat(sprintf("* Reading tag data of length %d.\n", tag_len));
+              discarded = readBin(fh, integer(), size = 1L, n = tag_len, endian = "big");
+              discarded = NULL;
+            }
+          }
+        }, error=function(e){return(NULL)}, warning=function(w){return(NULL)});
+      }
+    }
+
   } else {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, NEW_QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));  # nocov
   }
@@ -405,6 +439,7 @@ read.fs.surface <- function(filepath, format='auto') {
 
   ret_list$vertices = vertices;
   ret_list$faces = faces;
+  #ret_list$tags = tags;
   class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
 }
