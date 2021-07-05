@@ -58,6 +58,8 @@ closest.vert.to.point <- function(surface, point_coords) {
 #' @param point_coords double vector of length 3, the xyz coords of a single point.
 #'
 #' @return double vector of distances
+#'
+#' @export
 vertexdists.to.point <- function(surface, point_coords) {
   return(apply(surface$vertices, 1, euclidian.dist, point_coords));
 }
