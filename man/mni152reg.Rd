@@ -2,15 +2,15 @@
 % Please edit documentation in R/mghheader.R
 \name{mni152reg}
 \alias{mni152reg}
-\title{Get fsaverage to MNI 152 transformation matrix.}
+\title{Get fsaverage (MNI305) to MNI152 transformation matrix.}
 \usage{
 mni152reg()
 }
 \description{
-Get fsaverage to MNI 152 transformation matrix.
+Get fsaverage (MNI305) to MNI152 transformation matrix.
 }
 \note{
-There are better ways to achieve this transformation than using this matrix, see Wu et al., 'Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate system', Hum Brain Mapp. 2018 Sep; 39(9): 3793–3808. doi: 10.1002/hbm.24213.
+There are better ways to achieve this transformation than using this matrix, see Wu et al., 'Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate system', Hum Brain Mapp. 2018 Sep; 39(9): 3793–3808. doi: 10.1002/hbm.24213. The mentioned method is available in R from the 'regfusionr' package (GitHub only atom, not on CRAN).
 }
 \examples{
     coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());

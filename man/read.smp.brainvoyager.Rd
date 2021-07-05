@@ -16,7 +16,7 @@ named list of file contents
 Read Brainvoyager statistical surface results from SMP file.
 }
 \note{
-Currently only SMP file versions 2 and 3 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
+Currently only SMP file versions 1 to 5 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
 }
 \examples{
 \dontrun{

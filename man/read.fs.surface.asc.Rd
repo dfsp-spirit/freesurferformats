@@ -4,10 +4,14 @@
 \alias{read.fs.surface.asc}
 \title{Read FreeSurfer ASCII format surface.}
 \usage{
-read.fs.surface.asc(filepath)
+read.fs.surface.asc(filepath, with_values = TRUE, header_numlines = 2L)
 }
 \arguments{
 \item{filepath}{string. Full path to the input surface file in ASCII surface format.}
+
+\item{with_values}{logical, whether to read per-vertex and per-face values.}
+
+\item{header_numlines}{scalar positive integer, the number of header lines.}
 }
 \value{
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.

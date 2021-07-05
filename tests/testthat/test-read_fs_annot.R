@@ -75,7 +75,7 @@ test_that("Our demo annotation file can be read", {
 
 
 test_that("Annotation files in old format can be read", {
-
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");

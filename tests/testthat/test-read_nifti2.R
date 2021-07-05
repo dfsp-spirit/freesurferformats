@@ -1,6 +1,7 @@
 
 
 test_that("The header of NIFTI v2 files can be read using nifti2.header.", {
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
 
@@ -24,7 +25,7 @@ test_that("The header of NIFTI v2 files can be read using nifti2.header.", {
 test_that("Data from NIFTI v2 files can be read.", {
   skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
-
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   freesurferformats::download_opt_data();
   data_dir = freesurferformats::get_opt_data_filepath("nifti2");
   nii_v2_file = file.path(data_dir, 'avg152T1_LR_nifti2.nii.gz');
@@ -40,6 +41,7 @@ test_that("Data from NIFTI v2 files can be read.", {
 test_that("Trying to read NIFTI v1 files with NIFTI v2 function leads to errors.", {
   skip_if(rversion.less.than(vmajor=3, vminor=5), message = "Skipping under R < 3.5.");
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
 

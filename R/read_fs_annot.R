@@ -591,9 +591,15 @@ annot.max.region.idx <- function(annot) {
   }
 }
 
+
+
+
 # lh_annot = read.fs.annot("~/data/tim_only/tim/label/lh.aparc.annot");
 # rh_annot = read.fs.annot("~/data/tim_only/tim/label/rh.aparc.annot");
-
+# rh_annot_mod = annot.unique(...
+# write.fs.annot("~/test.annot", annot=rh_annot_mod);
+# To test whether the annot is valid and freesurfer can read it, try converting with mris_convert:
+# $ mris_convert --annot ~/test.annot data/tim_only/tim/surf/rh.white rh.aparc.gii
 
 #' @title Make the region names and indices unique across hemispheres for a parcellation.
 #'
@@ -617,9 +623,9 @@ annot.max.region.idx <- function(annot) {
 #' rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
 #' }
 #'
-#' @note This function is not part of the official API and should not be used.
+#' @note This function is not part of the official API and should not be used. It is currently broken.
 #'
-#' @export
+#' @keywords internal
 annot.unique <- function(annot, add_to_region_indices, region_name_prefix="rh_", region_name_suffix=NULL, set_first_idx_zero=FALSE) {
   if(! is.fs.annot(annot)) {
     stop("Parameter 'annot' must be an fs.annot instance.");

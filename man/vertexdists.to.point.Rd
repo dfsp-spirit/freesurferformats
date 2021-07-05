@@ -2,7 +2,7 @@
 % Please edit documentation in R/surface_dist.R
 \name{vertexdists.to.point}
 \alias{vertexdists.to.point}
-\title{Compute Euclidian distance from all mesh vertices to given point.}
+\title{Compute Euclidean distance from all mesh vertices to given point.}
 \usage{
 vertexdists.to.point(surface, point_coords)
 }
@@ -15,5 +15,11 @@ vertexdists.to.point(surface, point_coords)
 double vector of distances
 }
 \description{
-Compute Euclidian distance from all mesh vertices to given point.
+Compute Euclidean distance from all mesh vertices to given point.
 }
+\seealso{
+Other Euclidean distance util functions: 
+\code{\link{closest.vert.to.point}()},
+\code{\link{vertex.euclid.dist}()}
+}
+\concept{Euclidean distance util functions}

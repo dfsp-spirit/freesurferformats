@@ -243,11 +243,14 @@ devtools::check()
 
 Continuous integration results:
 
-[![Build Status](https://travis-ci.org/dfsp-spirit/freesurferformats.svg?branch=master)](https://travis-ci.org/dfsp-spirit/freesurferformats) Travis CI under Linux
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/dfsp-spirit/freesurferformats/workflows/R-CMD-check/badge.svg)](https://github.com/dfsp-spirit/freesurferformats/actions)
+
 
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats) AppVeyor CI under Windows
 
 [![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats) Test coverage
+<!-- badges: end -->
 
 The displayed status represents the development version. Don't worry if you are using the stable version from CRAN and CI is currently failing.
 

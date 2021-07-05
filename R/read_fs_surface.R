@@ -3,6 +3,10 @@
 #'
 #' @param filepath string. Full path to the input surface file in ASCII surface format.
 #'
+#' @param with_values logical, whether to read per-vertex and per-face values.
+#'
+#' @param header_numlines scalar positive integer, the number of header lines.
+#'
 #' @return named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 #'
 #' @note This is also known as *srf* format.
@@ -10,15 +14,19 @@
 #' @family mesh functions
 #'
 #' @export
-read.fs.surface.asc <- function(filepath) {
+read.fs.surface.asc <- function(filepath, with_values = TRUE, header_numlines = 2L) {
 
-  num_verts_and_faces_df = read.table(filepath, skip=1L, nrows=1L, col.names = c('num_verts', 'num_faces'), colClasses = c("integer", "integer"));
+  num_verts_and_faces_df = read.table(filepath, skip=0L, nrows=1L, col.names = c('num_verts', 'num_faces'), colClasses = c("integer", "integer"));
   num_verts = num_verts_and_faces_df$num_verts[1];
   num_faces = num_verts_and_faces_df$num_faces[1];
 
-  vertices_df = read.table(filepath, skip=2L, col.names = c('coord1', 'coord2', 'coord3', 'value'), colClasses = c("numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
-
-  faces_df = read.table(filepath, skip=2L + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
+  if(with_values) {
+    vertices_df = read.table(filepath, skip=header_numlines, col.names = c('coord1', 'coord2', 'coord3', 'value'), colClasses = c("numeric", "numeric", "numeric", "numeric"), nrows=num_verts);
+    faces_df = read.table(filepath, skip=header_numlines + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3', 'value'), colClasses = c("integer", "integer", "integer", "numeric"), nrows=num_faces);
+  } else {
+    vertices_df = read.table(filepath, skip=header_numlines, col.names = c('coord1', 'coord2', 'coord3'), colClasses = c("numeric", "numeric", "numeric"), nrows=num_verts);
+    faces_df = read.table(filepath, skip=header_numlines + num_verts, col.names = c('vertex1', 'vertex2', 'vertex3'), colClasses = c("integer", "integer", "integer"), nrows=num_faces);
+  }
 
   ret_list = list();
   ret_list$vertices = unname(data.matrix(vertices_df[1:3]));
@@ -294,6 +302,7 @@ read.fs.surface <- function(filepath, format='auto') {
   OLD_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777215L;
   NEW_QUAD_MAGIC_FILE_TYPE_NUMBER = 16777213L;
 
+  tags = integer(0);
 
   if(guess.filename.is.gzipped(filepath)) {
     fh = gzfile(filepath, "rb");
@@ -390,6 +399,39 @@ read.fs.surface <- function(filepath, format='auto') {
       stop(sprintf("Mismatch in read vertex indices for faces: expected %d but received %d.\n", num_face_vertex_indices, length(face_vertex_indices)));  # nocov
     }
 
+    # We could read tags here.
+    do_read_tags = FALSE;
+    if(do_read_tags) {
+      ignored = 1L;
+      valid_tag_numbers = c(1L, 2L, 3L, 4L, 5L, 10L, 11L, 12L, 20L, 21L, 30L, 31L, 32L, 33L, 40L, 41L, 42L, 43L, 44L);
+      while(! is.null(ignored)) {
+        tag = NULL;
+        tag_len = NULL;
+        ignored = tryCatch({
+          tag  = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+          if(! (tag %in% valid_tag_numbers)) {
+            cat(sprintf("Read invalid tag %d.\n", tag));
+          } else {
+            if(tag %in% c(1L, 2L, 20L)) {
+              tag_len = 0L;
+            } else if(tag == 30L) {
+              tag_len = readBin(fh, integer(), n = 1, size = 4, endian = "big");
+              tag_len = tag_len - 1L;
+            } else {
+              tag_len = readBin(fh, integer(), n = 1, size = 8, endian = "big");
+            }
+            #cat(sprintf("Found tag %d with length %d.\n", tag, tag_len));
+            tags = c(tags, tag);
+            if(tag_len > 0L) { # Skip to next tag.
+              #cat(sprintf("* Reading tag data of length %d.\n", tag_len));
+              discarded = readBin(fh, integer(), size = 1L, n = tag_len, endian = "big");
+              discarded = NULL;
+            }
+          }
+        }, error=function(e){return(NULL)}, warning=function(w){return(NULL)});
+      }
+    }
+
   } else {
     stop(sprintf("Magic number mismatch (%d != (%d || %d)). The given file '%s' is not a valid FreeSurfer surface format file in binary format. (Hint: This function is designed to read files like 'lh.white' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, TRIS_MAGIC_FILE_TYPE_NUMBER, NEW_QUAD_MAGIC_FILE_TYPE_NUMBER, filepath));  # nocov
   }
@@ -397,6 +439,7 @@ read.fs.surface <- function(filepath, format='auto') {
 
   ret_list$vertices = vertices;
   ret_list$faces = faces;
+  #ret_list$tags = tags;
   class(ret_list) = c("fs.surface", class(ret_list));
   return(ret_list);
 }
@@ -1420,3 +1463,18 @@ int.to.col.brainvoyager <- function(int_val) {
 }
 
 
+#' @title Stop unless surf is an fs.surface
+#'
+#' @param surf fs.surface instance or anything else
+#'
+#' @param param_name character string, used in stop message to identify the parameter.
+#'
+#' @return Called for the side effect of stopping if surf is not an fs.surface instance.
+#'
+#' @keywords internal
+assert.surface <- function(surface, param_name="surface") {
+  if(! is.fs.surface(surface)) {
+    stop(sprintf("Parameter '%s' must be an fs.surface instance.", param_name));
+  }
+  return(invisible(NULL));
+}

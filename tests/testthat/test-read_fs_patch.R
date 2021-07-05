@@ -3,6 +3,7 @@
 test_that("A FreeSurfer binary patch file can be read using read.fs.patch", {
 
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
   patch_file = file.path(subjects_dir, "subject1", 'ext', 'lh.cortex.patch.3d');
@@ -24,7 +25,7 @@ test_that("A FreeSurfer binary patch file can be read using read.fs.patch", {
 
 
 test_that("A FreeSurfer ASCII patch file can be read using read.fs.patch", {
-
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
   skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
   freesurferformats::download_opt_data();
   subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");

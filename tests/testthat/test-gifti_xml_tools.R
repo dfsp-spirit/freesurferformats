@@ -1,6 +1,8 @@
 
 
 test_that("We can add global metadata to a GIFTI xml tree", {
+  testthat::skip_on_cran();
+  testthat::skip_if_offline(host = "www.nitrc.org");
   xmltree = gifti_xml(list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L)));
   newtree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Weather"="Great"));
   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";

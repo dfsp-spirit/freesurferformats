@@ -2,7 +2,7 @@
 % Please edit documentation in R/surface_dist.R
 \name{vertex.euclid.dist}
 \alias{vertex.euclid.dist}
-\title{Compute Euclidian distance between two vertices v1 and v2.}
+\title{Compute Euclidean distance between two vertices v1 and v2.}
 \usage{
 vertex.euclid.dist(surface, v1, v2)
 }
@@ -14,8 +14,14 @@ vertex.euclid.dist(surface, v1, v2)
 \item{v2}{positive integer, vertex index of v2}
 }
 \value{
-double, the Euclidian distance between v1 and v2.
+double, the Euclidean distance between v1 and v2
 }
 \description{
-Compute Euclidian distance between two vertices v1 and v2.
+Compute Euclidean distance between two vertices v1 and v2.
 }
+\seealso{
+Other Euclidean distance util functions: 
+\code{\link{closest.vert.to.point}()},
+\code{\link{vertexdists.to.point}()}
+}
+\concept{Euclidean distance util functions}

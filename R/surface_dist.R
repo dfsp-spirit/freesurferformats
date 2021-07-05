@@ -1,11 +1,16 @@
+# Functions for computing Euclidean distance between vertex coordinates.
+# These functions are not really specific for meshes as they simple work with vertex coords (=points) without
+# any knowledge or consideration of mesh topology (graph distance) or the surface (geodesic distance).
 
-#' @title Find vertex index closest to given query coordinate.
+#' @title Find vertex index closest to given query coordinate using Euclidean distance.
 #'
 #' @param surface an fs.surface instance or a nx3 numerical matrix representing mesh points.
 #'
 #' @param point_coords nx3 matrix of query coords. If a vector, will be transformed \code{byrow} to such a matrix.
 #'
-#' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidian distance to that vertex.
+#' @return named list with entries: 'vertex_id' integer vector, the index of the closest vertex, and 'dist': double vector, the Euclidean distance to that vertex.
+#'
+#' @family Euclidean distance util functions
 #'
 #' @export
 #' @importFrom stats dist
@@ -51,33 +56,35 @@ closest.vert.to.point <- function(surface, point_coords) {
 }
 
 
-#' @title Compute Euclidian distance from all mesh vertices to given point.
+#' @title Compute Euclidean distance from all mesh vertices to given point.
 #'
 #' @param surface an fs.surface instance
 #'
 #' @param point_coords double vector of length 3, the xyz coords of a single point.
 #'
+#' @family Euclidean distance util functions
+#'
 #' @return double vector of distances
 #'
 #' @export
 vertexdists.to.point <- function(surface, point_coords) {
+  assert.surface(surface);
   return(apply(surface$vertices, 1, euclidian.dist, point_coords));
 }
 
 
-#' @title Compute Euclidian distance.
+#' @title Compute Euclidean distance.
 #'
 #' @param x1 numerical vector, coords of first point
 #'
 #' @param x2 numerical vector, coords of second point
 #'
-#' @return the Euclidian distance between x1 and x2.
+#' @return the Euclidean distance between x1 and x2.
 #'
 #' @keywords internal
 euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
 
-
-#' @title Compute Euclidian distance between two vertices v1 and v2.
+#' @title Compute Euclidean distance between two vertices v1 and v2.
 #'
 #' @param surface an fs.surface instance
 #'
@@ -85,10 +92,13 @@ euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
 #'
 #' @param v2 positive integer, vertex index of v2
 #'
-#' @return double, the Euclidian distance between v1 and v2.
+#' @return double, the Euclidean distance between v1 and v2
+#'
+#' @family Euclidean distance util functions
 #'
 #' @export
 vertex.euclid.dist <- function(surface, v1, v2) {
+  assert.surface(surface);
   euclidian.dist(surface$vertices[v1, ], surface$vertices[v2, ])
 }
 
