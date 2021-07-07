@@ -65,6 +65,8 @@ closest.vert.to.point <- function(surface, point_coords) {
 #' @family Euclidean distance util functions
 #'
 #' @return double vector of distances
+#'
+#' @export
 vertexdists.to.point <- function(surface, point_coords) {
   assert.surface(surface);
   return(apply(surface$vertices, 1, euclidian.dist, point_coords));
