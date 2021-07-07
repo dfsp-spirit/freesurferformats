@@ -5,6 +5,10 @@ test_that("Our demo curv file can be read using read.fs.curv", {
 
     expect_equal(class(ct), "numeric");
     expect_equal(length(ct), known_vertex_count);
+
+    testthat::expect_equal(ct[1], 2.561705, tolerance = 1e-5);
+    testthat::expect_equal(ct[101], 2.579938, tolerance = 1e-5);
+    testthat::expect_equal(ct[100001], 0.0, tolerance = 1e-5);
 })
 
 
