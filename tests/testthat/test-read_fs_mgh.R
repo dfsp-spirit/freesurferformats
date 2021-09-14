@@ -165,3 +165,13 @@ test_that("Invalid volume format leads to errors", {
   brain_image = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   expect_error(read.fs.volume(brain_image, format = 'invalid format')); # invalid format
 })
+
+
+test_that("Trying to read a non-existent file with read.fs.volume throws an error (issue #25)", {
+
+  non_existent_file = tempfile(, fileext = "");
+  testthat::expect_false(file.exists(non_existent_file)); # ensure it does not exist.
+
+  testthat::expect_error(read.fs.volume(non_existent_file));
+
+})
