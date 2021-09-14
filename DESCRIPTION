@@ -11,10 +11,10 @@ URL: https://github.com/dfsp-spirit/freesurferformats
 BugReports: https://github.com/dfsp-spirit/freesurferformats/issues
 Imports:
     pkgfilecache (>= 0.1.1),
-    xml2
+    xml2,
+    rmarkdown
 Suggests:
     knitr,
-    rmarkdown,
     testthat (>= 2.1.0),
     oro.nifti (>= 0.9),
     gifti (>= 0.7.5),
