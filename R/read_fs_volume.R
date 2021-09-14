@@ -34,6 +34,10 @@ read.fs.volume <- function(filepath, format = "auto", flatten = FALSE, with_head
     stop("Format must be one of c('auto', 'nii', 'mgh', 'mgz').");
   }
 
+  if(!file.exists(filepath)) {
+    stop(sprintf("Cannot read volume, file '%s' does not exist or cannot be read.\n", filepath));
+  }
+
   if(format == 'nii' | (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
     return(read.fs.volume.nii(filepath, flatten = flatten, with_header = with_header, drop_empty_dims = drop_empty_dims));
   }

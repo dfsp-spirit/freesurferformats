@@ -167,7 +167,7 @@ test_that("Invalid volume format leads to errors", {
 })
 
 
-test_that("Trying to read a non-existent file with read.fs.volume throws an error (issue #25)", {
+test_that("Trying to read a non-existent file that does not match any of the file extension checks with read.fs.volume throws an error (issue #25)", {
 
   non_existent_file = tempfile(, fileext = "");
   testthat::expect_false(file.exists(non_existent_file)); # ensure it does not exist.
