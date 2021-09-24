@@ -1,10 +1,15 @@
 #!/usr/bin/env Rscript
 # Convert a file with per-vertex data to a new format.
 #
+# To get all required R pacakges, run from an R session:
+#
+# R> install.packages("freesurferformats", dependencies = TRUE);
+#
 
 library("freesurferformats");
 
-usage_msg <- function() { return(sprintf("USAGE: convert_pervertexdata_file <infile> <outfile>\nExample: convert_pervertexdata_file thickness_overlay.nii.gz myfile.gii")); }
+
+usage_msg <- function() { return(sprintf("USAGE: convert_pervertexdata_file <infile> <outfile>\nExample: convert_pervertexdata_file thickness_overlay.nii.gz new_output_file.gii")); }
 
 args = commandArgs(trailingOnly=TRUE);
 if (length(args) != 2) {
