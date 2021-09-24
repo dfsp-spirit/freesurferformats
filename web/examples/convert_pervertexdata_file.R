@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 # Convert a file with per-vertex data to a new format.
 #
-# To get all required R pacakges, run from an R session:
+# To install all required R packages, run from an R session:
 #
 # R> install.packages("freesurferformats", dependencies = TRUE);
 #
