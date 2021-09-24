@@ -5,6 +5,7 @@ library("freesurferformats");
 
 usage_msg <- function() { return(sprintf("USAGE: convert_pervertexdata_file <infile> <outfile>\n")); }
 
+args = commandArgs(trailingOnly=TRUE);
 if (length(args) != 2) {
     stop(usage_msg());
 }
