@@ -18,6 +18,7 @@ Suggests:
     testthat (>= 2.1.0),
     oro.nifti (>= 0.9),
     gifti (>= 0.7.5),
-    cifti (>= 0.4.5)
+    cifti (>= 0.4.5),
+    data.tree (>= 1.0.0)
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
