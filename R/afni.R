@@ -9,7 +9,7 @@
 #'
 #' @examples
 #'     afni.tree("~/AFNI_demos/FATCAT_DEMO/SUMA/std.60.lh.aparc.a2009s.annot.niml.dset");
-#'     afni.tree("~/AFNI_demos/AFNI_InstaCorrDemo.mini/srf/rest_sub00440.BEZ_lh_SSM.std.60.niml.dset"); # with binary data, not supported yet.
+#'     afni.tree("~/AFNI_demos/AFNI_InstaCorrDemo.mini/srf/rest_sub00440.BEZ_lh_SSM.std.60.niml.dset"); # with binary data, not supported yet due to invalid line breaks when reading as ASCII text.
 #'
 #' @export
 afni.tree <- function(filepath, verbose = TRUE) {
@@ -19,17 +19,17 @@ afni.tree <- function(filepath, verbose = TRUE) {
   current_node_idx = 1L; # assigned sequentially to new nodes
   current_line_number = 0L;
   current_depth = 0L;
-  current_name = paste("node_", current_node_idx, sep = "");
+  current_name = paste("node_", current_node_idx, '_root', sep = "");
   root = data.tree::Node$new(current_name);
   current_node = root;
-  parent = NULL;
+  parent = NULL; # TODO: store parents on a stack
   con = file(filepath, "r");
   all_lines = readLines(con);
   for(line_idx in seq_along(all_lines)) {
     line = all_lines[[line_idx]];
-    if(verbose) {
-      cat(sprintf("Handling line %d of %d: '%s'.\n", line_idx, length(all_lines), line));
-    }
+    #if(verbose) {
+    #  cat(sprintf("Handling line %d of %d: '%s'.\n", line_idx, length(all_lines), line));
+    #}
     current_line_number = line_idx;
       if(startsWith(line, "<") & !(startsWith(line, "</"))) {
         current_node_idx = current_node_idx + 1L;
@@ -45,17 +45,17 @@ afni.tree <- function(filepath, verbose = TRUE) {
         current_node = new_node;
       } else if(startsWith(line, "</")) {
         if(is.null(parent)) {
-          stop("Invalid dset file."); # must never happen, we have our own root node.
+          stop("Invalid dset file: no parent left."); # must never happen, we have our own root node.
         }
         current_depth = current_depth - 1L;
+        if(current_depth < 0L) {
+          stop("Invalid dset file: reached negative node depth."); # must never happen
+        }
         if(verbose) {
-          cat(sprintf("Definition of node '%d' finished at line %d (depth is now %d), returning to parent '%s'.\n", current_node_idx, current_line_number, current_depth, parent$name));
+          cat(sprintf("Definition of node '%d' finished at line %d, returning to parent '%s' (depth is now %d).\n", current_node_idx, current_line_number, parent$name, current_depth));
         }
         current_node = parent;
       }
-
-
-
   }
 
   close(con);
