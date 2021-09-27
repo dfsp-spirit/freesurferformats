@@ -293,8 +293,7 @@ guess.filename.is.gzipped <- function(filepath, gz_extensions=c(".gz", ".mgz")) 
 #' @keywords internal
 get.slice.orientation <- function(Mdc) {
 
-
-  if(is.null(Mdc)) {
+  if(is.null(Mdc) | any(is.na(Mdc))) {
     return(list('orientation_string'='???', 'direction_name'='unknown'));
   }
 
