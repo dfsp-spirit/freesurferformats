@@ -67,9 +67,42 @@ afni.tree <- function(filepath, verbose = TRUE) {
         }
         current_node = parent;
       } else if(endsWith(line, ">")) {
-        cat(sprintf(" -New subsection of node '%s' (#%d) encountered at line %d ('%s'), maybe data.\n", current_node$name, current_node_idx, current_line_number, line));
+        cat(sprintf(" -New subsection of node '%s' (#%d) encountered at line %d ('%s'), maybe data. Data starts in next line.\n", current_node$name, current_node_idx, current_line_number, line));
         in_data = TRUE;
-      } else {
+        # TODO: revert connection to start of data (the current line may already include the start of the data after the '>') and read the data -- maybe in binary form.
+
+      } else if(grepl( ">", line, fixed = TRUE)) {
+        cat(sprintf(" -New subsection of node '%s' (#%d) encountered at line %d ('%s'), maybe data. Data starts in this line.\n", current_node$name, current_node_idx, current_line_number, line));
+        in_data = TRUE;
+        # TODO: revert connection to start of data (the current line may already include the start of the data after the '>') and read the data -- maybe in binary form.
+
+        search_start = TRUE;
+        if(search_start) {
+
+          cur_pos = seek(con, where=NA);
+          cur_char = "?";
+
+          seek(con, where = -1L, origin = "current");
+          while(cur_char != ">" & cur_pos > 0L) {
+            cur_char = readChar(con, 1L, useBytes = TRUE);
+            if(length(cur_char) == 0L) {
+              cat(sprintf(" --Start of data section of node %s NOT found, cannot read more chars.\n", current_node$name));
+              break;
+            }
+            seek(con, where = -2L, origin = "current");
+            cur_pos = seek(con, where=NA);
+            cat(sprintf("Searching for data start of node %s, currently at byte %d which contains char %s.\n", current_node$name, cur_pos, cur_char));
+          }
+          if(length(cur_char) == 0L) {
+            cat(sprintf(" --Start of data section of node %s NOT found, hit file start.\n", current_node$name));
+          } else {
+            if(cur_char == ">") {
+              cat(sprintf(" --Start of data section of node %s is at byte %d in file.\n", current_node$name, cur_pos));
+            } else {
+              cat(sprintf(" --Start of data section of node %s NOT found.\n", current_node$name));
+            }
+          }
+        }
 
       }
     }
