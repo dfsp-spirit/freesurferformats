@@ -20,4 +20,4 @@ Suggests:
     gifti (>= 0.7.5),
     cifti (>= 0.4.5)
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
