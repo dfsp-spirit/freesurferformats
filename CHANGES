@@ -2,9 +2,14 @@ freesurferformats Changes
 =========================
 
 
-current dev version
+Version 0.1.16
 -------------------
 - Add experimental support for reading and writing Brainvoyager SMP files in format versions 4 and 5
+- Add and export vertexdists.to.point function
+- Allow MGH reading function to work with broken MGH files that contain no valid RAS header values but still claim so by setting the ras_valid flag in the header to 1
+- Add some new example usage scripts in the GitHub repository
+- Fix bug #25
+- Add 2 extra params to read.fs.surface.asc to make it more flexible
 
 
 Version 0.1.15
