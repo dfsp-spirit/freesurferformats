@@ -712,15 +712,17 @@ doapply.transform.mtx <- function(coords, mtx, as_mat = FALSE) {
 
 #' @title Get fsaverage (MNI305) to MNI152 transformation matrix.
 #'
+#' @description The uses the 4x4 matrix from the FreeSurfer CoordinateSystems documentation.
+#'
 #' @note There are better ways to achieve this transformation than using this matrix, see Wu et al., 'Accurate nonlinear mapping between MNI volumetric and FreeSurfer surface coordinate system', Hum Brain Mapp. 2018 Sep; 39(9): 3793–3808. doi: 10.1002/hbm.24213. The mentioned method is available in R from the 'regfusionr' package (GitHub only atom, not on CRAN).
 #'
 #' @examples
-#'     coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());
-#'     coords_tf;
+#'     coords_tf = doapply.transform.mtx(c(10.0, -20.0, 35.0), mni152reg());
+#'     coords_tf; #  10.695, -18.409, 36.137
 #'     doapply.transform.mtx(coords_tf, solve(mni152reg()));
 #'
 #' @export
 mni152reg <- function() {
-  return(min152reg = matrix(c(9.975314e-01, -7.324822e-03, 1.760415e-02, 9.570923e-01, -1.296475e-02, -9.262221e-03, 9.970638e-01, -1.781596e+01, -1.459537e-02, -1.000945e+00, 2.444772e-03, -1.854964e+01, 0, 0, 0, 1), ncol = 4, byrow = TRUE));
+  return(matrix(c(0.9975, -0.0073, 0.0176, -0.0429, 0.0146, 1.0009, -0.0024, 1.5496, -0.0130, -0.0093, 0.9971, 1.1840, 0, 0, 0, 1), ncol = 4, byrow = TRUE));
 }
 
