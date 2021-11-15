@@ -75,7 +75,7 @@ fs.surface.to.tmesh3d <- function(surface) {
   class(tmesh) = c("mesh3d", "shape3d");
   tmesh$vb = t(cbind(surface$vertices, 1L)); # Transform vertex coords to homogeneous and swap rows/columns
   tmesh$vb = t(surface$faces); # swap only
-  return(rgl::tmesh3d(c(t(surface$vertices)), c(t(surface$faces)), homogeneous=FALSE));
+  return(tmesh);
 }
 
 
