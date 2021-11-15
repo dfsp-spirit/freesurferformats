@@ -58,3 +58,24 @@ filepath.ends.with <- function(filepath, extensions) {
 }
 
 
+#' @title Get an rgl tmesh3d instance from a brain surface mesh.
+#'
+#' @description Convert \code{fs.surface} to \code{tmesh} without the \code{rgl} package.
+#'
+#' @param surface an fs.surface instance, as returned \code{freesurferformats::read.fs.surface}.
+#'
+#' @return a \code{tmesh3d} instance representing the surface, see \code{rgl::tmesh3d} for details. It has classes \code{mesh3d} and \code{shape3d}.
+#'
+#' @export
+fs.surface.to.tmesh3d <- function(surface) {
+  if( ! freesurferformats::is.fs.surface(surface)) {
+    stop("Parameter 'surface' must be an instance of freesurferformats::fs.surface.");
+  }
+  tmesh = list("material"=list(), "normals"=NULL, "texcoords"=NULL, "meshColor"="vertices");
+  class(tmesh) = c("mesh3d", "shape3d");
+  tmesh$vb = t(cbind(surface$vertices, 1L)); # Transform vertex coords to homogeneous and swap rows/columns
+  tmesh$vb = t(surface$faces); # swap only
+  return(rgl::tmesh3d(c(t(surface$vertices)), c(t(surface$faces)), homogeneous=FALSE));
+}
+
+

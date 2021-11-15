@@ -2,6 +2,11 @@ freesurferformats Changes
 =========================
 
 
+Version 0.1.17
+-------------------
+- Add function fs.surface.to.tmesh3d to transform an fs.surface mesh datastructure into an RGL tmesh datastructure. This method does not require rgl.
+
+
 Version 0.1.16
 -------------------
 - Add experimental support for reading and writing Brainvoyager SMP files in format versions 4 and 5
