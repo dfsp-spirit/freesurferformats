@@ -68,13 +68,13 @@ filepath.ends.with <- function(filepath, extensions) {
 #'
 #' @export
 fs.surface.to.tmesh3d <- function(surface) {
-  if( ! freesurferformats::is.fs.surface(surface)) {
-    stop("Parameter 'surface' must be an instance of freesurferformats::fs.surface.");
+  if( ! is.fs.surface(surface)) {
+    stop("Parameter 'surface' must be an instance of fs.surface.");
   }
   tmesh = list("material"=list(), "normals"=NULL, "texcoords"=NULL, "meshColor"="vertices");
   class(tmesh) = c("mesh3d", "shape3d");
   tmesh$vb = t(cbind(surface$vertices, 1L)); # Transform vertex coords to homogeneous and swap rows/columns
-  tmesh$vb = t(surface$faces); # swap only
+  tmesh$it = t(surface$faces); # swap only
   return(tmesh);
 }
 
