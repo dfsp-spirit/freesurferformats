@@ -5,9 +5,11 @@
 #'
 #' @param filepath string. Full path to the input annotation file. Note: gzipped files are supported and gz format is assumed if the filepath ends with ".gz".
 #'
-#' @param empty_label_name string. Ignored, deprecated.
+#' @param empty_label_name character string, a base name to use to rename regions with empty name in the label table. This should not occur, and you can ignore this parameter setting. A warning will be thrown if this ever triggers. Not to be confused with parameter \code{default_label_name}, see below.
 #'
 #' @param metadata named list of arbitrary metadata to store in the instance.
+#'
+#' @param default_label_name character string, the label name to use for vertices which have a label code that does not occur in the label table. This is typically the case for the 'unknown' region, which often has code \code{0}. You can set this to avoid empty region label names. The typical setting would be 'unknown', however by default we leave the names as-is, so that annots which are read and then written back to files with this library do not differ.
 #'
 #' @return named list, entries are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code. "hex_colors_rgb": Vector of hex color for each vertex.
 #'      The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code. "colortable_df": The same information as a dataframe. Contains the extra columns "hex_color_string_rgb" and "hex_color_string_rgba" that hold the color as an RGB(A) hex string, like "#rrggbbaa".
@@ -23,7 +25,7 @@
 #'
 #' @importFrom grDevices rgb
 #' @export
-read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list()) {
+read.fs.annot <- function(filepath, empty_label_name="empty", metadata=list(), default_label_name="") {
 
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
@@ -31,8 +33,6 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
         fh = file(filepath, "rb");
     }
     on.exit({ close(fh) }, add=TRUE);
-
-    empty_label_name = "unknown";
 
     num_verts_and_labels = readBin(fh, integer(), n = 1, endian = "big");
     verts_and_labels = readBin(fh, integer(), n = num_verts_and_labels*2, endian = "big");
@@ -76,10 +76,10 @@ read.fs.annot <- function(filepath, empty_label_name="unknown", metadata=list())
         colortable_df$struct_index = colortable$struct_index;
         return_list$colortable_df = colortable_df;
 
-        label_names = rep("", length(labels))
-        hex_colors_rgb = rep("#333333", length(labels))
+        label_names = rep(default_label_name, length(labels));
+        hex_colors_rgb = rep("#333333", length(labels));
         nempty = 1L;  # There could be more than 1 empty region, and we cannot match all of them to the same name. Ususally there should not be any labels with empty name though.
-        for (i in 1:length(colortable$struct_names)) {
+        for (i in seq_along(colortable$struct_names)) {
           label_code = code[i];
           label_name = colortable$struct_names[i];
           if(nchar(label_name) == 0) {

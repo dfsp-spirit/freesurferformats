@@ -2,6 +2,11 @@ freesurferformats Changes
 =========================
 
 
+Version 0.1.16.dev (WIP)
+-------------------------
+- Introduce 'default_label_name' parameter to read.fs.annot, better doc string for the same function.
+
+
 Version 0.1.16
 -------------------
 - Add experimental support for reading and writing Brainvoyager SMP files in format versions 4 and 5
