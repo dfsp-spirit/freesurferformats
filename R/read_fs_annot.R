@@ -27,6 +27,10 @@
 #' @export
 read.fs.annot <- function(filepath, empty_label_name="empty", metadata=list(), default_label_name="") {
 
+    if(getOption("freesurferformats.debug", default=0) >= 2) {
+      cat(sprintf("Handling annot file '%s'.\n", filepath));
+    }
+
     if(! file.exists(filepath)) {
       stop(sprintf("Annotation file '%s' does not exist or cannot be read.\n", filepath));
     }
