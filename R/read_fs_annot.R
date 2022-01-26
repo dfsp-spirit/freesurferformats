@@ -27,6 +27,10 @@
 #' @export
 read.fs.annot <- function(filepath, empty_label_name="empty", metadata=list(), default_label_name="") {
 
+    if(! file.exists(filepath)) {
+      stop(sprintf("Annotation file '%s' does not exist or cannot be read.\n", filepath));
+    }
+
     if(guess.filename.is.gzipped(filepath)) {
         fh = gzfile(filepath, "rb");
     } else {
