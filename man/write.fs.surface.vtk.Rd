@@ -20,7 +20,7 @@ string the format that was written. One of "tris" or "quads". Currently only tri
 Write mesh to file in VTK ASCII format
 }
 \examples{
-\donttest{
+\dontrun{
     # Read a surface from a file:
     surface_file = system.file("extdata", "lh.tinysurface",
      package = "freesurferformats", mustWork = TRUE);

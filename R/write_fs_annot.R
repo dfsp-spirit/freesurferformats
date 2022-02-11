@@ -53,7 +53,7 @@ write.fs.colortable <- function(filepath, colortable) {
 #' @param fs.annot instance of class `fs.annot`. If passed, this takes precedence over all other parameters and they should all be NULL (with the exception of `filepath`).
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'    # Load annotation
 #'    annot_file = system.file("extdata", "lh.aparc.annot.gz",
 #'                                package = "freesurferformats",
@@ -187,7 +187,7 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 #' @param annot fs.annot instance, an annotation.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'    # Load annotation
 #'    annot_file = system.file("extdata", "lh.aparc.annot.gz",
 #'                                package = "freesurferformats",

@@ -23,7 +23,7 @@ Write vertex coordinates and vertex indices defining faces to a file in FreeSurf
    For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'. This function writes the triangle version of the surface file format.
 }
 \examples{
-\donttest{
+\dontrun{
     # Read a surface from a file:
     surface_file = system.file("extdata", "lh.tinysurface",
      package = "freesurferformats", mustWork = TRUE);

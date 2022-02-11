@@ -25,7 +25,7 @@ The wavefront object format is a simply ASCII format for storing meshes.
 Do not confuse the Wavefront object file format (.obj) with the OFF format (.off), they are not identical.
 }
 \examples{
-\donttest{
+\dontrun{
     # Read a surface from a file:
     surface_file = system.file("extdata", "lh.tinysurface",
      package = "freesurferformats", mustWork = TRUE);

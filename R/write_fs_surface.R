@@ -18,7 +18,7 @@
 #'
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -142,7 +142,7 @@ check.verts.faces <- function(vertex_coords, faces) {
 #' @family mesh functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -194,7 +194,7 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 #' @family mesh functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -255,7 +255,7 @@ write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
 #' @note Do not confuse the Wavefront object file format (.obj) with the OFF format (.off), they are not identical.
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -323,7 +323,7 @@ write.fs.surface.obj <- function(filepath, vertex_coords, faces, vertex_colors=N
 #' @family mesh export functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -358,7 +358,7 @@ write.fs.surface.off <- function(filepath, vertex_coords, faces) {
 #' @family mesh export functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -416,7 +416,7 @@ write.fs.surface.off.ply2 <- function(filepath, vertex_coords, faces, format) {
 #' @family mesh export functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -451,7 +451,7 @@ write.fs.surface.ply2 <- function(filepath, vertex_coords, faces) {
 #' @family mesh export functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -550,7 +550,7 @@ ply.header.lines <- function(num_verts, num_faces, use_vertex_colors) {
 #' @family gifti writers
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -584,7 +584,7 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #' @family mesh functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);
@@ -695,7 +695,7 @@ fixed.format.lines <- function(vdata, format_string, max_entries_per_line=NULL) 
 #' @family mesh functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Read a surface from a file:
 #'     surface_file = system.file("extdata", "lh.tinysurface",
 #'      package = "freesurferformats", mustWork = TRUE);

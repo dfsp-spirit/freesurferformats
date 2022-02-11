@@ -25,7 +25,7 @@ The two formats are very similar, they only differ in the header lines. This fun
 Do not confuse the OFF format (.off) with the Wavefront object file format (.obj), they are not identical.
 }
 \examples{
-\donttest{
+\dontrun{
     # Read a surface from a file:
     surface_file = system.file("extdata", "lh.tinysurface",
      package = "freesurferformats", mustWork = TRUE);

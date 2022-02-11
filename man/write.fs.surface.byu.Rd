@@ -23,7 +23,7 @@ Write mesh to file in BYU ASCII format.
 This is a fixed field length ASCII format. Keep in mind that the BYU format expects the coordinates to be in the cube -1 to +1 on all three axes.
 }
 \examples{
-\donttest{
+\dontrun{
     # Read a surface from a file:
     surface_file = system.file("extdata", "lh.tinysurface",
      package = "freesurferformats", mustWork = TRUE);

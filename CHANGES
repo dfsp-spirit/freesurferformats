@@ -2,10 +2,11 @@ freesurferformats Changes
 =========================
 
 
-Version 0.1.16.dev (WIP)
+Version 0.1.17
 -------------------------
 - Introduce 'default_label_name' parameter to read.fs.annot, better doc string for the same function.
 - Add function fs.surface.to.tmesh3d to transform an fs.surface mesh datastructure into an RGL tmesh datastructure. This method does not require rgl.
+- Replace all 'donttest' in examples with 'dontrun' so CRAN does not run them.
 
 
 

@@ -18,7 +18,7 @@
 #' @family label functions
 #'
 #' @examples
-#' \donttest{
+#' \dontrun{
 #'     # Write a simple label containing only vertex indices:
 #'     label_vertices = c(1,2,3,4,5,1000,2000,2323,34,34545,42);
 #'     write.fs.label(tempfile(fileext=".label"), label_vertices);

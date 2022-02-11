@@ -18,7 +18,7 @@ Write an annotation to a GIFTI XML file.
 This function does not write a GIFTI file that is valid according to the specification: it stores extra color data in the Label nodes, and there is more than one Label in the LabelTable node.
 }
 \examples{
-\donttest{
+\dontrun{
    # Load annotation
    annot_file = system.file("extdata", "lh.aparc.annot.gz",
                                package = "freesurferformats",

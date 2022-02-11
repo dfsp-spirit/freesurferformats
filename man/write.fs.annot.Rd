@@ -30,7 +30,7 @@ write.fs.annot(
 Write an annotation to a FreeSurfer binary format annotation file in the new format (v2). An annotation (or brain parcellation) assigns each vertex to a label (or region). One of the regions is often called 'unknown' or similar and all vertices which are not relevant for the parcellation are assigned this label.
 }
 \examples{
-\donttest{
+\dontrun{
    # Load annotation
    annot_file = system.file("extdata", "lh.aparc.annot.gz",
                                package = "freesurferformats",
