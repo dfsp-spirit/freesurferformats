@@ -79,3 +79,15 @@ fs.surface.to.tmesh3d <- function(surface) {
 }
 
 
+#' @title Check for pandoc availability on system.
+#'
+#' @return logical, whether Pandoc is available.
+#'
+#' @importFrom rmarkdown pandoc_available
+#'
+#' @keywords internal
+has_pandoc <- function() {
+  return(rmarkdown::pandoc_available());
+}
+
+
