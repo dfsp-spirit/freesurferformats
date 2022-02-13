@@ -61,6 +61,13 @@ The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), 
 install.packages("freesurferformats")
 ```
 
+If you want support for as many neuroimaging file formats as possible, do this instead to install with all optional dependencies:
+
+```r
+install.packages("freesurferformats", dependencies=TRUE);
+```
+
+
 [![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
 The package is also available from [neuroconductor](https://neuroconductor.org/package/freesurferformats).
