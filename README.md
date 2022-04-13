@@ -1,5 +1,5 @@
 # freesurferformats
-GNU R package to read and write structural neuroimaging file formats. Comes with support for file formats used by [FreeSurfer](https://freesurfer.net/), [CAT12](http://www.neuro.uni-jena.de/cat/)/SPM, FSL, [BrainVoyager](http://www.brainvoyager.com/), [MRtrix3](https://www.mrtrix.org/), [Diffusion Toolkit/TrackVis](http://trackvis.org/dtk/) and other neuroimaging software packages.
+GNU R package to read and write structural neuroimaging file formats. Comes with support for file formats used by [FreeSurfer](https://freesurfer.net/), [CAT12](http://www.neuro.uni-jena.de/cat/)/[SPM](https://www.fil.ion.ucl.ac.uk/spm/software/), [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki), [BrainVoyager](http://www.brainvoyager.com/), [MRtrix3](https://www.mrtrix.org/), [Diffusion Toolkit/TrackVis](http://trackvis.org/dtk/) and other neuroimaging software packages.
 
 ![Vis](./vignettes/rgl_brain_aparc.jpg?raw=true "An aparc brain atlas visualization, created with the fsbrain R package.")
 
