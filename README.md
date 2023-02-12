@@ -267,4 +267,4 @@ If you found a bug, have any question, suggestion or comment on freesurferformat
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contribute code.
 
-The freesurferformats package was written by [Tim Schäfer](http://rcmd.org/ts/). To contact me in person, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
+The freesurferformats package was written by [Tim Schäfer](https://ts.rcmd.org). To contact me in person, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
