@@ -262,6 +262,9 @@ parse.transform.matrix.lines <- function(file_lines, ignore_line_suffix=";") {
 
   line_idx = 1L;
   for(file_line in file_lines) {
+    
+    file_line <- trimws(file_line)
+    
     if(endsWith(file_line, ignore_line_suffix)) {
       file_line = substring(file_line, 1L, (nchar(file_line) - nchar(ignore_line_suffix)));
     }
