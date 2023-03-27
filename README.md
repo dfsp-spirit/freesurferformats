@@ -1,3 +1,10 @@
+<!-- badges: start -->
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
+[![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats)
+[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
+<!-- badges: end -->
+
+
 # freesurferformats
 GNU R package to read and write structural neuroimaging file formats. Comes with support for file formats used by [FreeSurfer](https://freesurfer.net/), [CAT12](http://www.neuro.uni-jena.de/cat/)/[SPM](https://www.fil.ion.ucl.ac.uk/spm/software/), [FSL](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki), [BrainVoyager](http://www.brainvoyager.com/), [MRtrix3](https://www.mrtrix.org/), [Diffusion Toolkit/TrackVis](http://trackvis.org/dtk/) and other neuroimaging software packages.
 
@@ -267,4 +274,4 @@ If you found a bug, have any question, suggestion or comment on freesurferformat
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for instructions on how to contribute code.
 
-The freesurferformats package was written by [Tim Schäfer](http://rcmd.org/ts/). To contact me in person, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
+The freesurferformats package was written by [Tim Schäfer](https://ts.rcmd.org). To contact me in person, please use the maintainer email address listed on the [CRAN webpage for freesurferformats](https://cran.r-project.org/package=freesurferformats).
