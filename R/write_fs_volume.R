@@ -43,7 +43,19 @@ nii1header.for.mgh <- function(mgh) {
   if (! freesurferformats::is.fs.volume(mgh)) {
     stop("Parameter 'mgh' must be an fs.volume instance or a path to a file that can be loaded with 'read.fs.volume', resulting in an fs.volume instance.");
   }
+  mgh_header = mgh$header;
+  if(! freesurferformats::is.mghheader(mgh_header)) {
+    warning("Given or loaded fs.volume instance has no header information. Returning NULL.");
+    return(NULL);
+  }
   
+  niiheader = freesurferformats::ni1header.template();
+  endian = 'little';    # Should we expose endianness as a function parameter? It only gets relevant when writing though, so maybe not needed here.
+  niiheader$endian = endian;
+  
+  # TODO: convert other MGH fields here, most importantly compute sform and qform from vox2ras of MGH.
+  
+  return(niiheader);
 }
 
 
