@@ -51,36 +51,57 @@ nii1header.for.mgh <- function(mgh) {
 
   endian = 'little';    # Should we expose endianness as a function parameter? It only gets relevant when writing though, so maybe not needed here.
 
-  header = freesurferformats::ni1header.template();
-  header$endian = endian;
-  niiheader$sizeof_hdr = 348L; # TODO: this may be the default already in the template.
-  header$dim <- c(3L, dim(mgh$data)[1:3], 1L, 1L, 1L, 1L)
-  header$intent_p1 <- 0
-  header$intent_p2 <- 0
-  header$intent_p3 <- 0
-  header$intent_code <- 0L
+  nii_header = freesurferformats::ni1header.template();
+  nii_header$endian = endian;
+  nii_header$sizeof_hdr = 348L; # TODO: this may be the default already in the template.
+  nii_header$dim <- c(3L, dim(mgh$data)[1:3], 1L, 1L, 1L, 1L)
+  nii_header$intent_p1 <- 0
+  nii_header$intent_p2 <- 0
+  nii_header$intent_p3 <- 0
+  nii_header$intent_code <- 0L
 
   dtype_and_bp = nifti.dtypebitpix.info.from.mgh.dtype(mgh_header$dtype);
-  header$datatype = dtype_and_bp$datatype;
-  header$bitpix = dtype_and_bp$bitpix;
-  header$slice_start <- 0L
-  header$pix_dim <- c(-1, 1, 1, 1, 0, 1, 1, 1)
-  # header$vox_offset <- 352L
-  # header$scl_slope
-  # header$scl_inter
-  # header$slice_end
-  # header$slice_code
-  header$xyzt_units <- 10L
-  # header$cal_max
-  # header$cal_min
-  # header$slice_duration <- 0L
-  # header$toffset
-  # header$glmax
-  header$qform_code <- 1L
+  nii_header$datatype = dtype_and_bp$datatype;
+  nii_header$bitpix = dtype_and_bp$bitpix;
+  nii_header$slice_start <- 0L
+  nii_header$pix_dim <- c(-1, 1, 1, 1, 0, 1, 1, 1)
+  # nii_header$vox_offset <- 352L
+  # nii_header$scl_slope
+  # nii_header$scl_inter
+  # nii_header$slice_end
+  # nii_header$slice_code
+  nii_header$xyzt_units <- 10L
+  # nii_header$cal_max
+  # nii_header$cal_min
+  # nii_header$slice_duration <- 0L
+  # nii_header$toffset
+  # nii_header$glmax
+  nii_header$qform_code <- 1L
 
-  # TODO: convert other MGH fields here, most importantly compute sform and qform from vox2ras of MGH.
+  # Convert other MGH fields here, most importantly compute sform and qform from vox2ras of MGH.
 
-  return(niiheader);
+  # extract rotation matrix from vox2ras matrix
+  rot <- mgh$header$vox2ras_matrix
+  rot[, 4] <- c(0,0,0,1)
+  rot <- t(t(rot) / sqrt(colSums(rot^2)))
+  if( det(rot) < 0 ) {
+    # r13 = -r13 ; r23 = -r23 ; r33 = -r33 ;
+    rot[,3] <- -rot[,3]
+  }
+  quatern <- m44_to_quaternion(rot)
+  nii_header$quatern_b <- quatern[2]
+  nii_header$quatern_c <- quatern[3]
+  nii_header$quatern_d <- quatern[4]
+
+  nii_header$sform_code <- 1L
+  nii_header$qoffset_x <- mat[1, 4]
+  nii_header$qoffset_y <- mat[2, 4]
+  nii_header$qoffset_z <- mat[3, 4]
+  nii_header$srow_x <- mat[1, ]
+  nii_header$srow_y <- mat[2, ]
+  nii_header$srow_z <- mat[3, ]
+
+  return(nii_header);
 }
 
 
