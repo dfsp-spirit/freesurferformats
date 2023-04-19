@@ -1,6 +1,6 @@
 # Tests for nifti2mgh
 
-test_that("An oro.nifti instance can be converted into an fs.volume instance", {
+testthat::test_that("An oro.nifti instance can be converted into an fs.volume instance", {
   mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
   mgh = read.fs.mgh(mgh_file, with_header=TRUE);
 
@@ -8,11 +8,11 @@ test_that("An oro.nifti instance can be converted into an fs.volume instance", {
   if(! file.exists(nii_file)) { skip("Test data missing."); }
   mgh_from_nii = read.fs.volume.nii(nii_file, with_header=TRUE);
 
-  expect_equal(dim(mgh_from_nii$data), dim(mgh$data));
-  expect_equal(mghheader.vox2ras(mgh_from_nii), mghheader.vox2ras(mgh));
+  testthat::expect_equal(dim(mgh_from_nii$data), dim(mgh$data));
+  testthat::expect_equal(mghheader.vox2ras(mgh_from_nii), mghheader.vox2ras(mgh));
 
-  expect_equal(mghheader.crs.orientation(mgh), "LIA");
-  expect_equal(mghheader.crs.orientation(mgh_from_nii), "LIA");
+  testthat::expect_equal(mghheader.crs.orientation(mgh), "LIA");
+  testthat::expect_equal(mghheader.crs.orientation(mgh_from_nii), "LIA");
 
   # Check required rotation empirically. We should be able to get this from the NIFTI spec, but
   # it is not very clear to me. See Q15 here: https://nifti.nimh.nih.gov/nifti-1/documentation/faq#Q3
@@ -25,7 +25,7 @@ test_that("An oro.nifti instance can be converted into an fs.volume instance", {
   # Note: check the 'reorient' parameter to oro.nifti::readNIfTI, which is enabled by default. It may be responsible for the need to rotate.
   rotated_nii_data = rotate3D(niidata, 1);
 
-  expect_equal(rotated_nii_data, mghdata);
-  expect_true(all.equal(rotate3D(niidata, 1), mghdata));
+  testthat::expect_equal(rotated_nii_data, mghdata);
+  testthat::expect_true(all.equal(rotate3D(niidata, 1), mghdata));
 })
 
