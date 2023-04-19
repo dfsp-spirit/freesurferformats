@@ -59,8 +59,10 @@ nii1header.for.mgh <- function(mgh) {
   header$intent_p2 <- 0
   header$intent_p3 <- 0
   header$intent_code <- 0L
-  # header$datatype <- 8L
-  # header$bitpix <- 32L
+
+  dtype_and_bp = nifti.dtypebitpix.info.from.mgh.dtype(mgh_header$dtype);
+  header$datatype = dtype_and_bp$datatype;
+  header$bitpix = dtype_and_bp$bitpix;
   header$slice_start <- 0L
   header$pix_dim <- c(-1, 1, 1, 1, 0, 1, 1, 1)
   # header$vox_offset <- 352L

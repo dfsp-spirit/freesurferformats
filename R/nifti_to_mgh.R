@@ -364,6 +364,8 @@ nifti.dtype.info <- function(datatype, bitpix) {
 #'
 #' @note This is useful to compute a NIFTI header from the MGH header.
 #'
+#' @return named list with entries: `datatype` and `bitpix` containing the translated data for the respective NII header fields.
+#'
 #' @keywords internal
 nifti.dtypebitpix.info.from.mgh.dtype(mgh_dtype_code) <- function() {
 
@@ -388,7 +390,7 @@ nifti.dtypebitpix.info.from.mgh.dtype(mgh_dtype_code) <- function() {
     stop(sprintf("Invalid mgh_dtype_code '%d' encountered when trying to convert MGH header datatype info to NIFTI header datatype info.\n", mgh_dtype_code));
   }
 
-  res = list("nii_datatype"=datatype, "nii_bitpix" = bitpix);
+  res = list("datatype"=datatype, "bitpix" = bitpix);
   return(res);
 }
 
