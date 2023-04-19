@@ -95,7 +95,7 @@ m44_to_quaternion <- function(m) {
 #' @note This is intended to be used with write.nifti1, which allows users to convert MGH/MGZ data to NIFTI files.
 #'
 #' @export
-nii1header.for.mgh <- function(mgh) {
+nii1header.for.mgh <- function(mgh, endian="little") {
   if (is.character(mgh)) {
     mgh = freesurferformats::read.fs.volume(mgh, with_header = TRUE);
   }
@@ -107,8 +107,6 @@ nii1header.for.mgh <- function(mgh) {
     warning("Given or loaded fs.volume instance has no header information. Returning NULL.");
     return(NULL);
   }
-
-  endian = 'little';    # Should we expose endianness as a function parameter? It only gets relevant when writing though, so maybe not needed here.
 
   nii_header = freesurferformats::ni1header.template();
   nii_header$endian = endian;
