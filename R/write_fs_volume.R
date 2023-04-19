@@ -28,13 +28,13 @@ write.fs.volume <- function(filepath, fs_vol, format="mgh") {
 
 
 #' @title Create a NIFTI 1 header from the header information contained in an fs.volume instance.
-#' 
+#'
 #' @param an fs.volume instance, or a string. If a string, it is interpreted as a filepath to a volume file (NIFTI, MGH or MGZ) that should be loaded.
-#' 
-#' @return a NIFTI 1 header structure. Note that the header may or may not contain full RAS information, depending on whether the source fs.volume contained such information or not. 
-#' 
+#'
+#' @return a NIFTI 1 header structure. Note that the header may or may not contain full RAS information, depending on whether the source fs.volume contained such information or not.
+#'
 #' @note This is intended to be used with write.nifti1, which allows users to convert MGH/MGZ data to NIFTI files.
-#' 
+#'
 #' @export
 nii1header.for.mgh <- function(mgh) {
   if (is.character(mgh)) {
@@ -48,15 +48,37 @@ nii1header.for.mgh <- function(mgh) {
     warning("Given or loaded fs.volume instance has no header information. Returning NULL.");
     return(NULL);
   }
-  
-  niiheader = freesurferformats::ni1header.template();
+
   endian = 'little';    # Should we expose endianness as a function parameter? It only gets relevant when writing though, so maybe not needed here.
-  niiheader$endian = endian;
-  
+
+  header = freesurferformats::ni1header.template();
+  header$endian = endian;
+  niiheader$sizeof_hdr = 348L; # TODO: this may be the default already in the template.
+  header$dim <- c(3L, dim(mgh$data)[1:3], 1L, 1L, 1L, 1L)
+  header$intent_p1 <- 0
+  header$intent_p2 <- 0
+  header$intent_p3 <- 0
+  header$intent_code <- 0L
+  # header$datatype <- 8L
+  # header$bitpix <- 32L
+  header$slice_start <- 0L
+  header$pix_dim <- c(-1, 1, 1, 1, 0, 1, 1, 1)
+  # header$vox_offset <- 352L
+  # header$scl_slope
+  # header$scl_inter
+  # header$slice_end
+  # header$slice_code
+  header$xyzt_units <- 10L
+  # header$cal_max
+  # header$cal_min
+  # header$slice_duration <- 0L
+  # header$toffset
+  # header$glmax
+  header$qform_code <- 1L
+
   # TODO: convert other MGH fields here, most importantly compute sform and qform from vox2ras of MGH.
-  
+
   return(niiheader);
 }
 
 
-  

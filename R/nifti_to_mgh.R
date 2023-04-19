@@ -360,6 +360,38 @@ nifti.dtype.info <- function(datatype, bitpix) {
   }
 }
 
+#' @title Compute the 'dtype' and 'bitpix' fields used in the NIFTI1 header for a given MRI datatype used by the MGH/MGZ format.
+#'
+#' @note This is useful to compute a NIFTI header from the MGH header.
+#'
+#' @keywords internal
+nifti.dtypebitpix.info.from.mgh.dtype(mgh_dtype_code) <- function() {
+
+  MRI_UCHAR = translate.mri.dtype("MRI_UCHAR");
+  MRI_INT = translate.mri.dtype("MRI_INT");
+  MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
+  MRI_SHORT = translate.mri.dtype("MRI_SHORT");
+
+  if(mgh_dtype_code == MRI_UCHAR) {
+    datatype == 2L;
+    bitpix == 8L;
+  } elif(mgh_dtype_code == MRI_INT) {
+    datatype == 8L;
+    bitpix == 32L;
+  } elif(mgh_dtype_code == MRI_FLOAT) {
+    datatype == 2L;
+    bitpix == 8L;
+  } elif(mgh_dtype_code == MRI_SHORT) {
+    datatype == 4L;
+    bitpix == 16L;
+  } else {
+    stop(sprintf("Invalid mgh_dtype_code '%d' encountered when trying to convert MGH header datatype info to NIFTI header datatype info.\n", mgh_dtype_code));
+  }
+
+  res = list("nii_datatype"=datatype, "nii_bitpix" = bitpix);
+  return(res);
+}
+
 
 #' @title Get the name of the transform type from a form code.
 #'
