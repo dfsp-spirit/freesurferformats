@@ -83,11 +83,49 @@ fs.surface.to.tmesh3d <- function(surface) {
 #'
 #' @return logical, whether Pandoc is available.
 #'
-#' @importFrom rmarkdown pandoc_available
-#'
 #' @keywords internal
 has_pandoc <- function() {
+  assert_package("rmarkdown")
   return(rmarkdown::pandoc_available());
 }
 
+
+assert_package <- function(pkg) {
+
+  package_installed <- vapply(pkg, function(p) {
+    return( system.file(package = p) != "" )
+  }, FALSE)
+  if( all(package_installed) ) { return(invisible()) }
+  pkg <- pkg[!package_installed]
+
+  # the package is missing
+  cnd <- structure(list(message = sprintf("Package(s) %s missing. Please install first.", paste(sQuote(pkg), collapse = ", ")), call = NULL),
+                   class = c("package_not_found_error", "simpleError", "error", "condition"))
+
+  # check if rlang has been installed, usually yes if people installs any rlib/posit packages
+  rlang_is_missing <- system.file(package = "rlang") == ""
+  pak_is_missing <- system.file(package = "pak") == ""
+
+  # if not interactive or rlang&pak are missing, per CRAN policy, stop
+  if(!interactive() || (rlang_is_missing && pak_is_missing)) {
+    stop(cnd)
+  }
+
+  if( !rlang_is_missing ) {
+    rlang <- asNamespace("rlang")
+    rlang$check_installed(pkg)
+    return(invisible())
+  }
+
+  # using pak
+  message(sprintf("Package(s) %s missing, install?", paste(sQuote(pkg), collapse = ", ")))
+  if (utils::menu(c("Yes", "No")) != 1) {
+    invokeRestart("abort", cnd)
+  }
+  pak <- asNamespace("pak")
+  pak$pkg_install(pkg, ask = FALSE)
+
+  return(invisible())
+
+}
 
