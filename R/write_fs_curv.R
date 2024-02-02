@@ -91,9 +91,9 @@ write.fs.morph.txt <- function(filepath, data) {
 #'
 #' @description Write a 3-byte integer to a binary file handle.
 #'
-#' @param filehandle: file handle (connection)
+#' @param filehandle file handle (connection)
 #'
-#' @param data: number to write
+#' @param data number to write
 #'
 #'
 #' @keywords internal

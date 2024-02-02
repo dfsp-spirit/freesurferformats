@@ -845,7 +845,7 @@ parse.stl.ascii.face <- function(stl_face_lines) {
 #'
 #' @description Some mesh file formats like STL do not store the faces as indices into a vertex list ('indexed mesh'), but repeat all vertex coordinates for each face ('polygon soup'). This function creates an indexed mesh from a polysoup.
 #'
-#' @param face_vertex_coords numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.
+#' @param faces_vertex_coords numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.
 #'
 #' @param digits the precision (number of digits after decimal separator) to use when to determine whether two x,y,z coords define the same vertex.
 #'
@@ -1465,11 +1465,11 @@ int.to.col.brainvoyager <- function(int_val) {
 
 #' @title Stop unless surf is an fs.surface
 #'
-#' @param surf fs.surface instance or anything else
+#' @param surface fs.surface instance or anything else
 #'
 #' @param param_name character string, used in stop message to identify the parameter.
 #'
-#' @return Called for the side effect of stopping if surf is not an fs.surface instance.
+#' @return Called for the side effect of stopping if surface is not an fs.surface instance.
 #'
 #' @keywords internal
 assert.surface <- function(surface, param_name="surface") {

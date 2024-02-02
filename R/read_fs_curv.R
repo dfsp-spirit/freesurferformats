@@ -139,9 +139,9 @@ read.fs.morph.txt <- function(filepath) {
 #'
 #' @description Read a 3-byte integer from a binary file handle. Advances the pointer accordingly.
 #'
-#' @param filehandle: file handle
+#' @param filehandle file handle
 #'
-#' @return integer: The read integer.
+#' @return integer, The read integer.
 #'
 #'
 #' @keywords internal

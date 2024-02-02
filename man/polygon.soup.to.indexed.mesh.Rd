@@ -7,9 +7,9 @@
 polygon.soup.to.indexed.mesh(faces_vertex_coords, digits = 6)
 }
 \arguments{
-\item{digits}{the precision (number of digits after decimal separator) to use when to determine whether two x,y,z coords define the same vertex.}
+\item{faces_vertex_coords}{numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.}
 
-\item{face_vertex_coords}{numerical matrix with *n* rows and 3 columns, the vertex coordinates of the faces. Each row contains the x,y,z coordinates of a single vertex, and three consecutive vertex rows form a triangular face.}
+\item{digits}{the precision (number of digits after decimal separator) to use when to determine whether two x,y,z coords define the same vertex.}
 }
 \value{
 an indexed mesh, as an `fs.surface` instance (see \code{\link[freesurferformats]{read.fs.surface}}).

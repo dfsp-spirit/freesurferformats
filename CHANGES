@@ -1,6 +1,10 @@
 freesurferformats Changes
 =========================
 
+Version 0.1.18
+-------------------------
+- Fix four minor docstring issues in internal functions. An email by the CRAN team required this.
+
 
 Version 0.1.17
 -------------------------
