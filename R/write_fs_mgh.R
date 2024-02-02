@@ -199,8 +199,6 @@ mri_dtype_numbytes <- function(mri_dtype_code) {
 #'
 #' @param mri_dtype_code integer, the MRI data type code. See \code{\link[freesurferformats]{translate.mri.dtype}}.
 #'
-#' @param silent logical, whether to suppress warning messages if the dtype seems unsuitable
-#'
 #' @return logical, whether the dtype could be suitable. This is only a guess, as the checks are in no way complete.
 #'
 #' @keywords internal

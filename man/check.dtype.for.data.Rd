@@ -10,8 +10,6 @@ check.dtype.for.data(mridata, mri_dtype_code)
 \item{mridata}{the data to check, a vector, matrix or array typically}
 
 \item{mri_dtype_code}{integer, the MRI data type code. See \code{\link[freesurferformats]{translate.mri.dtype}}.}
-
-\item{silent}{logical, whether to suppress warning messages if the dtype seems unsuitable}
 }
 \value{
 logical, whether the dtype could be suitable. This is only a guess, as the checks are in no way complete.
