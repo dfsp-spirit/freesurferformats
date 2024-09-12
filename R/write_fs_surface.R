@@ -35,6 +35,9 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format='auto') {
     stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu').");
   }
 
+  if(!identical(storage.mode(faces), "integer")) {
+    storage.mode(faces) <- "integer"
+  }
   check.verts.faces(vertex_coords, faces);
 
   if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
@@ -562,6 +565,9 @@ ply.header.lines <- function(num_verts, num_faces, use_vertex_colors) {
 #'
 #' @export
 write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
+  if(!identical(storage.mode(faces), "integer")) {
+    storage.mode(faces) <- "integer"
+  }
   check.verts.faces(vertex_coords, faces);
   my_data_sets = list(vertex_coords, faces - 1L);
   xmltree = gifti_xml(my_data_sets, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'), intent=c('NIFTI_INTENT_POINTSET', 'NIFTI_INTENT_TRIANGLE'));
@@ -599,6 +605,9 @@ write.fs.surface.gii <- function(filepath, vertex_coords, faces) {
 #' @export
 write.fs.surface.mz3 <- function(filepath, vertex_coords, faces, gzipped=TRUE) {
 
+  if(!identical(storage.mode(faces), "integer")) {
+    storage.mode(faces) <- "integer"
+  }
   check.verts.faces(vertex_coords, faces);
 
   faces = faces - 1L;
