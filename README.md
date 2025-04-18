@@ -91,11 +91,11 @@ If you install R packages from source (the default under Linux) and want support
 
 * for deb-based Linux distributions (Debian, Ubuntu, ...):
 ```shell
-sudo apt-get install libxml2-dev
+sudo apt-get install libxml2-dev libcurl4-openssl-dev
 ```
 * for rpm-based Linux distributions (Fedora, CentOS, RHEL, ...):
 ```shell
-sudo yum install libxml2-devel
+sudo yum install libxml2-devel libcurl-devel
 ```
 
 ## Documentation
