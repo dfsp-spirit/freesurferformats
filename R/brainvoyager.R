@@ -194,7 +194,7 @@ read.smp.brainvoyager.v1or2 <- function(filepath, version) {
 #'
 #' @param filepath character string, path to file in Brainvoyager SMP file format
 #'
-#' @references see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec
+#' @references see https://helpdesk.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files for the spec
 #'
 #' @note Currently only SMP file versions 1 to 5 are supported, as these are the only ones for which a spec is available. The version is encoded in the file header.
 #'

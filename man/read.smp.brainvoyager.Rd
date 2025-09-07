@@ -31,5 +31,5 @@ Currently only SMP file versions 1 to 5 are supported, as these are the only one
 
 }
 \references{
-see \url{https://support.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files} for the spec
+see https://helpdesk.brainvoyager.com/brainvoyager/automation-development/84-file-formats/40-the-format-of-smp-files for the spec
 }
