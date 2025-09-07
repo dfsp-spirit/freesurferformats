@@ -10,6 +10,7 @@ web/
 ^CONTRIBUTING\.md$
 LICENSE_FULL
 CHANGES
+CITATION.cff
 appveyor\.yml
 ^appveyor\.yml$
 

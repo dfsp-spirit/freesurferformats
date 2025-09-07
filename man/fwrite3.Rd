@@ -7,9 +7,9 @@
 fwrite3(filehandle, data)
 }
 \arguments{
-\item{filehandle:}{file handle (connection)}
+\item{filehandle}{file handle (connection)}
 
-\item{data:}{number to write}
+\item{data}{number to write}
 }
 \description{
 Write a 3-byte integer to a binary file handle.

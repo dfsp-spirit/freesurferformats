@@ -91,9 +91,9 @@ write.fs.morph.txt <- function(filepath, data) {
 #'
 #' @description Write a 3-byte integer to a binary file handle.
 #'
-#' @param filehandle: file handle (connection)
+#' @param filehandle file handle (connection)
 #'
-#' @param data: number to write
+#' @param data number to write
 #'
 #'
 #' @keywords internal
@@ -111,9 +111,9 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @description Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 #'
-#' @param filepath, string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, "smp" for Brainvoyager SMP format, "nii" or "nii.gz" for NIFTI v1 format, "gii" or "gii.gz" for GIFTI format, everything else will be treated as curv format.
+#' @param filepath string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, "smp" for Brainvoyager SMP format, "nii" or "nii.gz" for NIFTI v1 format, "gii" or "gii.gz" for GIFTI format, everything else will be treated as curv format.
 #'
-#' @param data, numerical vector. The data to write.
+#' @param data numerical vector. The data to write.
 #'
 #' @param format character string, the format to use. One of c("auto", "mgh", "mgz", "curv", "n1", "ni2", "gii"). The default setting "auto" will determine the format from the file extension.
 #'

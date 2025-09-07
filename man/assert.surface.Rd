@@ -7,9 +7,9 @@
 assert.surface(surface, param_name = "surface")
 }
 \arguments{
-\item{param_name}{character string, used in stop message to identify the parameter.}
+\item{surface}{fs.surface instance or anything else}
 
-\item{surf}{fs.surface instance or anything else}
+\item{param_name}{character string, used in stop message to identify the parameter.}
 }
 \value{
 Called for the side effect of stopping if surf is not an fs.surface instance.

@@ -18,6 +18,7 @@ This reads meshes from text files in OFF mesh format. This is an ASCII format.
 \seealso{
 Other mesh functions: 
 \code{\link{faces.quad.to.tris}()},
+\code{\link{read.fs.surface}()},
 \code{\link{read.fs.surface.asc}()},
 \code{\link{read.fs.surface.bvsrf}()},
 \code{\link{read.fs.surface.geo}()},
@@ -26,15 +27,14 @@ Other mesh functions:
 \code{\link{read.fs.surface.obj}()},
 \code{\link{read.fs.surface.ply}()},
 \code{\link{read.fs.surface.vtk}()},
-\code{\link{read.fs.surface}()},
 \code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurfacefile}()},
 \code{\link{read_nisurface}()},
+\code{\link{read_nisurfacefile}()},
+\code{\link{write.fs.surface}()},
 \code{\link{write.fs.surface.asc}()},
 \code{\link{write.fs.surface.byu}()},
 \code{\link{write.fs.surface.gii}()},
 \code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()},
-\code{\link{write.fs.surface}()}
+\code{\link{write.fs.surface.vtk}()}
 }
 \concept{mesh functions}

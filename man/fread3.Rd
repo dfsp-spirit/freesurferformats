@@ -7,7 +7,7 @@
 fread3(filehandle)
 }
 \arguments{
-\item{filehandle:}{file handle}
+\item{filehandle}{file handle}
 }
 \value{
 integer: The read integer.
