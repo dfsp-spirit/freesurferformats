@@ -1,6 +1,21 @@
 freesurferformats Changes
 =========================
 
+Version 1.0.0
+--------------
+- Fix some very minor docstring formatting issues, as required by new checks on CRAN.
+- Freesurferformats is now stable enough to move the version number to v1.0.0.
+- Note: There are NO breaking changes from the last release. The jump in version number is only to indicate that this is now pretty feature complete and stable.
+
+
+Version 0.1.18
+---------------
+- Change some minor docstring issues in internal functions (requested by CRAN team)
+
+Version 0.1.17.9
+-----------------
+- Change some minor docstring issues in internal functions (requested by CRAN team)
+
 
 Version 0.1.17
 -------------------------
