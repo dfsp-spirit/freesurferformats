@@ -84,6 +84,7 @@ test_that("An annotation can be written in binary v2 format and read again based
 
 
 test_that("An annotation can be written in GIFTI format and read again based on the class method.", {
+  skip_if_not_installed('gifti', minimum_version = NULL);
   annotfile = system.file("extdata", "lh.aparc.annot.gz", package = "freesurferformats", mustWork = TRUE);
   annot = read.fs.annot(annotfile);
 

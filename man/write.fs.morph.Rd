@@ -7,9 +7,9 @@
 write.fs.morph(filepath, data, format = "auto", ...)
 }
 \arguments{
-\item{filepath, }{string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, "smp" for Brainvoyager SMP format, "nii" or "nii.gz" for NIFTI v1 format, "gii" or "gii.gz" for GIFTI format, everything else will be treated as curv format.}
+\item{filepath}{string. The full file name. The format to use will be derived from the last characters, the suffix. Supported suffixes are "mgh" for MGH format, "mgz" for MGZ format, "smp" for Brainvoyager SMP format, "nii" or "nii.gz" for NIFTI v1 format, "gii" or "gii.gz" for GIFTI format, everything else will be treated as curv format.}
 
-\item{data, }{numerical vector. The data to write.}
+\item{data}{numerical vector. The data to write.}
 
 \item{format}{character string, the format to use. One of c("auto", "mgh", "mgz", "curv", "n1", "ni2", "gii"). The default setting "auto" will determine the format from the file extension.}
 
@@ -27,8 +27,8 @@ Other morphometry functions:
 \code{\link{fs.get.morph.file.format.from.filename}()},
 \code{\link{read.fs.curv}()},
 \code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.morph}()},
+\code{\link{read.fs.morph.gii}()},
 \code{\link{read.fs.volume}()},
 \code{\link{read.fs.weight}()},
 \code{\link{write.fs.curv}()},
@@ -40,7 +40,7 @@ Other morphometry functions:
 \code{\link{write.fs.morph.ni2}()},
 \code{\link{write.fs.morph.smp}()},
 \code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.weight.asc}()},
-\code{\link{write.fs.weight}()}
+\code{\link{write.fs.weight}()},
+\code{\link{write.fs.weight.asc}()}
 }
 \concept{morphometry functions}

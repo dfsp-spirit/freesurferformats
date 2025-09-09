@@ -60,6 +60,12 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 * CIFTI: Reading of morphometry data from CIFTI v2 files (`.dscalar.nii`) is supported based on the [cifti package by John Muschelli](https://CRAN.R-project.org/package=cifti). The wrapper functions in freesurferformats support extraction of the data for a specific brain model (surface mesh), and map the data to the appropriate vertex indices of the surface based on the CIFTI metadata.
 
 
+## News
+
+* 2025-09-09: New freesurferformats version v1.0.0 released on CRAN, see the [CHANGES](./CHANGES).
+* 2024-02-03: New freesurferformats version v0.1.18 released on CRAN, see the [CHANGES](./CHANGES).
+* 2022-02-12: New freesurferformats version v0.1.17 released on CRAN, see the [CHANGES](./CHANGES).
+
 ## Installation
 
 The package is on [CRAN](https://CRAN.R-project.org/package=freesurferformats), so you can simply:
@@ -91,11 +97,11 @@ If you install R packages from source (the default under Linux) and want support
 
 * for deb-based Linux distributions (Debian, Ubuntu, ...):
 ```shell
-sudo apt-get install libxml2-dev
+sudo apt-get install libxml2-dev libcurl4-openssl-dev
 ```
 * for rpm-based Linux distributions (Fedora, CentOS, RHEL, ...):
 ```shell
-sudo yum install libxml2-devel
+sudo yum install libxml2-devel libcurl-devel
 ```
 
 ## Documentation

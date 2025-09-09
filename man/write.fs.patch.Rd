@@ -20,7 +20,7 @@ Write a surface patch, i.e. a set of vertices and patch border information, to a
 \seealso{
 Other patch functions: 
 \code{\link{fs.patch}()},
-\code{\link{read.fs.patch.asc}()},
-\code{\link{read.fs.patch}()}
+\code{\link{read.fs.patch}()},
+\code{\link{read.fs.patch.asc}()}
 }
 \concept{patch functions}

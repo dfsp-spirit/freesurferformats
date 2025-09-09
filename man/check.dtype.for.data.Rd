@@ -11,9 +11,6 @@ check.dtype.for.data(mridata, mri_dtype_code)
 
 \item{mri_dtype_code}{integer, the MRI data type code. See \code{\link[freesurferformats]{translate.mri.dtype}}.}
 }
-\value{
-logical, whether the dtype could be suitable. This is only a guess, as the checks are in no way complete.
-}
 \description{
 This function provides an educated guess on whether the given dtype is suitable for the data. It is usually called for the site effect of printing warnings in case something seems off.
 }

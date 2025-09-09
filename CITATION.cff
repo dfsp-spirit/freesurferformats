@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: If you use freesurferformats in your research, please cite it using these metadata.
+title: freesurferformats
+abstract: freesurferformats is an R package for reading and writing neuroimaging data in various file formats. The package can be used to load a number of surface based formats related to the FreeSurfer neuroimaging software suite, but also many other formats. It can load brain surface meshes, vertex-wise morphometry data in MGH, MGZ, curv formats, parcellations in annot format, labels and statistical results. It supports export to many open standard data formats.
+authors:
+  - family-names: Schaefer
+    given-names: Tim
+    orcid: "https://orcid.org/0000-0002-3683-8070"
+  - name: "freesurferformats: an R package for reading and writing neuroimaging data"
+version: 0.1.18
+date-released: "2024-02-03"
+identifiers:
+  - description: All-versions DOI for freesurferformats.
+    type: doi
+    value: "10.5281/zenodo.3540434"
+license: MIT
+repository-code: "https://github.com/dfsp-spirit/freesurferformats"

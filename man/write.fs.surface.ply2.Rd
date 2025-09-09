@@ -33,10 +33,10 @@ The PLY2 file format is a simply ASCII format for storing meshes. It is very sim
 }
 \seealso{
 Other mesh export functions: 
+\code{\link{write.fs.surface}()},
 \code{\link{write.fs.surface.obj}()},
-\code{\link{write.fs.surface.off.ply2}()},
 \code{\link{write.fs.surface.off}()},
-\code{\link{write.fs.surface.ply}()},
-\code{\link{write.fs.surface}()}
+\code{\link{write.fs.surface.off.ply2}()},
+\code{\link{write.fs.surface.ply}()}
 }
 \concept{mesh export functions}

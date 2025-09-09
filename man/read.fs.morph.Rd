@@ -7,7 +7,7 @@
 read.fs.morph(filepath, format = "auto")
 }
 \arguments{
-\item{filepath, }{string. Full path to the input file. The suffix determines the expected format as follows: ".mgz" and ".mgh" will be read with the read.fs.mgh function, all other file extensions will be read with the read.fs.curv function.}
+\item{filepath}{string. Full path to the input file. The suffix determines the expected format as follows: ".mgz" and ".mgh" will be read with the read.fs.mgh function, all other file extensions will be read with the read.fs.curv function.}
 
 \item{format}{character string, the format to use. One of c("auto", "mgh", "mgz", "curv", "gii"). The default setting "auto" will determine the format from the file extension.}
 }
@@ -44,14 +44,14 @@ Other morphometry functions:
 \code{\link{write.fs.curv}()},
 \code{\link{write.fs.label.gii}()},
 \code{\link{write.fs.mgh}()},
+\code{\link{write.fs.morph}()},
 \code{\link{write.fs.morph.asc}()},
 \code{\link{write.fs.morph.gii}()},
 \code{\link{write.fs.morph.ni1}()},
 \code{\link{write.fs.morph.ni2}()},
 \code{\link{write.fs.morph.smp}()},
 \code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.weight.asc}()},
-\code{\link{write.fs.weight}()}
+\code{\link{write.fs.weight}()},
+\code{\link{write.fs.weight.asc}()}
 }
 \concept{morphometry functions}

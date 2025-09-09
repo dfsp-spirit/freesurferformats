@@ -26,15 +26,15 @@ Load transformation matrix from a tkregister dat file.
 \seealso{
 Other header coordinate space: 
 \code{\link{mghheader.is.ras.valid}()},
-\code{\link{mghheader.ras2vox.tkreg}()},
 \code{\link{mghheader.ras2vox}()},
+\code{\link{mghheader.ras2vox.tkreg}()},
 \code{\link{mghheader.scanner2tkreg}()},
 \code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
 \code{\link{mghheader.vox2ras}()},
+\code{\link{mghheader.vox2ras.tkreg}()},
+\code{\link{read.fs.transform}()},
 \code{\link{read.fs.transform.lta}()},
 \code{\link{read.fs.transform.xfm}()},
-\code{\link{read.fs.transform}()},
 \code{\link{sm0to1}()},
 \code{\link{sm1to0}()}
 }
