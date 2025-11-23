@@ -1,4 +1,5 @@
 web/
+^tests/testdata/
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^Meta$
