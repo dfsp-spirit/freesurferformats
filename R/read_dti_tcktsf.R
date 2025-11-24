@@ -20,7 +20,8 @@
     stop('File not in TCK/TSF format: invalid format.')
 
   header = read.table(text=L[2:(k-1)], sep=':', header=FALSE)
-  header = c(list(id=id), utils::type.convert(split.default(trimws(header$V2), header$V1), as.is=TRUE))
+  f = factor(header$V1, levels=header$V1)
+  header = c(list(id=id), utils::type.convert(split.default(trimws(header$V2), f), as.is=TRUE))
 
   if (!grepl(pattern='.', x=header$file))
     #  "only the single-file format is supported [...] file name part must be specified as '.'"

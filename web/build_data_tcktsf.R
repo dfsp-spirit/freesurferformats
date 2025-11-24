@@ -1,7 +1,9 @@
-# Genrate TCK and TSF from open data --------------------------------------
-# internal
+# Generate TCK and TSF from open data --------------------------------------
+## internal
 # A not exported /dev might be a more appropriate location.
 # However /web is already there and registered in >.Rbuildignore<, hence used.
+
+# Sys.setenv('_R_CHECK_SYSTEM_CLOCK_' = 0)
 stop('This script is for documentation only.\nDo not run automatically.\nFiles should already exist in tests/testdata/dwi.')
 
 dest = file.path('tests', 'testdata', 'dwi') # openneuro/ds001226/sub-CON01
