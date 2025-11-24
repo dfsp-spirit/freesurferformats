@@ -1,36 +1,13 @@
-# Function for reading DTI tracking data from files in MRtrix TCK/ --------
+# Function for reading DTI tracking data from files in MRtrix TCK/TSF --------
 
-#' @title Read DTI tracking data from file in MRtrix 'TCK'/'TSF' format.
-#'
-#' @param filepath character string, path to the \code{TCK} or \code{TSF} file to read.
-#'
-#' @seealso \code{read.dti.tck}
-#'
-#' @examples
-#' \dontrun{
-#'  tckf = "~/simple.tck"
-#'  tck = read.dti.track(tckf)
-#'  tsff = "~/simple.tsf"
-#'  tsf = read.dti.track(tsff)
-#' }
-#'
-#' @return named list with entries 'header' and 'tracks'. For \code{TCK}, the tracks are organized into a list of matrices.
-#' Each n x 3 matrix represents the coordinates for the n points of one track, the values in each row are the xyz-coords.
-#' For \code{TSF}, the scalar data are available in 2 representations:
-#' 'merged': a vector of all values (requires external knowledge on track borders), and
-#' 'scalar_list': organized into a list of vectors. Each vector represents the values for the points of one track.
-#'
-#' @note \code{read.dti.track()} supersedes \code{read.dti.tck()} and \code{read.dti.tsf()}.
-#'
-#' \url{https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#tracks-file-format-tck}
-#' \url{https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#track-scalar-file-format-tsf}
-#'
-#' @export
-read.dti.track <- function(filepath) {
+#' .read.dti.tcktsf
+#' @keywords internal
+.read.dti.tcktsf <- function(filepath) {
   # https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#tracks-file-format-tck
+  # https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html#track-scalar-file-format-tsf
   L = readLines(filepath, n=50L, warn=FALSE)
 
-  id = trimws(L[1L])
+  id = trimws(L[1])
   if (!id %in% c('mrtrix tracks', 'mrtrix track scalars'))
     stop('File not in TCK/TSF format: invalid first line.')
 
@@ -39,18 +16,18 @@ read.dti.track <- function(filepath) {
     stop('File not in TCK/TSF format: file too small.')
 
   k = grep(pattern='END', x=L, useBytes=TRUE)
-  if (length(k)==0L)
+  if (length(k)==0)
     stop('File not in TCK/TSF format: invalid format.')
 
-  header = read.table(text=L[2L:(k-1L)], sep=':', header=FALSE)
+  header = read.table(text=L[2:(k-1)], sep=':', header=FALSE)
   header = c(list(id=id), utils::type.convert(split.default(trimws(header$V2), header$V1), as.is=TRUE))
 
   if (!grepl(pattern='.', x=header$file))
     #  "only the single-file format is supported [...] file name part must be specified as '.'"
     stop('Multi-file TCK/TSF files not supported.') else {
       tmp = strsplit(header$file, ' ', fixed=TRUE)
-      filename_part = tmp[[1L]][1L]
-      offset = strtoi(tmp[[1L]][2L])
+      filename_part = tmp[[1]][1]
+      offset = strtoi(tmp[[1]][2])
     }
 
   if (strtoi(header$count)==0L) # system('tckinfo <path> -count')
@@ -70,12 +47,12 @@ read.dti.track <- function(filepath) {
   seek(con=fh, where=offset, origin='start')
   rawdata = readBin(con=fh, what=numeric(), n=n2r, size=dsize, endian=endian)
 
-  if(id=='mrtrix tracks') { # TCK
+  if (id=='mrtrix tracks') { # TCK
     # "The binary track data themselves are stored as triplets of floating-point values:"
-    tracks_raw_matrix = matrix(rawdata, ncol=3L, byrow=TRUE)
+    tracks_raw_matrix = matrix(rawdata, ncol=3, byrow=TRUE)
     # "tracks are separated using a triplet of NaN (Not A Number) values" and
     # "a triplet of Inf values is used to indicate the end of the file"
-    i = rowSums(is.finite(tracks_raw_matrix))==3L
+    i = rowSums(is.finite(tracks_raw_matrix))==3
     tracks = split.data.frame(tracks_raw_matrix[i, ], cumsum(!i)[i]) |> unname()
 
     list(header=c(derived, header), tracks=tracks)
@@ -93,8 +70,7 @@ read.dti.track <- function(filepath) {
 }
 
 
-
-# Superseded functions. Should be deleted in a future version. ------------
+# Exported functions ------------------------------------------------------
 
 #' @title Read DTI tracking data from file in MRtrix 'TCK' format.
 #'
@@ -103,17 +79,14 @@ read.dti.track <- function(filepath) {
 #' @examples
 #' \dontrun{
 #'  tckf = "~/simple.tck"
-#'  tck = read.dti.track(tckf)
+#'  tck = read.dti.tck(tckf)
 #' }
-#'
-#' @note \code{read.dti.track()} supersedes \code{read.dti.tck()} and \code{read.dti.tsf()}.
 #'
 #' @return named list with entries 'header' and 'tracks'. The tracks are organized into a list of matrices. Each n x 3 matrix represents the coordinates for the n points of one track, the values in each row are the xyz-coords.
 #'
 #' @export
-read.dti.tck = function(filepath) {
-  message('`read.dti.tsf()` has been superseded in favour of `read.dti.track()`.\n`read.dti.tck()` might be removed in future versions.')
-  read.dti.track(filepath)
+read.dti.tck <- function(filepath) {
+  .read.dti.tcktsf(filepath)
 }
 
 
@@ -123,18 +96,13 @@ read.dti.tck = function(filepath) {
 #'
 #' @examples
 #' \dontrun{
-#'  tckf = "~/simple.tck"
-#'  tck = read.dti.track(tckf)
+#'  tsff = "~/simple.tsf"
+#'  tsf = read.dti.tsf(tsff)
 #' }
 #'
 #' @return named list with entries 'header' and 'scalars'. The scalar data are available in 2 representations: 'merged': a vector of all values (requires external knowledge on track borders), and 'scalar_list': organized into a list of vectors. Each vector represents the values for the points of one track.
 #'
-#' @note \code{read.dti.track()} supersedes \code{read.dti.tck()} and \code{read.dti.tsf()}.
-#'
 #' @export
-read.dti.tsf = function(filepath) {
-  message('`read.dti.tck()` has been superseded in favour of `read.dti.track()`.\n`read.dti.tsf()` might be removed in future versions.')
-  read.dti.track(filepath)
+read.dti.tsf <- function(filepath) {
+  .read.dti.tcktsf(filepath)
 }
-
-

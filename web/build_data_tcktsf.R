@@ -1,11 +1,13 @@
 # Genrate TCK and TSF from open data --------------------------------------
 # internal
-# An unexported /dev might be a more appropriate location. Howeber /web is already there and mentioned in .Rbuildignore
+# A not exported /dev might be a more appropriate location.
+# However /web is already there and registered in >.Rbuildignore<, hence used.
 stop('This script is for documentation only.\nDo not run automatically.\nFiles should already exist in tests/testdata/dwi.')
 
 dest = file.path('tests', 'testdata', 'dwi') # openneuro/ds001226/sub-CON01
-if(!file.exists(dest)) {
+if (!file.exists(dest)) {
   dir.create(dest, recursive=TRUE, showWarnings=FALSE)
+  # haven't used accurate API integration for this simple task
   urls = c('https://s3.amazonaws.com/openneuro.org/ds001226/sub-CON01/ses-preop/dwi/sub-CON01_ses-preop_acq-AP_dwi.bval',
            'https://s3.amazonaws.com/openneuro.org/ds001226/sub-CON01/ses-preop/dwi/sub-CON01_ses-preop_acq-AP_dwi.bvec',
            'https://s3.amazonaws.com/openneuro.org/ds001226/sub-CON01/ses-preop/dwi/sub-CON01_ses-preop_acq-AP_dwi.nii.gz')
@@ -61,7 +63,8 @@ if(!file.exists(dest)) {
   # remove temporary files
   f = list.files(dest, full.names=TRUE)
   tmp = f[!grepl('tracks\\.(tsf$|tck)$', f)]
-  if (length(tmp)) file.remove(tmp) |> invisible()
+  if (length(tmp))
+    file.remove(tmp) |> invisible()
 
 } else sprintf('%s Check if data already exists:', dest)
 
