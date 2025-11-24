@@ -4,7 +4,7 @@ testthat::test_that('read.dti.track() lädt gültige TSF und TCK-Formate', {
   # TCK
   fp_tck = file.path('tests', 'testdata', 'dwi', 'tracks.tck')
   testthat::skip_if_not(file.exists(fp_tck))
-  TCK = freesurferformats::read.dti.track(fp_tck)
+  TCK = freesurferformats::read.dti.tck(fp_tck)
 
   testthat::expect_type(TCK, 'list')
   expect_named(TCK, c('header', 'tracks'))
@@ -19,7 +19,7 @@ testthat::test_that('read.dti.track() lädt gültige TSF und TCK-Formate', {
   # TSF
   fp_tsf = file.path('tests', 'testdata', 'dwi', 'tracks.tsf')
   testthat::skip_if_not(file.exists(fp_tsf))
-  TSF = freesurferformats::read.dti.track(fp_tsf)
+  TSF = freesurferformats::read.dti.tsf(fp_tsf)
 
   testthat::expect_type(TSF, 'list')
   testthat::expect_named(TSF, c('header', 'scalars'))
