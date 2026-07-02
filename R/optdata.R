@@ -46,7 +46,12 @@ download_opt_data <- function() {
   base_path_nifti2 = c('nifti2');
   local_filenames_nifti2 = list(c(base_path_nifti2, 'avg152T1_LR_nifti2.nii.gz'));
 
-  local_filenames = c(local_filenames_subject1, local_filenames_cifti, local_filenames_nifti2);
+  base_path_dwi = c('dwi');
+  local_filenames_dwi = list(c(base_path_dwi, 'tracks.tck'),
+                             c(base_path_dwi, 'tracks.tsf')
+  );
+
+  local_filenames = c(local_filenames_subject1, local_filenames_cifti, local_filenames_nifti2, local_filenames_dwi);
 
 
   md5sums_subject1 = c('099e738654aedc71cd580256f4f3914b',
@@ -80,7 +85,11 @@ download_opt_data <- function() {
 
   md5sums_nifti2 = '87524a733b65186a458fe2fc4a18041a';
 
-  md5sums = c(md5sums_subject1, md5sums_cifti, md5sums_nifti2);
+  md5sums_dwi = c('7d55d826fc4b7f06c4c0c7147d85990d',
+                    'd9073d649d0a49e619fcf4e622a6d9df'
+  );
+
+  md5sums = c(md5sums_subject1, md5sums_cifti, md5sums_nifti2, md5sums_dwi);
 
   ext_url_subject_part_subject1 = 'subjects_dir/subject1/';
   ext_url_parts_each_subject = c('label/lh.aparc.a2009s.annot',
@@ -115,7 +124,12 @@ download_opt_data <- function() {
 
   ext_urls_niftiv2 = 'nifti2/avg152T1_LR_nifti2.nii.gz';
 
-  ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti, ext_urls_niftiv2);
+  ext_urls_dwi = c('dwi/tracks.tck',
+                    'dwi/tracks.trk',
+                    'dwi/tracks.tsf'
+  );
+
+  ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti, ext_urls_niftiv2, ext_urls_dwi);
   base_url_internal_data = 'http://rcmd.org/projects/nitestdata/'; # here 'internal' means data stored on our own rcmd.org server.
   internal_data_urls = paste(base_url_internal_data, ext_urls_internal_data, sep='');
 
