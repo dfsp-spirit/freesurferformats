@@ -48,6 +48,7 @@ download_opt_data <- function() {
 
   base_path_dwi = c('dwi');
   local_filenames_dwi = list(c(base_path_dwi, 'tracks.tck'),
+                             c(base_path_dwi, 'tracks.trk'),
                              c(base_path_dwi, 'tracks.tsf')
   );
 
@@ -86,6 +87,7 @@ download_opt_data <- function() {
   md5sums_nifti2 = '87524a733b65186a458fe2fc4a18041a';
 
   md5sums_dwi = c('7d55d826fc4b7f06c4c0c7147d85990d',
+                    'eb54eaea1de51bee8d46975777324550',
                     'd9073d649d0a49e619fcf4e622a6d9df'
   );
 
