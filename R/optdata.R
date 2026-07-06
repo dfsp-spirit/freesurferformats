@@ -88,7 +88,7 @@ download_opt_data <- function() {
 
   md5sums_dwi = c('7d55d826fc4b7f06c4c0c7147d85990d',
                     'eb54eaea1de51bee8d46975777324550',
-                    'd9073d649d0a49e619fcf4e622a6d9df'
+                    '6f82d3d82bee10a64d33af7d8970db14'
   );
 
   md5sums = c(md5sums_subject1, md5sums_cifti, md5sums_nifti2, md5sums_dwi);
