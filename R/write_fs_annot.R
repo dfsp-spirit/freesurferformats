@@ -144,8 +144,9 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
     writeBin(num_regions, fh, size = 4, endian = "big");               # write num entries in ctable
 
     dev_ct_filename = "/tmp/fsbrain/some.lut";
-    writeBin(nchar(dev_ct_filename), fh, size = 4, endian = "big");
-    writeChar(dev_ct_filename, fh, eos=NULL);    # The file path to the LUT file this annt is using. Does not apply to this function, so write whatever.
+    writeBin(nchar(dev_ct_filename) + 1L, fh, size = 4, endian = "big");
+    writeBin(charToRaw(dev_ct_filename), fh);
+    writeBin(as.raw(0L), fh);    # null terminator. The file path to the LUT file this annot is using. Does not apply to this function, so write whatever.
 
     writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
 
@@ -159,8 +160,9 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 
       writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big");
       region_name = as.character(colortable$struct_name[[region_idx]]);
-      writeBin(nchar(region_name), fh, size = 4, endian = "big");
-      writeChar(region_name, fh, eos=NULL);
+      writeBin(nchar(region_name) + 1L, fh, size = 4, endian = "big");
+      writeBin(charToRaw(region_name), fh);
+      writeBin(as.raw(0L), fh);    # null terminator
 
       # write colors
       writeBin(as.integer(colortable$r[region_idx]), fh, size = 4, endian = "big");

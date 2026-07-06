@@ -120,3 +120,29 @@ test_that("An annotation can be written in binary v2 format in different ways.",
 
   expect_equal(1L, 1L);
 })
+
+
+test_that("An annotation read and written back produces a binary-identical file", {
+  testthat::skip_on_cran(); # cannot download testdata on CRAN.
+  skip_if(tests_running_on_cran_under_macos(), message = "Skipping on CRAN under MacOS, required test data cannot be downloaded.");
+  freesurferformats::download_opt_data();
+  subjects_dir = freesurferformats::get_opt_data_filepath("subjects_dir");
+  annotfile = file.path(subjects_dir, "subject1", "label", "lh.aparc.a2005s.annot");
+  skip_if_not(file.exists(annotfile), message = "Test data missing.");
+
+  annot = read.fs.annot(annotfile);
+
+  # Roundtrip 1: read original (may be old format), write as v2, read v2 back
+  output_file_v2_1 = tempfile(fileext = ".annot");
+  write.fs.annot(output_file_v2_1, fs.annot = annot);
+  annot_v2 = read.fs.annot(output_file_v2_1);
+
+  # Roundtrip 2: write from the v2-read data and compare binaries
+  output_file_v2_2 = tempfile(fileext = ".annot");
+  write.fs.annot(output_file_v2_2, fs.annot = annot_v2);
+
+  hash_1 = as.character(tools::md5sum(output_file_v2_1));
+  hash_2 = as.character(tools::md5sum(output_file_v2_2));
+
+  expect_equal(hash_1, hash_2);
+})
