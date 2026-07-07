@@ -11,12 +11,12 @@ testthat::test_that('read.dti.track() loads valid files in TSF und TCK formats',
   testthat::expect_type(TCK, 'list');
   expect_named(TCK, c('header', 'tracks'));
 
-  testthat::expect_all_equal(TCK$header$id, 'mrtrix tracks');
-  testthat::expect_all_true(TCK$header$count > 0);
+  testthat::expect_equal(TCK$header$id, 'mrtrix tracks');
+  testthat::expect_true(TCK$header$count > 0);
 
-  testthat::expect_all_true(is.list(TCK$tracks));
-  testthat::expect_all_equal(length(TCK$tracks), TCK$header$max_num_tracks);
-  testthat::expect_all_true(is.finite(unlist(TCK$tracks, recursive=FALSE, use.names=FALSE)));
+  testthat::expect_true(is.list(TCK$tracks));
+  testthat::expect_equal(length(TCK$tracks), TCK$header$max_num_tracks);
+  testthat::expect_true(all(is.finite(unlist(TCK$tracks, recursive=FALSE, use.names=FALSE))));
 
   # TSF
   fp_tsf = file.path(dwi_dir, 'tracks.tsf');
@@ -26,12 +26,12 @@ testthat::test_that('read.dti.track() loads valid files in TSF und TCK formats',
   testthat::expect_type(TSF, 'list');
   testthat::expect_named(TSF, c('header', 'scalars'));
 
-  testthat::expect_all_equal(TSF$header$id, 'mrtrix track scalars');
-  testthat::expect_all_true(TSF$header$count > 0);
+  testthat::expect_equal(TSF$header$id, 'mrtrix track scalars');
+  testthat::expect_true(TSF$header$count > 0);
 
-  testthat::expect_all_true(is.numeric(TSF$scalars$merged));
-  testthat::expect_all_true(is.finite(TSF$scalars$merged));
+  testthat::expect_true(is.numeric(TSF$scalars$merged));
+  testthat::expect_true(all(is.finite(TSF$scalars$merged)));
 
-  testthat::expect_all_true(is.list(TSF$scalars$scalar_list));
-  testthat::expect_all_equal(length(TSF$scalars$merged), sum(lengths(TSF$scalars$scalar_list)));
+  testthat::expect_true(is.list(TSF$scalars$scalar_list));
+  testthat::expect_equal(length(TSF$scalars$merged), sum(lengths(TSF$scalars$scalar_list)));
 })
