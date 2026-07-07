@@ -1,6 +1,12 @@
 freesurferformats Changes
 =========================
 
+
+Version 1.0.1
+--------------
+- FIX: Fix missing null bytes (string termination markers) when writing string in fs annot files, issue #34.
+- ENH: Add `shift_origin` parameter to `read.dti.trk()` to optionally compute the corrected vox2ras matrix (the TRK file stores an mm2ras matrix, not a true vox2ras). Fixes issue #35.
+
 Version 1.0.0
 --------------
 - Fix some very minor docstring formatting issues, as required by new checks on CRAN.

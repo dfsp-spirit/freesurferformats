@@ -6,7 +6,11 @@
 #'
 #' @param filepath character string, path to file in trk format.
 #'
-#' @return named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}.
+#' @param shift_origin logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to `TRUE` (the default) to compute the corrected `vox2ras` that maps to voxel centers, as used by TrackVis. Set to `FALSE` if the file was written by DSI Studio, which does not apply this shift. See the notes for details.
+#'
+#' @return named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}. The returned header will contain the field `vox2ras` (the raw matrix stored in the TRK file, mapping from mm space to RAS) and, if `shift_origin` is `TRUE`, the additional field `vox2ras_corrected` (the computed matrix mapping from voxel indices to voxel center RAS coordinates).
+#'
+#' @note The 4x4 matrix stored in TRK files (labeled `vox_to_ras` in the spec) is actually a transformation from **mm** space to RAS, not from voxel space to RAS. The TRK format was designed by TrackVis with the assumption that voxels are 1 mm\eqn{^3}, and that coordinates refer to voxel corners rather than centers. To obtain the actual vox2ras matrix (voxel center in RAS), the raw matrix must be combined with a voxel-size scaling and a half-voxel offset correction: `vox2ras_corrected = mm2ras %*% mm_correction %*% vox2mm`, where `vox2mm` scales by the inverse voxel size and `mm_correction` shifts by -0.5 mm. Note that DSI Studio does **not** apply this half-voxel shift, so you may need to set `shift_origin=FALSE` for DSI Studio files.
 #'
 #' @examples
 #' \dontrun{
@@ -16,7 +20,7 @@
 #' }
 #'
 #' @export
-read.dti.trk <- function(filepath) {
+read.dti.trk <- function(filepath, shift_origin = TRUE) {
   endian = get.dti.trk.endianness(filepath);
 
   fh = file(filepath, "rb");
@@ -33,6 +37,12 @@ read.dti.trk <- function(filepath) {
   trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian); # property: one value per track.
   trk$header$property_names = read.fixed.char.binary(fh, 200L);
   trk$header$vox2ras = matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE);
+  if(shift_origin) {
+    vox2mm = diag(c(1.0 / trk$header$voxel_size, 1.0), nrow = 4L);
+    mm_correction = diag(1.0, nrow = 4L);
+    mm_correction[1:3, 4] = -0.5;
+    trk$header$vox2ras_corrected = trk$header$vox2ras %*% mm_correction %*% vox2mm;
+  }
   trk$header$reserved = read.fixed.char.binary(fh, 444L);
   trk$header$voxel_order = read.fixed.char.binary(fh, 4L);
   trk$header$pad2 = read.fixed.char.binary(fh, 4L); # padding
