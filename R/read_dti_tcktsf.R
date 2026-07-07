@@ -23,7 +23,7 @@
   }
 
   header = read.table(text=L[2:(k-1)], sep=':', header=FALSE);
-  f = factor(header$V1, levels=header$V1);
+  f = factor(header$V1, levels=unique(header$V1));
   header = c(list(id=id), utils::type.convert(split.default(trimws(header$V2), f), as.is=TRUE));
 
   if(!grepl(pattern='.', x=header$file)) {
