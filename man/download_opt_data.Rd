@@ -4,7 +4,10 @@
 \alias{download_opt_data}
 \title{Download optional data for the freesurferformats package.}
 \usage{
-download_opt_data()
+download_opt_data(dl_from = c("rcmd.org", "github_fsf_release"))
+}
+\arguments{
+\item{dl_from}{string, the source to download from. Either `"rcmd.org"` (the default) or `"github_fsf_release"` to use the GitHub release at \url{https://github.com/dfsp-spirit/freesurferformats/releases/tag/nitestdata-v1}.}
 }
 \value{
 Named list. The list has entries: "available": vector of strings. The names of the files that are available in the local file cache. You can access them using get_optional_data_file(). "missing": vector of strings. The names of the files that this function was unable to retrieve.

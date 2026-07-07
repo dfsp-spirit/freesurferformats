@@ -26,7 +26,8 @@ In rstudio, click *Build - Check Package*.
 
 On the console:
 
-* to build package and run all CRAN checks: ```R CMD check```
+* to run CRAN checks on source: ```Rscript -e "devtools::check()"```
+* to build package and run CRAN checks on build version: ```R CMD build . && R CMD check freesurferformats_1.0.0.tar.gz```, or whatever version your are building
 * to build package and run only package checks and tests (faster): ```R CMD check . --no-manual --no-vignettes```
 
 
@@ -36,3 +37,9 @@ In rstudio, click *Build - Clean and Rebuild*.
 
 On the console, run ```Rscript -e devtools::build_vignettes()```
 
+
+## Building the function documentation from inline doc strings in the code
+
+You will need to do this if you added a new argument to a function and R CMD check complains about code/documentation mismatches.
+
+On the console, run ```Rscript -e "roxygen2::roxygenise()"```
