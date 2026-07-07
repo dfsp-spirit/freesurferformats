@@ -395,3 +395,40 @@ nifti.time.info <- function(xyzt_units) {
   if(nifti_unit_code == 24L) { nifti_unit_name = "mus"; scaling = 0.001; }
   return(list("code"=nifti_unit_code, "name"=nifti_unit_name, "scaling"=scaling));
 }
+
+
+#' @title Compute the 'datatype' and 'bitpix' fields used in the NIFTI1 header from an MGH/MGZ datatype code.
+#'
+#' @param mgh_dtype_code integer, the MGH/MGZ datatype code (as returned by `translate.mri.dtype`).
+#'
+#' @note This is useful to compute a NIFTI v1 header from an MGH header.
+#'
+#' @return named list with entries: `datatype` and `bitpix` containing the translated data for the respective NIfTI-1 header fields.
+#'
+#' @keywords internal
+nifti.dtypebitpix.info.from.mgh.dtype <- function(mgh_dtype_code) {
+
+  MRI_UCHAR = translate.mri.dtype("MRI_UCHAR");
+  MRI_INT = translate.mri.dtype("MRI_INT");
+  MRI_FLOAT = translate.mri.dtype("MRI_FLOAT");
+  MRI_SHORT = translate.mri.dtype("MRI_SHORT");
+
+  if(mgh_dtype_code == MRI_UCHAR) {
+    datatype = 2L;
+    bitpix = 8L;
+  } else if(mgh_dtype_code == MRI_INT) {
+    datatype = 8L;
+    bitpix = 32L;
+  } else if(mgh_dtype_code == MRI_FLOAT) {
+    datatype = 16L;
+    bitpix = 32L;
+  } else if(mgh_dtype_code == MRI_SHORT) {
+    datatype = 4L;
+    bitpix = 16L;
+  } else {
+    stop(sprintf("Invalid mgh_dtype_code '%d' encountered when trying to convert MGH header datatype info to NIFTI header datatype info.\n", mgh_dtype_code));
+  }
+
+  res = list("datatype"=datatype, "bitpix"=bitpix);
+  return(res);
+}

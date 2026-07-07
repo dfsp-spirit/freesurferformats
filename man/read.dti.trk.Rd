@@ -9,16 +9,16 @@ read.dti.trk(filepath, shift_origin = TRUE)
 \arguments{
 \item{filepath}{character string, path to file in trk format.}
 
-\item{shift_origin}{logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to \code{TRUE} (the default) to compute the corrected \code{vox2ras} that maps to voxel centers, as used by TrackVis. Set to \code{FALSE} if the file was written by DSI Studio, which does not apply this shift. See the notes for details.}
+\item{shift_origin}{logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to `TRUE` (the default) to compute the corrected `vox2ras` that maps to voxel centers, as used by TrackVis. Set to `FALSE` if the file was written by DSI Studio, which does not apply this shift. See the notes for details.}
 }
 \value{
-named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}. The returned header will contain the field \code{vox2ras} (the raw matrix stored in the TRK file, mapping from mm space to RAS) and, if \code{shift_origin} is \code{TRUE}, the additional field \code{vox2ras_corrected} (the computed matrix mapping from voxel indices to voxel center RAS coordinates).
+named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}. The returned header will contain the field `vox2ras` (the raw matrix stored in the TRK file, mapping from mm space to RAS) and, if `shift_origin` is `TRUE`, the additional field `vox2ras_corrected` (the computed matrix mapping from voxel indices to voxel center RAS coordinates).
 }
 \description{
 Read fiber tracks from Diffusion Toolkit in trk format.
 }
 \note{
-The 4x4 matrix stored in TRK files (labeled \code{vox_to_ras} in the spec) is actually a transformation from \strong{mm} space to RAS, not from voxel space to RAS. The TRK format was designed by TrackVis with the assumption that voxels are 1 mm\eqn{^3}, and that coordinates refer to voxel corners rather than centers. To obtain the actual vox2ras matrix (voxel center in RAS), the raw matrix must be combined with a voxel-size scaling and a half-voxel offset correction: \code{vox2ras_corrected = mm2ras \%*\% mm_correction \%*\% vox2mm}, where \code{vox2mm} scales by the inverse voxel size and \code{mm_correction} shifts by -0.5 mm. Note that DSI Studio does \strong{not} apply this half-voxel shift, so you may need to set \code{shift_origin=FALSE} for DSI Studio files.
+The 4x4 matrix stored in TRK files (labeled `vox_to_ras` in the spec) is actually a transformation from **mm** space to RAS, not from voxel space to RAS. The TRK format was designed by TrackVis with the assumption that voxels are 1 mm\eqn{^3}, and that coordinates refer to voxel corners rather than centers. To obtain the actual vox2ras matrix (voxel center in RAS), the raw matrix must be combined with a voxel-size scaling and a half-voxel offset correction: `vox2ras_corrected = mm2ras %*% mm_correction %*% vox2mm`, where `vox2mm` scales by the inverse voxel size and `mm_correction` shifts by -0.5 mm. Note that DSI Studio does **not** apply this half-voxel shift, so you may need to set `shift_origin=FALSE` for DSI Studio files.
 }
 \examples{
 \dontrun{

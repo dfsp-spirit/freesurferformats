@@ -42,6 +42,7 @@ Other morphometry functions:
 \code{\link{write.fs.weight.asc}()}
 
 Other nifti1 writers: 
+\code{\link{nii1header.for.mgh}()},
 \code{\link{write.nifti1}()}
 }
 \concept{morphometry functions}

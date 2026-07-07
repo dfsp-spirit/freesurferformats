@@ -20,6 +20,7 @@ Write header and data to a file in NIFTI v1 format.
 }
 \seealso{
 Other nifti1 writers: 
+\code{\link{nii1header.for.mgh}()},
 \code{\link{write.fs.morph.ni1}()}
 }
 \concept{nifti1 writers}
