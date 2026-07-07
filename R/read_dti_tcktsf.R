@@ -60,7 +60,7 @@
     # "tracks are separated using a triplet of NaN (Not A Number) values" and
     # "a triplet of Inf values is used to indicate the end of the file"
     i = rowSums(is.finite(tracks_raw_matrix))==3;
-    tracks = split.data.frame(tracks_raw_matrix[i, ], cumsum(!i)[i]) |> unname();
+    tracks = unname(split.data.frame(tracks_raw_matrix[i, ], cumsum(!i)[i]));
 
     list(header=c(derived, header), tracks=tracks);
 
@@ -70,7 +70,7 @@
     # indicating the end of the file."
     i = is.finite(rawdata);
     scalars = rawdata[i];
-    scalar_list = split(scalars, cumsum(!i)[i]) |> unname();
+    scalar_list = unname(split(scalars, cumsum(!i)[i]));
 
     list(header=c(derived, header), scalars=list(merged=scalars, scalar_list=scalar_list));
   }
