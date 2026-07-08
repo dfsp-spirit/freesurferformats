@@ -16,3 +16,5 @@ appveyor\.yml
 ^appveyor\.yml$
 
 ^\.github$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
