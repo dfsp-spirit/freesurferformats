@@ -10,7 +10,8 @@
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info ensure_files_available
-download_opt_data <- function(dl_from = c("rcmd.org", "github_fsf_release"), scheme = c("https", "http")) {
+download_opt_data <- function(dl_from = c("rcmd.org", "github_fsf_release"),
+                              scheme = c("https", "http")) {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
 
   # Replace these with your optional data files.
