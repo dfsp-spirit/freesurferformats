@@ -50,7 +50,7 @@ On the console, run ```Rscript -e "roxygen2::roxygenise()"```
 
 - Make sure all changes are logged in CHANGES file
 - Bump version in DESCRIPTION
-- Build package and make sure it passes CRAN tests locally. Best done with a recent R version, as they may have introduced even more annoying checks in later versions: ```R CMD check build . && R CMD check --as-cranfreesurferformats_1.0.0.tar.gz```, or whatever version your are building
+- Build package and make sure it passes CRAN tests locally. Best done with a recent R version, as they may have introduced even more annoying checks in later versions: ```R CMD check build . && R CMD check --as-cran freesurferformats_1.0.0.tar.gz```, or whatever version your are building
 - Upload the package to [winbuilder](https://win-builder.r-project.org/upload.aspx) to check there. The service will read package metadata for your email and report back via mail when done.
 - If everything is green both locally and on Winbuilder, submit to CRAN via their [package submission form](https://cran.r-project.org/submit.html)
 - You will receive feedback from CRAN, either package was accepted or some version of R they test with some check still failed. Bad luck. You will have to modify source and do the loop again.
