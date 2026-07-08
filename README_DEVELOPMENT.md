@@ -31,6 +31,9 @@ On the console:
 * to build package and run only package checks and tests (faster): ```R CMD check . --no-manual --no-vignettes```
 * run the hard-core way before a release, so you do not get bothered by CRAN later: ```R CMD check --as-cran```
 
+Observe the output of those check commands carefully, they skip checks if a tool is not installed locally. E.g., to get all checks, you may need to install these:
+
+```sudo apt install pqdf tidy```
 
 ## Building the documentation (vignettes)
 
