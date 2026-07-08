@@ -4,7 +4,10 @@
 \alias{download_opt_data}
 \title{Download optional data for the freesurferformats package.}
 \usage{
-download_opt_data(dl_from = c("rcmd.org", "github_fsf_release"), scheme = c("https", "http"))
+download_opt_data(
+  dl_from = c("rcmd.org", "github_fsf_release"),
+  scheme = c("https", "http")
+)
 }
 \arguments{
 \item{dl_from}{string, the source to download from. Either `"rcmd.org"` (the default) or `"github_fsf_release"` to use the GitHub release at \url{https://github.com/dfsp-spirit/freesurferformats/releases/tag/nitestdata-v1}.}
