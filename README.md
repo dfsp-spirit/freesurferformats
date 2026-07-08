@@ -67,7 +67,7 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 * 2024-02-03: New freesurferformats version v0.1.18 released on CRAN, see the [CHANGES](./CHANGES).
 * 2022-02-12: New freesurferformats version v0.1.17 released on CRAN, see the [CHANGES](./CHANGES).
 
-You can also find release in the [releases section](https://github.com/dfsp-spirit/freesurferformats/releases).
+You can also find all releases in the [releases section](https://github.com/dfsp-spirit/freesurferformats/releases).
 
 ## Installation
 
