@@ -4,11 +4,13 @@
 #'
 #' @param dl_from string, the source to download from. Either `"rcmd.org"` (the default) or `"github_fsf_release"` to use the GitHub release at \url{https://github.com/dfsp-spirit/freesurferformats/releases/tag/nitestdata-v1}.
 #'
+#' @param scheme string, the URL scheme to use. Either `"https"` (the default) or `"http"`. Both the rcmd.org server and GitHub support HTTPS, so this should rarely need to be changed.
+#'
 #' @return Named list. The list has entries: "available": vector of strings. The names of the files that are available in the local file cache. You can access them using get_optional_data_file(). "missing": vector of strings. The names of the files that this function was unable to retrieve.
 #'
 #' @export
 #' @importFrom pkgfilecache get_pkg_info ensure_files_available
-download_opt_data <- function(dl_from = c("rcmd.org", "github_fsf_release")) {
+download_opt_data <- function(dl_from = c("rcmd.org", "github_fsf_release"), scheme = c("https", "http")) {
   pkg_info = pkgfilecache::get_pkg_info("freesurferformats");
 
   # Replace these with your optional data files.
@@ -133,12 +135,13 @@ download_opt_data <- function(dl_from = c("rcmd.org", "github_fsf_release")) {
   ext_urls_internal_data = c(ext_urls_subject1, ext_urls_cifti, ext_urls_niftiv2, ext_urls_dwi);
 
   dl_from = match.arg(dl_from);
+  scheme = match.arg(scheme);
   if (dl_from == "github_fsf_release") {
-    base_url_github = 'https://github.com/dfsp-spirit/freesurferformats/releases/download/nitestdata-v1/';
+    base_url_github = sprintf('%s://github.com/dfsp-spirit/freesurferformats/releases/download/nitestdata-v1/', scheme);
     flat_names = basename(ext_urls_internal_data);
     urls = paste(base_url_github, flat_names, sep='');
   } else {
-    base_url_internal_data = 'http://rcmd.org/projects/nitestdata/'; # here 'internal' means data stored on our own rcmd.org server.
+    base_url_internal_data = sprintf('%s://rcmd.org/projects/nitestdata/', scheme); # here 'internal' means data stored on our own rcmd.org server.
     urls = paste(base_url_internal_data, ext_urls_internal_data, sep='');
   }
 
