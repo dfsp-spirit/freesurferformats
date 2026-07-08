@@ -10,6 +10,7 @@ Version 1.0.1
 - FIX: Fix potential crash in `read.dti.tsf()` and `read.dti.tck()` when a file header contains duplicate keys, causing a "factor level duplicated" error in `.read.dti.tcktsf`.
 - ENH: The optional test data can now be downloaded from a GitHub release as an alternative source, with automatic fallback to the rcmd.org server if unavailable.
 - FIX: Remove reference to non-existent `tracks.trk` file from the optional test data listing.
+- SEC: Default to https when downloading optional data
 
 Version 1.0.0
 --------------
