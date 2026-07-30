@@ -37,145 +37,145 @@
 #'
 #' @examples
 #' \dontrun{
-#'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-#'   transforms = list(NA, list('transform_matrix'=diag(4), 'data_space'='NIFTI_XFORM_UNKNOWN',
-#'    'transformed_space'='NIFTI_XFORM_UNKNOWN'));
-#'   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32', transform_matrix=transforms);
-#'   # Verify that the tree is a valid GIFTI file:
-#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
-#'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
+#' my_data_sets <- list(rep(3.1, 3L), matrix(seq(6) + 0.1, nrow = 2L))
+#' transforms <- list(NA, list(
+#'   "transform_matrix" = diag(4), "data_space" = "NIFTI_XFORM_UNKNOWN",
+#'   "transformed_space" = "NIFTI_XFORM_UNKNOWN"
+#' ))
+#' xmltree <- gifti_xml(my_data_sets, datatype = "NIFTI_TYPE_FLOAT32", transform_matrix = transforms)
+#' # Verify that the tree is a valid GIFTI file:
+#' gifti_xsd <- "https://www.nitrc.org/frs/download.php/158/gifti.xsd"
+#' xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd))
 #' }
 #'
 #' @importFrom xml2 xml_new_root xml_set_attr xml_add_child read_xml
 #' @export
-gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_TYPE_FLOAT32', encoding='GZipBase64Binary', endian='LittleEndian', transform_matrix=NULL, force=FALSE) {
-
+gifti_xml <- function(data_array, intent = "NIFTI_INTENT_SHAPE", datatype = "NIFTI_TYPE_FLOAT32", encoding = "GZipBase64Binary", endian = "LittleEndian", transform_matrix = NULL, force = FALSE) {
   if (requireNamespace("gifti", quietly = TRUE)) {
-    if( ! is.list(data_array)) {
-      stop("Parameter 'data_array' must be a list.");
+    if (!is.list(data_array)) {
+      stop("Parameter 'data_array' must be a list.")
     }
 
-    supported_encodings = c('ASCII', 'Base64Binary', 'GZipBase64Binary');
+    supported_encodings <- c("ASCII", "Base64Binary", "GZipBase64Binary")
 
-    num_data_arrays = length(data_array);
-    dataarray_contains_matrices = any(lapply((lapply(data_array, dim)), length) > 0L);
+    num_data_arrays <- length(data_array)
+    dataarray_contains_matrices <- any(lapply((lapply(data_array, dim)), length) > 0L)
 
-    num_transform_matrices = 0L;
-    if(! is.null(transform_matrix)) {
-      if( ! is.list(transform_matrix)) {
-        stop("Parameter 'transform_matrix' must be NULL or a list.");
+    num_transform_matrices <- 0L
+    if (!is.null(transform_matrix)) {
+      if (!is.list(transform_matrix)) {
+        stop("Parameter 'transform_matrix' must be NULL or a list.")
       }
-      if( length(names(transform_matrix)) != 0L) {
-        stop("Parameter 'transform_matrix' must not be a named list. Hint: When passing a single matrix, you need to enclose it in an outer list.");
+      if (length(names(transform_matrix)) != 0L) {
+        stop("Parameter 'transform_matrix' must not be a named list. Hint: When passing a single matrix, you need to enclose it in an outer list.")
       }
-      num_transform_matrices = length(transform_matrix);
-      if(num_transform_matrices != num_data_arrays) {
-        stop(sprintf("Found %d data arrays, but %d transform matrices: mismatch. Pass NA if you have no matrix for a data array.\n", num_data_arrays, num_transform_matrices));
-      }
-    }
-
-    if(num_data_arrays > 1L) {
-      if(length(intent) == 1L) {
-        intent = rep(intent, num_data_arrays);
-      }
-      if(length(datatype) == 1L) {
-        datatype = rep(datatype, num_data_arrays);
-      }
-      if(length(encoding) == 1L) {
-        encoding = rep(encoding, num_data_arrays);
-      }
-      if(length(endian) == 1L) {
-        endian = rep(endian, num_data_arrays);
+      num_transform_matrices <- length(transform_matrix)
+      if (num_transform_matrices != num_data_arrays) {
+        stop(sprintf("Found %d data arrays, but %d transform matrices: mismatch. Pass NA if you have no matrix for a data array.\n", num_data_arrays, num_transform_matrices))
       }
     }
 
-    dim0 = rep(1L, num_data_arrays);                               # gets filled later
-    dim1 = rep(1L, num_data_arrays);                               # gets filled later
-    dimensionality = rep(1L, num_data_arrays);                     # gets filled later
-    array_indexing_order = rep("RowMajorOrder", num_data_arrays);  # currently fixed
+    if (num_data_arrays > 1L) {
+      if (length(intent) == 1L) {
+        intent <- rep(intent, num_data_arrays)
+      }
+      if (length(datatype) == 1L) {
+        datatype <- rep(datatype, num_data_arrays)
+      }
+      if (length(encoding) == 1L) {
+        encoding <- rep(encoding, num_data_arrays)
+      }
+      if (length(endian) == 1L) {
+        endian <- rep(endian, num_data_arrays)
+      }
+    }
 
-    root = xml2::xml_new_root("GIFTI", 'Version' = "1.0", 'NumberOfDataArrays'=num_data_arrays);
-    metadata = xml2::xml_add_child(root, read_xml("<MetaData></MetaData>"));
-    xml2::xml_add_child(metadata, read_xml("<MD><Name>Generator</Name><Value>fsbrain</Value></MD>"));
+    dim0 <- rep(1L, num_data_arrays) # gets filled later
+    dim1 <- rep(1L, num_data_arrays) # gets filled later
+    dimensionality <- rep(1L, num_data_arrays) # gets filled later
+    array_indexing_order <- rep("RowMajorOrder", num_data_arrays) # currently fixed
+
+    root <- xml2::xml_new_root("GIFTI", "Version" = "1.0", "NumberOfDataArrays" = num_data_arrays)
+    metadata <- xml2::xml_add_child(root, read_xml("<MetaData></MetaData>"))
+    xml2::xml_add_child(metadata, read_xml("<MD><Name>Generator</Name><Value>fsbrain</Value></MD>"))
 
 
-    da_index = 1L;
-    data_is_matrix = FALSE;
-    for(da in data_array) {
-      if(is.vector(da)) {
-        dim0[da_index] = length(da);
-        dim1[da_index] = 1L;
-        dimensionality[da_index] = 1L;
-      } else if(is.matrix(da)) {
-        data_is_matrix = TRUE;
-        dimensionality[da_index] = 2L;
-        dim0[da_index] = dim(da)[1];
-        dim1[da_index] = dim(da)[2];
-        if(array_indexing_order[da_index] == "RowMajorOrder") {
-          da = as.vector(t(da));
-        } else if(array_indexing_order[da_index] == "ColumnMajorOrder") {
-          da = as.vector((da));
+    da_index <- 1L
+    data_is_matrix <- FALSE
+    for (da in data_array) {
+      if (is.vector(da)) {
+        dim0[da_index] <- length(da)
+        dim1[da_index] <- 1L
+        dimensionality[da_index] <- 1L
+      } else if (is.matrix(da)) {
+        data_is_matrix <- TRUE
+        dimensionality[da_index] <- 2L
+        dim0[da_index] <- dim(da)[1]
+        dim1[da_index] <- dim(da)[2]
+        if (array_indexing_order[da_index] == "RowMajorOrder") {
+          da <- as.vector(t(da))
+        } else if (array_indexing_order[da_index] == "ColumnMajorOrder") {
+          da <- as.vector((da))
         } else {
-          stop(sprintf("Dataarray # %d: invalid array_indexing_order, must be 'RowMajorOrder' or 'ColumnMajorOrder'.\n", da_index));
+          stop(sprintf("Dataarray # %d: invalid array_indexing_order, must be 'RowMajorOrder' or 'ColumnMajorOrder'.\n", da_index))
         }
       } else {
-        stop("The data_arrays must be of type vector or matrix.");
+        stop("The data_arrays must be of type vector or matrix.")
       }
 
-      if(! encoding[da_index] %in% supported_encodings) {
-        stop(sprintf("Dataarray # %d: invalid encoding '%s'.\n", da_index, encoding[da_index]));
+      if (!encoding[da_index] %in% supported_encodings) {
+        stop(sprintf("Dataarray # %d: invalid encoding '%s'.\n", da_index, encoding[da_index]))
       }
-      if(! endian[da_index] %in% c('LittleEndian', 'BigEndian')) {
-        stop(sprintf("Dataarray # %d: invalid endian '%s'.\n", da_index, endian[da_index]));
-      }
-
-      check_data_and_settings_consistency(da_index, da, datatype[da_index], intent[da_index], force=force);
-
-      data_array_node = xml2::read_xml("<DataArray/>");
-      xml2::xml_set_attr(data_array_node, 'Dimensionality', dimensionality[da_index]);
-      xml2::xml_set_attr(data_array_node, 'Dim0', dim0[da_index]);
-
-      if(dataarray_contains_matrices) {   # We only need this attribute if any dataarray has more than 1 dimension. But if so, we need it for all datasets.
-        xml2::xml_set_attr(data_array_node, 'Dim1', dim1[da_index]);
+      if (!endian[da_index] %in% c("LittleEndian", "BigEndian")) {
+        stop(sprintf("Dataarray # %d: invalid endian '%s'.\n", da_index, endian[da_index]))
       }
 
-      xml2::xml_set_attr(data_array_node, 'Encoding', encoding[da_index]);
-      xml2::xml_set_attr(data_array_node, 'DataType', datatype[da_index]);
-      xml2::xml_set_attr(data_array_node, 'Intent', intent[da_index]);
-      xml2::xml_set_attr(data_array_node, 'Endian', endian[da_index]);
+      check_data_and_settings_consistency(da_index, da, datatype[da_index], intent[da_index], force = force)
 
-      xml2::xml_set_attr(data_array_node, 'ExternalFileName', '');                   # not supported atm
-      xml2::xml_set_attr(data_array_node, 'ExternalFileOffset', '');                 # not supported atm
-      xml2::xml_set_attr(data_array_node, 'ArrayIndexingOrder', array_indexing_order[da_index]);
+      data_array_node <- xml2::read_xml("<DataArray/>")
+      xml2::xml_set_attr(data_array_node, "Dimensionality", dimensionality[da_index])
+      xml2::xml_set_attr(data_array_node, "Dim0", dim0[da_index])
 
-      data_array_node_added = xml2::xml_add_child(root, data_array_node);
-      data_array_metadata = xml2::xml_add_child(data_array_node_added, xml2::read_xml("<MetaData></MetaData>"));
-      encoded_data = gifti::data_encoder(da, encoding = encoding[da_index], datatype = datatype[da_index], endian = endian[da_index]);
-      data_node = xml2::read_xml(sprintf("<Data>%s</Data>", encoded_data));
+      if (dataarray_contains_matrices) { # We only need this attribute if any dataarray has more than 1 dimension. But if so, we need it for all datasets.
+        xml2::xml_set_attr(data_array_node, "Dim1", dim1[da_index])
+      }
 
-      if(num_transform_matrices > 0L) {
-        tf = transform_matrix[[da_index]];
-        if(is.list(tf)) {
-          tf_node = xml_node_gifti_coordtransform(tf$transform_matrix, data_space=tf$data_space, transformed_space=tf$transformed_space);
-          xml2::xml_add_child(data_array_node_added, tf_node);
-        } else if(is.matrix(tf)) {
-          tf_node = xml_node_gifti_coordtransform(tf);
-          xml2::xml_add_child(data_array_node_added, tf_node);
-        }
-        else {
-          if(! is.na(tf)) {
-            stop(sprintf("Invalid transformation matrix at index %d: neither a named list, nor NA.\n", da_index));
+      xml2::xml_set_attr(data_array_node, "Encoding", encoding[da_index])
+      xml2::xml_set_attr(data_array_node, "DataType", datatype[da_index])
+      xml2::xml_set_attr(data_array_node, "Intent", intent[da_index])
+      xml2::xml_set_attr(data_array_node, "Endian", endian[da_index])
+
+      xml2::xml_set_attr(data_array_node, "ExternalFileName", "") # not supported atm
+      xml2::xml_set_attr(data_array_node, "ExternalFileOffset", "") # not supported atm
+      xml2::xml_set_attr(data_array_node, "ArrayIndexingOrder", array_indexing_order[da_index])
+
+      data_array_node_added <- xml2::xml_add_child(root, data_array_node)
+      data_array_metadata <- xml2::xml_add_child(data_array_node_added, xml2::read_xml("<MetaData></MetaData>"))
+      encoded_data <- gifti::data_encoder(da, encoding = encoding[da_index], datatype = datatype[da_index], endian = endian[da_index])
+      data_node <- xml2::read_xml(sprintf("<Data>%s</Data>", encoded_data))
+
+      if (num_transform_matrices > 0L) {
+        tf <- transform_matrix[[da_index]]
+        if (is.list(tf)) {
+          tf_node <- xml_node_gifti_coordtransform(tf$transform_matrix, data_space = tf$data_space, transformed_space = tf$transformed_space)
+          xml2::xml_add_child(data_array_node_added, tf_node)
+        } else if (is.matrix(tf)) {
+          tf_node <- xml_node_gifti_coordtransform(tf)
+          xml2::xml_add_child(data_array_node_added, tf_node)
+        } else {
+          if (!is.na(tf)) {
+            stop(sprintf("Invalid transformation matrix at index %d: neither a named list, nor NA.\n", da_index))
           }
         }
       }
 
-      xml2::xml_add_child(data_array_node_added, data_node);
+      xml2::xml_add_child(data_array_node_added, data_node)
 
-      da_index = da_index + 1L;
+      da_index <- da_index + 1L
     }
-    return(root);
+    return(root)
   } else {
-    stop("Writing files in GIFTI format requires the 'gifti' package to be installed.");
+    stop("Writing files in GIFTI format requires the 'gifti' package to be installed.")
   }
 }
 
@@ -193,23 +193,23 @@ gifti_xml <- function(data_array, intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_T
 #' @note The checks in here are in no way exhaustive.
 #'
 #' @keywords internal
-check_data_and_settings_consistency <- function(index, data, datatype, intent, force=FALSE) {
-  msg = NULL;
-  if(is.integer(data) & startsWith(datatype, "NIFTI_TYPE_FLOAT")) {
-    msg = sprintf("Dataset # %d in file will be corrupted: integer R data passed, and written as '%s'.\n", index, datatype);
+check_data_and_settings_consistency <- function(index, data, datatype, intent, force = FALSE) {
+  msg <- NULL
+  if (is.integer(data) & startsWith(datatype, "NIFTI_TYPE_FLOAT")) {
+    msg <- sprintf("Dataset # %d in file will be corrupted: integer R data passed, and written as '%s'.\n", index, datatype)
   }
 
-  if(gifti::convert_intent(intent) == "unknown") {
-    msg = sprintf("Dataset # %d: Invalid NIFTI intent '%s'.\n", index, intent);
+  if (gifti::convert_intent(intent) == "unknown") {
+    msg <- sprintf("Dataset # %d: Invalid NIFTI intent '%s'.\n", index, intent)
   }
 
   # Should check more here.
 
-  if(! is.null(msg)) {
-    if(force) {
-      warning(msg);
+  if (!is.null(msg)) {
+    if (force) {
+      warning(msg)
     } else {
-      stop(msg);
+      stop(msg)
     }
   }
 }
@@ -227,21 +227,22 @@ check_data_and_settings_consistency <- function(index, data, datatype, intent, f
 #'
 #' @examples
 #' \dontrun{
-#'   outfile = tempfile(fileext = '.gii');
-#'   my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-#'   xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
-#'   # Here we add global metadata:
-#'   xmltree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Day"="Monday"));
-#'   # Validating your XML never hurts
-#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
-#'   xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
-#'   gifti_xml_write(outfile, xmltree);  # Write your custom tree to a file.
+#' outfile <- tempfile(fileext = ".gii")
+#' my_data_sets <- list(rep(3.1, 3L), matrix(seq(6) + 0.1, nrow = 2L))
+#' xmltree <- gifti_xml(my_data_sets, datatype = "NIFTI_TYPE_FLOAT32")
+#' # Here we add global metadata:
+#' xmltree <- gifti_xml_add_global_metadata(xmltree, list("User" = "Me", "Day" = "Monday"))
+#' # Validating your XML never hurts
+#' gifti_xsd <- "https://www.nitrc.org/frs/download.php/158/gifti.xsd"
+#' xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd))
+#' gifti_xml_write(outfile, xmltree)
+#' # Write your custom tree to a file.
 #' }
 #'
 #' @export
 #' @importFrom xml2 write_xml
-gifti_xml_write <- function(filepath, xmltree, options=c('as_xml', 'format')) {
-  return(invisible(xml2::write_xml(xmltree, file=filepath, options=options)));
+gifti_xml_write <- function(filepath, xmltree, options = c("as_xml", "format")) {
+  return(invisible(xml2::write_xml(xmltree, file = filepath, options = options)))
 }
 
 
@@ -255,16 +256,16 @@ gifti_xml_write <- function(filepath, xmltree, options=c('as_xml', 'format')) {
 #'
 #' @examples
 #' \dontrun{
-#'   outfile = tempfile(fileext = '.gii');
-#'   dataarrays = list(rep(3.1, 3L), matrix(seq(6), nrow=2L));
-#'   gifti_writer(outfile, dataarrays, datatype=c('NIFTI_TYPE_FLOAT32', 'NIFTI_TYPE_INT32'));
+#' outfile <- tempfile(fileext = ".gii")
+#' dataarrays <- list(rep(3.1, 3L), matrix(seq(6), nrow = 2L))
+#' gifti_writer(outfile, dataarrays, datatype = c("NIFTI_TYPE_FLOAT32", "NIFTI_TYPE_INT32"))
 #' }
 #'
 #' @export
 gifti_writer <- function(filepath, ...) {
-  if(! is.character(filepath)) {
-    stop("Parameter 'filepath' must be a character string.");
+  if (!is.character(filepath)) {
+    stop("Parameter 'filepath' must be a character string.")
   }
-  xmltree = gifti_xml(...);
-  return(invisible(gifti_xml_write(filepath, xmltree)));
+  xmltree <- gifti_xml(...)
+  return(invisible(gifti_xml_write(filepath, xmltree)))
 }

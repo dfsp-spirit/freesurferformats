@@ -1,4 +1,3 @@
-
 #' @title Add metadata to GIFTI XML tree.
 #'
 #' @param xmltree XML tree from xml2
@@ -13,21 +12,21 @@
 #'
 #' @examples
 #' \dontrun{
-#'   xmltree = gifti_xml(list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L)));
-#'   newtree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Weather"="Great"));
-#'   gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
-#'   xml2::xml_validate(newtree, xml2::read_xml(gifti_xsd));
+#' xmltree <- gifti_xml(list(rep(3.1, 3L), matrix(seq(6) + 0.1, nrow = 2L)))
+#' newtree <- gifti_xml_add_global_metadata(xmltree, list("User" = "Me", "Weather" = "Great"))
+#' gifti_xsd <- "https://www.nitrc.org/frs/download.php/158/gifti.xsd"
+#' xml2::xml_validate(newtree, xml2::read_xml(gifti_xsd))
 #' }
 #' @export
-gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list, as_cdata=TRUE) {
-  xpath='.//MetaData';
-  for(name in names(metadata_named_list)) {
-    value = metadata_named_list[[name]];
-    md_node = xml_node_gifti_MD(name, value, as_cdata=as_cdata);
-    metadata_node = xml2::xml_find_first(xmltree, xpath);
-    xml2::xml_add_child(metadata_node, md_node);
+gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list, as_cdata = TRUE) {
+  xpath <- ".//MetaData"
+  for (name in names(metadata_named_list)) {
+    value <- metadata_named_list[[name]]
+    md_node <- xml_node_gifti_MD(name, value, as_cdata = as_cdata)
+    metadata_node <- xml2::xml_find_first(xmltree, xpath)
+    xml2::xml_add_child(metadata_node, md_node)
   }
-  return(xmltree);
+  return(xmltree)
 }
 
 
@@ -44,12 +43,12 @@ gifti_xml_add_global_metadata <- function(xmltree, metadata_named_list, as_cdata
 #' @return XML tree from xml2
 #'
 #' @keywords internal
-xml_node_gifti_MD <- function(name, value, as_cdata=TRUE) {
-  if(as_cdata) {
-    name = cdata(name);
-    value = cdata(value);
+xml_node_gifti_MD <- function(name, value, as_cdata = TRUE) {
+  if (as_cdata) {
+    name <- cdata(name)
+    value <- cdata(value)
   }
-  return(xml2::read_xml(paste('<MD><Name>', name, '</Name><Value>', value, '</Value></MD>', sep="")));
+  return(xml2::read_xml(paste("<MD><Name>", name, "</Name><Value>", value, "</Value></MD>", sep = "")))
 }
 
 
@@ -63,15 +62,15 @@ xml_node_gifti_MD <- function(name, value, as_cdata=TRUE) {
 #'
 #' @export
 cdata <- function(string) {
-  cdata_start_tag = "<![CDATA[";
-  cdata_end_tag = "]]>";
-  if(grepl(string, cdata_start_tag, fixed = TRUE)) {
-    stop(sprintf("Input string must not contain the cdata start tag '%s'.\n", cdata_start_tag));
+  cdata_start_tag <- "<![CDATA["
+  cdata_end_tag <- "]]>"
+  if (grepl(string, cdata_start_tag, fixed = TRUE)) {
+    stop(sprintf("Input string must not contain the cdata start tag '%s'.\n", cdata_start_tag))
   }
-  if(grepl(string, cdata_end_tag, fixed = TRUE)) {
-    stop(sprintf("Input string must not contain the cdata end tag '%s'.\n", cdata_end_tag));
+  if (grepl(string, cdata_end_tag, fixed = TRUE)) {
+    stop(sprintf("Input string must not contain the cdata end tag '%s'.\n", cdata_end_tag))
   }
-  return(paste(cdata_start_tag, string, cdata_end_tag, sep=""));
+  return(paste(cdata_start_tag, string, cdata_end_tag, sep = ""))
 }
 
 
@@ -87,16 +86,16 @@ cdata <- function(string) {
 #'
 #' @importFrom xml2 read_xml xml_set_attrs
 #' @keywords internal
-xml_node_gifti_label <- function(value, attributes=list(), as_cdata=TRUE) {
-  if(! is.list(attributes)) {
-    stop("Parameter 'value' must be a named list.");
+xml_node_gifti_label <- function(value, attributes = list(), as_cdata = TRUE) {
+  if (!is.list(attributes)) {
+    stop("Parameter 'value' must be a named list.")
   }
-  if(as_cdata) {
-    value = cdata(value);
+  if (as_cdata) {
+    value <- cdata(value)
   }
-  label_node = xml2::read_xml(paste('<Label>', value, '</Label>', sep=''));
-  xml2::xml_set_attrs(label_node, attributes);
-  return(label_node);
+  label_node <- xml2::read_xml(paste("<Label>", value, "</Label>", sep = ""))
+  xml2::xml_set_attrs(label_node, attributes)
+  return(label_node)
 }
 
 
@@ -115,43 +114,42 @@ xml_node_gifti_label <- function(value, attributes=list(), as_cdata=TRUE) {
 #' @importFrom xml2 read_xml xml_set_attrs
 #' @export
 # @keywords internal
-xml_node_gifti_coordtransform <- function(transform_matrix, data_space='NIFTI_XFORM_UNKNOWN', transformed_space='NIFTI_XFORM_UNKNOWN', as_cdata=TRUE) {
-  if(! is.character(data_space)) {
-    stop("Parameter 'data_space' must be a character string.");
+xml_node_gifti_coordtransform <- function(transform_matrix, data_space = "NIFTI_XFORM_UNKNOWN", transformed_space = "NIFTI_XFORM_UNKNOWN", as_cdata = TRUE) {
+  if (!is.character(data_space)) {
+    stop("Parameter 'data_space' must be a character string.")
   }
-  if(! is.character(transformed_space)) {
-    stop("Parameter 'transformed_space' must be a character string.");
+  if (!is.character(transformed_space)) {
+    stop("Parameter 'transformed_space' must be a character string.")
   }
-  if(! is.matrix(transform_matrix)) {
-    stop("Parameter 'transform_matrix' must be a numerical matrix.");
+  if (!is.matrix(transform_matrix)) {
+    stop("Parameter 'transform_matrix' must be a numerical matrix.")
   }
-  if(! (ncol(transform_matrix) == 4L & nrow(transform_matrix) == 4L)) {
-    stop("Parameter 'transform_matrix' must be a numerical 4x4 matrix.");
+  if (!(ncol(transform_matrix) == 4L & nrow(transform_matrix) == 4L)) {
+    stop("Parameter 'transform_matrix' must be a numerical 4x4 matrix.")
   }
-  if(as_cdata) {
-    data_space = cdata(data_space);
-    transformed_space = cdata(transformed_space);
+  if (as_cdata) {
+    data_space <- cdata(data_space)
+    transformed_space <- cdata(transformed_space)
   }
 
-  r1 = paste(sprintf("%f", transform_matrix[1, ]), collapse = ' ');
-  r2 = paste(sprintf("%f", transform_matrix[2, ]), collapse = ' ');
-  r3 = paste(sprintf("%f", transform_matrix[3, ]), collapse = ' ');
-  r4 = paste(sprintf("%f", transform_matrix[4, ]), collapse = ' ');
-  matrix_data_formatted = paste(r1, r2, r3, r4, sep='\n');
-  matrix_data_formatted = sprintf("\n%s\n", matrix_data_formatted); # start and end in fresh rows.
+  r1 <- paste(sprintf("%f", transform_matrix[1, ]), collapse = " ")
+  r2 <- paste(sprintf("%f", transform_matrix[2, ]), collapse = " ")
+  r3 <- paste(sprintf("%f", transform_matrix[3, ]), collapse = " ")
+  r4 <- paste(sprintf("%f", transform_matrix[4, ]), collapse = " ")
+  matrix_data_formatted <- paste(r1, r2, r3, r4, sep = "\n")
+  matrix_data_formatted <- sprintf("\n%s\n", matrix_data_formatted) # start and end in fresh rows.
 
-  matrix_node = xml2::read_xml('<CoordinateSystemTransformMatrix/>');
-  data_space_node = xml2::read_xml(paste('<DataSpace>', data_space, '</DataSpace>', sep=''));
-  transformed_space_node = xml2::read_xml(paste('<TransformedSpace>', transformed_space, '</TransformedSpace>', sep=''));
-  matrix_data_node = xml2::read_xml(paste('<MatrixData>', matrix_data_formatted, '</MatrixData>', sep=''));
+  matrix_node <- xml2::read_xml("<CoordinateSystemTransformMatrix/>")
+  data_space_node <- xml2::read_xml(paste("<DataSpace>", data_space, "</DataSpace>", sep = ""))
+  transformed_space_node <- xml2::read_xml(paste("<TransformedSpace>", transformed_space, "</TransformedSpace>", sep = ""))
+  matrix_data_node <- xml2::read_xml(paste("<MatrixData>", matrix_data_formatted, "</MatrixData>", sep = ""))
 
-  xml2::xml_add_child(matrix_node, data_space_node);
-  xml2::xml_add_child(matrix_node, transformed_space_node);
-  xml2::xml_add_child(matrix_node, matrix_data_node);
+  xml2::xml_add_child(matrix_node, data_space_node)
+  xml2::xml_add_child(matrix_node, transformed_space_node)
+  xml2::xml_add_child(matrix_node, matrix_data_node)
 
-  return(matrix_node);
+  return(matrix_node)
 }
-
 
 
 #' @title Create XML GIFTI LabelTable node.
@@ -160,8 +158,8 @@ xml_node_gifti_coordtransform <- function(transform_matrix, data_space='NIFTI_XF
 #'
 #' @importFrom xml2 read_xml
 #' @keywords internal
-xml_node_gifti_label_table <- function(attributes=list()) {
-  return(xml2::read_xml('<LabelTable></LabelTable>'));
+xml_node_gifti_label_table <- function(attributes = list()) {
+  return(xml2::read_xml("<LabelTable></LabelTable>"))
 }
 
 
@@ -176,11 +174,11 @@ xml_node_gifti_label_table <- function(attributes=list()) {
 #' @importFrom xml2 xml_add_child
 #' @keywords internal
 giftixml_add_labeltable_posneg <- function(xmltree) {
-  label_table_node = xml_node_gifti_label_table();
-  xml2::xml_add_child(label_table_node, xml_node_gifti_label('negative', attributes=list('Key'=0L, 'Index'=0L)));
-  xml2::xml_add_child(label_table_node, xml_node_gifti_label('positive', attributes=list('Key'=1L, 'Index'=1L)));
-  xml2::xml_add_child(xmltree, label_table_node);
-  return(xmltree);
+  label_table_node <- xml_node_gifti_label_table()
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label("negative", attributes = list("Key" = 0L, "Index" = 0L)))
+  xml2::xml_add_child(label_table_node, xml_node_gifti_label("positive", attributes = list("Key" = 1L, "Index" = 1L)))
+  xml2::xml_add_child(xmltree, label_table_node)
+  return(xmltree)
 }
 
 
@@ -198,9 +196,9 @@ giftixml_add_labeltable_posneg <- function(xmltree) {
 # ' @keywords internal
 #' @export
 giftixml_add_labeltable_from_annot <- function(xmltree, annot) {
-  label_table_node = xml_node_gifti_label_table_from_annot(annot);
-  xml2::xml_add_child(xmltree, label_table_node, .where=1); # GIFTI spec requires ordered elements
-  return(xmltree);
+  label_table_node <- xml_node_gifti_label_table_from_annot(annot)
+  xml2::xml_add_child(xmltree, label_table_node, .where = 1) # GIFTI spec requires ordered elements
+  return(xmltree)
 }
 
 
@@ -213,14 +211,12 @@ giftixml_add_labeltable_from_annot <- function(xmltree, annot) {
 #' @importFrom xml2 xml_add_child
 #' @keywords internal
 xml_node_gifti_label_table_from_annot <- function(annot) {
-  label_table_node = xml_node_gifti_label_table();
-  if(! is.null(annot$colortable_df)) {
-    for(row_idx in seq.int(nrow(annot$colortable_df))) {
-      sr = annot$colortable_df[row_idx, ];
-      xml2::xml_add_child(label_table_node, xml_node_gifti_label(sr$struct_name, attributes=list('Red'=sr$r, 'Green'=sr$g, 'Blue'=sr$b, 'Alpha'=sr$a, 'Key'=sr$code, 'Index'=sr$code)));
+  label_table_node <- xml_node_gifti_label_table()
+  if (!is.null(annot$colortable_df)) {
+    for (row_idx in seq.int(nrow(annot$colortable_df))) {
+      sr <- annot$colortable_df[row_idx, ]
+      xml2::xml_add_child(label_table_node, xml_node_gifti_label(sr$struct_name, attributes = list("Red" = sr$r, "Green" = sr$g, "Blue" = sr$b, "Alpha" = sr$a, "Key" = sr$code, "Index" = sr$code)))
     }
   }
-  return(label_table_node);
+  return(label_table_node)
 }
-
-

@@ -15,44 +15,43 @@
 #' @export
 #' @importFrom stats dist
 closest.vert.to.point <- function(surface, point_coords) {
-
   # Check params and extract vertex coords if needed.
-  if(is.fs.surface(surface)) {
-    vertices = surface$vertices;
+  if (is.fs.surface(surface)) {
+    vertices <- surface$vertices
   } else {
-    if(is.matrix(surface)) {
-      if(ncol(surface) == 3L) {
-        vertices = surface;
+    if (is.matrix(surface)) {
+      if (ncol(surface) == 3L) {
+        vertices <- surface
       } else {
-        stop("Matrix in parameter 'surface' must have 3 columns.");
+        stop("Matrix in parameter 'surface' must have 3 columns.")
       }
     } else {
-      stop("Parameter 'surface' must be a numerical matrix or an fs.surface instance.");
+      stop("Parameter 'surface' must be a numerical matrix or an fs.surface instance.")
     }
   }
 
-  if(is.vector(point_coords)) {
-    point_coords = matrix(point_coords, ncol = 3L, byrow = TRUE);
+  if (is.vector(point_coords)) {
+    point_coords <- matrix(point_coords, ncol = 3L, byrow = TRUE)
   }
-  if(ncol(point_coords) != 3L) {
-    stop("Parameter coords must have 3 columns.");
-  }
-
-  num_query_points = nrow(point_coords);
-  if(num_query_points < 1L) {
-    stop("Parameter 'point_coords' must not be empty.");
+  if (ncol(point_coords) != 3L) {
+    stop("Parameter coords must have 3 columns.")
   }
 
-  results = list('vertex_id'=rep(NA, num_query_points), 'dist'=rep(NA, num_query_points));
-
-  for(point_idx in seq(num_query_points)) {
-    point = point_coords[point_idx, ];
-    dists = apply(vertices, 1, euclidian.dist, point);
-    results$vertex_id[point_idx] = which.min(dists);
-    results$dist[point_idx] = min(dists);
+  num_query_points <- nrow(point_coords)
+  if (num_query_points < 1L) {
+    stop("Parameter 'point_coords' must not be empty.")
   }
 
-  return(results);
+  results <- list("vertex_id" = rep(NA, num_query_points), "dist" = rep(NA, num_query_points))
+
+  for (point_idx in seq(num_query_points)) {
+    point <- point_coords[point_idx, ]
+    dists <- apply(vertices, 1, euclidian.dist, point)
+    results$vertex_id[point_idx] <- which.min(dists)
+    results$dist[point_idx] <- min(dists)
+  }
+
+  return(results)
 }
 
 
@@ -68,8 +67,8 @@ closest.vert.to.point <- function(surface, point_coords) {
 #'
 #' @export
 vertexdists.to.point <- function(surface, point_coords) {
-  assert.surface(surface);
-  return(apply(surface$vertices, 1, euclidian.dist, point_coords));
+  assert.surface(surface)
+  return(apply(surface$vertices, 1, euclidian.dist, point_coords))
 }
 
 
@@ -82,7 +81,7 @@ vertexdists.to.point <- function(surface, point_coords) {
 #' @return the Euclidean distance between x1 and x2.
 #'
 #' @keywords internal
-euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
+euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2)^2))
 
 #' @title Compute Euclidean distance between two vertices v1 and v2.
 #'
@@ -98,8 +97,6 @@ euclidian.dist <- function(x1, x2) sqrt(sum((x1 - x2) ^ 2))
 #'
 #' @export
 vertex.euclid.dist <- function(surface, v1, v2) {
-  assert.surface(surface);
+  assert.surface(surface)
   euclidian.dist(surface$vertices[v1, ], surface$vertices[v2, ])
 }
-
-

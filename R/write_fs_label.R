@@ -19,72 +19,71 @@
 #'
 #' @examples
 #' \dontrun{
-#'     # Write a simple label containing only vertex indices:
-#'     label_vertices = c(1,2,3,4,5,1000,2000,2323,34,34545,42);
-#'     write.fs.label(tempfile(fileext=".label"), label_vertices);
-#'
-#'     # Load a full label, write it back to a file:
-#'     labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-#'      package = "freesurferformats", mustWork = TRUE);
-#'     label = read.fs.label(labelfile, full=TRUE);
-#'     write.fs.label(tempfile(fileext=".label"), label);
+#' # Write a simple label containing only vertex indices:
+#' label_vertices <- c(1, 2, 3, 4, 5, 1000, 2000, 2323, 34, 34545, 42)
+#' write.fs.label(tempfile(fileext = ".label"), label_vertices)
+#' # Load a full label, write it back to a file:
+#' labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' label <- read.fs.label(labelfile, full = TRUE)
+#' write.fs.label(tempfile(fileext = ".label"), label)
 #' }
 #'
 #' @importFrom utils write.table
 #' @export
-write.fs.label <- function(filepath, vertex_indices, vertex_coords=NULL, vertex_data=NULL, indices_are_one_based=TRUE) {
-
-  if(is.fs.label(vertex_indices)) {
-    label = vertex_indices;
-    vertex_indices = label$vertexdata$vertex_index;
-    vertex_coords = as.matrix(data.frame(label$vertexdata$coord1, label$vertexdata$coord2, label$vertexdata$coord3));
-    vertex_data = label$vertexdata$value;
-    indices_are_one_based = label$one_based_indices;
+write.fs.label <- function(filepath, vertex_indices, vertex_coords = NULL, vertex_data = NULL, indices_are_one_based = TRUE) {
+  if (is.fs.label(vertex_indices)) {
+    label <- vertex_indices
+    vertex_indices <- label$vertexdata$vertex_index
+    vertex_coords <- as.matrix(data.frame(label$vertexdata$coord1, label$vertexdata$coord2, label$vertexdata$coord3))
+    vertex_data <- label$vertexdata$value
+    indices_are_one_based <- label$one_based_indices
   }
 
-  min_ind = min(vertex_indices);
-  if(min_ind < 0) {
-    stop("The vertex_indices to write to the label file must not contain negative values.");
+  min_ind <- min(vertex_indices)
+  if (min_ind < 0) {
+    stop("The vertex_indices to write to the label file must not contain negative values.")
   }
-  if(indices_are_one_based && min_ind < 1) {
-    stop("The vertex_indices to write to the label file must not contain indices < 1 if the parameter 'indices_are_one_based' is set to TRUE.");
-  }
-
-
-  num_verts = length(vertex_indices);
-
-  if(is.null(vertex_coords)) {
-    vertex_coords = matrix(rep(1.0, num_verts * 3), nrow=num_verts);
-  }
-
-  if(nrow(vertex_coords) != num_verts) {
-    stop(sprintf("Found %d vertex_indices but %d rows of vertex_coords. Numbers must match. Cannot write label file.\n", num_verts, nrow(vertex_coords)));
+  if (indices_are_one_based && min_ind < 1) {
+    stop("The vertex_indices to write to the label file must not contain indices < 1 if the parameter 'indices_are_one_based' is set to TRUE.")
   }
 
 
-  if(is.null(vertex_data)) {
-    vertex_data = rep(1.0, num_verts);
+  num_verts <- length(vertex_indices)
+
+  if (is.null(vertex_coords)) {
+    vertex_coords <- matrix(rep(1.0, num_verts * 3), nrow = num_verts)
   }
 
-  if(length(vertex_data) != num_verts) {
-    stop(sprintf("Found %d vertex_indices but %d vertex_data values. Numbers must match. Cannot write label file.\n", num_verts, length(vertex_data)));
+  if (nrow(vertex_coords) != num_verts) {
+    stop(sprintf("Found %d vertex_indices but %d rows of vertex_coords. Numbers must match. Cannot write label file.\n", num_verts, nrow(vertex_coords)))
   }
 
-  if(indices_are_one_based) {
-    vertex_indices = vertex_indices - 1;
+
+  if (is.null(vertex_data)) {
+    vertex_data <- rep(1.0, num_verts)
   }
 
-  label_df = data.frame("vertex_indices"=vertex_indices, "x"=vertex_coords[,1], "y"=vertex_coords[,2], "z"=vertex_coords[,3], "data"=vertex_data);
+  if (length(vertex_data) != num_verts) {
+    stop(sprintf("Found %d vertex_indices but %d vertex_data values. Numbers must match. Cannot write label file.\n", num_verts, length(vertex_data)))
+  }
+
+  if (indices_are_one_based) {
+    vertex_indices <- vertex_indices - 1
+  }
+
+  label_df <- data.frame("vertex_indices" = vertex_indices, "x" = vertex_coords[, 1], "y" = vertex_coords[, 2], "z" = vertex_coords[, 3], "data" = vertex_data)
 
 
   # Write the first comment line and the 2nd line containing the number of vertices in the label
-  fh =  file(filepath);
-  writeLines(c("#!ascii label for subject anonymous", sprintf("%d", length(vertex_indices))), fh);
-  close(fh);
+  fh <- file(filepath)
+  writeLines(c("#!ascii label for subject anonymous", sprintf("%d", length(vertex_indices))), fh)
+  close(fh)
 
   # Append the data
-  write.table(label_df, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
-  return(invisible(label_df));
+  write.table(label_df, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE)
+  return(invisible(label_df))
 }
 
 
@@ -104,23 +103,23 @@ write.fs.label <- function(filepath, vertex_indices, vertex_coords=NULL, vertex_
 #' @family gifti writers
 #'
 #' @examples
-#'   label = c(1L, 23L, 44L); # the positive vertex indices
-#'   outfile = tempfile(fileext=".gii");
-#'   write.fs.label.gii(outfile, label, 50L);
+#' label <- c(1L, 23L, 44L)
+#' # the positive vertex indices
+#' outfile <- tempfile(fileext = ".gii")
+#' write.fs.label.gii(outfile, label, 50L)
 #'
 #' @export
 write.fs.label.gii <- function(filepath, vertex_indices, num_vertices_in_surface) {
-  if(! is.character(filepath)) {
-    stop("Paramater 'filepath' must be a character string.");
+  if (!is.character(filepath)) {
+    stop("Paramater 'filepath' must be a character string.")
   }
-  if(max(vertex_indices) > num_vertices_in_surface) {
-    stop("The maximal entry in 'vertex_indices' is larger than 'num_vertices_in_surface'.");
+  if (max(vertex_indices) > num_vertices_in_surface) {
+    stop("The maximal entry in 'vertex_indices' is larger than 'num_vertices_in_surface'.")
   }
-  label = rep(0L, num_vertices_in_surface);
-  label[vertex_indices] = 1L;
-  xmltree = gifti_xml(list(label), intent='NIFTI_INTENT_LABEL', datatype='NIFTI_TYPE_INT32');
-  xmltree = giftixml_add_labeltable_posneg(xmltree);
-  gifti_xml_write(filepath, xmltree);
-  return(invisible(label));
+  label <- rep(0L, num_vertices_in_surface)
+  label[vertex_indices] <- 1L
+  xmltree <- gifti_xml(list(label), intent = "NIFTI_INTENT_LABEL", datatype = "NIFTI_TYPE_INT32")
+  xmltree <- giftixml_add_labeltable_posneg(xmltree)
+  gifti_xml_write(filepath, xmltree)
+  return(invisible(label))
 }
-

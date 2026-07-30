@@ -14,89 +14,94 @@
 #'
 #' @examples
 #' \dontrun{
-#' trk = read.dti.trk("~/simple.trk");
-#' trk2 = read.dti.trk("~/standard.trk");
-#' trk3 = read.dti.trk("~/complex_big_endian.trk");
+#' trk <- read.dti.trk("~/simple.trk")
+#' trk2 <- read.dti.trk("~/standard.trk")
+#' trk3 <- read.dti.trk("~/complex_big_endian.trk")
 #' }
 #'
 #' @export
 read.dti.trk <- function(filepath, shift_origin = TRUE) {
-  endian = get.dti.trk.endianness(filepath);
+  endian <- get.dti.trk.endianness(filepath)
 
-  fh = file(filepath, "rb");
-  on.exit({ close(fh) }, add=TRUE);
+  fh <- file(filepath, "rb")
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
-  trk = list('header' = list());
+  trk <- list("header" = list())
 
-  trk$header$id_string = read.fixed.char.binary(fh, 6L);
-  trk$header$dim = readBin(fh, integer(), n = 3, size = 2, endian = endian);
-  trk$header$voxel_size = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
-  trk$header$origin = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
-  trk$header$n_scalars = readBin(fh, integer(), n = 1, size = 2, endian = endian); # scalar: one value per point (on a track)
-  trk$header$scalar_names = read.fixed.char.binary(fh, 200L);
-  trk$header$n_properties = readBin(fh, integer(), n = 1, size = 2, endian = endian); # property: one value per track.
-  trk$header$property_names = read.fixed.char.binary(fh, 200L);
-  trk$header$vox2ras = matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE);
-  if(shift_origin) {
-    vox2mm = diag(c(1.0 / trk$header$voxel_size, 1.0), nrow = 4L);
-    mm_correction = diag(1.0, nrow = 4L);
-    mm_correction[1:3, 4] = -0.5;
-    trk$header$vox2ras_corrected = trk$header$vox2ras %*% mm_correction %*% vox2mm;
+  trk$header$id_string <- read.fixed.char.binary(fh, 6L)
+  trk$header$dim <- readBin(fh, integer(), n = 3, size = 2, endian = endian)
+  trk$header$voxel_size <- readBin(fh, numeric(), n = 3, size = 4, endian = endian)
+  trk$header$origin <- readBin(fh, numeric(), n = 3, size = 4, endian = endian)
+  trk$header$n_scalars <- readBin(fh, integer(), n = 1, size = 2, endian = endian) # scalar: one value per point (on a track)
+  trk$header$scalar_names <- read.fixed.char.binary(fh, 200L)
+  trk$header$n_properties <- readBin(fh, integer(), n = 1, size = 2, endian = endian) # property: one value per track.
+  trk$header$property_names <- read.fixed.char.binary(fh, 200L)
+  trk$header$vox2ras <- matrix(readBin(fh, numeric(), n = 16, size = 4, endian = endian), ncol = 4, byrow = TRUE)
+  if (shift_origin) {
+    vox2mm <- diag(c(1.0 / trk$header$voxel_size, 1.0), nrow = 4L)
+    mm_correction <- diag(1.0, nrow = 4L)
+    mm_correction[1:3, 4] <- -0.5
+    trk$header$vox2ras_corrected <- trk$header$vox2ras %*% mm_correction %*% vox2mm
   }
-  trk$header$reserved = read.fixed.char.binary(fh, 444L);
-  trk$header$voxel_order = read.fixed.char.binary(fh, 4L);
-  trk$header$pad2 = read.fixed.char.binary(fh, 4L); # padding
-  trk$header$image_orientation_patient = readBin(fh, numeric(), n = 6, size = 4, endian = endian);
-  trk$header$pad1 = read.fixed.char.binary(fh, 2L); # padding
-  trk$header$invert_x = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$invert_y = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$invert_z = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$swap_xy = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$swap_yz = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$swap_zx = readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian);
-  trk$header$n_count = readBin(fh, integer(), n = 1, size = 4, endian = endian); # number of tracks, 0=not stored/unknown.
-  trk$header$version = readBin(fh, integer(), n = 1, size = 4, endian = endian); # file format version
-  trk$header$hdr_size = readBin(fh, integer(), n = 1, size = 4, endian = endian); # size of hdr, for endianess checking.
+  trk$header$reserved <- read.fixed.char.binary(fh, 444L)
+  trk$header$voxel_order <- read.fixed.char.binary(fh, 4L)
+  trk$header$pad2 <- read.fixed.char.binary(fh, 4L) # padding
+  trk$header$image_orientation_patient <- readBin(fh, numeric(), n = 6, size = 4, endian = endian)
+  trk$header$pad1 <- read.fixed.char.binary(fh, 2L) # padding
+  trk$header$invert_x <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$invert_y <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$invert_z <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$swap_xy <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$swap_yz <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$swap_zx <- readBin(fh, integer(), n = 1, size = 1, signed = FALSE, endian = endian)
+  trk$header$n_count <- readBin(fh, integer(), n = 1, size = 4, endian = endian) # number of tracks, 0=not stored/unknown.
+  trk$header$version <- readBin(fh, integer(), n = 1, size = 4, endian = endian) # file format version
+  trk$header$hdr_size <- readBin(fh, integer(), n = 1, size = 4, endian = endian) # size of hdr, for endianess checking.
 
-  if(trk$header$version != 2L) {
-    warning(sprintf("TRK file '%s' has version %d, only version 2 is supported.\n", filepath, trk$header$version));
+  if (trk$header$version != 2L) {
+    warning(sprintf("TRK file '%s' has version %d, only version 2 is supported.\n", filepath, trk$header$version))
   }
-  if(trk$header$hdr_size != 1000L) {
-    warning(sprintf("TRK file '%s' header field hdr_size is '%d', must be 1000.\n", filepath, trk$header$hdr_size));
+  if (trk$header$hdr_size != 1000L) {
+    warning(sprintf("TRK file '%s' header field hdr_size is '%d', must be 1000.\n", filepath, trk$header$hdr_size))
   }
 
-  tracks = list();
+  tracks <- list()
 
   # Read TRACK data
-  if(trk$header$n_count > 0L) {
-    for(track_idx in 1L:trk$header$n_count) {
-      current_track = list('scalars' = NULL, 'properties' = NULL, 'coords' = NULL);
-      current_track$num_points = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-      current_track$coords = matrix(rep(NA, (current_track$num_points * 3L)), ncol = 3);
+  if (trk$header$n_count > 0L) {
+    for (track_idx in 1L:trk$header$n_count) {
+      current_track <- list("scalars" = NULL, "properties" = NULL, "coords" = NULL)
+      current_track$num_points <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+      current_track$coords <- matrix(rep(NA, (current_track$num_points * 3L)), ncol = 3)
 
-      if(trk$header$n_scalars > 0L) {
-        current_track$scalars = matrix(rep(NA, (current_track$num_points * trk$header$n_scalars)), ncol = trk$header$n_scalars);
+      if (trk$header$n_scalars > 0L) {
+        current_track$scalars <- matrix(rep(NA, (current_track$num_points * trk$header$n_scalars)), ncol = trk$header$n_scalars)
       }
 
-      if(current_track$num_points > 0L) {
-        for(track_point_idx in 1L:current_track$num_points) {
-          current_track$coords[track_point_idx, ] = readBin(fh, numeric(), n = 3, size = 4, endian = endian);
-          if(trk$header$n_scalars > 0L) {
-            current_track$scalars[track_point_idx, ] = readBin(fh, numeric(), n = trk$header$n_scalars, size = 4, endian = endian);
+      if (current_track$num_points > 0L) {
+        for (track_point_idx in 1L:current_track$num_points) {
+          current_track$coords[track_point_idx, ] <- readBin(fh, numeric(), n = 3, size = 4, endian = endian)
+          if (trk$header$n_scalars > 0L) {
+            current_track$scalars[track_point_idx, ] <- readBin(fh, numeric(), n = trk$header$n_scalars, size = 4, endian = endian)
           }
         }
       }
 
-      if(trk$header$n_properties > 0L) {
-        current_track$properties = readBin(fh, numeric(), n = trk$header$n_properties, size = 4, endian = endian);
+      if (trk$header$n_properties > 0L) {
+        current_track$properties <- readBin(fh, numeric(), n = trk$header$n_properties, size = 4, endian = endian)
       }
 
-      tracks[[track_idx]] = current_track;
+      tracks[[track_idx]] <- current_track
     }
   }
 
-  trk$tracks = tracks;
-  return(trk);
+  trk$tracks <- tracks
+  return(trk)
 }
 
 
@@ -110,24 +115,29 @@ read.dti.trk <- function(filepath, shift_origin = TRUE) {
 #'
 #' @keywords internal
 get.dti.trk.endianness <- function(filepath) {
-  fh = file(filepath, "rb");
-  on.exit({ close(fh) }, add=TRUE);
+  fh <- file(filepath, "rb")
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
-  seek(fh, where = 996L, origin = "start");
+  seek(fh, where = 996L, origin = "start")
 
-  endian = 'little';
-  sizeof_hdr_little = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  endian <- "little"
+  sizeof_hdr_little <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
 
-  if(sizeof_hdr_little == 1000L) {
-    return(endian);
+  if (sizeof_hdr_little == 1000L) {
+    return(endian)
   } else {
-    seek(fh, where = 996L, origin = "start");
-    endian = 'big';
-    sizeof_hdr_big = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-    if(sizeof_hdr_big == 1000L) {
-      return(endian);
+    seek(fh, where = 996L, origin = "start")
+    endian <- "big"
+    sizeof_hdr_big <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+    if (sizeof_hdr_big == 1000L) {
+      return(endian)
     } else {
-      stop(sprintf("File '%s' not in TRK format (header sizes %d/%d in little/big endian mode, expected 1000).\n", filepath, sizeof_hdr_little, sizeof_hdr_big));
+      stop(sprintf("File '%s' not in TRK format (header sizes %d/%d in little/big endian mode, expected 1000).\n", filepath, sizeof_hdr_little, sizeof_hdr_big))
     }
   }
 }

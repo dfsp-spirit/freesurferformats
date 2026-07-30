@@ -18,9 +18,9 @@ The header of MGH (or MGZ) brain volume files can contain important information 
 When reading a brain volume, make sure you explicitely request the full data, including the header:
 
 ```{r, eval = FALSE}
-    library("freesurferformats");
-    mgh_file = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
-    brain = read.fs.mgh(mgh_file, with_header = TRUE);
+library("freesurferformats")
+mgh_file <- system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE)
+brain <- read.fs.mgh(mgh_file, with_header = TRUE)
 ```
 
 
@@ -43,16 +43,17 @@ You can access the volume data in `brain$data` and the header in `brain$header` 
 Not all MGH files contain a valid header that can be used to compute more information. To check your data, use the `mghheader.is.ras.valid` function:
 
 ```{r, eval = FALSE}
-mghheader.is.ras.valid(brain$header);
+mghheader.is.ras.valid(brain$header)
 ```
 
 
 If the header is valid, it can be used to compute various transformation matrices. Here is an example that computes the `vox2ras` matrix and then uses it to get the *right, anterior, superior* (RAS) coordinates of the voxel at *column, row, slice* (CRS) index `(128, 128, 128)`:
 
 ```{r, eval = FALSE}
-voxel = c(128, 128, 128);
-vox2ras = mghheader.vox2ras(brain);
-ras_coords = vox2ras %*% c(voxel, 1);  # the 1 is because we use homogeneous coordinates
+voxel <- c(128, 128, 128)
+vox2ras <- mghheader.vox2ras(brain)
+ras_coords <- vox2ras %*% c(voxel, 1)
+# the 1 is because we use homogeneous coordinates
 ```
 
 ### Transformation matrices
@@ -72,14 +73,14 @@ You can use the following functions in the same way to compute various matrices:
 To get the primary slice direction:
 
 ```{r, eval = FALSE}
-mghheader.primary.slice.direction(brain);
+mghheader.primary.slice.direction(brain)
 ```
 
 
 To get the orientation string for the 3 axes:
 
 ```{r, eval = FALSE}
-mghheader.crs.orientation(brain);
+mghheader.crs.orientation(brain)
 ```
 
 ### Check whether the volume is conformed
@@ -87,7 +88,7 @@ mghheader.crs.orientation(brain);
 To check whether the volume is conformed:
 
 ```{r, eval = FALSE}
-mghheader.is.conformed(brain);
+mghheader.is.conformed(brain)
 ```
 
 A volume is considered *conformed* if it is in coronal primary slice direction, has CRS dimensions 256x256x256 and a voxel size of 1 mm in all 3 directions.

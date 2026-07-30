@@ -10,29 +10,30 @@
 #'
 #' @examples
 #' \dontrun{
-#'     mgh_file = system.file("extdata", "brain.mgz",
-#'                             package = "freesurferformats",
-#'                             mustWork = TRUE);
-#'     fs_vol = read.fs.volume(mgh_file, with_header = TRUE);
-#'     write.fs.volume(tempfile(fileext=".mgz"), fs_vol);
-#'     write.fs.volume(tempfile(fileext=".nii.gz"), fs_vol);
+#' mgh_file <- system.file("extdata", "brain.mgz",
+#'   package = "freesurferformats",
+#'   mustWork = TRUE
+#' )
+#' fs_vol <- read.fs.volume(mgh_file, with_header = TRUE)
+#' write.fs.volume(tempfile(fileext = ".mgz"), fs_vol)
+#' write.fs.volume(tempfile(fileext = ".nii.gz"), fs_vol)
 #' }
 #'
 #' @family volume export functions
 #'
 #' @export
 write.fs.volume <- function(filepath, fs_vol) {
-  if(! is.fs.volume(fs_vol)) {
-    stop("Parameter 'fs_vol' must be an fs.volume instance.");
+  if (!is.fs.volume(fs_vol)) {
+    stop("Parameter 'fs_vol' must be an fs.volume instance.")
   }
 
-  if(endsWith(tolower(filepath), "mgh") | endsWith(tolower(filepath), "mgz")) {
-    freesurferformats::write.fs.mgh(filepath, fs_vol$data, fs_vol$header$vox2ras_matrix);
-  } else if(endsWith(tolower(filepath), "nii") | endsWith(tolower(filepath), "nii.gz")) {
-    niiheader = freesurferformats::nii1header.for.mgh(fs_vol);
-    freesurferformats::write.nifti1(filepath, fs_vol$data, niiheader = niiheader);
+  if (endsWith(tolower(filepath), "mgh") | endsWith(tolower(filepath), "mgz")) {
+    freesurferformats::write.fs.mgh(filepath, fs_vol$data, fs_vol$header$vox2ras_matrix)
+  } else if (endsWith(tolower(filepath), "nii") | endsWith(tolower(filepath), "nii.gz")) {
+    niiheader <- freesurferformats::nii1header.for.mgh(fs_vol)
+    freesurferformats::write.nifti1(filepath, fs_vol$data, niiheader = niiheader)
   } else {
-    stop("Invalid file extension for filepath supplied to 'write.fs.volume'. Use one of 'mgh', 'mgz', 'nii', or 'nii.gz'.");
+    stop("Invalid file extension for filepath supplied to 'write.fs.volume'. Use one of 'mgh', 'mgz', 'nii', or 'nii.gz'.")
   }
 }
 
@@ -58,8 +59,8 @@ m44_to_quaternion <- function(m) {
   tr <- m00 + m11 + m22 + 1.0
 
   # Algorithm from: https://github.com/NIFTI-Imaging/nifti_clib/blob/master/niftilib/nifti1_io.c
-  if( tr > 0.5 ) {
-    S <- sqrt( tr ) * 2.0
+  if (tr > 0.5) {
+    S <- sqrt(tr) * 2.0
     qw <- 0.25 * S
     qx <- (m21 - m12) / S
     qy <- (m02 - m20) / S
@@ -69,12 +70,12 @@ m44_to_quaternion <- function(m) {
     Sy <- sqrt(1.0 + m11 - m00 - m22) * 2.0 # S = 4 * qy
     Sz <- sqrt(1.0 + m22 - m00 - m11) * 2.0 # S = 4 * qz
 
-    if( Sx > 2.0 ) {
+    if (Sx > 2.0) {
       qw <- (m21 - m12) / Sx
       qx <- 0.25 * Sx
       qy <- (m01 + m10) / Sx
       qz <- (m02 + m20) / Sx
-    } else if ( Sy > 2.0 ) {
+    } else if (Sy > 2.0) {
       qw <- (m02 - m20) / Sy
       qx <- (m01 + m10) / Sy
       qy <- 0.25 * Sy
@@ -86,12 +87,11 @@ m44_to_quaternion <- function(m) {
       qz <- 0.25 * Sz
     }
 
-    if( tr < 0.0 ) {
+    if (tr < 0.0) {
       qx <- -qx
       qy <- -qy
       qz <- -qz
     }
-
   }
   return(c(qw, qx, qy, qz))
 }
@@ -110,84 +110,84 @@ m44_to_quaternion <- function(m) {
 #' @family nifti1 writers
 #'
 #' @export
-nii1header.for.mgh <- function(mgh, endian="little") {
+nii1header.for.mgh <- function(mgh, endian = "little") {
   if (is.character(mgh)) {
-    mgh = freesurferformats::read.fs.volume(mgh, with_header = TRUE);
+    mgh <- freesurferformats::read.fs.volume(mgh, with_header = TRUE)
   }
-  if (! freesurferformats::is.fs.volume(mgh)) {
-    stop("Parameter 'mgh' must be an fs.volume instance or a path to a file that can be loaded with 'read.fs.volume', resulting in an fs.volume instance.");
+  if (!freesurferformats::is.fs.volume(mgh)) {
+    stop("Parameter 'mgh' must be an fs.volume instance or a path to a file that can be loaded with 'read.fs.volume', resulting in an fs.volume instance.")
   }
-  mgh_header = mgh$header;
-  if(! freesurferformats::is.mghheader(mgh_header)) {
-    stop("Given or loaded fs.volume instance has no valid MGH header information.");
+  mgh_header <- mgh$header
+  if (!freesurferformats::is.mghheader(mgh_header)) {
+    stop("Given or loaded fs.volume instance has no valid MGH header information.")
   }
 
-  nii_header = freesurferformats::ni1header.template();
-  nii_header$endian = endian;
+  nii_header <- freesurferformats::ni1header.template()
+  nii_header$endian <- endian
 
   # Data type mapping: MGH dtype -> NIFTI datatype/bitpix
-  dtype_info = nifti.dtypebitpix.info.from.mgh.dtype(mgh_header$dtype);
-  nii_header$datatype = dtype_info$datatype;
-  nii_header$bitpix = dtype_info$bitpix;
+  dtype_info <- nifti.dtypebitpix.info.from.mgh.dtype(mgh_header$dtype)
+  nii_header$datatype <- dtype_info$datatype
+  nii_header$bitpix <- dtype_info$bitpix
 
   # Image dimensions
-  dd = mgh_header$voldim_orig;  # c(ndim1, ndim2, ndim3, nframes)
-  nii_header$dim = nifti.datadim.to.dimfield(dd);
+  dd <- mgh_header$voldim_orig # c(ndim1, ndim2, ndim3, nframes)
+  nii_header$dim <- nifti.datadim.to.dimfield(dd)
 
   # Voxel dimensions: xsize, ysize, zsize, TR
-  nii_header$pix_dim[2] = mgh_header$internal$xsize;
-  nii_header$pix_dim[3] = mgh_header$internal$ysize;
-  nii_header$pix_dim[4] = mgh_header$internal$zsize;
-  if(length(dd) >= 4L & dd[4] > 1L) {
-    nii_header$pix_dim[5] = mgh_header$internal$tr;
+  nii_header$pix_dim[2] <- mgh_header$internal$xsize
+  nii_header$pix_dim[3] <- mgh_header$internal$ysize
+  nii_header$pix_dim[4] <- mgh_header$internal$zsize
+  if (length(dd) >= 4L & dd[4] > 1L) {
+    nii_header$pix_dim[5] <- mgh_header$internal$tr
   }
 
   # Spatial transformation: compute sform and qform from the vox2ras matrix.
-  if(mghheader.is.ras.valid(mgh_header)) {
-    vox2ras = mghheader.vox2ras(mgh_header);
+  if (mghheader.is.ras.valid(mgh_header)) {
+    vox2ras <- mghheader.vox2ras(mgh_header)
 
     # SForm: directly from vox2ras matrix (rows 1-3).
-    nii_header$sform_code = 1L;
-    nii_header$srow_x = vox2ras[1, ];
-    nii_header$srow_y = vox2ras[2, ];
-    nii_header$srow_z = vox2ras[3, ];
+    nii_header$sform_code <- 1L
+    nii_header$srow_x <- vox2ras[1, ]
+    nii_header$srow_y <- vox2ras[2, ]
+    nii_header$srow_z <- vox2ras[3, ]
 
     # QForm: extract rotation and decompose into quaternions.
     # First, extract the 3x3 rotation part and normalize columns to remove voxel size scaling.
-    rot <- vox2ras;                         # 4x4 matrix
-    rot[, 4] <- c(0, 0, 0, 1);             # Ensure homogeneous column is neutral
-    rot <- t(t(rot) / sqrt(colSums(rot^2)));# Normalize columns -> pure rotation matrix
-    if( det(rot) < 0 ) {
+    rot <- vox2ras # 4x4 matrix
+    rot[, 4] <- c(0, 0, 0, 1) # Ensure homogeneous column is neutral
+    rot <- t(t(rot) / sqrt(colSums(rot^2))) # Normalize columns -> pure rotation matrix
+    if (det(rot) < 0) {
       # Negative determinant: flip 3rd column, indicate via qfac (pix_dim[1]).
-      rot[, 3] <- -rot[, 3];
-      nii_header$pix_dim[1] <- -1.0;
+      rot[, 3] <- -rot[, 3]
+      nii_header$pix_dim[1] <- -1.0
     } else {
-      nii_header$pix_dim[1] <- 1.0;
+      nii_header$pix_dim[1] <- 1.0
     }
-    quatern <- m44_to_quaternion(rot);
-    nii_header$quatern_b <- quatern[2];
-    nii_header$quatern_c <- quatern[3];
-    nii_header$quatern_d <- quatern[4];
+    quatern <- m44_to_quaternion(rot)
+    nii_header$quatern_b <- quatern[2]
+    nii_header$quatern_c <- quatern[3]
+    nii_header$quatern_d <- quatern[4]
 
-    nii_header$qform_code <- 1L;
-    nii_header$qoffset_x <- vox2ras[1, 4];
-    nii_header$qoffset_y <- vox2ras[2, 4];
-    nii_header$qoffset_z <- vox2ras[3, 4];
+    nii_header$qform_code <- 1L
+    nii_header$qoffset_x <- vox2ras[1, 4]
+    nii_header$qoffset_y <- vox2ras[2, 4]
+    nii_header$qoffset_z <- vox2ras[3, 4]
   }
 
   # Spatial and temporal units: NIFTI code for mm (2) + msec (8) = 10
-  nii_header$xyzt_units = 10L;
+  nii_header$xyzt_units <- 10L
 
   # Data range
-  nii_header$cal_min = min(mgh$data, na.rm = TRUE);
-  nii_header$cal_max = max(mgh$data, na.rm = TRUE);
+  nii_header$cal_min <- min(mgh$data, na.rm = TRUE)
+  nii_header$cal_max <- max(mgh$data, na.rm = TRUE)
 
   # Description
-  nii_header$descrip = 'freesurferformats mgh2nii';
+  nii_header$descrip <- "freesurferformats mgh2nii"
 
   # Standard NIFTI v1 single-file voxel offset
-  nii_header$vox_offset = 352.0;
+  nii_header$vox_offset <- 352.0
 
-  nifti.header.check(nii_header, nifti_version = 1L);
-  return(nii_header);
+  nifti.header.check(nii_header, nifti_version = 1L)
+  return(nii_header)
 }

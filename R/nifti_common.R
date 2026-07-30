@@ -10,33 +10,33 @@
 #'
 #' @export
 nifti.header.check <- function(niiheader, nifti_version = 1L) {
-  nifti_version = as.integer(nifti_version);
-  if(! nifti_version %in% c(1L, 2L)) {
-    stop("Parameter 'nifti_version' must be 1L or 2L.");
+  nifti_version <- as.integer(nifti_version)
+  if (!nifti_version %in% c(1L, 2L)) {
+    stop("Parameter 'nifti_version' must be 1L or 2L.")
   }
 
-  is_okay_l8 = nifti.field.check.length(niiheader, c('dim', 'pix_dim'), 8L);
-  is_okay_l4 = nifti.field.check.length(niiheader, c('srow_x', 'srow_y', 'srow_z'), 4L);
-  is_okay_l1 = nifti.field.check.length(niiheader, c('qform_code', 'sform_code', 'quatern_b', 'quatern_c', 'quatern_d', 'qoffset_x', 'qoffset_y', 'qoffset_z', 'sizeof_hdr', 'intent_p1', 'intent_p2', 'intent_p3', 'cal_max', 'cal_min', 'xyzt_units', 'slice_start', 'slice_end', 'slice_duration', 'toffset', 'slice_code', 'scl_slope', 'scl_inter', 'datatype', 'bitpix', 'intent_code', 'vox_offset'), 1L);
+  is_okay_l8 <- nifti.field.check.length(niiheader, c("dim", "pix_dim"), 8L)
+  is_okay_l4 <- nifti.field.check.length(niiheader, c("srow_x", "srow_y", "srow_z"), 4L)
+  is_okay_l1 <- nifti.field.check.length(niiheader, c("qform_code", "sform_code", "quatern_b", "quatern_c", "quatern_d", "qoffset_x", "qoffset_y", "qoffset_z", "sizeof_hdr", "intent_p1", "intent_p2", "intent_p3", "cal_max", "cal_min", "xyzt_units", "slice_start", "slice_end", "slice_duration", "toffset", "slice_code", "scl_slope", "scl_inter", "datatype", "bitpix", "intent_code", "vox_offset"), 1L)
 
-  is_okay_char_descrip = nifti.field.check.nchar.max(niiheader, c('descrip'), 80L);
-  is_okay_char_aux_file = nifti.field.check.nchar.max(niiheader, c('aux_file'), 24L);
-  is_okay_char_intent_name = nifti.field.check.nchar.max(niiheader, c('intent_name'), 16L);
+  is_okay_char_descrip <- nifti.field.check.nchar.max(niiheader, c("descrip"), 80L)
+  is_okay_char_aux_file <- nifti.field.check.nchar.max(niiheader, c("aux_file"), 24L)
+  is_okay_char_intent_name <- nifti.field.check.nchar.max(niiheader, c("intent_name"), 16L)
 
 
-  is_okay_nifti1_specific_fields = TRUE;
-  is_okay_nifti2_specific_fields = TRUE;
-  if(nifti_version == 1L) {
-    is_okay_nifti1_l1 = nifti.field.check.length(niiheader, c('glmax', 'glmin'), 1L);
-    is_okay_nifti1_char_magic = nifti.field.check.nchar.max(niiheader, c('magic'), 4L);
-    is_okay_nifti1_specific_fields = (is_okay_nifti1_l1 & is_okay_nifti1_char_magic);
+  is_okay_nifti1_specific_fields <- TRUE
+  is_okay_nifti2_specific_fields <- TRUE
+  if (nifti_version == 1L) {
+    is_okay_nifti1_l1 <- nifti.field.check.length(niiheader, c("glmax", "glmin"), 1L)
+    is_okay_nifti1_char_magic <- nifti.field.check.nchar.max(niiheader, c("magic"), 4L)
+    is_okay_nifti1_specific_fields <- (is_okay_nifti1_l1 & is_okay_nifti1_char_magic)
   } else {
-    is_okay_nifti2_char_magic = nifti.field.check.nchar.max(niiheader, c('magic'), 8L);
-    is_okay_nifti2_specific_fields = is_okay_nifti2_char_magic;
+    is_okay_nifti2_char_magic <- nifti.field.check.nchar.max(niiheader, c("magic"), 8L)
+    is_okay_nifti2_specific_fields <- is_okay_nifti2_char_magic
   }
 
-  is_okay = (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_char_descrip & is_okay_char_aux_file & is_okay_char_intent_name & is_okay_nifti1_specific_fields & is_okay_nifti2_specific_fields);
-  return(is_okay);
+  is_okay <- (is_okay_l8 & is_okay_l4 & is_okay_l1 & is_okay_char_descrip & is_okay_char_aux_file & is_okay_char_intent_name & is_okay_nifti1_specific_fields & is_okay_nifti2_specific_fields)
+  return(is_okay)
 }
 
 
@@ -52,14 +52,14 @@ nifti.header.check <- function(niiheader, nifti_version = 1L) {
 #'
 #' @keywords internal
 nifti.field.check.length <- function(niiheader, fields, dlength) {
-  is_okay = TRUE;
-  for(f in fields) {
-    if(length(niiheader[[f]]) != dlength) {
-      message(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])));
-      is_okay = FALSE;
+  is_okay <- TRUE
+  for (f in fields) {
+    if (length(niiheader[[f]]) != dlength) {
+      message(sprintf("Invalid '%s' field length: expected %d, found %d.\n", f, dlength, length(niiheader[[f]])))
+      is_okay <- FALSE
     }
   }
-  return(is_okay);
+  return(is_okay)
 }
 
 
@@ -75,22 +75,20 @@ nifti.field.check.length <- function(niiheader, fields, dlength) {
 #'
 #' @keywords internal
 nifti.field.check.nchar.max <- function(niiheader, fields, dlength) {
-  is_okay = TRUE;
-  for(f in fields) {
-    if(is.character(niiheader[[f]])) {
-      if(nchar(niiheader[[f]]) > dlength) {
-        message(sprintf("Invalid '%s' field length: expected <= %d chars, found %d.\n", f, dlength, nchar(niiheader[[f]])));
-        is_okay = FALSE;
+  is_okay <- TRUE
+  for (f in fields) {
+    if (is.character(niiheader[[f]])) {
+      if (nchar(niiheader[[f]]) > dlength) {
+        message(sprintf("Invalid '%s' field length: expected <= %d chars, found %d.\n", f, dlength, nchar(niiheader[[f]])))
+        is_okay <- FALSE
       }
     } else {
-      message(sprintf("Invalid '%s' field type: expected type 'character'.\n", f));
-      is_okay = FALSE;
+      message(sprintf("Invalid '%s' field type: expected type 'character'.\n", f))
+      is_okay <- FALSE
     }
   }
-  return(is_okay);
+  return(is_okay)
 }
-
-
 
 
 #' @title Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
@@ -100,20 +98,20 @@ nifti.field.check.nchar.max <- function(niiheader, fields, dlength) {
 #' @return integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
 #'
 #' @examples
-#'    nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1));
+#' nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1))
 #'
 #' @family NIFTI helper functions
 #'
 #' @export
 nifti.datadim.from.dimfield <- function(dimfield) {
-  if(length(dimfield) != 8L) {
-    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found length %d: '%s'.\n", length(dimfield), paste(dimfield, collapse=" ")));
+  if (length(dimfield) != 8L) {
+    stop(sprintf("Invalid 'dimfield' parameter: must be integer vector of length 8, found length %d: '%s'.\n", length(dimfield), paste(dimfield, collapse = " ")))
   }
-  num_dim = dimfield[1];
-  if(num_dim == 1L) {
-    return(dimfield[2]);
+  num_dim <- dimfield[1]
+  if (num_dim == 1L) {
+    return(dimfield[2])
   }
-  return(dimfield[2:(num_dim + 1L)]);
+  return(dimfield[2:(num_dim + 1L)])
 }
 
 
@@ -124,20 +122,20 @@ nifti.datadim.from.dimfield <- function(dimfield) {
 #' @return NIFTI header `dim` field, an integer vector of length 8
 #'
 #' @examples
-#'    nifti.datadim.to.dimfield(c(256, 256, 256));
+#' nifti.datadim.to.dimfield(c(256, 256, 256))
 #'
 #' @family NIFTI helper functions
 #'
 #' @export
 nifti.datadim.to.dimfield <- function(datadim) {
-  dim_field = rep(1L, 8L);
-  ndim = length(datadim);
-  if(ndim > 7L) {
-    stop(sprintf("Length of datadim must be <= 7, but is %d. Not supported by NIFTI format, please reshape.\n", ndim));
+  dim_field <- rep(1L, 8L)
+  ndim <- length(datadim)
+  if (ndim > 7L) {
+    stop(sprintf("Length of datadim must be <= 7, but is %d. Not supported by NIFTI format, please reshape.\n", ndim))
   }
-  dim_field[1] = ndim;
-  dim_field[2:(2+ndim-1L)] = datadim;
-  return(dim_field);
+  dim_field[1] <- ndim
+  dim_field[2:(2 + ndim - 1L)] <- datadim
+  return(dim_field)
 }
 
 
@@ -187,6 +185,6 @@ nifti.datadim.to.dimfield <- function(datadim) {
 #'
 #' @keywords internal
 read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
-  txt = readBin(filehandle, "raw", n);
-  return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to));
+  txt <- readBin(filehandle, "raw", n)
+  return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to))
 }

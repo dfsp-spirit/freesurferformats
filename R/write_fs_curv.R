@@ -11,27 +11,27 @@
 #'
 #' @export
 write.fs.curv <- function(filepath, data) {
-    if(! is.double(data)) {
-      warning("Parameter 'data' is not of type double, trying to coerce.");
-      data = as.double(data);
-    }
-    MAGIC_FILE_TYPE_NUMBER = 16777215;
-    num_verts = length(data);
-    num_faces = length(data);   # Has no meaning.
-    values_per_vert = 1L;
+  if (!is.double(data)) {
+    warning("Parameter 'data' is not of type double, trying to coerce.")
+    data <- as.double(data)
+  }
+  MAGIC_FILE_TYPE_NUMBER <- 16777215
+  num_verts <- length(data)
+  num_faces <- length(data) # Has no meaning.
+  values_per_vert <- 1L
 
-    if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
-        fh = gzfile(filepath, "wb");
-    } else {
-        fh = file(filepath, "wb", blocking = TRUE);
-    }
+  if (guess.filename.is.gzipped(filepath, gz_extensions = c(".gz"))) {
+    fh <- gzfile(filepath, "wb")
+  } else {
+    fh <- file(filepath, "wb", blocking = TRUE)
+  }
 
-    fwrite3(fh, MAGIC_FILE_TYPE_NUMBER);
-    writeBin(as.integer(num_verts), fh, endian = "big");
-    writeBin(as.integer(num_faces), fh, endian = "big");
-    writeBin(as.integer(values_per_vert), fh, endian = "big");
-    writeBin(data, fh, size = 4L, endian = "big");
-    close(fh);
+  fwrite3(fh, MAGIC_FILE_TYPE_NUMBER)
+  writeBin(as.integer(num_verts), fh, endian = "big")
+  writeBin(as.integer(num_faces), fh, endian = "big")
+  writeBin(as.integer(values_per_vert), fh, endian = "big")
+  writeBin(data, fh, size = 4L, endian = "big")
+  close(fh)
 }
 
 
@@ -47,25 +47,25 @@ write.fs.curv <- function(filepath, data) {
 #'
 #' @export
 write.fs.morph.asc <- function(filepath, data, coords = NULL) {
-  if(! is.double(data)) {
-    warning("Parameter 'data' is not of type double, trying to coerce.");
-    data = as.double(data);
+  if (!is.double(data)) {
+    warning("Parameter 'data' is not of type double, trying to coerce.")
+    data <- as.double(data)
   }
-  num_verts = length(data);
-  if(is.null(coords)) {
-    coords = matrix(rep(0.0, (num_verts * 3)), ncol = 3L);
+  num_verts <- length(data)
+  if (is.null(coords)) {
+    coords <- matrix(rep(0.0, (num_verts * 3)), ncol = 3L)
   }
-  if(nrow(coords) != length(data)) {
-    stop(sprintf("If 'coords' is given, its number of rows (%d) must match the length of the data parameter (%d).\n", ncol(coords), length(data)));
+  if (nrow(coords) != length(data)) {
+    stop(sprintf("If 'coords' is given, its number of rows (%d) must match the length of the data parameter (%d).\n", ncol(coords), length(data)))
   }
-  if(ncol(coords) != 3L) {
-    stop("Matrix 'coords' must have exactly 3 columns (x,y,z).");
+  if (ncol(coords) != 3L) {
+    stop("Matrix 'coords' must have exactly 3 columns (x,y,z).")
   }
-  cx = coords[,1];
-  cy = coords[,2];
-  cz = coords[,3];
-  df = data.frame('vert_index'=seq.int(0, (num_verts - 1L)), 'coord_x'=cx, 'coord_y'=cy, 'coord_z'=cz, 'morph_data'=data);
-  write.table(df, file = filepath, quote = FALSE, row.names = FALSE, col.names = FALSE);
+  cx <- coords[, 1]
+  cy <- coords[, 2]
+  cz <- coords[, 3]
+  df <- data.frame("vert_index" = seq.int(0, (num_verts - 1L)), "coord_x" = cx, "coord_y" = cy, "coord_z" = cz, "morph_data" = data)
+  write.table(df, file = filepath, quote = FALSE, row.names = FALSE, col.names = FALSE)
 }
 
 
@@ -79,11 +79,11 @@ write.fs.morph.asc <- function(filepath, data, coords = NULL) {
 #'
 #' @export
 write.fs.morph.txt <- function(filepath, data) {
-  if(! is.double(data)) {
-    warning("Parameter 'data' is not of type double, trying to coerce.");
-    data = as.double(data);
+  if (!is.double(data)) {
+    warning("Parameter 'data' is not of type double, trying to coerce.")
+    data <- as.double(data)
   }
-  write.table(data, file = filepath, quote = FALSE, row.names = FALSE, col.names = FALSE);
+  write.table(data, file = filepath, quote = FALSE, row.names = FALSE, col.names = FALSE)
 }
 
 
@@ -98,12 +98,12 @@ write.fs.morph.txt <- function(filepath, data) {
 #'
 #' @keywords internal
 fwrite3 <- function(filehandle, data) {
-    b1 = bitwAnd(bitwShiftR(data, 16), 255);
-    b2 = bitwAnd(bitwShiftR(data, 8), 255);
-    b3 = bitwAnd(data, 255);
-    writeBin(b1, filehandle, size = 1, endian = "big");
-    writeBin(b2, filehandle, size = 1, endian = "big");
-    writeBin(b3, filehandle, size = 1, endian = "big");
+  b1 <- bitwAnd(bitwShiftR(data, 16), 255)
+  b2 <- bitwAnd(bitwShiftR(data, 8), 255)
+  b3 <- bitwAnd(data, 255)
+  writeBin(b1, filehandle, size = 1, endian = "big")
+  writeBin(b2, filehandle, size = 1, endian = "big")
+  writeBin(b3, filehandle, size = 1, endian = "big")
 }
 
 
@@ -124,29 +124,28 @@ fwrite3 <- function(filehandle, data) {
 #' @family morphometry functions
 #'
 #' @export
-write.fs.morph <- function(filepath, data, format='auto', ...) {
+write.fs.morph <- function(filepath, data, format = "auto", ...) {
+  if (!format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "ni1", "ni2")) {
+    stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii', 'ni1', or 'ni2'.")
+  }
 
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "ni1", "ni2")) {
-      stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii', 'ni1', or 'ni2'.");
-    }
+  if (format %in% c("mgh", "mgz") | (format == "auto" & filepath.ends.with(filepath, c(".mgh", ".mgz")))) {
+    write.fs.mgh(filepath, data, ...) # handles MGZ as well, based on file name.
+  } else if (format == "gii" | (format == "auto" & filepath.ends.with(filepath, c(".gii", ".gii.gz")))) {
+    write.fs.morph.gii(filepath, data)
+  } else if (format == "ni1" | (format == "auto" & filepath.ends.with(filepath, c(".nii", ".nii.gz")))) {
+    write.fs.morph.ni1(filepath, data, ...)
+  } else if (format == "ni2") {
+    write.fs.morph.ni2(filepath, data, ...)
+  } else if (format == "smp" | (format == "auto" & filepath.ends.with(filepath, c(".smp")))) {
+    write.fs.morph.smp(filepath, data)
+  } else { # assume curv format, it has no defined file extension.
+    write.fs.curv(filepath, data)
+  }
 
-    if(format %in% c('mgh', 'mgz') | (format == 'auto' & filepath.ends.with(filepath, c('.mgh', '.mgz')))) {
-      write.fs.mgh(filepath, data, ...); # handles MGZ as well, based on file name.
-    } else if(format == 'gii'| (format == 'auto' & filepath.ends.with(filepath, c('.gii', '.gii.gz')))) {
-      write.fs.morph.gii(filepath, data);
-    } else if(format == 'ni1'| (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
-      write.fs.morph.ni1(filepath, data, ...);
-    } else if(format == 'ni2') {
-      write.fs.morph.ni2(filepath, data, ...);
-    } else if(format == 'smp'| (format == 'auto' & filepath.ends.with(filepath, c('.smp')))) {
-      write.fs.morph.smp(filepath, data);
-    } else { # assume curv format, it has no defined file extension.
-      write.fs.curv(filepath, data);
-    }
+  reported_format <- fs.get.morph.file.format.from.filename(filepath)
 
-    reported_format = fs.get.morph.file.format.from.filename(filepath);
-
-    return(invisible(reported_format));
+  return(invisible(reported_format))
 }
 
 
@@ -165,8 +164,8 @@ write.fs.morph <- function(filepath, data, format='auto', ...) {
 #'
 #' @export
 write.fs.morph.ni1 <- function(filepath, data, ...) {
-  write.nifti1(filepath, as.double(data), ...);
-  return(invisible('ni1'));
+  write.nifti1(filepath, as.double(data), ...)
+  return(invisible("ni1"))
 }
 
 
@@ -189,8 +188,8 @@ write.fs.morph.ni1 <- function(filepath, data, ...) {
 #'
 #' @export
 write.fs.morph.ni2 <- function(filepath, data, ...) {
-  write.nifti2(filepath, as.double(data), ...);
-  return(invisible('ni2'));
+  write.nifti2(filepath, as.double(data), ...)
+  return(invisible("ni2"))
 }
 
 
@@ -209,9 +208,9 @@ write.fs.morph.ni2 <- function(filepath, data, ...) {
 #'
 #' @export
 write.fs.morph.gii <- function(filepath, data) {
-  data = as.double(data);
-  gifti_writer(filepath, list(data), intent='NIFTI_INTENT_SHAPE', datatype='NIFTI_TYPE_FLOAT32');
-  return(invisible('gii'));
+  data <- as.double(data)
+  gifti_writer(filepath, list(data), intent = "NIFTI_INTENT_SHAPE", datatype = "NIFTI_TYPE_FLOAT32")
+  return(invisible("gii"))
 }
 
 
@@ -227,43 +226,42 @@ write.fs.morph.gii <- function(filepath, data) {
 #'
 #' @export
 fs.get.morph.file.format.from.filename <- function(filepath) {
-    nc = nchar(filepath);
-    num_chars_to_inspect = 3;
-    if(nc >= num_chars_to_inspect) {
-        ext = substr(filepath, nchar(filepath)-num_chars_to_inspect+1, nchar(filepath));
-        if(tolower(ext) == "mgh") {
-            return("mgh");
-        }
-        if(tolower(ext) == "mgz") {
-            return("mgz");
-        }
-        if(tolower(ext) == "smp") {
-          return("smp");
-        }
-        if(tolower(ext) == "nii") {
-          return("nii");
-        }
-        if(tolower(ext) == "gii") {
-          return("gii");
-        }
-        if(tolower(ext) == ".gz") {
-            # Check whether it is '.gii.gz'
-            num_chars_to_inspect_deep = 7;
-            if(nc >= num_chars_to_inspect_deep) {
-                deep_ext = substr(filepath, nchar(filepath)-num_chars_to_inspect_deep+1, nchar(filepath));
-            }
-            if(tolower(deep_ext) == ".gii.gz") {
-                return("gii"); # The gifti reader function handles gii.gz.
-            }
-            if(tolower(deep_ext) == ".nii.gz") {
-              return("nii"); # The nifti reader function handles nii.gz.
-            }
-            # Otherwise we assume gzipped curv format.
-        }
+  nc <- nchar(filepath)
+  num_chars_to_inspect <- 3
+  if (nc >= num_chars_to_inspect) {
+    ext <- substr(filepath, nchar(filepath) - num_chars_to_inspect + 1, nchar(filepath))
+    if (tolower(ext) == "mgh") {
+      return("mgh")
     }
-    return("curv");
+    if (tolower(ext) == "mgz") {
+      return("mgz")
+    }
+    if (tolower(ext) == "smp") {
+      return("smp")
+    }
+    if (tolower(ext) == "nii") {
+      return("nii")
+    }
+    if (tolower(ext) == "gii") {
+      return("gii")
+    }
+    if (tolower(ext) == ".gz") {
+      # Check whether it is '.gii.gz'
+      num_chars_to_inspect_deep <- 7
+      if (nc >= num_chars_to_inspect_deep) {
+        deep_ext <- substr(filepath, nchar(filepath) - num_chars_to_inspect_deep + 1, nchar(filepath))
+      }
+      if (tolower(deep_ext) == ".gii.gz") {
+        return("gii") # The gifti reader function handles gii.gz.
+      }
+      if (tolower(deep_ext) == ".nii.gz") {
+        return("nii") # The nifti reader function handles nii.gz.
+      }
+      # Otherwise we assume gzipped curv format.
+    }
+  }
+  return("curv")
 }
-
 
 
 #' @title Determine morphometry file extension from format
@@ -278,17 +276,17 @@ fs.get.morph.file.format.from.filename <- function(filepath) {
 #'
 #' @export
 fs.get.morph.file.ext.for.format <- function(format) {
-    if (format == "mgh") {
-        return(".mgh");
-    } else if(format == "mgz") {
-        return(".mgz");
-    } else if(format == "curv") {
-        return("");
-    } else if(format == "gii") {
-      return(".gii");
-    } else {
-        stop(sprintf("Unsupported morphometry file format: '%s'.", format));
-    }
+  if (format == "mgh") {
+    return(".mgh")
+  } else if (format == "mgz") {
+    return(".mgz")
+  } else if (format == "curv") {
+    return("")
+  } else if (format == "gii") {
+    return(".gii")
+  } else {
+    stop(sprintf("Unsupported morphometry file format: '%s'.", format))
+  }
 }
 
 
@@ -306,7 +304,6 @@ fs.get.morph.file.ext.for.format <- function(format) {
 #'
 #' @export
 write.fs.morph.smp <- function(filepath, data, ...) {
-  write.smp.brainvoyager(filepath, bvsmp(data), ...);
-  return(invisible("smp"));
+  write.smp.brainvoyager(filepath, bvsmp(data), ...)
+  return(invisible("smp"))
 }
-

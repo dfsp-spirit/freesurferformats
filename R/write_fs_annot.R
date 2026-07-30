@@ -16,23 +16,22 @@
 #'
 #' @export
 write.fs.colortable <- function(filepath, colortable) {
-
-  if(! is.data.frame(colortable)) {
-    stop("Parameter 'colortable' must be a dataframe.");
+  if (!is.data.frame(colortable)) {
+    stop("Parameter 'colortable' must be a dataframe.")
   }
 
-  for(req_column in c("struct_name", "r", "g", "b", "a")) {
-    if(is.null(colortable[[req_column]])) {
-      stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column));
+  for (req_column in c("struct_name", "r", "g", "b", "a")) {
+    if (is.null(colortable[[req_column]])) {
+      stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column))
     }
   }
 
-  if(is.null(colortable$struct_index)) {
-    colortable$struct_index = seq(0, nrow(colortable) - 1);
+  if (is.null(colortable$struct_index)) {
+    colortable$struct_index <- seq(0, nrow(colortable) - 1)
   }
 
-  write.table(colortable, file = filepath, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE);
-  return(invisible(colortable));
+  write.table(colortable, file = filepath, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE)
+  return(invisible(colortable))
 }
 
 
@@ -54,130 +53,127 @@ write.fs.colortable <- function(filepath, colortable) {
 #'
 #' @examples
 #' \dontrun{
-#'    # Load annotation
-#'    annot_file = system.file("extdata", "lh.aparc.annot.gz",
-#'                                package = "freesurferformats",
-#'                                mustWork = TRUE);
-#'    annot = read.fs.annot(annot_file);
-#'
-#'    # New method: write the annotation instance:
-#'    write.fs.annot(tempfile(fileext=".annot"), fs.annot=annot);
-#'
-#'    # Old method: write it from its parts:
-#'    write.fs.annot(tempfile(fileext=".annot"), length(annot$vertices),
-#'     annot$colortable_df, labels_as_colorcodes=annot$label_codes);
+#' # Load annotation
+#' annot_file <- system.file("extdata", "lh.aparc.annot.gz",
+#'   package = "freesurferformats",
+#'   mustWork = TRUE
+#' )
+#' annot <- read.fs.annot(annot_file)
+#' # New method: write the annotation instance:
+#' write.fs.annot(tempfile(fileext = ".annot"), fs.annot = annot)
+#' # Old method: write it from its parts:
+#' write.fs.annot(tempfile(fileext = ".annot"), length(annot$vertices),
+#'   annot$colortable_df,
+#'   labels_as_colorcodes = annot$label_codes
+#' )
 #' }
 #'
 #' @family atlas functions
 #' @export
-write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_as_colorcodes=NULL, labels_as_indices_into_colortable=NULL, fs.annot=NULL) {
-
-  if(is.fs.annot(fs.annot)) {
-    num_vertices = length(fs.annot$label_codes);
-    colortable = fs.annot$colortable_df;
-    labels = fs.annot$label_codes;
+write.fs.annot <- function(filepath, num_vertices = NULL, colortable = NULL, labels_as_colorcodes = NULL, labels_as_indices_into_colortable = NULL, fs.annot = NULL) {
+  if (is.fs.annot(fs.annot)) {
+    num_vertices <- length(fs.annot$label_codes)
+    colortable <- fs.annot$colortable_df
+    labels <- fs.annot$label_codes
   } else {
-
-    if(! is.integer(num_vertices)) {
-      stop("Parameter 'num_vertices' must be an integer.");
+    if (!is.integer(num_vertices)) {
+      stop("Parameter 'num_vertices' must be an integer.")
     }
 
-    if((is.null(labels_as_colorcodes) && is.null(labels_as_indices_into_colortable)) || (! (is.null(labels_as_colorcodes) || is.null(labels_as_indices_into_colortable)))) {
-      stop("Exactly one of the parameters 'labels_as_colorcodes' and 'labels_as_indices_into_colortable' must be NULL.");
+    if ((is.null(labels_as_colorcodes) && is.null(labels_as_indices_into_colortable)) || (!(is.null(labels_as_colorcodes) || is.null(labels_as_indices_into_colortable)))) {
+      stop("Exactly one of the parameters 'labels_as_colorcodes' and 'labels_as_indices_into_colortable' must be NULL.")
     }
 
 
-    if(is.null(labels_as_colorcodes)) {
-      if(length(labels_as_indices_into_colortable) != num_vertices) {
-        stop(sprintf("Number of vertices (%d) must match length of parameter 'labels_as_indices_into_colortable' (%d).\n", num_vertices, length(labels_as_indices_into_colortable)));
+    if (is.null(labels_as_colorcodes)) {
+      if (length(labels_as_indices_into_colortable) != num_vertices) {
+        stop(sprintf("Number of vertices (%d) must match length of parameter 'labels_as_indices_into_colortable' (%d).\n", num_vertices, length(labels_as_indices_into_colortable)))
       }
 
-      if(is.null(colortable)) {
-        stop("Parameter 'colortable' must not be NULL unless labels are passed as colorcodes via parameter 'labels_as_colorcodes'.");
+      if (is.null(colortable)) {
+        stop("Parameter 'colortable' must not be NULL unless labels are passed as colorcodes via parameter 'labels_as_colorcodes'.")
       }
 
-      for(req_column in c("struct_name", "r", "g", "b", "a")) {
-        if(is.null(colortable[[req_column]])) {
-          stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column));
+      for (req_column in c("struct_name", "r", "g", "b", "a")) {
+        if (is.null(colortable[[req_column]])) {
+          stop(sprintf("Parameter 'colortable' must have a column named '%s'.\n", req_column))
         }
       }
 
-      if(is.null(colortable$code)) { # Compute the label codes for the regions of the colortable.
-        colortable$code = colortable$r + colortable$g*2^8 + colortable$b*2^16 + colortable$a*2^24;
+      if (is.null(colortable$code)) { # Compute the label codes for the regions of the colortable.
+        colortable$code <- colortable$r + colortable$g * 2^8 + colortable$b * 2^16 + colortable$a * 2^24
       }
 
       # Now compute the label code for each vertex from the label_indices and the colortable label_codes
-      labels = colortable$code[labels_as_indices_into_colortable];
+      labels <- colortable$code[labels_as_indices_into_colortable]
     } else {
-      labels = labels_as_colorcodes;
+      labels <- labels_as_colorcodes
     }
   }
 
-  if(num_vertices != length(labels)) {
-    stop(sprintf("The number of vertices (%d) does not match the number of labels (%d). Each vertex must be assigned to a label.\n", num_vertices, length(labels)));
+  if (num_vertices != length(labels)) {
+    stop(sprintf("The number of vertices (%d) does not match the number of labels (%d). Each vertex must be assigned to a label.\n", num_vertices, length(labels)))
   }
 
-  if(guess.filename.is.gzipped(filepath, gz_extensions=c(".gz"))) {
-    fh = gzfile(filepath, "wb");
+  if (guess.filename.is.gzipped(filepath, gz_extensions = c(".gz"))) {
+    fh <- gzfile(filepath, "wb")
   } else {
-    fh = file(filepath, "wb", blocking = TRUE);
+    fh <- file(filepath, "wb", blocking = TRUE)
   }
 
-  vertices = seq(0L, num_vertices -1L);
-  verts_and_labels = as.integer(c(rbind(vertices, labels)));  # indices and label codes are writting in alternating style (vert0, label1, ver1, label1, vert2, ...)
+  vertices <- seq(0L, num_vertices - 1L)
+  verts_and_labels <- as.integer(c(rbind(vertices, labels))) # indices and label codes are writting in alternating style (vert0, label1, ver1, label1, vert2, ...)
 
-  if(length(verts_and_labels) != (num_vertices * 2L)) {
-    stop(sprintf("Incorrect length of verts_and_labels: expected %d, found %d.\n", (num_vertices * 2), length(verts_and_labels)));
+  if (length(verts_and_labels) != (num_vertices * 2L)) {
+    stop(sprintf("Incorrect length of verts_and_labels: expected %d, found %d.\n", (num_vertices * 2), length(verts_and_labels)))
   }
 
-  writeBin(as.integer(num_vertices), fh, endian = "big");   # write the number of label values that follow. Note that this is 1/2 of the actual data values!
-  writeBin(verts_and_labels, fh, size = 4, endian = "big");     # write the actual data values
+  writeBin(as.integer(num_vertices), fh, endian = "big") # write the number of label values that follow. Note that this is 1/2 of the actual data values!
+  writeBin(verts_and_labels, fh, size = 4, endian = "big") # write the actual data values
 
-  if(! is.null(colortable)) {
-    num_regions = nrow(colortable);
-    ctable_format_version = -2L;    # If this field contains a positive number, the ctable is in 'old' format
-                                    # and this is interpreted as the number of regions. If it is a negative number,
-                                    # the number indicates the file format version number (new format).
+  if (!is.null(colortable)) {
+    num_regions <- nrow(colortable)
+    ctable_format_version <- -2L # If this field contains a positive number, the ctable is in 'old' format
+    # and this is interpreted as the number of regions. If it is a negative number,
+    # the number indicates the file format version number (new format).
 
-    writeBin(as.integer(1L), fh, size = 4, endian = "big");  # flag 'has_colortable' = yes
-    writeBin(ctable_format_version, fh, size = 4, endian = "big");     # write version number
-    writeBin(num_regions, fh, size = 4, endian = "big");               # write num entries in ctable
+    writeBin(as.integer(1L), fh, size = 4, endian = "big") # flag 'has_colortable' = yes
+    writeBin(ctable_format_version, fh, size = 4, endian = "big") # write version number
+    writeBin(num_regions, fh, size = 4, endian = "big") # write num entries in ctable
 
-    dev_ct_filename = "/tmp/fsbrain/some.lut";
-    writeBin(nchar(dev_ct_filename) + 1L, fh, size = 4, endian = "big");
-    writeBin(charToRaw(dev_ct_filename), fh);
-    writeBin(as.raw(0L), fh);    # null terminator. The file path to the LUT file this annot is using. Does not apply to this function, so write whatever.
+    dev_ct_filename <- "/tmp/fsbrain/some.lut"
+    writeBin(nchar(dev_ct_filename) + 1L, fh, size = 4, endian = "big")
+    writeBin(charToRaw(dev_ct_filename), fh)
+    writeBin(as.raw(0L), fh) # null terminator. The file path to the LUT file this annot is using. Does not apply to this function, so write whatever.
 
-    writeBin(num_regions, fh, size = 4, endian = "big");   # Yes, this is duplicated.
+    writeBin(num_regions, fh, size = 4, endian = "big") # Yes, this is duplicated.
 
     for (region_idx in seq_len(num_regions)) {
-      if(is.null(colortable$struct_index)) {
-        region_num_to_write = region_idx - 1L;
+      if (is.null(colortable$struct_index)) {
+        region_num_to_write <- region_idx - 1L
       } else {
-        region_num_to_write = colortable$struct_index[[region_idx]];
+        region_num_to_write <- colortable$struct_index[[region_idx]]
       }
-      #cat(sprintf("Writing region ID '%d' (at idx %d).\n", region_num_to_write, region_idx));
+      # cat(sprintf("Writing region ID '%d' (at idx %d).\n", region_num_to_write, region_idx));
 
-      writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big");
-      region_name = as.character(colortable$struct_name[[region_idx]]);
-      writeBin(nchar(region_name) + 1L, fh, size = 4, endian = "big");
-      writeBin(charToRaw(region_name), fh);
-      writeBin(as.raw(0L), fh);    # null terminator
+      writeBin(as.integer(region_num_to_write), fh, size = 4, endian = "big")
+      region_name <- as.character(colortable$struct_name[[region_idx]])
+      writeBin(nchar(region_name) + 1L, fh, size = 4, endian = "big")
+      writeBin(charToRaw(region_name), fh)
+      writeBin(as.raw(0L), fh) # null terminator
 
       # write colors
-      writeBin(as.integer(colortable$r[region_idx]), fh, size = 4, endian = "big");
-      writeBin(as.integer(colortable$g[region_idx]), fh, size = 4, endian = "big");
-      writeBin(as.integer(colortable$b[region_idx]), fh, size = 4, endian = "big");
-      writeBin(as.integer(colortable$a[region_idx]), fh, size = 4, endian = "big");
+      writeBin(as.integer(colortable$r[region_idx]), fh, size = 4, endian = "big")
+      writeBin(as.integer(colortable$g[region_idx]), fh, size = 4, endian = "big")
+      writeBin(as.integer(colortable$b[region_idx]), fh, size = 4, endian = "big")
+      writeBin(as.integer(colortable$a[region_idx]), fh, size = 4, endian = "big")
     }
-
   } else {
-    writeBin(as.integer(0L), fh, size = 4, endian = "big");  # flag 'has_colortable' = no
+    writeBin(as.integer(0L), fh, size = 4, endian = "big") # flag 'has_colortable' = no
   }
 
-  close(fh);
+  close(fh)
 }
-
 
 
 #' Write annotation to GIFTI file.
@@ -190,15 +186,14 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 #'
 #' @examples
 #' \dontrun{
-#'    # Load annotation
-#'    annot_file = system.file("extdata", "lh.aparc.annot.gz",
-#'                                package = "freesurferformats",
-#'                                mustWork = TRUE);
-#'    annot = read.fs.annot(annot_file);
-#'
-#'    # New method: write the annotation instance:
-#'    write.fs.annot.gii(tempfile(fileext=".annot"), annot);
-#'
+#' # Load annotation
+#' annot_file <- system.file("extdata", "lh.aparc.annot.gz",
+#'   package = "freesurferformats",
+#'   mustWork = TRUE
+#' )
+#' annot <- read.fs.annot(annot_file)
+#' # New method: write the annotation instance:
+#' write.fs.annot.gii(tempfile(fileext = ".annot"), annot)
 #' }
 #'
 #' @note This function does not write a GIFTI file that is valid according to the specification: it stores extra color data in the Label nodes, and there is more than one Label in the LabelTable node.
@@ -207,18 +202,17 @@ write.fs.annot <- function(filepath, num_vertices=NULL, colortable=NULL, labels_
 #' @family gifti writers
 #' @export
 write.fs.annot.gii <- function(filepath, annot) {
-
-  if( ! is.fs.annot(annot)) {
-    stop("Parameter 'annot' must be an fs.annot instance.");
+  if (!is.fs.annot(annot)) {
+    stop("Parameter 'annot' must be an fs.annot instance.")
   }
 
-  if(! is.character(filepath)) {
-    stop("Paramater 'filepath' must be a character string.");
+  if (!is.character(filepath)) {
+    stop("Paramater 'filepath' must be a character string.")
   }
 
-  label = annot$label_codes;
-  xmltree = gifti_xml(list(label), intent='NIFTI_INTENT_LABEL', datatype='NIFTI_TYPE_INT32');
-  xmltree = giftixml_add_labeltable_from_annot(xmltree, annot);
-  gifti_xml_write(filepath, xmltree);
-  return(invisible(NULL));
+  label <- annot$label_codes
+  xmltree <- gifti_xml(list(label), intent = "NIFTI_INTENT_LABEL", datatype = "NIFTI_TYPE_INT32")
+  xmltree <- giftixml_add_labeltable_from_annot(xmltree, annot)
+  gifti_xml_write(filepath, xmltree)
+  return(invisible(NULL))
 }

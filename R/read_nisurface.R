@@ -18,17 +18,19 @@
 #'
 #' @examples
 #' \dontrun{
-#'     surface_filepath_noext =
-#'      paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
-#'      'lh.white', sep="");
-#'     mesh = read_nisurface(surface_filepath_noext);
-#'     mesh;
-#'  }
+#' surface_filepath_noext <-
+#'   paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
+#'     "lh.white",
+#'     sep = ""
+#'   )
+#' mesh <- read_nisurface(surface_filepath_noext)
+#' mesh
+#' }
 #'
 #' @export
-read_nisurface <- function(filepath_noext, extensions=c('', '.asc', '.gii'), ...) {
-  surffile = readable.files(filepath_noext, precedence=extensions);
-  return(read_nisurfacefile(surffile, ...));
+read_nisurface <- function(filepath_noext, extensions = c("", ".asc", ".gii"), ...) {
+  surffile <- readable.files(filepath_noext, precedence = extensions)
+  return(read_nisurfacefile(surffile, ...))
 }
 
 
@@ -47,19 +49,20 @@ read_nisurface <- function(filepath_noext, extensions=c('', '.asc', '.gii'), ...
 #' @family mesh functions
 #'
 #' @examples
-#'     surface_file = system.file("extdata", "lh.tinysurface",
-#'                             package = "freesurferformats", mustWork = TRUE);
-#'     mesh = read_nisurface(surface_file);
-#'     mesh;
+#' surface_file <- system.file("extdata", "lh.tinysurface",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' mesh <- read_nisurface(surface_file)
+#' mesh
 #'
 #' @export
-read_nisurfacefile <- function(filepath, methods=c('fsnative', 'fsascii', 'gifti'), ...) {
-  if(!file.exists(filepath)) {
-    stop(sprintf("Cannot read neuroimaging surface, file '%s' does not exist.\n", filepath));
+read_nisurfacefile <- function(filepath, methods = c("fsnative", "fsascii", "gifti"), ...) {
+  if (!file.exists(filepath)) {
+    stop(sprintf("Cannot read neuroimaging surface, file '%s' does not exist.\n", filepath))
   }
 
-  class(filepath) <- c(methods, class(filepath));
-  UseMethod('read_nisurfacefile', object = filepath);
+  class(filepath) <- c(methods, class(filepath))
+  UseMethod("read_nisurfacefile", object = filepath)
 }
 
 
@@ -74,19 +77,22 @@ read_nisurfacefile <- function(filepath, methods=c('fsnative', 'fsascii', 'gifti
 #' @export
 read_nisurfacefile.fsnative <- function(filepath, ...) {
   # try to read via read.fs.surface
-  res <- tryCatch({
-    freesurferformats::read.fs.surface(filepath, ...);
-  }, error = function(e) {
-    NULL;
-  });
+  res <- tryCatch(
+    {
+      freesurferformats::read.fs.surface(filepath, ...)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
 
   # On success, return the surface.
-  if(!is.null(res)){
-    return(res);
+  if (!is.null(res)) {
+    return(res)
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurfacefile');
+  NextMethod("read_nisurfacefile")
 }
 
 
@@ -100,19 +106,22 @@ read_nisurfacefile.fsnative <- function(filepath, ...) {
 #'
 #' @export
 read_nisurfacefile.fsascii <- function(filepath, ...) {
-  res <- tryCatch({
-    freesurferformats::read.fs.surface.asc(filepath, ...);
-  }, error = function(e) {
-    NULL;
-  });
+  res <- tryCatch(
+    {
+      freesurferformats::read.fs.surface.asc(filepath, ...)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
 
   # On success, return the surface.
-  if(!is.null(res)){
-    return(res);
+  if (!is.null(res)) {
+    return(res)
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurfacefile');
+  NextMethod("read_nisurfacefile")
 }
 
 
@@ -128,36 +137,38 @@ read_nisurfacefile.fsascii <- function(filepath, ...) {
 read_nisurfacefile.gifti <- function(filepath, ...) {
   if (requireNamespace("gifti", quietly = TRUE)) {
     # Try to read via gifti package
-    res <- tryCatch({
-      gifti::read_gifti(filepath);
-    }, error = function(e) {
-      NULL;
-    }, warning = function(w) {
-      NULL
-    });
-
-  } else {   # Won't work without the 'gifti' package
-    res = NULL;
+    res <- tryCatch(
+      {
+        gifti::read_gifti(filepath)
+      },
+      error = function(e) {
+        NULL
+      },
+      warning = function(w) {
+        NULL
+      }
+    )
+  } else { # Won't work without the 'gifti' package
+    res <- NULL
   }
 
   # On success, return the result as a surface.
-  if(!is.null(res)){
-    if(is.null(res$data$pointset) | is.null(res$data$triangle)) {
+  if (!is.null(res)) {
+    if (is.null(res$data$pointset) | is.null(res$data$triangle)) {
       # This is a GIFTI file, but it does not contain a mesh. Note that GIFTI can contain various data types. Maybe the user accidently passed a func GIFTI file.
-      NextMethod('read_nisurfacefile');
+      NextMethod("read_nisurfacefile")
     } else {
-      ret_list = list("vertices"=res$data$pointset, "faces"=matrix(as.integer(res$data$triangle + 1L), ncol=3L), "mesh_face_type" = 'tris');
-      class(ret_list) = c("fs.surface", class(ret_list));
-      return(ret_list);
+      ret_list <- list("vertices" = res$data$pointset, "faces" = matrix(as.integer(res$data$triangle + 1L), ncol = 3L), "mesh_face_type" = "tris")
+      class(ret_list) <- c("fs.surface", class(ret_list))
+      return(ret_list)
     }
   }
 
   # Failed, use the next read.ni.surface.* method
-  NextMethod('read_nisurfacefile');
+  NextMethod("read_nisurfacefile")
 }
 
 #' @export
 read_nisurfacefile.default <- function(filepath, ...) {
-  stop(sprintf("Surface file '%s' could not be read with any of the available methods, format invalid or not supported.\n", filepath));
+  stop(sprintf("Surface file '%s' could not be read with any of the available methods, format invalid or not supported.\n", filepath))
 }
-

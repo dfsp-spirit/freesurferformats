@@ -5,6 +5,6 @@
 #                    2) download the data and delete everything afterwards, on CRAN (users will want to keep the data, as they only have it if they decided to download it).
 # So we delete all data ONLY if we are on CRAN in this teardown file.
 
-if(!identical(Sys.getenv("NOT_CRAN"), "true")) {
-  freesurferformats::delete_all_opt_data();
+if (!identical(Sys.getenv("NOT_CRAN"), "true")) {
+  freesurferformats::delete_all_opt_data()
 }

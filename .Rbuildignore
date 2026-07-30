@@ -18,3 +18,4 @@ appveyor\.yml
 ^\.github$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^\.pre-commit-config\.yaml$

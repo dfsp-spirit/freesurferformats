@@ -12,53 +12,61 @@
 #' @return data vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curvfile = system.file("extdata", "lh.thickness",
-#'                             package = "freesurferformats", mustWork = TRUE);
-#'     ct = read.fs.curv(curvfile);
-#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
-#'                             length(ct), min(ct), mean(ct), max(ct)));
+#' curvfile <- system.file("extdata", "lh.thickness",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' ct <- read.fs.curv(curvfile)
+#' cat(sprintf(
+#'   "Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'   length(ct), min(ct), mean(ct), max(ct)
+#' ))
 #'
 #' @family morphometry functions
 #'
 #' @export
-read.fs.curv <- function(filepath, format='auto', with_header = FALSE) {
-    MAGIC_FILE_TYPE_NUMBER = 16777215L;
-    endian = "big";
+read.fs.curv <- function(filepath, format = "auto", with_header = FALSE) {
+  MAGIC_FILE_TYPE_NUMBER <- 16777215L
+  endian <- "big"
 
-    if(!(format %in% c('auto', 'bin', 'asc', 'txt'))) {
-      stop("Format must be one of c('auto', 'bin', 'asc', 'txt').");
-    }
+  if (!(format %in% c("auto", "bin", "asc", "txt"))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'txt').")
+  }
 
-    if(format == 'asc' | (format == 'auto' & filepath.ends.with(filepath, c('.asc')))) {
-      return(read.fs.morph.asc(filepath));
-    }
+  if (format == "asc" | (format == "auto" & filepath.ends.with(filepath, c(".asc")))) {
+    return(read.fs.morph.asc(filepath))
+  }
 
-    if(format == 'txt' | (format == 'auto' & filepath.ends.with(filepath, c('.txt')))) {
-      return(read.fs.morph.txt(filepath));
-    }
+  if (format == "txt" | (format == "auto" & filepath.ends.with(filepath, c(".txt")))) {
+    return(read.fs.morph.txt(filepath))
+  }
 
-    if(guess.filename.is.gzipped(filepath)) {
-        fh = gzfile(filepath, "rb");  # nocov
-    } else {
-        fh = file(filepath, "rb");
-    }
-    on.exit({ close(fh) }, add=TRUE);
+  if (guess.filename.is.gzipped(filepath)) {
+    fh <- gzfile(filepath, "rb") # nocov
+  } else {
+    fh <- file(filepath, "rb")
+  }
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
-    magic_byte = fread3(fh);
-    if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
-        stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath)); # nocov
-    }
-    header = list('magic' = magic_byte);
-    header$num_verts = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-    header$num_faces = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-    header$values_per_vertex = readBin(fh, integer(), n = 1, endian = endian);
-    data = readBin(fh, numeric(), size = 4, n = header$num_verts, endian = endian);
+  magic_byte <- fread3(fh)
+  if (magic_byte != MAGIC_FILE_TYPE_NUMBER) {
+    stop(sprintf("Magic number mismatch (%d != %d). The given file '%s' is not a valid FreeSurfer 'curv' format file in new binary format. (Hint: This function is designed to read files like 'lh.area' in the 'surf' directory of a pre-processed FreeSurfer subject.)\n", magic_byte, MAGIC_FILE_TYPE_NUMBER, filepath)) # nocov
+  }
+  header <- list("magic" = magic_byte)
+  header$num_verts <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+  header$num_faces <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+  header$values_per_vertex <- readBin(fh, integer(), n = 1, endian = endian)
+  data <- readBin(fh, numeric(), size = 4, n = header$num_verts, endian = endian)
 
-    if(with_header) {
-      return(list('header' = header, 'data' = data));
-    } else {
-      return(data);
-    }
+  if (with_header) {
+    return(list("header" = header, "data" = data))
+  } else {
+    return(data)
+  }
 }
 
 
@@ -72,8 +80,8 @@ read.fs.curv <- function(filepath, format='auto', with_header = FALSE) {
 #'
 #' @export
 read.fs.morph.asc <- function(filepath) {
-  curv_df = read.table(filepath, header=FALSE, col.names=c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
-  return(curv_df$morph_data);
+  curv_df <- read.table(filepath, header = FALSE, col.names = c("vert_index", "coord_x", "coord_y", "coord_z", "morph_data"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"))
+  return(curv_df$morph_data)
 }
 
 
@@ -85,13 +93,13 @@ read.fs.morph.asc <- function(filepath) {
 #'
 #' @export
 read.fs.morph.nii <- function(filepath) {
-  nfv = nifti.file.version(filepath);
-  if(nfv == 1L) {
-    return(read.fs.morph.ni1(filepath));
-  } else if(nfv == 2L) {
-    return(read.fs.morph.ni2(filepath));
+  nfv <- nifti.file.version(filepath)
+  if (nfv == 1L) {
+    return(read.fs.morph.ni1(filepath))
+  } else if (nfv == 2L) {
+    return(read.fs.morph.ni2(filepath))
   } else {
-    stop("File not in NIFTI v1 or v2 format.");
+    stop("File not in NIFTI v1 or v2 format.")
   }
 }
 
@@ -106,7 +114,7 @@ read.fs.morph.nii <- function(filepath) {
 #'
 #' @export
 read.fs.morph.ni1 <- function(filepath) {
-  return(as.double(read.nifti1.data(filepath)));
+  return(as.double(read.nifti1.data(filepath)))
 }
 
 
@@ -118,7 +126,7 @@ read.fs.morph.ni1 <- function(filepath) {
 #'
 #' @export
 read.fs.morph.ni2 <- function(filepath) {
-  return(as.double(read.nifti2.data(filepath)));
+  return(as.double(read.nifti2.data(filepath)))
 }
 
 
@@ -130,8 +138,8 @@ read.fs.morph.ni2 <- function(filepath) {
 #'
 #' @export
 read.fs.morph.txt <- function(filepath) {
-  curv_df = read.table(filepath, header=FALSE, col.names=c("morph_data"), colClasses = c("numeric"));
-  return(curv_df$morph_data);
+  curv_df <- read.table(filepath, header = FALSE, col.names = c("morph_data"), colClasses = c("numeric"))
+  return(curv_df$morph_data)
 }
 
 
@@ -145,11 +153,11 @@ read.fs.morph.txt <- function(filepath) {
 #'
 #' @keywords internal
 fread3 <- function(filehandle) {
-    b1 = readBin(filehandle, integer(), size=1, signed = FALSE);
-    b2 = readBin(filehandle, integer(), size=1, signed = FALSE);
-    b3 = readBin(filehandle, integer(), size=1, signed = FALSE);
-    res = bitwShiftL(b1, 16) + bitwShiftL(b2, 8) + b3;
-    return(res);
+  b1 <- readBin(filehandle, integer(), size = 1, signed = FALSE)
+  b2 <- readBin(filehandle, integer(), size = 1, signed = FALSE)
+  b3 <- readBin(filehandle, integer(), size = 1, signed = FALSE)
+  res <- bitwShiftL(b1, 16) + bitwShiftL(b2, 8) + b3
+  return(res)
 }
 
 
@@ -164,47 +172,51 @@ fread3 <- function(filehandle) {
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
 #' @examples
-#'     curvfile = system.file("extdata", "lh.thickness",
-#'                             package = "freesurferformats", mustWork = TRUE);
-#'     ct = read.fs.morph(curvfile);
-#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
-#'                             length(ct), min(ct), mean(ct), max(ct)));
-#'
-#'
-#'     mghfile = system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz",
-#'                             package = "freesurferformats", mustWork = TRUE);
-#'     curv = read.fs.morph(mghfile);
-#'     cat(sprintf("Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
-#'                             length(ct), min(ct), mean(ct), max(ct)));
+#' curvfile <- system.file("extdata", "lh.thickness",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' ct <- read.fs.morph(curvfile)
+#' cat(sprintf(
+#'   "Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'   length(ct), min(ct), mean(ct), max(ct)
+#' ))
+#' mghfile <- system.file("extdata", "lh.curv.fwhm10.fsaverage.mgz",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' curv <- read.fs.morph(mghfile)
+#' cat(sprintf(
+#'   "Read data for %d vertices. Values: min=%f, mean=%f, max=%f.\n",
+#'   length(ct), min(ct), mean(ct), max(ct)
+#' ))
 #'
 #' @family morphometry functions
 #'
 #' @export
-read.fs.morph <- function(filepath, format='auto') {
-    if(! format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", 'nii', 'ni1', 'ni2')) {
-        stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii, 'nii', 'ni1', 'ni2''.");
-    }
+read.fs.morph <- function(filepath, format = "auto") {
+  if (!format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "nii", "ni1", "ni2")) {
+    stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii, 'nii', 'ni1', 'ni2''.")
+  }
 
-    if(format == 'auto') {
-        format = fs.get.morph.file.format.from.filename(filepath);
-    }
+  if (format == "auto") {
+    format <- fs.get.morph.file.format.from.filename(filepath)
+  }
 
-    if(format == "mgh" || format=="mgz") {
-        data = read.fs.mgh(filepath, flatten=TRUE);
-    } else if(format == "gii") {
-        data = read.fs.morph.gii(filepath);
-    } else if(format == "smp") {
-        data = read.fs.morph.bvsmp(filepath);
-    } else if (format == 'nii' | (format == 'auto' & filepath.ends.with(filepath, c('.nii', '.nii.gz')))) {
-        data = read.fs.morph.nii(filepath);
-    } else if(format == 'ni1') {
-        data = read.fs.morph.ni1(filepath);
-    } else if(format == 'ni2') {
-        data = read.fs.morph.ni2(filepath);
-    } else {
-        data = read.fs.curv(filepath);
-    }
-    return(data);
+  if (format == "mgh" || format == "mgz") {
+    data <- read.fs.mgh(filepath, flatten = TRUE)
+  } else if (format == "gii") {
+    data <- read.fs.morph.gii(filepath)
+  } else if (format == "smp") {
+    data <- read.fs.morph.bvsmp(filepath)
+  } else if (format == "nii" | (format == "auto" & filepath.ends.with(filepath, c(".nii", ".nii.gz")))) {
+    data <- read.fs.morph.nii(filepath)
+  } else if (format == "ni1") {
+    data <- read.fs.morph.ni1(filepath)
+  } else if (format == "ni2") {
+    data <- read.fs.morph.ni2(filepath)
+  } else {
+    data <- read.fs.curv(filepath)
+  }
+  return(data)
 }
 
 
@@ -224,24 +236,24 @@ read.fs.morph <- function(filepath, format='auto') {
 #' @family gifti readers
 #'
 #' @export
-read.fs.morph.gii <- function(filepath, element_index=1L) {
-  if(element_index < 1L) {
-    stop("Parameter 'element_index' must be a positive integer."); # nocov
+read.fs.morph.gii <- function(filepath, element_index = 1L) {
+  if (element_index < 1L) {
+    stop("Parameter 'element_index' must be a positive integer.") # nocov
   }
   if (requireNamespace("gifti", quietly = TRUE)) {
-      # Try to read via gifti package
-      gii = gifti::read_gifti(filepath);
-      if(element_index > length(gii$data)) {
-        stop(sprintf("Requested data element at index '%d', but GIFTI file contains %d elements only.\n", element_index, length(gii$data))); # nocov
-      }
-      # Data may be stored in a matrix or higher dim array (with empty dimensions in case of vertex-wise data). Drop the empty dims to get a vector.
-      morph_data = drop(gii$data[[element_index]]);
-      if(! is.null(dim(morph_data))) {
-        stop("Dropping empty dimensions of the GIFTI data did not result in a vector. The data in the file cannot be interpreted as scalar per-vertex data."); # nocov
-      }
-      return(morph_data);
+    # Try to read via gifti package
+    gii <- gifti::read_gifti(filepath)
+    if (element_index > length(gii$data)) {
+      stop(sprintf("Requested data element at index '%d', but GIFTI file contains %d elements only.\n", element_index, length(gii$data))) # nocov
+    }
+    # Data may be stored in a matrix or higher dim array (with empty dimensions in case of vertex-wise data). Drop the empty dims to get a vector.
+    morph_data <- drop(gii$data[[element_index]])
+    if (!is.null(dim(morph_data))) {
+      stop("Dropping empty dimensions of the GIFTI data did not result in a vector. The data in the file cannot be interpreted as scalar per-vertex data.") # nocov
+    }
+    return(morph_data)
   } else {
-    stop("Reading files in GIFTI format requires the 'gifti' package to be installed."); # nocov
+    stop("Reading files in GIFTI format requires the 'gifti' package to be installed.") # nocov
   }
 }
 
@@ -256,28 +268,26 @@ read.fs.morph.gii <- function(filepath, element_index=1L) {
 #'
 #' @export
 read.fs.morph.bvsmp <- function(filepath, map_index = 1L) {
-  if(is.bvsmp(filepath)) {
-    smp = filepath;
+  if (is.bvsmp(filepath)) {
+    smp <- filepath
   } else {
-    smp = read.smp.brainvoyager(filepath);
+    smp <- read.smp.brainvoyager(filepath)
   }
 
-  if(is.integer(map_index)) {
-    if(map_index > smp$num_maps) {
-      stop(sprintf("Requested SMP statistical map # %d, but file contains only %d maps.\n", map_index, smp$num_maps));
+  if (is.integer(map_index)) {
+    if (map_index > smp$num_maps) {
+      stop(sprintf("Requested SMP statistical map # %d, but file contains only %d maps.\n", map_index, smp$num_maps))
     }
-    return(smp$vertex_maps[[map_index]]$data);
+    return(smp$vertex_maps[[map_index]]$data)
   } else {
-    requested_map_name = map_index;
-    available_maps = c();
-    for(mi in seq.int(smp$num_maps)) {
-      if(smp$vertex_maps[[mi]]$map_name == requested_map_name) {
-        return(smp$vertex_maps[[mi]]$data);
-        available_maps = c(available_maps, smp$vertex_maps[[mi]]$name);
+    requested_map_name <- map_index
+    available_maps <- c()
+    for (mi in seq.int(smp$num_maps)) {
+      if (smp$vertex_maps[[mi]]$map_name == requested_map_name) {
+        return(smp$vertex_maps[[mi]]$data)
+        available_maps <- c(available_maps, smp$vertex_maps[[mi]]$name)
       }
     }
-    stop(sprintf("Requested map not found, available maps: %s \n", paste(available_maps, collapse = ", ")));
+    stop(sprintf("Requested map not found, available maps: %s \n", paste(available_maps, collapse = ", ")))
   }
 }
-
-

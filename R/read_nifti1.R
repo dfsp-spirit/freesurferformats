@@ -11,7 +11,7 @@
 #'
 #' @export
 read.nifti1.header <- function(filepath) {
-  return(read.nifti1.header.internal(filepath, little_endian = TRUE));
+  return(read.nifti1.header.internal(filepath, little_endian = TRUE))
 }
 
 
@@ -25,14 +25,14 @@ read.nifti1.header <- function(filepath) {
 #'
 #' @export
 nifti.file.uses.fshack <- function(filepath) {
-  nv = nifti.file.version(filepath);
-  if(nv == 1L) {
-    nh = read.nifti1.header(filepath);
-    return(nh$uses_freesurfer_hack);
-  } else if(nv == 2L) {
-    return(FALSE);
+  nv <- nifti.file.version(filepath)
+  if (nv == 1L) {
+    nh <- read.nifti1.header(filepath)
+    return(nh$uses_freesurfer_hack)
+  } else if (nv == 2L) {
+    return(FALSE)
   } else {
-    stop("Not a NIFTI v1 or v2 file.");
+    stop("Not a NIFTI v1 or v2 file.")
   }
 }
 
@@ -47,87 +47,91 @@ nifti.file.uses.fshack <- function(filepath) {
 #'
 #' @keywords internal
 read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
+  endian <- ifelse(little_endian, "little", "big")
+  niiheader <- list("endian" = endian)
 
-  endian = ifelse(little_endian, "little", 'big');
-  niiheader = list('endian' = endian);
+  fh <- fileopen.gz.or.not(filepath)
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
-  fh = fileopen.gz.or.not(filepath);
-  on.exit({ close(fh) }, add=TRUE);
-
-  niiheader$sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  if(niiheader$sizeof_hdr != 348L) {
-    if(niiheader$sizeof_hdr == 540L) {
-      stop("File not in NIFTI 1 format: header size 540 looks like a NIFTI v2 file.");
+  niiheader$sizeof_hdr <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+  if (niiheader$sizeof_hdr != 348L) {
+    if (niiheader$sizeof_hdr == 540L) {
+      stop("File not in NIFTI 1 format: header size 540 looks like a NIFTI v2 file.")
     }
-    if(little_endian == FALSE) { # if called with FALSE, the TRUE option was already checked.
-      stop(sprintf("File not in NIFTI 1 format: invalid header size %d, expected 348.\n", niiheader$sizeof_hdr)); # nocov
+    if (little_endian == FALSE) { # if called with FALSE, the TRUE option was already checked.
+      stop(sprintf("File not in NIFTI 1 format: invalid header size %d, expected 348.\n", niiheader$sizeof_hdr)) # nocov
     } else {
-      return(read.nifti1.header.internal(filepath, little_endian = FALSE));
+      return(read.nifti1.header.internal(filepath, little_endian = FALSE))
     }
   }
 
-  num_skip = 36L; # bytes to skip, this part is not used. It exists for compatibility with ANALYZE format.
-  discarded = readBin(fh, integer(), n = num_skip, size = 1L);
-  discarded = NULL;
+  num_skip <- 36L # bytes to skip, this part is not used. It exists for compatibility with ANALYZE format.
+  discarded <- readBin(fh, integer(), n = num_skip, size = 1L)
+  discarded <- NULL
 
-  niiheader$dim = readBin(fh, integer(), n = 8, size = 2, endian = endian);
-  niiheader$uses_freesurfer_hack = ifelse(niiheader$dim[2] == -1L, TRUE, FALSE);
+  niiheader$dim <- readBin(fh, integer(), n = 8, size = 2, endian = endian)
+  niiheader$uses_freesurfer_hack <- ifelse(niiheader$dim[2] == -1L, TRUE, FALSE)
 
-  niiheader$intent_p1 = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$intent_p2 = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$intent_p3 = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$intent_p1 <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$intent_p2 <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$intent_p3 <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
 
-  niiheader$intent_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  niiheader$datatype = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  niiheader$bitpix = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  niiheader$slice_start = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  niiheader$intent_code <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+  niiheader$datatype <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+  niiheader$bitpix <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+  niiheader$slice_start <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
 
-  niiheader$pix_dim = readBin(fh, numeric(), n = 8, size = 4, endian = endian);
-  niiheader$vox_offset = readBin(fh, numeric(), n = 1, size = 4, endian = endian); # int would make more sense, but the standard says float
-  niiheader$scl_slope = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$scl_inter = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$pix_dim <- readBin(fh, numeric(), n = 8, size = 4, endian = endian)
+  niiheader$vox_offset <- readBin(fh, numeric(), n = 1, size = 4, endian = endian) # int would make more sense, but the standard says float
+  niiheader$scl_slope <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$scl_inter <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
 
-  niiheader$slice_end = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  niiheader$slice_end <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
 
-  niiheader$slice_code = readBin(fh, integer(), n = 1, size = 1, endian = endian);
-  niiheader$xyzt_units = readBin(fh, integer(), n = 1, size = 1, endian = endian);
+  niiheader$slice_code <- readBin(fh, integer(), n = 1, size = 1, endian = endian)
+  niiheader$xyzt_units <- readBin(fh, integer(), n = 1, size = 1, endian = endian)
 
-  niiheader$cal_max = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$cal_min = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$slice_duration = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$toffset = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$cal_max <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$cal_min <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$slice_duration <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$toffset <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
 
-  niiheader$glmax = readBin(fh, integer(), n = 1, size = 4, endian = endian);
-  niiheader$glmin = readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  niiheader$glmax <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+  niiheader$glmin <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
 
-  niiheader$descrip = read.fixed.char.binary(fh, 80L); # 80 bytes
-  niiheader$aux_file = read.fixed.char.binary(fh, 24L); # 24 bytes
+  niiheader$descrip <- read.fixed.char.binary(fh, 80L) # 80 bytes
+  niiheader$aux_file <- read.fixed.char.binary(fh, 24L) # 24 bytes
 
-  niiheader$qform_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);
-  niiheader$sform_code = readBin(fh, integer(), n = 1, size = 2, endian = endian);
+  niiheader$qform_code <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
+  niiheader$sform_code <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
 
-  niiheader$quatern_b = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$quatern_c = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$quatern_d = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$quatern_b <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$quatern_c <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$quatern_d <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
 
-  niiheader$qoffset_x = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$qoffset_y = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
-  niiheader$qoffset_z = readBin(fh, numeric(), n = 1, size = 4, endian = endian);
+  niiheader$qoffset_x <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$qoffset_y <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
+  niiheader$qoffset_z <- readBin(fh, numeric(), n = 1, size = 4, endian = endian)
 
-  niiheader$srow_x = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
-  niiheader$srow_y = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
-  niiheader$srow_z = readBin(fh, numeric(), n = 4, size = 4, endian = endian);
+  niiheader$srow_x <- readBin(fh, numeric(), n = 4, size = 4, endian = endian)
+  niiheader$srow_y <- readBin(fh, numeric(), n = 4, size = 4, endian = endian)
+  niiheader$srow_z <- readBin(fh, numeric(), n = 4, size = 4, endian = endian)
 
-  #niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
-  #niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
-  niiheader$intent_name = read.fixed.char.binary(fh, 16L);
-  niiheader$magic = read.fixed.char.binary(fh, 4L);
+  # niiheader$intent_name = readBin(fh, character(), n = 1, endian = endian); # 16 bytes
+  # niiheader$magic = readBin(fh, character(), n = 1, endian = endian); # 4 bytes
+  niiheader$intent_name <- read.fixed.char.binary(fh, 16L)
+  niiheader$magic <- read.fixed.char.binary(fh, 4L)
 
-  if(niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field. The original value is still available in dim_raw.
-    niiheader$dim_raw = niiheader$dim; # only differ for FreeSurfer hack files.
-    niiheader$dim[2] = niiheader$glmin;
+  if (niiheader$uses_freesurfer_hack) { # extract the proper data dimensions from the glmin field. The original value is still available in dim_raw.
+    niiheader$dim_raw <- niiheader$dim # only differ for FreeSurfer hack files.
+    niiheader$dim[2] <- niiheader$glmin
   }
-  return(niiheader);
+  return(niiheader)
 }
 
 
@@ -139,23 +143,23 @@ read.nifti1.header.internal <- function(filepath, little_endian = TRUE) {
 #'
 #' @export
 nifti.file.version <- function(filepath) {
-  fh = fileopen.gz.or.not(filepath);
+  fh <- fileopen.gz.or.not(filepath)
 
-  sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = 'little');
-  if(! sizeof_hdr %in% c(348L, 540L)) {
-    close(fh);
-    fh = fileopen.gz.or.not(filepath);
-    sizeof_hdr = readBin(fh, integer(), n = 1, size = 4, endian = 'big');
+  sizeof_hdr <- readBin(fh, integer(), n = 1, size = 4, endian = "little")
+  if (!sizeof_hdr %in% c(348L, 540L)) {
+    close(fh)
+    fh <- fileopen.gz.or.not(filepath)
+    sizeof_hdr <- readBin(fh, integer(), n = 1, size = 4, endian = "big")
   }
-  close(fh);
+  close(fh)
 
 
-  if(sizeof_hdr == 540L) {
-    return(2L);
-  } else if(sizeof_hdr == 348L) {
+  if (sizeof_hdr == 540L) {
+    return(2L)
+  } else if (sizeof_hdr == 348L) {
     return(1L)
   } else {
-    return(NULL);
+    return(NULL)
   }
 }
 
@@ -166,13 +170,12 @@ nifti.file.version <- function(filepath) {
 #'
 #' @keywords internal
 fileopen.gz.or.not <- function(filepath) {
-  if (endsWith(filepath, '.gz')) {
-    fh = gzfile(filepath, "rb");
+  if (endsWith(filepath, ".gz")) {
+    fh <- gzfile(filepath, "rb")
+  } else {
+    fh <- file(filepath, "rb")
   }
-  else {
-    fh = file(filepath, "rb");
-  }
-  return(fh);
+  return(fh)
 }
 
 
@@ -190,30 +193,35 @@ fileopen.gz.or.not <- function(filepath) {
 #'
 #' @export
 read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
-  if(is.null(header)) {
-    header = read.nifti1.header(filepath);
+  if (is.null(header)) {
+    header <- read.nifti1.header(filepath)
   }
 
-  fh = fileopen.gz.or.not(filepath);
-  on.exit({ close(fh) }, add=TRUE);
+  fh <- fileopen.gz.or.not(filepath)
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
-  endian = header$endian;
+  endian <- header$endian
 
   # move to data part
-  num_skip = header$vox_offset;
-  discarded = readBin(fh, integer(), n = num_skip, size = 1L, endian = endian);
-  discarded = NULL;
+  num_skip <- header$vox_offset
+  discarded <- readBin(fh, integer(), n = num_skip, size = 1L, endian = endian)
+  discarded <- NULL
 
-  data_dim = nifti.datadim.from.dimfield(header$dim);
-  num_values = prod(data_dim);
+  data_dim <- nifti.datadim.from.dimfield(header$dim)
+  num_values <- prod(data_dim)
 
-  read_size_bytes = header$bitpix / 8L; # bitpix is the size in bits, but we need bytes.
-  dti = nifti.dtype.info(header$datatype, header$bitpix);
+  read_size_bytes <- header$bitpix / 8L # bitpix is the size in bits, but we need bytes.
+  dti <- nifti.dtype.info(header$datatype, header$bitpix)
 
-  data = readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian);
-  data = array(data, dim = data_dim);
-  if(drop_empty_dims) {
-    return(drop(data));
+  data <- readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian)
+  data <- array(data, dim = data_dim)
+  if (drop_empty_dims) {
+    return(drop(data))
   }
-  return(data);
+  return(data)
 }

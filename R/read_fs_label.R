@@ -1,5 +1,3 @@
-
-
 #' @title Read a label file.
 #'
 #' @inheritParams read.fs.label.native
@@ -13,20 +11,21 @@
 #' @note See \code{\link{read.fs.label.native}} for more details, including important information on loading FreeSurfer volume labels.
 #'
 #' @examples
-#'     labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-#'       package = "freesurferformats", mustWork = TRUE);
-#'     label = read.fs.label(labelfile);
+#' labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' label <- read.fs.label(labelfile)
 #' @export
-read.fs.label <- function(filepath, format = 'auto', ...) {
-  if(!(format %in% c('auto', 'gii', 'asc'))) {
-    stop("Format must be one of c('auto', 'gii', 'asc').");
+read.fs.label <- function(filepath, format = "auto", ...) {
+  if (!(format %in% c("auto", "gii", "asc"))) {
+    stop("Format must be one of c('auto', 'gii', 'asc').")
   }
 
-  if(format == 'gii' | (format == 'auto' & filepath.ends.with(filepath, c('.gii')))) {
-    return(read.fs.label.gii(filepath, ...));
+  if (format == "gii" | (format == "auto" & filepath.ends.with(filepath, c(".gii")))) {
+    return(read.fs.label.gii(filepath, ...))
   }
 
-  return(read.fs.label.native(filepath, ...));
+  return(read.fs.label.native(filepath, ...))
 }
 
 
@@ -49,53 +48,52 @@ read.fs.label <- function(filepath, format = 'auto', ...) {
 #' @note To load volume/voxel labels, you will have to set the 'full' parameter to `TRUE`.
 #'
 #' @examples
-#'     labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-#'       package = "freesurferformats", mustWork = TRUE);
-#'     label = read.fs.label(labelfile);
+#' labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+#'   package = "freesurferformats", mustWork = TRUE
+#' )
+#' label <- read.fs.label(labelfile)
 #'
 #' @export
 #' @importFrom utils read.table
-read.fs.label.native <- function(filepath, return_one_based_indices=TRUE, full=FALSE, metadata=list()) {
+read.fs.label.native <- function(filepath, return_one_based_indices = TRUE, full = FALSE, metadata = list()) {
+  # The first line is a comment, and the 2nd one contains a single number: the number of vertex lines following.
+  num_verts_df <- read.table(filepath, skip = 1L, nrows = 1L, col.names = c("num_verts"), colClasses = c("integer"))
+  num_verts <- num_verts_df$num_verts[1]
 
-    # The first line is a comment, and the 2nd one contains a single number: the number of vertex lines following.
-    num_verts_df = read.table(filepath, skip=1L, nrows=1L, col.names = c('num_verts'), colClasses = c("integer"));
-    num_verts = num_verts_df$num_verts[1];
+  vertices_df <- read.table(filepath, skip = 2L, col.names = c("vertex_index", "coord1", "coord2", "coord3", "value"), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"))
+  vertices <- vertices_df$vertex_index
 
-    vertices_df = read.table(filepath, skip=2L, col.names = c('vertex_index', 'coord1', 'coord2', 'coord3', 'value'), colClasses = c("integer", "numeric", "numeric", "numeric", "numeric"));
-    vertices = vertices_df$vertex_index;
+  if (length(vertices) != num_verts) {
+    stop(sprintf("Expected %d vertex rows in label file '%s' from header, but received %d.\n", num_verts, filepath, length(vertices))) # nocov
+  }
 
-    if(length(vertices) != num_verts) {
-      stop(sprintf("Expected %d vertex rows in label file '%s' from header, but received %d.\n", num_verts, filepath, length(vertices)));   # nocov
+  if (any(vertices < 0L)) {
+    label_type <- "volume_label"
+  } else {
+    label_type <- "surface_label"
+  }
+
+  if (return_one_based_indices) {
+    if (label_type == "surface_label") {
+      vertices <- vertices + 1L
+      vertices_df$vertex_index <- vertices
     }
-
-    if(any(vertices < 0L)) {
-      label_type = 'volume_label';
+  }
+  if (full) {
+    ret_list <- list("vertexdata" = vertices_df, "metadata" = metadata)
+    if (return_one_based_indices) {
+      ret_list$one_based_indices <- TRUE
     } else {
-      label_type = 'surface_label';
+      ret_list$one_based_indices <- FALSE
     }
 
-    if(return_one_based_indices) {
-      if(label_type == 'surface_label') {
-        vertices = vertices + 1L;
-        vertices_df$vertex_index = vertices;
-      }
+    ret_list$label_type <- label_type
 
-    }
-    if(full) {
-      ret_list = list("vertexdata"=vertices_df, "metadata"=metadata);
-      if(return_one_based_indices) {
-        ret_list$one_based_indices = TRUE;
-      } else {
-        ret_list$one_based_indices = FALSE;
-      }
-
-      ret_list$label_type = label_type;
-
-      class(ret_list) = c('fs.label', class(ret_list));
-      return(ret_list);
-    } else {
-      return(vertices);
-    }
+    class(ret_list) <- c("fs.label", class(ret_list))
+    return(ret_list)
+  } else {
+    return(vertices)
+  }
 }
 
 
@@ -106,27 +104,27 @@ read.fs.label.native <- function(filepath, return_one_based_indices=TRUE, full=F
 #' @param ... further arguments passed to or from other methods
 #'
 #' @export
-print.fs.label <- function(x, ...) {   # nocov start
-  if(nrow(x$vertexdata) > 0L) {
-    vertex_data_range = range(x$vertexdata$value);
+print.fs.label <- function(x, ...) { # nocov start
+  if (nrow(x$vertexdata) > 0L) {
+    vertex_data_range <- range(x$vertexdata$value)
 
-    if(any(x$vertexdata$vertex_index < 0L)) {
+    if (any(x$vertexdata$vertex_index < 0L)) {
       # It's a volume label (not a surface label).
-      cat(sprintf("Brain volume label containing %d voxels, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
-      print(summary(x$vertexdata$value));
+      cat(sprintf("Brain volume label containing %d voxels, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]))
+      print(summary(x$vertexdata$value))
     } else {
-      cat(sprintf("Brain surface label containing %d vertices, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]));
-      print(summary(x$vertexdata$value));
-      if(x$one_based_indices) {
-        cat(sprintf("Vertex indices start at: 1\n"));
+      cat(sprintf("Brain surface label containing %d vertices, values are in range (%.3f, %.3f). Summary:\n", nrow(x$vertexdata), vertex_data_range[1], vertex_data_range[2]))
+      print(summary(x$vertexdata$value))
+      if (x$one_based_indices) {
+        cat(sprintf("Vertex indices start at: 1\n"))
       } else {
-        cat(sprintf("Vertex indices start at: 0\n"));
+        cat(sprintf("Vertex indices start at: 0\n"))
       }
     }
 
-    cat(sprintf("Label coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertexdata$coord1), min(x$vertexdata$coord2), min(x$vertexdata$coord3), max(x$vertexdata$coord1), max(x$vertexdata$coord2), max(x$vertexdata$coord3)));
+    cat(sprintf("Label coordinates: minimal values are (%.2f, %.2f, %.2f), maximal values are (%.2f, %.2f, %.2f).\n", min(x$vertexdata$coord1), min(x$vertexdata$coord2), min(x$vertexdata$coord3), max(x$vertexdata$coord1), max(x$vertexdata$coord2), max(x$vertexdata$coord3)))
   } else {
-    cat(sprintf("Brain label containing %d entries.\n", nrow(x$vertexdata)));
+    cat(sprintf("Brain label containing %d entries.\n", nrow(x$vertexdata)))
   }
 } # nocov end
 
@@ -139,7 +137,6 @@ print.fs.label <- function(x, ...) {   # nocov start
 #'
 #' @export
 is.fs.label <- function(x) inherits(x, "fs.label")
-
 
 
 #' @title Read a label from a GIFTI label/annotation file.
@@ -158,43 +155,38 @@ is.fs.label <- function(x) inherits(x, "fs.label")
 #' @family gifti readers
 #'
 #' @export
-read.fs.label.gii <- function(filepath, label_value=1L, element_index=1L) {
-
-  if( ! is.integer(label_value)) {
-    if(is.numeric(label_value) | is.logical(label_value)) {
-      label_value = as.integer(label_value);
+read.fs.label.gii <- function(filepath, label_value = 1L, element_index = 1L) {
+  if (!is.integer(label_value)) {
+    if (is.numeric(label_value) | is.logical(label_value)) {
+      label_value <- as.integer(label_value)
     } else {
-      stop("Parameter 'label_value' must be an integer, like 1L.");
+      stop("Parameter 'label_value' must be an integer, like 1L.")
     }
   }
 
   if (requireNamespace("gifti", quietly = TRUE)) {
-    gii = gifti::read_gifti(filepath);
-    intent = gii$data_info$Intent[[element_index]];
-    if(intent != 'NIFTI_INTENT_LABEL') {
-      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent)); # nocov
+    gii <- gifti::read_gifti(filepath)
+    intent <- gii$data_info$Intent[[element_index]]
+    if (intent != "NIFTI_INTENT_LABEL") {
+      warning(sprintf("The intent of the gifti file is '%s', expected 'NIFTI_INTENT_LABEL'.\n", intent)) # nocov
     }
-    if(is.null(gii$label)) {
-      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath));  # nocov
+    if (is.null(gii$label)) {
+      stop(sprintf("The gifti file '%s' does not contain label information.\n", filepath)) # nocov
     } else {
-
-      #label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
-      if(gii$data_info$Dimensionality != 1L) {
-        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality));  # nocov
+      # label_data_num_columns = ncol(gii$data[[element_index]]); # must be 1D for surface labels: 1 column of vertex indices (the data is returned as a matrix).
+      if (gii$data_info$Dimensionality != 1L) {
+        stop(sprintf("Label data has %d dimensions, expected 1. This does not look like a 1D surface label.\n", gii$data_info$Dimensionality)) # nocov
       }
 
-      annot_data = as.integer(gii$data[[element_index]]); # note that as.integer() turns the (1 column) matrix into a vector.
+      annot_data <- as.integer(gii$data[[element_index]]) # note that as.integer() turns the (1 column) matrix into a vector.
 
       # Note: gifti labels seem to be more like a mask or an annotation: they assign a value to each vertex of the surface instead of listing
       # all vertices which are part of the label. Reading them as a label in the FreeSurfer sense potentially means losing
       # information (if they contain more than 2 region types). If they only contain positive/negative labels, it is fine.
-      #num_regions_in_annot = nrow(gii$label);
-      return(which(annot_data == label_value));
+      # num_regions_in_annot = nrow(gii$label);
+      return(which(annot_data == label_value))
     }
-
   } else {
-    stop("The 'gifti' package must be installed to use this functionality.");   # nocov
+    stop("The 'gifti' package must be installed to use this functionality.") # nocov
   }
-
 }
-
