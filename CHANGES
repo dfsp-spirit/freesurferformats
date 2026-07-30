@@ -1,6 +1,10 @@
 freesurferformats Changes
 =========================
 
+Current WIP
+-------------
+- SEC: add configurable max memory allocation via R option or env var, and other sanity fixes
+
 
 Version 1.0.1
 --------------
