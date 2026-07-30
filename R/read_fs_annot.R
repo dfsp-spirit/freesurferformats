@@ -48,6 +48,10 @@ read.fs.annot <- function(filepath, empty_label_name = "empty", metadata = list(
   )
 
   num_verts_and_labels <- readBin(fh, integer(), n = 1, endian = "big")
+
+  # Validate allocation before reading vertex-label pairs (2 integers each, 4 bytes each)
+  validate_allocation_size(c(num_verts_and_labels, 2L), 4L)
+
   verts_and_labels <- readBin(fh, integer(), n = num_verts_and_labels * 2, endian = "big")
 
   verts <- verts_and_labels[seq(1L, length(verts_and_labels), 2L)]
@@ -61,12 +65,16 @@ read.fs.annot <- function(filepath, empty_label_name = "empty", metadata = list(
     ctable_num_entries <- readBin(fh, integer(), n = 1, endian = "big")
 
     if (ctable_num_entries > 0) {
+      # Validate allocation: colortable allocates a ctable_num_entries x 5 matrix (5 ints per row) plus a names vector
+      validate_allocation_size(c(ctable_num_entries, 5L), 4L)
       colortable <- readcolortable_oldformat(fh, ctable_num_entries)
     } else {
       # If ctable_num_entries is negative, it is a version code (actually, the abs value is the version).
       version <- -ctable_num_entries
       if (version == 2) {
         ctable_num_entries <- readBin(fh, integer(), n = 1, endian = "big")
+        # Validate allocation for v2 colortable as well
+        validate_allocation_size(c(ctable_num_entries, 5L), 4L)
         colortable <- readcolortable(fh, ctable_num_entries)
       } else {
         stop(sprintf("Unsupported annotation file version '%d'.\n", version)) # nocov
