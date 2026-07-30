@@ -40,7 +40,7 @@ write.fs.volume <- function(filepath, fs_vol) {
 
 #' @title Compute quaternion representation of a rotation from a 4x4 rotation matrix.
 #'
-#' @param m the input 4x4 matrix encoding the rotation, with homogeneous column [0,0,0,1].
+#' @param m the input 4x4 matrix encoding the rotation, with homogeneous column `[0,0,0,1]`.
 #'
 #' @return numeric vector of length 4, the quaternion representation (qw, qx, qy, qz).
 #'
