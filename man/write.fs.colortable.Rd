@@ -15,19 +15,19 @@ write.fs.colortable(filepath, colortable)
 the written dataframe, invisible. Note that this is will contain a column named 'struct_index', no matter whether the input colortable contained it or not.
 }
 \description{
-Write the colortable to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is `FREESURFER_HOME/FreeSurferColorLUT.txt`.
+Write the colortable to a text file in FreeSurfer ASCII colortable lookup table (LUT) format. An example file is \code{FREESURFER_HOME/FreeSurferColorLUT.txt}.
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.annot.gii}()}
+Other atlas functions:
+\code{\link[=colortable.from.annot]{colortable.from.annot()}},
+\code{\link[=read.fs.annot]{read.fs.annot()}},
+\code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.fs.annot]{write.fs.annot()}},
+\code{\link[=write.fs.annot.gii]{write.fs.annot.gii()}}
 
-Other colorLUT functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.colortable}()}
+Other colorLUT functions:
+\code{\link[=colortable.from.annot]{colortable.from.annot()}},
+\code{\link[=read.fs.colortable]{read.fs.colortable()}}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}

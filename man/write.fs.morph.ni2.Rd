@@ -25,29 +25,29 @@ Not many software packages support NIFTI v2 format. If possible with your data, 
 \seealso{
 \code{\link{nifti.file.version}} can be used to check whether a file is NIFTI v1 or v2 file.
 
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.volume}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.morph.asc}()},
-\code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.morph.ni1}()},
-\code{\link{write.fs.morph.smp}()},
-\code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.weight}()},
-\code{\link{write.fs.weight.asc}()}
+Other morphometry functions:
+\code{\link[=fs.get.morph.file.ext.for.format]{fs.get.morph.file.ext.for.format()}},
+\code{\link[=fs.get.morph.file.format.from.filename]{fs.get.morph.file.format.from.filename()}},
+\code{\link[=read.fs.curv]{read.fs.curv()}},
+\code{\link[=read.fs.mgh]{read.fs.mgh()}},
+\code{\link[=read.fs.morph]{read.fs.morph()}},
+\code{\link[=read.fs.morph.gii]{read.fs.morph.gii()}},
+\code{\link[=read.fs.volume]{read.fs.volume()}},
+\code{\link[=read.fs.weight]{read.fs.weight()}},
+\code{\link[=write.fs.curv]{write.fs.curv()}},
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.mgh]{write.fs.mgh()}},
+\code{\link[=write.fs.morph]{write.fs.morph()}},
+\code{\link[=write.fs.morph.asc]{write.fs.morph.asc()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}},
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}},
+\code{\link[=write.fs.morph.smp]{write.fs.morph.smp()}},
+\code{\link[=write.fs.morph.txt]{write.fs.morph.txt()}},
+\code{\link[=write.fs.weight]{write.fs.weight()}},
+\code{\link[=write.fs.weight.asc]{write.fs.weight.asc()}}
 
-Other nifti2 writers: 
-\code{\link{write.nifti2}()}
+Other nifti2 writers:
+\code{\link[=write.nifti2]{write.nifti2()}}
 }
 \concept{morphometry functions}
 \concept{nifti2 writers}

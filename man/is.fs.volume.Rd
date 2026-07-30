@@ -7,7 +7,7 @@
 is.fs.volume(x)
 }
 \arguments{
-\item{x}{any `R` object}
+\item{x}{any \code{R} object}
 }
 \value{
 TRUE if its argument is a brain volume (that is, has "fs.volume" amongst its classes) and FALSE otherwise.

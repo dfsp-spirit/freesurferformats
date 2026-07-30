@@ -20,7 +20,7 @@ a 3D image volume, rotated around the axis. The dimensions may or may not be dif
 Rotate a 3D array in 90 degree steps along an axis. This leads to an array with different dimensions.
 }
 \seealso{
-Other volume math: 
-\code{\link{flip3D}()}
+Other volume math:
+\code{\link[=flip3D]{flip3D()}}
 }
 \concept{volume math}

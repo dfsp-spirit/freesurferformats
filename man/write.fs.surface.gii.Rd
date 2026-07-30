@@ -21,42 +21,42 @@ Write vertex coordinates and vertex indices defining faces to a file in GIFTI su
 }
 \examples{
 \dontrun{
-    # Read a surface from a file:
-    surface_file = system.file("extdata", "lh.tinysurface",
-     package = "freesurferformats", mustWork = TRUE);
-    mesh = read.fs.surface(surface_file);
-
-    # Now save it:
-    write.fs.surface.gii(tempfile(fileext=".gii"), mesh$vertices, mesh$faces);
+# Read a surface from a file:
+surface_file <- system.file("extdata", "lh.tinysurface",
+  package = "freesurferformats", mustWork = TRUE
+)
+mesh <- read.fs.surface(surface_file)
+# Now save it:
+write.fs.surface.gii(tempfile(fileext = ".gii"), mesh$vertices, mesh$faces)
 }
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{faces.quad.to.tris}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.bvsrf}()},
-\code{\link{read.fs.surface.geo}()},
-\code{\link{read.fs.surface.gii}()},
-\code{\link{read.fs.surface.ico}()},
-\code{\link{read.fs.surface.obj}()},
-\code{\link{read.fs.surface.off}()},
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.byu}()},
-\code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()}
+Other mesh functions:
+\code{\link[=faces.quad.to.tris]{faces.quad.to.tris()}},
+\code{\link[=read.fs.surface]{read.fs.surface()}},
+\code{\link[=read.fs.surface.asc]{read.fs.surface.asc()}},
+\code{\link[=read.fs.surface.bvsrf]{read.fs.surface.bvsrf()}},
+\code{\link[=read.fs.surface.geo]{read.fs.surface.geo()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}},
+\code{\link[=read.fs.surface.ico]{read.fs.surface.ico()}},
+\code{\link[=read.fs.surface.obj]{read.fs.surface.obj()}},
+\code{\link[=read.fs.surface.off]{read.fs.surface.off()}},
+\code{\link[=read.fs.surface.ply]{read.fs.surface.ply()}},
+\code{\link[=read.fs.surface.vtk]{read.fs.surface.vtk()}},
+\code{\link[=read.mesh.brainvoyager]{read.mesh.brainvoyager()}},
+\code{\link[=read_nisurface]{read_nisurface()}},
+\code{\link[=read_nisurfacefile]{read_nisurfacefile()}},
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.asc]{write.fs.surface.asc()}},
+\code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
+\code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 
-Other gifti writers: 
-\code{\link{write.fs.annot.gii}()},
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.morph.gii}()}
+Other gifti writers:
+\code{\link[=write.fs.annot.gii]{write.fs.annot.gii()}},
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}}
 }
 \concept{gifti writers}
 \concept{mesh functions}

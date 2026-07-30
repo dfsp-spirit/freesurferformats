@@ -18,8 +18,8 @@ double vector of distances
 Compute Euclidean distance from all mesh vertices to given point.
 }
 \seealso{
-Other Euclidean distance util functions: 
-\code{\link{closest.vert.to.point}()},
-\code{\link{vertex.euclid.dist}()}
+Other Euclidean distance util functions:
+\code{\link[=closest.vert.to.point]{closest.vert.to.point()}},
+\code{\link[=vertex.euclid.dist]{vertex.euclid.dist()}}
 }
 \concept{Euclidean distance util functions}

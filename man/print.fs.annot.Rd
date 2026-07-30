@@ -7,7 +7,7 @@
 \method{print}{fs.annot}(x, ...)
 }
 \arguments{
-\item{x}{brain surface annotation or atlas with class `fs.annot`.}
+\item{x}{brain surface annotation or atlas with class \code{fs.annot}.}
 
 \item{...}{further arguments passed to or from other methods}
 }

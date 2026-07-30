@@ -10,7 +10,7 @@ read.fs.surface.mz3(filepath)
 \item{filepath}{full path to surface mesh file in mz3 format.}
 }
 \value{
-an `fs.surface` instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
+an \code{fs.surface} instance. If the mz3 file contained RGBA per-vertex colors or scalar per-vertex data, these are available in the 'metadata' property.
 }
 \description{
 The mz3 format is a binary file format that can store a mesh (vertices and faces), and optionally per-vertex colors or scalars.

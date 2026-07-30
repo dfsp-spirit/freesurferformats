@@ -20,14 +20,15 @@ Read a label file.
 See \code{\link{read.fs.label.native}} for more details, including important information on loading FreeSurfer volume labels.
 }
 \examples{
-    labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-      package = "freesurferformats", mustWork = TRUE);
-    label = read.fs.label(labelfile);
+labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+  package = "freesurferformats", mustWork = TRUE
+)
+label <- read.fs.label(labelfile)
 }
 \seealso{
-Other label functions: 
-\code{\link{read.fs.label.gii}()},
-\code{\link{read.fs.label.native}()},
-\code{\link{write.fs.label}()}
+Other label functions:
+\code{\link[=read.fs.label.gii]{read.fs.label.gii()}},
+\code{\link[=read.fs.label.native]{read.fs.label.native()}},
+\code{\link[=write.fs.label]{write.fs.label()}}
 }
 \concept{label functions}

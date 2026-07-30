@@ -16,8 +16,8 @@ bvsmp instance, can be used to write Brainvoyager SMP format morphometry files u
 Create new bvsmp instance encoding morph data for Brainvoyager.
 }
 \examples{
-   morph_data = rnorm(100L, 3.0, 1.0);
-   mybvsmp = bvsmp(morph_data);
-   mybvsmp$smp_version;
+morph_data <- rnorm(100L, 3.0, 1.0)
+mybvsmp <- bvsmp(morph_data)
+mybvsmp$smp_version
 
 }

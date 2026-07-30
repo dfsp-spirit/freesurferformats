@@ -10,9 +10,9 @@ read.fs.weight.asc(filepath)
 \item{filepath}{string. Full path to the input weight file, must be in ASCII weight format.}
 }
 \value{
-the indices and weight data, as a named list. Entries: "vertex_indices": vector of *n* vertex indices. They are stored zero-based in the file, but are returned one-based (R-style). "value": double vector of length *n*, the morphometry data for the vertices. The data can be whatever you want.
+the indices and weight data, as a named list. Entries: "vertex_indices": vector of \emph{n} vertex indices. They are stored zero-based in the file, but are returned one-based (R-style). "value": double vector of length \emph{n}, the morphometry data for the vertices. The data can be whatever you want.
 }
 \description{
-Read ASCII version of FreeSurfer weight file. Called by \code{\link[freesurferformats]{read.fs.weight}} if parameter `format` is set to 'asc'.
+Read ASCII version of FreeSurfer weight file. Called by \code{\link[freesurferformats]{read.fs.weight}} if parameter \code{format} is set to 'asc'.
 }
 \keyword{internal}

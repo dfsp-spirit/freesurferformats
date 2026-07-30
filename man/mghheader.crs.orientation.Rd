@@ -10,7 +10,7 @@ mghheader.crs.orientation(header)
 \item{header}{Header of the mgh datastructure, as returned by \code{\link[freesurferformats]{read.fs.mgh}}.}
 }
 \value{
-character string of length 3, one uppercase letter per axis. Each of the three position is a letter from the alphabet: `LRISAP?`. The meaning is `L` for left, `R` for right, `I` for inferior, `S` for superior, `P` for posterior, `A` for anterior. If the direction cannot be computed, all three characters are `?` for unknown. Of course, each axis (`L/R`, `I/S`, `A/P`) is only represented once in the string.
+character string of length 3, one uppercase letter per axis. Each of the three position is a letter from the alphabet: \verb{LRISAP?}. The meaning is \code{L} for left, \code{R} for right, \code{I} for inferior, \code{S} for superior, \code{P} for posterior, \code{A} for anterior. If the direction cannot be computed, all three characters are \verb{?} for unknown. Of course, each axis (\code{L/R}, \code{I/S}, \code{A/P}) is only represented once in the string.
 }
 \description{
 Compute MGH volume orientation string.

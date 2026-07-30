@@ -16,26 +16,27 @@ mghheader.scanner2tkreg(header)
 This is also known as the 'scanner2tkreg' matrix. Note that this is a RAS-to-RAS matrix. It is the inverse of the 'tkreg2scanner' matrix, see \code{\link[freesurferformats]{mghheader.tkreg2scanner}}.
 }
 \examples{
-    brain_image = system.file("extdata", "brain.mgz",
-                               package = "freesurferformats",
-                               mustWork = TRUE);
-    vdh = read.fs.mgh(brain_image, with_header = TRUE);
-    mghheader.scanner2tkreg(vdh$header);
+brain_image <- system.file("extdata", "brain.mgz",
+  package = "freesurferformats",
+  mustWork = TRUE
+)
+vdh <- read.fs.mgh(brain_image, with_header = TRUE)
+mghheader.scanner2tkreg(vdh$header)
 
 }
 \seealso{
-Other header coordinate space: 
-\code{\link{mghheader.is.ras.valid}()},
-\code{\link{mghheader.ras2vox}()},
-\code{\link{mghheader.ras2vox.tkreg}()},
-\code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{read.fs.transform}()},
-\code{\link{read.fs.transform.dat}()},
-\code{\link{read.fs.transform.lta}()},
-\code{\link{read.fs.transform.xfm}()},
-\code{\link{sm0to1}()},
-\code{\link{sm1to0}()}
+Other header coordinate space:
+\code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
+\code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
+\code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
+\code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
+\code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
+\code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=read.fs.transform]{read.fs.transform()}},
+\code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
+\code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
+\code{\link[=sm0to1]{sm0to1()}},
+\code{\link[=sm1to0]{sm1to0()}}
 }
 \concept{header coordinate space}

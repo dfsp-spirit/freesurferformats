@@ -10,7 +10,7 @@ translate.mri.dtype(dtype)
 \item{dtype}{character string (one of c('MRI_FLOAT') or integer, one of c(0L, 1L, 3L, 4L). Numeric values will be converted to integer.}
 }
 \value{
-if `dtype` is a character string, the respective integer code. If it is numeric, the respective character string.
+if \code{dtype} is a character string, the respective integer code. If it is numeric, the respective character string.
 }
 \description{
 Translate between code and name of MRI data types.

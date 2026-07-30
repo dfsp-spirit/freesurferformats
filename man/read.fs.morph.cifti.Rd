@@ -18,7 +18,7 @@ read.fs.morph.cifti(
 \item{data_column}{integer, the data column to return. A CIFTI file can contain several measures in different data columns (e.g., cortical thickness and surface area) in a single file. This specifies which column/measure you want. The columns are not named, so you will need to know this in advance if the file has several measures.}
 }
 \value{
-The reconstructed data for the given surface, one value per vertex in the surface. The value for vertices which did not have a value in the CIFTI data is set to `NA`.
+The reconstructed data for the given surface, one value per vertex in the surface. The value for vertices which did not have a value in the CIFTI data is set to \code{NA}.
 }
 \description{
 Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, based on the metadata like vertex counts, indices and offset in the CIFTI file.
@@ -29,17 +29,25 @@ This function calls code from the 'cifti' package by John Muschelli: \url{https:
 \examples{
 \dontrun{
 # Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
-cifti_example_data_dir = "~/data/cifti";
-cii_file = file.path(cifti_example_data_dir,
- "Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii");
-sf_lh = freesurferformats::read.fs.surface(file.path(cifti_example_data_dir,
- "Conte69.L.inflated.32k_fs_LR.surf.gii"));
-sf_rh = freesurferformats::read.fs.surface(file.path(cifti_example_data_dir,
-"Conte69.R.inflated.32k_fs_LR.surf.gii"));
-morph_lh = read.fs.morph.cifti(cii_file, 'lh'); # Myelin data
-morph_rh = read.fs.morph.cifti(cii_file, 'rh');
-morph2_lh = read.fs.morph.cifti(cii_file, 'lh', 2); # Cortical Thickness data
-morph2_rh = read.fs.morph.cifti(cii_file, 'rh', 2L);
+cifti_example_data_dir <- "~/data/cifti"
+cii_file <- file.path(
+  cifti_example_data_dir,
+  "Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii"
+)
+sf_lh <- freesurferformats::read.fs.surface(file.path(
+  cifti_example_data_dir,
+  "Conte69.L.inflated.32k_fs_LR.surf.gii"
+))
+sf_rh <- freesurferformats::read.fs.surface(file.path(
+  cifti_example_data_dir,
+  "Conte69.R.inflated.32k_fs_LR.surf.gii"
+))
+morph_lh <- read.fs.morph.cifti(cii_file, "lh")
+# Myelin data
+morph_rh <- read.fs.morph.cifti(cii_file, "rh")
+morph2_lh <- read.fs.morph.cifti(cii_file, "lh", 2)
+# Cortical Thickness data
+morph2_rh <- read.fs.morph.cifti(cii_file, "rh", 2L)
 # fsbrain::vis.fs.surface(sf_lh, per_vertex_data = morph_lh);
 # fsbrain::vis.fs.surface(sf_rh, per_vertex_data = morph_rh);
 # fsbrain::vis.fs.surface(list('lh'=sf_lh, 'rh'=sf_rh),

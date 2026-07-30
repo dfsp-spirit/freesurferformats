@@ -9,7 +9,7 @@ read.nifti2.data(filepath, header = NULL, drop_empty_dims = TRUE)
 \arguments{
 \item{filepath}{path to a NIFTI v2 file.}
 
-\item{header}{optional nifti v2 header obtained from \code{\link{read.nifti2.header}}. Will be loaded automatically if left at `NULL`.}
+\item{header}{optional nifti v2 header obtained from \code{\link{read.nifti2.header}}. Will be loaded automatically if left at \code{NULL}.}
 
 \item{drop_empty_dims}{logical, whether to drop empty dimensions in the loaded data array.}
 }

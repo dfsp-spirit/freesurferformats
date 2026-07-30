@@ -7,7 +7,7 @@
 \method{print}{fs.volume}(x, ...)
 }
 \arguments{
-\item{x}{brain volume with class `fs.volume`.}
+\item{x}{brain volume with class \code{fs.volume}.}
 
 \item{...}{further arguments passed to or from other methods}
 }

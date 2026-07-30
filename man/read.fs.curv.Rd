@@ -18,36 +18,39 @@ data vector of floats. The brain morphometry data, one value per vertex.
 }
 \description{
 Read vertex-wise brain morphometry data from a file in FreeSurfer 'curv' format. Both the binary and ASCII versions are supported.
-   For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
+For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.thickness', which contains n values. Each value represents the cortical thickness at the respective vertex in the brain surface mesh of bert.
 }
 \examples{
-    curvfile = system.file("extdata", "lh.thickness",
-                            package = "freesurferformats", mustWork = TRUE);
-    ct = read.fs.curv(curvfile);
-    cat(sprintf("Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\n",
-                            length(ct), min(ct), mean(ct), max(ct)));
+curvfile <- system.file("extdata", "lh.thickness",
+  package = "freesurferformats", mustWork = TRUE
+)
+ct <- read.fs.curv(curvfile)
+cat(sprintf(
+  "Read data for \%d vertices. Values: min=\%f, mean=\%f, max=\%f.\n",
+  length(ct), min(ct), mean(ct), max(ct)
+))
 
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.volume}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.morph.asc}()},
-\code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.morph.ni1}()},
-\code{\link{write.fs.morph.ni2}()},
-\code{\link{write.fs.morph.smp}()},
-\code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.weight}()},
-\code{\link{write.fs.weight.asc}()}
+Other morphometry functions:
+\code{\link[=fs.get.morph.file.ext.for.format]{fs.get.morph.file.ext.for.format()}},
+\code{\link[=fs.get.morph.file.format.from.filename]{fs.get.morph.file.format.from.filename()}},
+\code{\link[=read.fs.mgh]{read.fs.mgh()}},
+\code{\link[=read.fs.morph]{read.fs.morph()}},
+\code{\link[=read.fs.morph.gii]{read.fs.morph.gii()}},
+\code{\link[=read.fs.volume]{read.fs.volume()}},
+\code{\link[=read.fs.weight]{read.fs.weight()}},
+\code{\link[=write.fs.curv]{write.fs.curv()}},
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.mgh]{write.fs.mgh()}},
+\code{\link[=write.fs.morph]{write.fs.morph()}},
+\code{\link[=write.fs.morph.asc]{write.fs.morph.asc()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}},
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}},
+\code{\link[=write.fs.morph.ni2]{write.fs.morph.ni2()}},
+\code{\link[=write.fs.morph.smp]{write.fs.morph.smp()}},
+\code{\link[=write.fs.morph.txt]{write.fs.morph.txt()}},
+\code{\link[=write.fs.weight]{write.fs.weight()}},
+\code{\link[=write.fs.weight.asc]{write.fs.weight.asc()}}
 }
 \concept{morphometry functions}

@@ -15,39 +15,39 @@ write.fs.label(
 \arguments{
 \item{filepath}{string. Full path to the output label file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
 
-\item{vertex_indices}{instance of class `fs.label` or an integer vector, the label. The vertex indices included in the label. As returned by \code{\link[freesurferformats]{read.fs.label}}.}
+\item{vertex_indices}{instance of class \code{fs.label} or an integer vector, the label. The vertex indices included in the label. As returned by \code{\link[freesurferformats]{read.fs.label}}.}
 
-\item{vertex_coords}{an *n* x 3 float matrix of vertex coordinates, where *n* is the number of 'vertex_indices'. Optional, defaults to NULL, which will write placeholder data. The vertex coordinates are not used by any software I know (you should get them from the surface file). Will be used from `fs.label` instance if given.}
+\item{vertex_coords}{an \emph{n} x 3 float matrix of vertex coordinates, where \emph{n} is the number of 'vertex_indices'. Optional, defaults to NULL, which will write placeholder data. The vertex coordinates are not used by any software I know (you should get them from the surface file). Will be used from \code{fs.label} instance if given.}
 
-\item{vertex_data}{a numerical vector of length *n*, where *n* is the number of 'vertex_indices'. Optional, defaults to NULL, which will write placeholder data. The vertex data are not used by any software I know (you should get them from a morphometry file). Will be used from `fs.label` instance if given.}
+\item{vertex_data}{a numerical vector of length \emph{n}, where \emph{n} is the number of 'vertex_indices'. Optional, defaults to NULL, which will write placeholder data. The vertex data are not used by any software I know (you should get them from a morphometry file). Will be used from \code{fs.label} instance if given.}
 
-\item{indices_are_one_based}{logical, whether the given indices are one-based, as is standard in R. Indices are stored zero-based in label files, so if this is TRUE, all indices will be incremented by one before writing them to the file. Defaults to TRUE. If FALSE, it is assumed that they are zero-based and they are written to the file as-is.  Will be used from `fs.label` instance if given.}
+\item{indices_are_one_based}{logical, whether the given indices are one-based, as is standard in R. Indices are stored zero-based in label files, so if this is TRUE, all indices will be incremented by one before writing them to the file. Defaults to TRUE. If FALSE, it is assumed that they are zero-based and they are written to the file as-is.  Will be used from \code{fs.label} instance if given.}
 }
 \value{
 dataframe, the dataframe that was written to the file (after the header lines).
 }
 \description{
 Write vertex coordinates and vertex indices defining faces to a file in FreeSurfer binary surface format.
-   For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.cortex'.
+For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.cortex'.
 }
 \examples{
 \dontrun{
-    # Write a simple label containing only vertex indices:
-    label_vertices = c(1,2,3,4,5,1000,2000,2323,34,34545,42);
-    write.fs.label(tempfile(fileext=".label"), label_vertices);
-
-    # Load a full label, write it back to a file:
-    labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-     package = "freesurferformats", mustWork = TRUE);
-    label = read.fs.label(labelfile, full=TRUE);
-    write.fs.label(tempfile(fileext=".label"), label);
+# Write a simple label containing only vertex indices:
+label_vertices <- c(1, 2, 3, 4, 5, 1000, 2000, 2323, 34, 34545, 42)
+write.fs.label(tempfile(fileext = ".label"), label_vertices)
+# Load a full label, write it back to a file:
+labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+  package = "freesurferformats", mustWork = TRUE
+)
+label <- read.fs.label(labelfile, full = TRUE)
+write.fs.label(tempfile(fileext = ".label"), label)
 }
 
 }
 \seealso{
-Other label functions: 
-\code{\link{read.fs.label}()},
-\code{\link{read.fs.label.gii}()},
-\code{\link{read.fs.label.native}()}
+Other label functions:
+\code{\link[=read.fs.label]{read.fs.label()}},
+\code{\link[=read.fs.label.gii]{read.fs.label.gii()}},
+\code{\link[=read.fs.label.native]{read.fs.label.native()}}
 }
 \concept{label functions}

@@ -17,8 +17,8 @@ Read DTI tracking data from file in MRtrix 'TCK' format.
 }
 \examples{
 \dontrun{
- tckf = "~/simple.tck"
- tck = read.dti.tck(tckf)
+tckf <- "~/simple.tck"
+tck <- read.dti.tck(tckf)
 }
 
 }

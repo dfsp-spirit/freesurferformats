@@ -20,13 +20,14 @@ Currently only SMP file versions 1 to 5 are supported, as these are the only one
 }
 \examples{
 \dontrun{
- # Surface mesh, requires BV demo dataset from website:
- sf = read.fs.surface.bvsrf("~/data/BrainTutorData/CG_LHRH_D65534.srf");
- # Surface map of cortical thickness. Needs to be created in BV.
- smp_file = "~/data/BrainTutorData/CG_LHRH_D65534_Thickness.smp";
- smp = read.smp.brainvoyager(smp_file);
- smp_data = read.fs.morph.bvsmp(smp); # could also pass smp_file.
- fsbrain::vis.fs.surface(sf, per_vertex_data = smp_data);
+# Surface mesh, requires BV demo dataset from website:
+sf <- read.fs.surface.bvsrf("~/data/BrainTutorData/CG_LHRH_D65534.srf")
+# Surface map of cortical thickness. Needs to be created in BV.
+smp_file <- "~/data/BrainTutorData/CG_LHRH_D65534_Thickness.smp"
+smp <- read.smp.brainvoyager(smp_file)
+smp_data <- read.fs.morph.bvsmp(smp)
+# could also pass smp_file.
+fsbrain::vis.fs.surface(sf, per_vertex_data = smp_data)
 }
 
 }

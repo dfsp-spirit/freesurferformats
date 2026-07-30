@@ -11,44 +11,46 @@ read_nisurface(filepath_noext, extensions = c("", ".asc", ".gii"), ...)
 
 \item{extensions}{vector of character strings, the file extensions to try.}
 
-\item{...}{parameters passed on to \code{\link[freesurferformats]{read_nisurfacefile}}. Allows you to set the `methods`.}
+\item{...}{parameters passed on to \code{\link[freesurferformats]{read_nisurfacefile}}. Allows you to set the \code{methods}.}
 }
 \value{
-an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
+an instance of \code{fs.surface}, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 }
 \description{
 Tries to read all files which can be constructed from the base path and the given extensions.
 }
 \examples{
 \dontrun{
-    surface_filepath_noext =
-     paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
-     'lh.white', sep="");
-    mesh = read_nisurface(surface_filepath_noext);
-    mesh;
- }
+surface_filepath_noext <-
+  paste(get_optional_data_filepath("subjects_dir/subject1/surf/"),
+    "lh.white",
+    sep = ""
+  )
+mesh <- read_nisurface(surface_filepath_noext)
+mesh
+}
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{faces.quad.to.tris}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.bvsrf}()},
-\code{\link{read.fs.surface.geo}()},
-\code{\link{read.fs.surface.gii}()},
-\code{\link{read.fs.surface.ico}()},
-\code{\link{read.fs.surface.obj}()},
-\code{\link{read.fs.surface.off}()},
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.byu}()},
-\code{\link{write.fs.surface.gii}()},
-\code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()}
+Other mesh functions:
+\code{\link[=faces.quad.to.tris]{faces.quad.to.tris()}},
+\code{\link[=read.fs.surface]{read.fs.surface()}},
+\code{\link[=read.fs.surface.asc]{read.fs.surface.asc()}},
+\code{\link[=read.fs.surface.bvsrf]{read.fs.surface.bvsrf()}},
+\code{\link[=read.fs.surface.geo]{read.fs.surface.geo()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}},
+\code{\link[=read.fs.surface.ico]{read.fs.surface.ico()}},
+\code{\link[=read.fs.surface.obj]{read.fs.surface.obj()}},
+\code{\link[=read.fs.surface.off]{read.fs.surface.off()}},
+\code{\link[=read.fs.surface.ply]{read.fs.surface.ply()}},
+\code{\link[=read.fs.surface.vtk]{read.fs.surface.vtk()}},
+\code{\link[=read.mesh.brainvoyager]{read.mesh.brainvoyager()}},
+\code{\link[=read_nisurfacefile]{read_nisurfacefile()}},
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.asc]{write.fs.surface.asc()}},
+\code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
+\code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}},
+\code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 }
 \concept{mesh functions}

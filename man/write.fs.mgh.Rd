@@ -17,35 +17,35 @@ write.fs.mgh(
 
 \item{data}{matrix or array of numerical values. The brain data to write. Must be integers or doubles. (The data type is set automatically to MRI_INT for integers and MRI_FLOAT for doubles in the MGH header).}
 
-\item{vox2ras_matrix}{4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*[i1 i2 i3 1]. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.}
+\item{vox2ras_matrix}{4x4 matrix. An affine transformation matrix for the RAS transform that maps voxel indices in the volume to coordinates, such that for y(i1,i2,i3) (i.e., a voxel defined by 3 indices in the volume), the xyz coordinates are vox2ras_matrix*\link{i1 i2 i3 1}. If no matrix is given (or a NULL value), the ras_good flag will be 0 in the file. Defaults to NULL.}
 
 \item{mr_params}{double vector of length four (without fov) or five. The acquisition parameters, in order: tr, flipangle, te, ti, fov. Spelled out: repetition time, flip angle, echo time, inversion time, field-of-view. The unit for the three times is ms, the angle unit is radians. Defaults to c(0., 0., 0., 0., 0.) if omitted. Pass NULL if you do not want to write them at all.}
 
-\item{mri_dtype}{character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte signed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value `auto` will determine the data type from the type of the `data` parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.}
+\item{mri_dtype}{character string representing an MRI data type code or 'auto'. Valid strings are 'MRI_UCHAR' (1 byte unsigned integer), 'MRI_SHORT' (2 byte signed integer), 'MRI_INT' (4 byte signed integer) and 'MRI_FLOAT' (4 byte signed floating point). The default value \code{auto} will determine the data type from the type of the \code{data} parameter. It will use MRI_INT for integers, so you may be able to save space by manually settings the dtype if the range of your data does not require that. WARNING: If manually specified, no sanitation of any kind is performed. Leave this alone if in doubt.}
 }
 \description{
 Write brain data to a file in FreeSurfer binary MGH or MGZ format.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.volume}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.morph.asc}()},
-\code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.morph.ni1}()},
-\code{\link{write.fs.morph.ni2}()},
-\code{\link{write.fs.morph.smp}()},
-\code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.weight}()},
-\code{\link{write.fs.weight.asc}()}
+Other morphometry functions:
+\code{\link[=fs.get.morph.file.ext.for.format]{fs.get.morph.file.ext.for.format()}},
+\code{\link[=fs.get.morph.file.format.from.filename]{fs.get.morph.file.format.from.filename()}},
+\code{\link[=read.fs.curv]{read.fs.curv()}},
+\code{\link[=read.fs.mgh]{read.fs.mgh()}},
+\code{\link[=read.fs.morph]{read.fs.morph()}},
+\code{\link[=read.fs.morph.gii]{read.fs.morph.gii()}},
+\code{\link[=read.fs.volume]{read.fs.volume()}},
+\code{\link[=read.fs.weight]{read.fs.weight()}},
+\code{\link[=write.fs.curv]{write.fs.curv()}},
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.morph]{write.fs.morph()}},
+\code{\link[=write.fs.morph.asc]{write.fs.morph.asc()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}},
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}},
+\code{\link[=write.fs.morph.ni2]{write.fs.morph.ni2()}},
+\code{\link[=write.fs.morph.smp]{write.fs.morph.smp()}},
+\code{\link[=write.fs.morph.txt]{write.fs.morph.txt()}},
+\code{\link[=write.fs.weight]{write.fs.weight()}},
+\code{\link[=write.fs.weight.asc]{write.fs.weight.asc()}}
 }
 \concept{morphometry functions}

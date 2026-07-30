@@ -13,7 +13,7 @@ write.fs.surface.ply(filepath, vertex_coords, faces, vertex_colors = NULL)
 
 \item{faces}{m x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
 
-\item{vertex_colors}{optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255. Alternatively, a vector of *n* RGB color strings can be passed.}
+\item{vertex_colors}{optional, matrix of RGBA vertex colors, number of rows must be the same as for vertex_coords. Color values must be integers in range 0-255. Alternatively, a vector of \emph{n} RGB color strings can be passed.}
 }
 \value{
 string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
@@ -23,18 +23,19 @@ The PLY format is a versatile ASCII format for storing meshes. Also known as Pol
 }
 \examples{
 \dontrun{
-    # Read a surface from a file:
-    surface_file = system.file("extdata", "lh.tinysurface",
-     package = "freesurferformats", mustWork = TRUE);
-    mesh = read.fs.surface(surface_file);
-
-    # Now save it:
-    write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices, mesh$faces);
-
-    # save a version with RGBA vertex colors
-    vertex_colors = matrix(rep(82L, 5*4), ncol=4);
-    write.fs.surface.ply(tempfile(fileext=".ply"), mesh$vertices,
-     mesh$faces, vertex_colors=vertex_colors);
+# Read a surface from a file:
+surface_file <- system.file("extdata", "lh.tinysurface",
+  package = "freesurferformats", mustWork = TRUE
+)
+mesh <- read.fs.surface(surface_file)
+# Now save it:
+write.fs.surface.ply(tempfile(fileext = ".ply"), mesh$vertices, mesh$faces)
+# save a version with RGBA vertex colors
+vertex_colors <- matrix(rep(82L, 5 * 4), ncol = 4)
+write.fs.surface.ply(tempfile(fileext = ".ply"), mesh$vertices,
+  mesh$faces,
+  vertex_colors = vertex_colors
+)
 }
 
 }
@@ -42,11 +43,11 @@ The PLY format is a versatile ASCII format for storing meshes. Also known as Pol
 See http://paulbourke.net/dataformats/ply/ for the PLY format spec.
 }
 \seealso{
-Other mesh export functions: 
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.obj}()},
-\code{\link{write.fs.surface.off}()},
-\code{\link{write.fs.surface.off.ply2}()},
-\code{\link{write.fs.surface.ply2}()}
+Other mesh export functions:
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.obj]{write.fs.surface.obj()}},
+\code{\link[=write.fs.surface.off]{write.fs.surface.off()}},
+\code{\link[=write.fs.surface.off.ply2]{write.fs.surface.off.ply2()}},
+\code{\link[=write.fs.surface.ply2]{write.fs.surface.ply2()}}
 }
 \concept{mesh export functions}

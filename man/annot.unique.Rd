@@ -17,9 +17,9 @@ annot.unique(
 
 \item{add_to_region_indices}{integer, a single value to add to the region indices. This is typically equal to the number of regions in the left hemisphere plus one (e.g., 36+1=37 for the 'aparc' atlas), as the region indices typically start at 0 and are consecutive, but you may want to check the maximal region id of the left hemi is in doubt. Pass \code{0} to leave the IDs intact.}
 
-\item{region_name_prefix}{character string, a prefix to modify the region names to make them unique. Pass `NULL` if you do not want a prefix.}
+\item{region_name_prefix}{character string, a prefix to modify the region names to make them unique. Pass \code{NULL} if you do not want a prefix.}
 
-\item{region_name_suffix}{character string, a suffix to modify the region names to make them unique.  Pass `NULL` if you do not want a suffix.}
+\item{region_name_suffix}{character string, a suffix to modify the region names to make them unique.  Pass \code{NULL} if you do not want a suffix.}
 
 \item{set_first_idx_zero}{logical, whether to apply special treatment to first region (the 'unknown' region) in annot and set its ID to \code{0}.}
 }
@@ -31,10 +31,11 @@ This function is not part of the official API and should not be used. It is curr
 }
 \examples{
 \dontrun{
-lh_annot = read.fs.annot("~/data/study1/subject1/label/lh.aparc.annot");
-lh_annot; # shows info including region IDs
-rh_annot = read.fs.annot("~/data/study1/subject1/label/rh.aparc.annot");
-rh_annot_mod = annot.unique(rh_annot, annot.max.region.idx(lh_annot)+1L, region_name_prefix='rh_');
+lh_annot <- read.fs.annot("~/data/study1/subject1/label/lh.aparc.annot")
+lh_annot
+# shows info including region IDs
+rh_annot <- read.fs.annot("~/data/study1/subject1/label/rh.aparc.annot")
+rh_annot_mod <- annot.unique(rh_annot, annot.max.region.idx(lh_annot) + 1L, region_name_prefix = "rh_")
 }
 
 }

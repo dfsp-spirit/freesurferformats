@@ -7,7 +7,7 @@
 \method{print}{fs.surface}(x, ...)
 }
 \arguments{
-\item{x}{brain surface with class `fs.surface`.}
+\item{x}{brain surface with class \code{fs.surface}.}
 
 \item{...}{further arguments passed to or from other methods}
 }

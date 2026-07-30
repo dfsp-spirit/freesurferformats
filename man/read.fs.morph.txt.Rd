@@ -7,7 +7,7 @@
 read.fs.morph.txt(filepath)
 }
 \arguments{
-\item{filepath}{path to a file in plain text format. Such a file contains, on each line, a single float value. This very simply and limited *format* is used by the LGI tool by Lyu et al., and easy to generate in shell scripts.}
+\item{filepath}{path to a file in plain text format. Such a file contains, on each line, a single float value. This very simply and limited \emph{format} is used by the LGI tool by Lyu et al., and easy to generate in shell scripts.}
 }
 \value{
 numeric vector, the curv data

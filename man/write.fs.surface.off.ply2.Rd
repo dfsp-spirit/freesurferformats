@@ -26,23 +26,23 @@ Do not confuse the OFF format (.off) with the Wavefront object file format (.obj
 }
 \examples{
 \dontrun{
-    # Read a surface from a file:
-    surface_file = system.file("extdata", "lh.tinysurface",
-     package = "freesurferformats", mustWork = TRUE);
-    mesh = read.fs.surface(surface_file);
-
-    # Now save it:
-    write.fs.surface.off(tempfile(fileext=".off"), mesh$vertices, mesh$faces);
+# Read a surface from a file:
+surface_file <- system.file("extdata", "lh.tinysurface",
+  package = "freesurferformats", mustWork = TRUE
+)
+mesh <- read.fs.surface(surface_file)
+# Now save it:
+write.fs.surface.off(tempfile(fileext = ".off"), mesh$vertices, mesh$faces)
 }
 
 }
 \seealso{
-Other mesh export functions: 
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.obj}()},
-\code{\link{write.fs.surface.off}()},
-\code{\link{write.fs.surface.ply}()},
-\code{\link{write.fs.surface.ply2}()}
+Other mesh export functions:
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.obj]{write.fs.surface.obj()}},
+\code{\link[=write.fs.surface.off]{write.fs.surface.off()}},
+\code{\link[=write.fs.surface.ply]{write.fs.surface.ply()}},
+\code{\link[=write.fs.surface.ply2]{write.fs.surface.ply2()}}
 }
 \concept{mesh export functions}
 \keyword{internal}

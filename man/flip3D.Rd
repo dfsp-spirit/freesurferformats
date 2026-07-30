@@ -11,7 +11,7 @@ flip3D(volume, axis = 1L, how = "horizontally")
 
 \item{axis}{positive integer in range 1L..3L or an axis name, the axis to use.}
 
-\item{how}{character string, one of 'horizontally' / 'h' or 'vertically' / 'v'. How to flip the 2D slices. Note that flipping *horizontally* means that the image will be mirrored along the central *vertical* axis.}
+\item{how}{character string, one of 'horizontally' / 'h' or 'vertically' / 'v'. How to flip the 2D slices. Note that flipping \emph{horizontally} means that the image will be mirrored along the central \emph{vertical} axis.}
 }
 \value{
 a 3D image volume, flipped around the axis. The dimensions are identical to the dimensions of the input image.
@@ -20,7 +20,7 @@ a 3D image volume, flipped around the axis. The dimensions are identical to the 
 Flip the slice of an 3D array horizontally or vertically along an axis. This leads to an output array with identical dimensions.
 }
 \seealso{
-Other volume math: 
-\code{\link{rotate3D}()}
+Other volume math:
+\code{\link[=rotate3D]{rotate3D()}}
 }
 \concept{volume math}

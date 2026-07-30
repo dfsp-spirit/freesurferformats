@@ -20,8 +20,8 @@ the coords after applying the transformation. If coords was nx3, nx3 is returned
 Apply a spatial transformation matrix to the given coordinates.
 }
 \examples{
-    coords_tf = doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg());
-    coords_tf;
-    doapply.transform.mtx(coords_tf, solve(mni152reg()));
+coords_tf <- doapply.transform.mtx(c(1.0, 1.0, 1.0), mni152reg())
+coords_tf
+doapply.transform.mtx(coords_tf, solve(mni152reg()))
 
 }

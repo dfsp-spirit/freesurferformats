@@ -20,8 +20,8 @@ double, the Euclidean distance between v1 and v2
 Compute Euclidean distance between two vertices v1 and v2.
 }
 \seealso{
-Other Euclidean distance util functions: 
-\code{\link{closest.vert.to.point}()},
-\code{\link{vertexdists.to.point}()}
+Other Euclidean distance util functions:
+\code{\link[=closest.vert.to.point]{closest.vert.to.point()}},
+\code{\link[=vertexdists.to.point]{vertexdists.to.point()}}
 }
 \concept{Euclidean distance util functions}

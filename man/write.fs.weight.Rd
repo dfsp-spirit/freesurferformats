@@ -16,28 +16,28 @@ write.fs.weight(filepath, vertex_indices, values, format = "bin")
 \item{format}{character string, one of 'bin' or 'asc'. The weight format type, there is a binary version of the format and an ASCII version.}
 }
 \description{
-Write vertex-wise brain data for a set of vertices to file in *weight* format. This format is also known as *paint* format or simply as *w* format.
+Write vertex-wise brain data for a set of vertices to file in \emph{weight} format. This format is also known as \emph{paint} format or simply as \emph{w} format.
 }
 \seealso{
-Other morphometry functions: 
-\code{\link{fs.get.morph.file.ext.for.format}()},
-\code{\link{fs.get.morph.file.format.from.filename}()},
-\code{\link{read.fs.curv}()},
-\code{\link{read.fs.mgh}()},
-\code{\link{read.fs.morph}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.volume}()},
-\code{\link{read.fs.weight}()},
-\code{\link{write.fs.curv}()},
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.mgh}()},
-\code{\link{write.fs.morph}()},
-\code{\link{write.fs.morph.asc}()},
-\code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.morph.ni1}()},
-\code{\link{write.fs.morph.ni2}()},
-\code{\link{write.fs.morph.smp}()},
-\code{\link{write.fs.morph.txt}()},
-\code{\link{write.fs.weight.asc}()}
+Other morphometry functions:
+\code{\link[=fs.get.morph.file.ext.for.format]{fs.get.morph.file.ext.for.format()}},
+\code{\link[=fs.get.morph.file.format.from.filename]{fs.get.morph.file.format.from.filename()}},
+\code{\link[=read.fs.curv]{read.fs.curv()}},
+\code{\link[=read.fs.mgh]{read.fs.mgh()}},
+\code{\link[=read.fs.morph]{read.fs.morph()}},
+\code{\link[=read.fs.morph.gii]{read.fs.morph.gii()}},
+\code{\link[=read.fs.volume]{read.fs.volume()}},
+\code{\link[=read.fs.weight]{read.fs.weight()}},
+\code{\link[=write.fs.curv]{write.fs.curv()}},
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.mgh]{write.fs.mgh()}},
+\code{\link[=write.fs.morph]{write.fs.morph()}},
+\code{\link[=write.fs.morph.asc]{write.fs.morph.asc()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}},
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}},
+\code{\link[=write.fs.morph.ni2]{write.fs.morph.ni2()}},
+\code{\link[=write.fs.morph.smp]{write.fs.morph.smp()}},
+\code{\link[=write.fs.morph.txt]{write.fs.morph.txt()}},
+\code{\link[=write.fs.weight.asc]{write.fs.weight.asc()}}
 }
 \concept{morphometry functions}

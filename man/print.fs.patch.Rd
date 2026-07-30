@@ -7,7 +7,7 @@
 \method{print}{fs.patch}(x, ...)
 }
 \arguments{
-\item{x}{brain surface patch with class `fs.patch`.}
+\item{x}{brain surface patch with class \code{fs.patch}.}
 
 \item{...}{further arguments passed to or from other methods}
 }

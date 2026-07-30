@@ -7,7 +7,7 @@
 nifti.datadim.from.dimfield(dimfield)
 }
 \arguments{
-\item{dimfield}{integer vector of length 8, the `dim` field of a NIFTI v1 or v2 header, as returned by \code{\link{read.nifti2.header}} or \code{\link{read.nifti1.header}}.}
+\item{dimfield}{integer vector of length 8, the \code{dim} field of a NIFTI v1 or v2 header, as returned by \code{\link{read.nifti2.header}} or \code{\link{read.nifti1.header}}.}
 }
 \value{
 integer vector of length <= 7. The lengths of the used data dimensions. The 'dim' field always has length 8, and the first entry is the number of actually used dimensions. The return value is constructed by stripping the first field and returning the used fields.
@@ -16,11 +16,11 @@ integer vector of length <= 7. The lengths of the used data dimensions. The 'dim
 Compute data dimensions from the 'dim' field of the NIFTI (v1 or v2) header.
 }
 \examples{
-   nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1));
+nifti.datadim.from.dimfield(c(3, 256, 256, 256, 1, 1, 1, 1))
 
 }
 \seealso{
-Other NIFTI helper functions: 
-\code{\link{nifti.datadim.to.dimfield}()}
+Other NIFTI helper functions:
+\code{\link[=nifti.datadim.to.dimfield]{nifti.datadim.to.dimfield()}}
 }
 \concept{NIFTI helper functions}

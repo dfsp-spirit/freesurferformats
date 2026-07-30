@@ -9,22 +9,23 @@ write.fs.volume(filepath, fs_vol)
 \arguments{
 \item{filepath}{string. Full path to the output file. The file extension determines the format: '.mgh' or '.mgz' for FreeSurfer MGH/MGZ format, '.nii' or '.nii.gz' for NIFTI v1 format.}
 
-\item{fs_vol}{an `fs.volume` instance, as returned by \code{\link{read.fs.volume}} with parameter `with_header=TRUE`.}
+\item{fs_vol}{an \code{fs.volume} instance, as returned by \code{\link{read.fs.volume}} with parameter \code{with_header=TRUE}.}
 }
 \description{
-Write brain volume data to a file. The format is determined from the file extension of `filepath`.
+Write brain volume data to a file. The format is determined from the file extension of \code{filepath}.
 }
 \note{
 When writing NIFTI files, this function uses \code{\link{nii1header.for.mgh}} to compute a NIFTI v1 header from the MGH header information.
 }
 \examples{
 \dontrun{
-    mgh_file = system.file("extdata", "brain.mgz",
-                            package = "freesurferformats",
-                            mustWork = TRUE);
-    fs_vol = read.fs.volume(mgh_file, with_header = TRUE);
-    write.fs.volume(tempfile(fileext=".mgz"), fs_vol);
-    write.fs.volume(tempfile(fileext=".nii.gz"), fs_vol);
+mgh_file <- system.file("extdata", "brain.mgz",
+  package = "freesurferformats",
+  mustWork = TRUE
+)
+fs_vol <- read.fs.volume(mgh_file, with_header = TRUE)
+write.fs.volume(tempfile(fileext = ".mgz"), fs_vol)
+write.fs.volume(tempfile(fileext = ".nii.gz"), fs_vol)
 }
 
 }

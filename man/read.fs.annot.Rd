@@ -22,26 +22,27 @@ read.fs.annot(
 }
 \value{
 named list, entries are: "vertices" vector of n vertex indices, starting with 0. "label_codes": vector of n integers, each entry is a color code, i.e., a value from the 5th column in the table structure included in the "colortable" entry (see below). "label_names": the n brain structure names for the vertices, already retrieved from the colortable using the code. "hex_colors_rgb": Vector of hex color for each vertex.
-     The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code. "colortable_df": The same information as a dataframe. Contains the extra columns "hex_color_string_rgb" and "hex_color_string_rgba" that hold the color as an RGB(A) hex string, like "#rrggbbaa".
+The "colortable" is another named list with 3 entries: "num_entries": int, number of brain structures. "struct_names": vector of strings, the brain structure names. "table": numeric matrix with num_entries rows and 5 colums. The 5 columns are: 1 = color red channel, 2=color blue channel, 3=color green channel, 4=color alpha channel, 5=unique color code. "colortable_df": The same information as a dataframe. Contains the extra columns "hex_color_string_rgb" and "hex_color_string_rgba" that hold the color as an RGB(A) hex string, like "#rrggbbaa".
 }
 \description{
 Read a data annotation file in FreeSurfer format. Such a file assigns a label and a color to each vertex of a brain surface. The assignment of labels to vertices is based on at atlas or brain parcellation file. Typically the atlas is available for some standard template subject, and the labels are assigned to another subject by registering it to the template.
-   For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.aparc.annot', which contains the annotation based on the Desikan-Killiany Atlas for the left hemisphere of bert.
+For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/label/lh.aparc.annot', which contains the annotation based on the Desikan-Killiany Atlas for the left hemisphere of bert.
 }
 \examples{
-    annot_file = system.file("extdata", "lh.aparc.annot.gz",
-                               package = "freesurferformats",
-                               mustWork = TRUE);
-    annot = read.fs.annot(annot_file);
-    print(annot);
+annot_file <- system.file("extdata", "lh.aparc.annot.gz",
+  package = "freesurferformats",
+  mustWork = TRUE
+)
+annot <- read.fs.annot(annot_file)
+print(annot)
 
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.annot.gii}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions:
+\code{\link[=colortable.from.annot]{colortable.from.annot()}},
+\code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.fs.annot]{write.fs.annot()}},
+\code{\link[=write.fs.annot.gii]{write.fs.annot.gii()}},
+\code{\link[=write.fs.colortable]{write.fs.colortable()}}
 }
 \concept{atlas functions}

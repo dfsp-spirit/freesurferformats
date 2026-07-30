@@ -9,7 +9,7 @@ flip2D(slice, how = "horizontally")
 \arguments{
 \item{slice}{a 2D matrix}
 
-\item{how}{character string, one of 'vertically' / 'v' or 'horizontally' / 'h'. Note that flipping *horizontally* means that the image will be mirrored along the central *vertical* axis. If `NULL` is passed, the passed value is returned unaltered.}
+\item{how}{character string, one of 'vertically' / 'v' or 'horizontally' / 'h'. Note that flipping \emph{horizontally} means that the image will be mirrored along the central \emph{vertical} axis. If \code{NULL} is passed, the passed value is returned unaltered.}
 }
 \value{
 2D matrix, the flipped matrix.

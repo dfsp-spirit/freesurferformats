@@ -15,27 +15,28 @@ colortable.from.annot(annot, compute_colorcode = FALSE)
 the colortable data.frame extracted from the annotation.
 }
 \description{
-Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also be read from files like `FREESURFER_HOME/FreeSurferColorLUT.txt` or saved as a file, check the 'See Also' section below.
+Extract a colortable lookup table (LUT) from an annotation. Such a LUT can also be read from files like \code{FREESURFER_HOME/FreeSurferColorLUT.txt} or saved as a file, check the 'See Also' section below.
 }
 \examples{
-    annotfile = system.file("extdata", "lh.aparc.annot.gz",
-     package = "freesurferformats", mustWork = TRUE);
-    annot = read.fs.annot(annotfile);
-    colortable = colortable.from.annot(annot);
-    head(colortable);
+annotfile <- system.file("extdata", "lh.aparc.annot.gz",
+  package = "freesurferformats", mustWork = TRUE
+)
+annot <- read.fs.annot(annotfile)
+colortable <- colortable.from.annot(annot)
+head(colortable)
 
 }
 \seealso{
-Other atlas functions: 
-\code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.annot.gii}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions:
+\code{\link[=read.fs.annot]{read.fs.annot()}},
+\code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.fs.annot]{write.fs.annot()}},
+\code{\link[=write.fs.annot.gii]{write.fs.annot.gii()}},
+\code{\link[=write.fs.colortable]{write.fs.colortable()}}
 
-Other colorLUT functions: 
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.colortable}()}
+Other colorLUT functions:
+\code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.fs.colortable]{write.fs.colortable()}}
 }
 \concept{atlas functions}
 \concept{colorLUT functions}

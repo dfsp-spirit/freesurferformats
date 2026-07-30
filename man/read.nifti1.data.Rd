@@ -11,7 +11,7 @@ read.nifti1.data(filepath, drop_empty_dims = TRUE, header = NULL)
 
 \item{drop_empty_dims}{logical, whether to drop empty dimensions in the loaded data array.}
 
-\item{header}{optional nifti header obtained from \code{\link{read.nifti1.header}}. Will be loaded automatically if left at `NULL`.}
+\item{header}{optional nifti header obtained from \code{\link{read.nifti1.header}}. Will be loaded automatically if left at \code{NULL}.}
 }
 \value{
 the data in the NIFTI v1 file. Note that the NIFTI v1 header information (scaling, units, etc.) is not applied in any way: the data are returned raw, as read from the file. The information in the header is used to read the data with the proper data type and size.

@@ -7,12 +7,12 @@
 nifti.dtype.info(datatype, bitpix)
 }
 \arguments{
-\item{datatype}{integer, the `datatype` NIFTI v1 header field}
+\item{datatype}{integer, the \code{datatype} NIFTI v1 header field}
 
-\item{bitpix}{integer, the `bitpix` NIFTI v1 header field}
+\item{bitpix}{integer, the \code{bitpix} NIFTI v1 header field}
 }
 \value{
-named list with entries: `mri_dtype`: the MRI data type, as used by FreeSurfer for MGH files, `r_dtype`: the R data type.
+named list with entries: \code{mri_dtype}: the MRI data type, as used by FreeSurfer for MGH files, \code{r_dtype}: the R data type.
 }
 \description{
 Compute NIFTI v1 data type info from datatype and bitpix header field.

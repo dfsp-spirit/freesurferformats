@@ -7,31 +7,36 @@
 fs.patch(vertices, faces = NULL)
 }
 \arguments{
-\item{vertices}{numerical *n*x5 matrix (or *n*x7 matrix), see \code{\link[freesurferformats]{read.fs.patch}} for details. If it has 5 columns, columns 6-7 will be computed automatically from the first 5 columns (from column 1 and 5).}
+\item{vertices}{numerical \emph{n}x5 matrix (or \emph{n}x7 matrix), see \code{\link[freesurferformats]{read.fs.patch}} for details. If it has 5 columns, columns 6-7 will be computed automatically from the first 5 columns (from column 1 and 5).}
 
-\item{faces}{numerical *n*x5 matrix, see \code{\link[freesurferformats]{read.fs.patch.asc}} for details. Can be `NULL`.}
+\item{faces}{numerical \emph{n}x5 matrix, see \code{\link[freesurferformats]{read.fs.patch.asc}} for details. Can be \code{NULL}.}
 }
 \value{
-instance of class `fs.patch`
+instance of class \code{fs.patch}
 }
 \description{
 Constructor for fs.patch
 }
 \examples{
-    num_vertices = 6L;   # a tiny patch
-    vertices = matrix(rep(0., num_vertices*5), ncol=5);
-    vertices[,1] = seq.int(num_vertices);  # 1-based vertex indices
-    vertices[,2:4] = matrix(rnorm(num_vertices*3, 8, 2), ncol=3);  # vertex coords
-    vertices[,5] = rep(0L, num_vertices);  # is_border
-    vertices[3,5] = 1L;  # set a vertex to be a border vertex
-    patch = fs.patch(vertices);
-    patch;
+num_vertices <- 6L
+# a tiny patch
+vertices <- matrix(rep(0., num_vertices * 5), ncol = 5)
+vertices[, 1] <- seq.int(num_vertices)
+# 1-based vertex indices
+vertices[, 2:4] <- matrix(rnorm(num_vertices * 3, 8, 2), ncol = 3)
+# vertex coords
+vertices[, 5] <- rep(0L, num_vertices)
+# is_border
+vertices[3, 5] <- 1L
+# set a vertex to be a border vertex
+patch <- fs.patch(vertices)
+patch
 
 }
 \seealso{
-Other patch functions: 
-\code{\link{read.fs.patch}()},
-\code{\link{read.fs.patch.asc}()},
-\code{\link{write.fs.patch}()}
+Other patch functions:
+\code{\link[=read.fs.patch]{read.fs.patch()}},
+\code{\link[=read.fs.patch.asc]{read.fs.patch.asc()}},
+\code{\link[=write.fs.patch]{write.fs.patch()}}
 }
 \concept{patch functions}

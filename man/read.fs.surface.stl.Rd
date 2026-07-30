@@ -14,7 +14,7 @@ read.fs.surface.stl(filepath, digits = 6L, is_ascii = "auto")
 \item{is_ascii}{logical, whether the file is in the ASCII version of the STL format (as opposed to the binary version). Can also be the character string 'auto', in which case the function will try to auto-detect the format.}
 }
 \value{
-an `fs.surface` instance, the mesh.
+an \code{fs.surface} instance, the mesh.
 }
 \description{
 Read mesh in STL format, auto-detecting ASCII versus binary format version.

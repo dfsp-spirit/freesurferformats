@@ -7,20 +7,20 @@
 nifti.datadim.to.dimfield(datadim)
 }
 \arguments{
-\item{datadim}{integer vector, the result of calling `dim` on your data. The length must be <= 7.}
+\item{datadim}{integer vector, the result of calling \code{dim} on your data. The length must be <= 7.}
 }
 \value{
-NIFTI header `dim` field, an integer vector of length 8
+NIFTI header \code{dim} field, an integer vector of length 8
 }
 \description{
 Compute NIFTI dim field for data dimension.
 }
 \examples{
-   nifti.datadim.to.dimfield(c(256, 256, 256));
+nifti.datadim.to.dimfield(c(256, 256, 256))
 
 }
 \seealso{
-Other NIFTI helper functions: 
-\code{\link{nifti.datadim.from.dimfield}()}
+Other NIFTI helper functions:
+\code{\link[=nifti.datadim.from.dimfield]{nifti.datadim.from.dimfield()}}
 }
 \concept{NIFTI helper functions}

@@ -13,31 +13,31 @@ read.fs.surface.vtk(filepath)
 named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 }
 \description{
-This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does **not** read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
+This reads meshes (vtk polygon datasets) from text files in VTK ASCII format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf for format spec. Note that this function does \strong{not} read arbitrary VTK datasets, i.e., it supports only a subset of the possible contents of VTK files (i.e., polygon meshes).
 }
 \note{
 This is by far not a complete VTK format reader.
 }
 \seealso{
-Other mesh functions: 
-\code{\link{faces.quad.to.tris}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.bvsrf}()},
-\code{\link{read.fs.surface.geo}()},
-\code{\link{read.fs.surface.gii}()},
-\code{\link{read.fs.surface.ico}()},
-\code{\link{read.fs.surface.obj}()},
-\code{\link{read.fs.surface.off}()},
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.byu}()},
-\code{\link{write.fs.surface.gii}()},
-\code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()}
+Other mesh functions:
+\code{\link[=faces.quad.to.tris]{faces.quad.to.tris()}},
+\code{\link[=read.fs.surface]{read.fs.surface()}},
+\code{\link[=read.fs.surface.asc]{read.fs.surface.asc()}},
+\code{\link[=read.fs.surface.bvsrf]{read.fs.surface.bvsrf()}},
+\code{\link[=read.fs.surface.geo]{read.fs.surface.geo()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}},
+\code{\link[=read.fs.surface.ico]{read.fs.surface.ico()}},
+\code{\link[=read.fs.surface.obj]{read.fs.surface.obj()}},
+\code{\link[=read.fs.surface.off]{read.fs.surface.off()}},
+\code{\link[=read.fs.surface.ply]{read.fs.surface.ply()}},
+\code{\link[=read.mesh.brainvoyager]{read.mesh.brainvoyager()}},
+\code{\link[=read_nisurface]{read_nisurface()}},
+\code{\link[=read_nisurfacefile]{read_nisurfacefile()}},
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.asc]{write.fs.surface.asc()}},
+\code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
+\code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}},
+\code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 }
 \concept{mesh functions}

@@ -7,10 +7,10 @@
 nifti.dtypebitpix.info.from.mgh.dtype(mgh_dtype_code)
 }
 \arguments{
-\item{mgh_dtype_code}{integer, the MGH/MGZ datatype code (as returned by `translate.mri.dtype`).}
+\item{mgh_dtype_code}{integer, the MGH/MGZ datatype code (as returned by \code{translate.mri.dtype}).}
 }
 \value{
-named list with entries: `datatype` and `bitpix` containing the translated data for the respective NIfTI-1 header fields.
+named list with entries: \code{datatype} and \code{bitpix} containing the translated data for the respective NIfTI-1 header fields.
 }
 \description{
 Compute the 'datatype' and 'bitpix' fields used in the NIFTI1 header from an MGH/MGZ datatype code.

@@ -19,30 +19,29 @@ This function does not write a GIFTI file that is valid according to the specifi
 }
 \examples{
 \dontrun{
-   # Load annotation
-   annot_file = system.file("extdata", "lh.aparc.annot.gz",
-                               package = "freesurferformats",
-                               mustWork = TRUE);
-   annot = read.fs.annot(annot_file);
-
-   # New method: write the annotation instance:
-   write.fs.annot.gii(tempfile(fileext=".annot"), annot);
-
+# Load annotation
+annot_file <- system.file("extdata", "lh.aparc.annot.gz",
+  package = "freesurferformats",
+  mustWork = TRUE
+)
+annot <- read.fs.annot(annot_file)
+# New method: write the annotation instance:
+write.fs.annot.gii(tempfile(fileext = ".annot"), annot)
 }
 
 }
 \seealso{
-Other atlas functions: 
-\code{\link{colortable.from.annot}()},
-\code{\link{read.fs.annot}()},
-\code{\link{read.fs.colortable}()},
-\code{\link{write.fs.annot}()},
-\code{\link{write.fs.colortable}()}
+Other atlas functions:
+\code{\link[=colortable.from.annot]{colortable.from.annot()}},
+\code{\link[=read.fs.annot]{read.fs.annot()}},
+\code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.fs.annot]{write.fs.annot()}},
+\code{\link[=write.fs.colortable]{write.fs.colortable()}}
 
-Other gifti writers: 
-\code{\link{write.fs.label.gii}()},
-\code{\link{write.fs.morph.gii}()},
-\code{\link{write.fs.surface.gii}()}
+Other gifti writers:
+\code{\link[=write.fs.label.gii]{write.fs.label.gii()}},
+\code{\link[=write.fs.morph.gii]{write.fs.morph.gii()}},
+\code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}}
 }
 \concept{atlas functions}
 \concept{gifti writers}

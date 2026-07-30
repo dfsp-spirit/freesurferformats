@@ -9,43 +9,44 @@ read_nisurfacefile(filepath, methods = c("fsnative", "fsascii", "gifti"), ...)
 \arguments{
 \item{filepath}{character string, the full path to the input surface file.}
 
-\item{methods}{list of character strings, the formats to try. Each of these must have a function called \code{read_nisurface.<method>}, which must return an `fs.surface` instance on success.}
+\item{methods}{list of character strings, the formats to try. Each of these must have a function called \code{read_nisurface.<method>}, which must return an \code{fs.surface} instance on success.}
 
 \item{...}{parameters passed on to the individual methods}
 }
 \value{
-an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
+an instance of \code{fs.surface}, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 }
 \description{
-Tries to read the file with all implemented surface format reader methods. The file must exist. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., `surf/lh.white`). 2) FreeSurfer ASCII surface format (e.g., `surf/lh.white,asc`). 3) GIFTI surface format, only if package `gifti` is installed. See \code{gifti::read_gifti} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
+Tries to read the file with all implemented surface format reader methods. The file must exist. With the default settings, one can read files in the following surface formats: 1) FreeSurfer binary surface format (e.g., \code{surf/lh.white}). 2) FreeSurfer ASCII surface format (e.g., \verb{surf/lh.white,asc}). 3) GIFTI surface format, only if package \code{gifti} is installed. See \code{gifti::read_gifti} for details. Feel free to implement additional methods. Hint:keep in mind that they should return one-based indices.
 }
 \examples{
-    surface_file = system.file("extdata", "lh.tinysurface",
-                            package = "freesurferformats", mustWork = TRUE);
-    mesh = read_nisurface(surface_file);
-    mesh;
+surface_file <- system.file("extdata", "lh.tinysurface",
+  package = "freesurferformats", mustWork = TRUE
+)
+mesh <- read_nisurface(surface_file)
+mesh
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{faces.quad.to.tris}()},
-\code{\link{read.fs.surface}()},
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.bvsrf}()},
-\code{\link{read.fs.surface.geo}()},
-\code{\link{read.fs.surface.gii}()},
-\code{\link{read.fs.surface.ico}()},
-\code{\link{read.fs.surface.obj}()},
-\code{\link{read.fs.surface.off}()},
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurface}()},
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.byu}()},
-\code{\link{write.fs.surface.gii}()},
-\code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()}
+Other mesh functions:
+\code{\link[=faces.quad.to.tris]{faces.quad.to.tris()}},
+\code{\link[=read.fs.surface]{read.fs.surface()}},
+\code{\link[=read.fs.surface.asc]{read.fs.surface.asc()}},
+\code{\link[=read.fs.surface.bvsrf]{read.fs.surface.bvsrf()}},
+\code{\link[=read.fs.surface.geo]{read.fs.surface.geo()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}},
+\code{\link[=read.fs.surface.ico]{read.fs.surface.ico()}},
+\code{\link[=read.fs.surface.obj]{read.fs.surface.obj()}},
+\code{\link[=read.fs.surface.off]{read.fs.surface.off()}},
+\code{\link[=read.fs.surface.ply]{read.fs.surface.ply()}},
+\code{\link[=read.fs.surface.vtk]{read.fs.surface.vtk()}},
+\code{\link[=read.mesh.brainvoyager]{read.mesh.brainvoyager()}},
+\code{\link[=read_nisurface]{read_nisurface()}},
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.asc]{write.fs.surface.asc()}},
+\code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
+\code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}},
+\code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 }
 \concept{mesh functions}

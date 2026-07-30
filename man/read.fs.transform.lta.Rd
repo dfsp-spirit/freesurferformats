@@ -19,25 +19,26 @@ Load transformation matrix from a FreeSurfer linear transform array (LTA) file.
 I found no spec for the LTA file format, only example files, so this function should be used with care. If you have a file that is not parsed correctly, please open an issue and attach it.
 }
 \examples{
-    tf_file = system.file("extdata", "talairach.lta",
-     package = "freesurferformats", mustWork = TRUE);
-    transform = read.fs.transform.lta(tf_file);
-    transform$matrix;
+tf_file <- system.file("extdata", "talairach.lta",
+  package = "freesurferformats", mustWork = TRUE
+)
+transform <- read.fs.transform.lta(tf_file)
+transform$matrix
 
 }
 \seealso{
-Other header coordinate space: 
-\code{\link{mghheader.is.ras.valid}()},
-\code{\link{mghheader.ras2vox}()},
-\code{\link{mghheader.ras2vox.tkreg}()},
-\code{\link{mghheader.scanner2tkreg}()},
-\code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{read.fs.transform}()},
-\code{\link{read.fs.transform.dat}()},
-\code{\link{read.fs.transform.xfm}()},
-\code{\link{sm0to1}()},
-\code{\link{sm1to0}()}
+Other header coordinate space:
+\code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
+\code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
+\code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
+\code{\link[=mghheader.scanner2tkreg]{mghheader.scanner2tkreg()}},
+\code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
+\code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
+\code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=read.fs.transform]{read.fs.transform()}},
+\code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
+\code{\link[=sm0to1]{sm0to1()}},
+\code{\link[=sm1to0]{sm1to0()}}
 }
 \concept{header coordinate space}

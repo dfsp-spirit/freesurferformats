@@ -9,7 +9,7 @@ ras.to.talairachras(ras_coords, talairach, invert_transform = FALSE)
 \arguments{
 \item{ras_coords}{nx3 numerical vector, the input surface RAS coordinates. Could be the vertex coordinates of an 'fs.surface' instance, or the RAS coords from a surface label.}
 
-\item{talairach}{the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).}
+\item{talairach}{the 4x4 numerical talairach matrix, or a character string which will be interpreted as the path to an xfm file containing the matrix (typically \verb{$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm}).}
 
 \item{invert_transform}{logical, whether to invert the transform. Do not use this, call \code{link{talairachras.to.ras}} instead.}
 }

@@ -7,10 +7,10 @@
 faces.tris.to.quad(tris_faces)
 }
 \arguments{
-\item{tris_faces}{*nx3* integer matrix, the indices of the vertices making up the *n* tris faces.}
+\item{tris_faces}{\emph{nx3} integer matrix, the indices of the vertices making up the \emph{n} tris faces.}
 }
 \value{
-n/2x4 integer matrix, the indices of the vertices making up the *n* quad faces.
+n/2x4 integer matrix, the indices of the vertices making up the \emph{n} quad faces.
 }
 \description{
 This is experimental. Note that it can only work if the number of 'tris_faces' is even, as two consecutive tris-faces will be merged into one quad face. We could set the index to NA in that case, but I do not know how FreeSurfer handles this, so we do not guess.

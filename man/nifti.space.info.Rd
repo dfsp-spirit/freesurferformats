@@ -7,10 +7,10 @@
 nifti.space.info(xyzt_units)
 }
 \arguments{
-\item{xyzt_units}{a single character, the `xyzt_units` NIFTI header field}
+\item{xyzt_units}{a single character, the \code{xyzt_units} NIFTI header field}
 }
 \value{
-named list with entries: `code`: the NIFTI unit code as a decimal integer, `name`: character string, the unit name, `scaling`: float, the scaling factor for the unit, relative to the FreeSurfer space unit (`mm`).
+named list with entries: \code{code}: the NIFTI unit code as a decimal integer, \code{name}: character string, the unit name, \code{scaling}: float, the scaling factor for the unit, relative to the FreeSurfer space unit (\code{mm}).
 }
 \description{
 Compute NIFTI space unit info from xyzt_units header field.

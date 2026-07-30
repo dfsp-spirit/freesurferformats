@@ -12,39 +12,42 @@ read.fs.surface(filepath, format = "auto")
 \item{format}{one of 'auto', 'asc', 'vtk', 'ply', 'gii', 'mz3', 'stl', 'byu', 'geo', 'ico', 'tri', 'obj', 'off' or 'bin'. The format to assume. If set to 'auto' (the default), binary format will be used unless the filepath ends with '.asc'.}
 }
 \value{
-named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a *face index set*. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
+named list. The list has the following named entries: "vertices": nx3 double matrix, where n is the number of vertices. Each row contains the x,y,z coordinates of a single vertex. "faces": nx3 integer matrix. Each row contains the vertex indices of the 3 vertices defining the face. This datastructure is known as a is a \emph{face index set}. WARNING: The indices are returned starting with index 1 (as used in GNU R). Keep in mind that you need to adjust the index (by substracting 1) to compare with data from other software.
 }
 \description{
 Read a brain surface mesh consisting of vertex and face data from a file in FreeSurfer binary or ASCII surface format. For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example file would be 'bert/surf/lh.white'.
 }
 \examples{
-    surface_file = system.file("extdata", "lh.tinysurface",
-                            package = "freesurferformats", mustWork = TRUE);
-    mesh = read.fs.surface(surface_file);
-    cat(sprintf("Read data for \%d vertices and \%d faces. \n",
-                            nrow(mesh$vertices), nrow(mesh$faces)));
+surface_file <- system.file("extdata", "lh.tinysurface",
+  package = "freesurferformats", mustWork = TRUE
+)
+mesh <- read.fs.surface(surface_file)
+cat(sprintf(
+  "Read data for \%d vertices and \%d faces. \n",
+  nrow(mesh$vertices), nrow(mesh$faces)
+))
 
 }
 \seealso{
-Other mesh functions: 
-\code{\link{faces.quad.to.tris}()},
-\code{\link{read.fs.surface.asc}()},
-\code{\link{read.fs.surface.bvsrf}()},
-\code{\link{read.fs.surface.geo}()},
-\code{\link{read.fs.surface.gii}()},
-\code{\link{read.fs.surface.ico}()},
-\code{\link{read.fs.surface.obj}()},
-\code{\link{read.fs.surface.off}()},
-\code{\link{read.fs.surface.ply}()},
-\code{\link{read.fs.surface.vtk}()},
-\code{\link{read.mesh.brainvoyager}()},
-\code{\link{read_nisurface}()},
-\code{\link{read_nisurfacefile}()},
-\code{\link{write.fs.surface}()},
-\code{\link{write.fs.surface.asc}()},
-\code{\link{write.fs.surface.byu}()},
-\code{\link{write.fs.surface.gii}()},
-\code{\link{write.fs.surface.mz3}()},
-\code{\link{write.fs.surface.vtk}()}
+Other mesh functions:
+\code{\link[=faces.quad.to.tris]{faces.quad.to.tris()}},
+\code{\link[=read.fs.surface.asc]{read.fs.surface.asc()}},
+\code{\link[=read.fs.surface.bvsrf]{read.fs.surface.bvsrf()}},
+\code{\link[=read.fs.surface.geo]{read.fs.surface.geo()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}},
+\code{\link[=read.fs.surface.ico]{read.fs.surface.ico()}},
+\code{\link[=read.fs.surface.obj]{read.fs.surface.obj()}},
+\code{\link[=read.fs.surface.off]{read.fs.surface.off()}},
+\code{\link[=read.fs.surface.ply]{read.fs.surface.ply()}},
+\code{\link[=read.fs.surface.vtk]{read.fs.surface.vtk()}},
+\code{\link[=read.mesh.brainvoyager]{read.mesh.brainvoyager()}},
+\code{\link[=read_nisurface]{read_nisurface()}},
+\code{\link[=read_nisurfacefile]{read_nisurfacefile()}},
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.asc]{write.fs.surface.asc()}},
+\code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
+\code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}},
+\code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 }
 \concept{mesh functions}

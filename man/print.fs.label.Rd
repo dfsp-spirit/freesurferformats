@@ -7,7 +7,7 @@
 \method{print}{fs.label}(x, ...)
 }
 \arguments{
-\item{x}{brain surface label with class `fs.label`.}
+\item{x}{brain surface label with class \code{fs.label}.}
 
 \item{...}{further arguments passed to or from other methods}
 }

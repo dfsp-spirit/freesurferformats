@@ -7,7 +7,7 @@
 m44_to_quaternion(m)
 }
 \arguments{
-\item{m}{the input 4x4 matrix encoding the rotation, with homogeneous column [0,0,0,1].}
+\item{m}{the input 4x4 matrix encoding the rotation, with homogeneous column \link{0,0,0,1}.}
 }
 \value{
 numeric vector of length 4, the quaternion representation (qw, qx, qy, qz).

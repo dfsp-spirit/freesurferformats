@@ -7,7 +7,7 @@
 is.fs.surface(x)
 }
 \arguments{
-\item{x}{any `R` object}
+\item{x}{any \code{R} object}
 }
 \value{
 TRUE if its argument is a brain surface (that is, has "fs.surface" amongst its classes) and FALSE otherwise.

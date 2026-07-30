@@ -9,7 +9,7 @@ write.fs.patch(filepath, patch)
 \arguments{
 \item{filepath}{string. Full path to the output patch file. If it ends with ".gz", the file is written in gzipped format. Note that this is not common, and that other software may not handle this transparently.}
 
-\item{patch}{an instance of class `fs.patch`, see \code{\link[freesurferformats]{read.fs.patch}}.}
+\item{patch}{an instance of class \code{fs.patch}, see \code{\link[freesurferformats]{read.fs.patch}}.}
 }
 \value{
 the patch, invisible
@@ -18,9 +18,9 @@ the patch, invisible
 Write a surface patch, i.e. a set of vertices and patch border information, to a binary patch file.
 }
 \seealso{
-Other patch functions: 
-\code{\link{fs.patch}()},
-\code{\link{read.fs.patch}()},
-\code{\link{read.fs.patch.asc}()}
+Other patch functions:
+\code{\link[=fs.patch]{fs.patch()}},
+\code{\link[=read.fs.patch]{read.fs.patch()}},
+\code{\link[=read.fs.patch.asc]{read.fs.patch.asc()}}
 }
 \concept{patch functions}

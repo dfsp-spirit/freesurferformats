@@ -18,18 +18,18 @@ Adapt spatial transformation matrix for 1-based indices.
 \seealso{
 \code{\link{sm1to0}} for the inverse operation
 
-Other header coordinate space: 
-\code{\link{mghheader.is.ras.valid}()},
-\code{\link{mghheader.ras2vox}()},
-\code{\link{mghheader.ras2vox.tkreg}()},
-\code{\link{mghheader.scanner2tkreg}()},
-\code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{read.fs.transform}()},
-\code{\link{read.fs.transform.dat}()},
-\code{\link{read.fs.transform.lta}()},
-\code{\link{read.fs.transform.xfm}()},
-\code{\link{sm1to0}()}
+Other header coordinate space:
+\code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
+\code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
+\code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
+\code{\link[=mghheader.scanner2tkreg]{mghheader.scanner2tkreg()}},
+\code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
+\code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
+\code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=read.fs.transform]{read.fs.transform()}},
+\code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
+\code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
+\code{\link[=sm1to0]{sm1to0()}}
 }
 \concept{header coordinate space}

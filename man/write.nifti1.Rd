@@ -9,18 +9,18 @@ write.nifti1(filepath, niidata, niiheader = NULL, ...)
 \arguments{
 \item{filepath}{the file to write. The extension should be '.nii' or '.nii.gz'.}
 
-\item{niidata}{array of numeric or integer data, with up to 7 dimensions. Will be written to the file with the datatype and bitpix specified in the 'niiheader' argument. Set to `NULL` and pass a 'niiheader' to write only the header, and remember to adapt 'magic' in the header.}
+\item{niidata}{array of numeric or integer data, with up to 7 dimensions. Will be written to the file with the datatype and bitpix specified in the 'niiheader' argument. Set to \code{NULL} and pass a 'niiheader' to write only the header, and remember to adapt 'magic' in the header.}
 
 \item{niiheader}{an optional NIFTI v1 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni1header.for.data}}.}
 
-\item{...}{additional parameters passed to \code{\link{ni1header.for.data}}. Only used if 'niiheader' is `NULL`.}
+\item{...}{additional parameters passed to \code{\link{ni1header.for.data}}. Only used if 'niiheader' is \code{NULL}.}
 }
 \description{
 Write header and data to a file in NIFTI v1 format.
 }
 \seealso{
-Other nifti1 writers: 
-\code{\link{nii1header.for.mgh}()},
-\code{\link{write.fs.morph.ni1}()}
+Other nifti1 writers:
+\code{\link[=nii1header.for.mgh]{nii1header.for.mgh()}},
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}}
 }
 \concept{nifti1 writers}

@@ -18,15 +18,16 @@ Write XML tree to a gifti file.
 }
 \examples{
 \dontrun{
-  outfile = tempfile(fileext = '.gii');
-  my_data_sets = list(rep(3.1, 3L), matrix(seq(6)+0.1, nrow=2L));
-  xmltree = gifti_xml(my_data_sets, datatype='NIFTI_TYPE_FLOAT32');
-  # Here we add global metadata:
-  xmltree = gifti_xml_add_global_metadata(xmltree, list("User"="Me", "Day"="Monday"));
-  # Validating your XML never hurts
-  gifti_xsd = "https://www.nitrc.org/frs/download.php/158/gifti.xsd";
-  xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd));
-  gifti_xml_write(outfile, xmltree);  # Write your custom tree to a file.
+outfile <- tempfile(fileext = ".gii")
+my_data_sets <- list(rep(3.1, 3L), matrix(seq(6) + 0.1, nrow = 2L))
+xmltree <- gifti_xml(my_data_sets, datatype = "NIFTI_TYPE_FLOAT32")
+# Here we add global metadata:
+xmltree <- gifti_xml_add_global_metadata(xmltree, list("User" = "Me", "Day" = "Monday"))
+# Validating your XML never hurts
+gifti_xsd <- "https://www.nitrc.org/frs/download.php/158/gifti.xsd"
+xml2::xml_validate(xmltree, xml2::read_xml(gifti_xsd))
+gifti_xml_write(outfile, xmltree)
+# Write your custom tree to a file.
 }
 
 }

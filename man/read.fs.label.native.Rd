@@ -14,31 +14,32 @@ read.fs.label.native(
 \arguments{
 \item{filepath}{string. Full path to the input label file.}
 
-\item{return_one_based_indices}{logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them. Notice that for volume labels, the indices are negative (-1), and the coord fields contain the *positions* of the voxels it tkras space (**not** the voxel *indices* in a volume). If a file contains negative indices, they will NOT be incremented, no matter what this is set to.}
+\item{return_one_based_indices}{logical. Whether the indices should be 1-based. Indices are stored zero-based in the file, but R uses 1-based indices. Defaults to TRUE, which means that 1 will be added to all indices read from the file before returning them. Notice that for volume labels, the indices are negative (-1), and the coord fields contain the \emph{positions} of the voxels it tkras space (\strong{not} the voxel \emph{indices} in a volume). If a file contains negative indices, they will NOT be incremented, no matter what this is set to.}
 
-\item{full}{logical, whether to return a full object of class `fs.label` instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.}
+\item{full}{logical, whether to return a full object of class \code{fs.label} instead of only a vector containing the vertex indices. If TRUE, a named list with the following two entries is returned: 'one_based_indices': logical, whether the vertex indices are one-based. 'vertexdata': a data.frame with the following columns: 'vertex_index': integer, see parameter 'return_one_based_indices', 'coord1', 'coord2', 'coord3': float coordinates, 'value': float, scalar data for the vertex, can mean anything. This parameter defaults to FALSE.}
 
-\item{metadata}{named list of arbitrary metadata to store in the instance, ignored unless the paramter `full` is TRUE.}
+\item{metadata}{named list of arbitrary metadata to store in the instance, ignored unless the paramter \code{full} is TRUE.}
 }
 \value{
-vector of integers or `fs.label` instance (see parameter `full`). The vertex indices from the label file. See the parameter `return_one_based_indices` for important information regarding the start index.
+vector of integers or \code{fs.label} instance (see parameter \code{full}). The vertex indices from the label file. See the parameter \code{return_one_based_indices} for important information regarding the start index.
 }
 \description{
 Read a mask in FreeSurfer label format. A label defines a list of vertices (of an associated surface or morphometry file) which are part of it. All others are not. You can think of it as binary mask. Label files are ASCII text files, which have 5 columns (vertex index, coord1, coord2, coord3, value), but only the vertex indices are of interest. A label can also contain voxels, in that case the indices are -1 and the coordinates are important.
 }
 \note{
-To load volume/voxel labels, you will have to set the 'full' parameter to `TRUE`.
+To load volume/voxel labels, you will have to set the 'full' parameter to \code{TRUE}.
 }
 \examples{
-    labelfile = system.file("extdata", "lh.entorhinal_exvivo.label",
-      package = "freesurferformats", mustWork = TRUE);
-    label = read.fs.label(labelfile);
+labelfile <- system.file("extdata", "lh.entorhinal_exvivo.label",
+  package = "freesurferformats", mustWork = TRUE
+)
+label <- read.fs.label(labelfile)
 
 }
 \seealso{
-Other label functions: 
-\code{\link{read.fs.label}()},
-\code{\link{read.fs.label.gii}()},
-\code{\link{write.fs.label}()}
+Other label functions:
+\code{\link[=read.fs.label]{read.fs.label()}},
+\code{\link[=read.fs.label.gii]{read.fs.label.gii()}},
+\code{\link[=write.fs.label]{write.fs.label()}}
 }
 \concept{label functions}

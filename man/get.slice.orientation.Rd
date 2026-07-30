@@ -10,7 +10,7 @@ get.slice.orientation(Mdc)
 \item{Mdc}{numeric 3x3 matrix, typically from the \code{header$internal$Mdc} field as returned by \code{\link[freesurferformats]{read.fs.mgh}}.}
 }
 \value{
-named list with entries: `orientation_string`: character string of length 3, one uppercase letter per axis. `direction_name`: slice direction, character string, one of 'sagittal', 'coronal', 'axial' or 'unknown'.
+named list with entries: \code{orientation_string}: character string of length 3, one uppercase letter per axis. \code{direction_name}: slice direction, character string, one of 'sagittal', 'coronal', 'axial' or 'unknown'.
 }
 \description{
 Compute MGH orientation string and direction

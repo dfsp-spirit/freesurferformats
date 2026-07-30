@@ -17,7 +17,7 @@ write.nifti2(filepath, niidata, niiheader = NULL)
 Write header and data to a file in NIFTI v2 format.
 }
 \seealso{
-Other nifti2 writers: 
-\code{\link{write.fs.morph.ni2}()}
+Other nifti2 writers:
+\code{\link[=write.fs.morph.ni2]{write.fs.morph.ni2()}}
 }
 \concept{nifti2 writers}

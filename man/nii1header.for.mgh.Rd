@@ -7,12 +7,12 @@
 nii1header.for.mgh(mgh, endian = "little")
 }
 \arguments{
-\item{mgh}{an `fs.volume` instance, or a string. If a string, it is interpreted as a filepath to a volume file (NIFTI, MGH or MGZ) that will be loaded with \code{\link{read.fs.volume}}.}
+\item{mgh}{an \code{fs.volume} instance, or a string. If a string, it is interpreted as a filepath to a volume file (NIFTI, MGH or MGZ) that will be loaded with \code{\link{read.fs.volume}}.}
 
 \item{endian}{character string, the endianness to use. Either 'little' or 'big'. Defaults to 'little'.}
 }
 \value{
-a NIFTI v1 header structure (see \code{\link{ni1header.template}}). Note that the header may or may not contain full RAS information, depending on whether the source `fs.volume` contained such information or not. If the MGH header does not have valid RAS information, the qform and sform codes will be set to 0 (unknown).
+a NIFTI v1 header structure (see \code{\link{ni1header.template}}). Note that the header may or may not contain full RAS information, depending on whether the source \code{fs.volume} contained such information or not. If the MGH header does not have valid RAS information, the qform and sform codes will be set to 0 (unknown).
 }
 \description{
 Create a NIFTI v1 header from the header information contained in an fs.volume instance.
@@ -21,8 +21,8 @@ Create a NIFTI v1 header from the header information contained in an fs.volume i
 This is intended to be used with \code{\link{write.nifti1}}, which allows users to convert MGH/MGZ data to NIFTI files.
 }
 \seealso{
-Other nifti1 writers: 
-\code{\link{write.fs.morph.ni1}()},
-\code{\link{write.nifti1}()}
+Other nifti1 writers:
+\code{\link[=write.fs.morph.ni1]{write.fs.morph.ni1()}},
+\code{\link[=write.nifti1]{write.nifti1()}}
 }
 \concept{nifti1 writers}

@@ -30,9 +30,9 @@ read.fs.annot.gii(
 Read an annotation or label in GIFTI format.
 }
 \seealso{
-Other gifti readers: 
-\code{\link{read.fs.label.gii}()},
-\code{\link{read.fs.morph.gii}()},
-\code{\link{read.fs.surface.gii}()}
+Other gifti readers:
+\code{\link[=read.fs.label.gii]{read.fs.label.gii()}},
+\code{\link[=read.fs.morph.gii]{read.fs.morph.gii()}},
+\code{\link[=read.fs.surface.gii]{read.fs.surface.gii()}}
 }
 \concept{gifti readers}

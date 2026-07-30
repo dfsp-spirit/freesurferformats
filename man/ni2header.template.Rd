@@ -7,13 +7,13 @@
 ni2header.template()
 }
 \value{
-named list, the NIFTI v2 header. All fields are present and filled with values of a proper type. Whether or not they make sense is up to you, but you will most likely have to adapt at least the following fields to your data: `dim_raw`, `datatype`, `bitpix`.
+named list, the NIFTI v2 header. All fields are present and filled with values of a proper type. Whether or not they make sense is up to you, but you will most likely have to adapt at least the following fields to your data: \code{dim_raw}, \code{datatype}, \code{bitpix}.
 }
 \description{
 Create a template NIFTI v2 header. You will have to adapt it for your use case.
 }
 \note{
-Commonly used data type settings are: for signed integers datatype = `8L` and bitpix = `32L`; for floats datatype = `16L` and bitpix = `32L`. See the NIFTI v2 standard for more options. You may want to call \code{\link{ni2header.for.data}} instead of this function.
+Commonly used data type settings are: for signed integers datatype = \code{8L} and bitpix = \code{32L}; for floats datatype = \code{16L} and bitpix = \code{32L}. See the NIFTI v2 standard for more options. You may want to call \code{\link{ni2header.for.data}} instead of this function.
 }
 \seealso{
 \code{\link{ni2header.for.data}}

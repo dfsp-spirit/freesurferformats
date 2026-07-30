@@ -7,10 +7,10 @@
 is.fs.label(x)
 }
 \arguments{
-\item{x}{any `R` object}
+\item{x}{any \code{R} object}
 }
 \value{
-TRUE if its argument is a brain surface label (that is, has `fs.label` amongst its classes) and FALSE otherwise.
+TRUE if its argument is a brain surface label (that is, has \code{fs.label} amongst its classes) and FALSE otherwise.
 }
 \description{
 Check whether object is an fs.label

@@ -7,35 +7,36 @@
 mghheader.is.ras.valid(header)
 }
 \arguments{
-\item{header}{mgh header or `fs.volume` instance with header}
+\item{header}{mgh header or \code{fs.volume} instance with header}
 }
 \value{
-logical, whether header contains valid ras information (according to the `ras_good_flag`).
+logical, whether header contains valid ras information (according to the \code{ras_good_flag}).
 }
 \description{
 Check whether header contains valid ras information
 }
 \examples{
-    brain_image = system.file("extdata", "brain.mgz",
-                               package = "freesurferformats",
-                               mustWork = TRUE);
-    vdh = read.fs.mgh(brain_image, with_header = TRUE);
-    mghheader.is.ras.valid(vdh$header);
+brain_image <- system.file("extdata", "brain.mgz",
+  package = "freesurferformats",
+  mustWork = TRUE
+)
+vdh <- read.fs.mgh(brain_image, with_header = TRUE)
+mghheader.is.ras.valid(vdh$header)
 
 }
 \seealso{
-Other header coordinate space: 
-\code{\link{mghheader.ras2vox}()},
-\code{\link{mghheader.ras2vox.tkreg}()},
-\code{\link{mghheader.scanner2tkreg}()},
-\code{\link{mghheader.tkreg2scanner}()},
-\code{\link{mghheader.vox2ras}()},
-\code{\link{mghheader.vox2ras.tkreg}()},
-\code{\link{read.fs.transform}()},
-\code{\link{read.fs.transform.dat}()},
-\code{\link{read.fs.transform.lta}()},
-\code{\link{read.fs.transform.xfm}()},
-\code{\link{sm0to1}()},
-\code{\link{sm1to0}()}
+Other header coordinate space:
+\code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
+\code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
+\code{\link[=mghheader.scanner2tkreg]{mghheader.scanner2tkreg()}},
+\code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
+\code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
+\code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=read.fs.transform]{read.fs.transform()}},
+\code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
+\code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
+\code{\link[=sm0to1]{sm0to1()}},
+\code{\link[=sm1to0]{sm1to0()}}
 }
 \concept{header coordinate space}

@@ -17,8 +17,8 @@ Read DTI tracking per-coord data from file in MRtrix 'TSF' format.
 }
 \examples{
 \dontrun{
- tsff = "~/simple.tsf"
- tsf = read.dti.tsf(tsff);
+tsff <- "~/simple.tsf"
+tsf <- read.dti.tsf(tsff)
 }
 
 }

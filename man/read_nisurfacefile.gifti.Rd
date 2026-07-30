@@ -12,7 +12,7 @@
 \item{...}{ignored}
 }
 \value{
-an instance of `fs.surface`, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
+an instance of \code{fs.surface}, read from the file. See \code{\link[freesurferformats]{read.fs.surface}} for details. If none of the reader methods succeed, an error is raised.
 }
 \description{
 Read a gifti file as a surface.
