@@ -35,6 +35,9 @@ read.fs.weight <- function(filepath, format = "auto") {
   latency <- readBin(fh, integer(), size = 2L, n = 1, endian = "big")
   num_vertex_value_pairs <- fread3(fh)
 
+  # Validate allocation size
+  validate_allocation_size(c(num_vertex_value_pairs), 4L)  # 4-byte float values
+
   # message(sprintf("Latency=%d, about to read data for %d vertices.\n", latency, num_vertex_value_pairs));
 
   vertex_index <- rep(0L, num_vertex_value_pairs)

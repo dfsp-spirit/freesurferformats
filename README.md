@@ -190,6 +190,23 @@ If you do not have FreeSurfer installed and thus don't have Bert, replace `berts
 fsf_brain = system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE);
 ```
 
+## Security configuration
+
+
+The freesurferformats package includes protection against malformed or malicious input files, including a maximum allocation limit that defaults to 2 GB of memory per file. This should be plenty for standard neuroimaging applications, and you should typically not need to worry about this. However, if you are working with exceptionally large files, or in environments where you allow users to upload files you work with and expect very small files, it is definitely worth it to adapt the limits. Here is how to do that:
+
+```R
+# Directly in an R session or script, via R options (recommended for interactive use):
+options(freesurferformats.max_alloc_bytes = 1e9)   # 1 GB
+options(freesurferformats.max_alloc_bytes = Inf)    # disable (use with care)
+```
+
+```shell
+# Via environment variable (recommended for CI/containers):
+Sys.setenv(FREESURFERFORMATS_MAX_ALLOC_BYTES = 5e8) # 500 MB
+```
+
+
 ## License
 
 The *freesurferformats* package is [free software](https://en.wikipedia.org/wiki/Free_software), published under the [MIT license](https://opensource.org/licenses/MIT).

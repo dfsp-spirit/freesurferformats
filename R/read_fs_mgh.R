@@ -60,6 +60,12 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
   } else {
     fh <- file(filepath, "rb")
   }
+  on.exit(
+    {
+      close(fh)
+    },
+    add = TRUE
+  )
 
   v <- readBin(fh, integer(), n = 1, endian = "big") # mgh version
   if (v != 1L) {
@@ -83,6 +89,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
   unused_header_space_size_left <- unused_header_space_size_left - ras_flag_size
   if (header$ras_good_flag == 1L) {
     delta <- readBin(fh, numeric(), n = 3, size = 4, endian = "big") # xsize, ysize, zsize (voxel size along dimensions)
+    check_all_finite(delta, "voxel sizes (delta)")
     header$internal$xsize <- delta[1] # voxel size in mm
     header$internal$ysize <- delta[2]
     header$internal$zsize <- delta[3]
@@ -90,6 +97,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     # Mdc is the 'matrix of direction cosines'.
     # When read, it is a vector of length 9:  x_r, x_a, x_s, y_r, y_a, y_s, z_r, z_a, z_s. Note: gets turned into 3x3 matrix below.
     Mdc <- readBin(fh, numeric(), n = 9, size = 4, endian = "big")
+    check_all_finite(Mdc, "direction cosines (Mdc)")
     header$internal$x_r <- Mdc[1]
     header$internal$x_a <- Mdc[2]
     header$internal$x_s <- Mdc[3]
@@ -114,6 +122,7 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
     Mdc <- matrix(Mdc, nrow = 3, byrow = FALSE) # turn Mdc into 3x3 matrix
 
     Pxyz_c <- readBin(fh, numeric(), n = 3, size = 4, endian = "big") # 1x3 vector:  c_r, c_a, c_s. This is the RAS coordinate at the center voxel, also known as CRAS.
+    check_all_finite(Pxyz_c, "center RAS coordinates (Pxyz_c)")
     header$internal$c_r <- Pxyz_c[1]
     header$internal$c_a <- Pxyz_c[2]
     header$internal$c_s <- Pxyz_c[3]
@@ -206,6 +215,15 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
 
   # Determine number of bytes per voxel
   nbytespervox <- mri_dtype_numbytes(dtype)
+
+  # Security: validate allocation size before reading data
+  validate_allocation_size(volsz, nbytespervox)
+  # Security: check file is large enough to contain the data payload (skip for gzipped: compressed size != uncompressed)
+  if (!is_gz) {
+    header_size_bytes <- 284L  # MGH header is 284 bytes
+    check_file_size(filepath, header_size_bytes, as.numeric(nv) * nbytespervox)
+  }
+
   # cat(sprintf("Reading dtype %d '%s' with %d bytes per value.\n", dtype, dtype_name, nbytespervox));
   if (dtype == MRI_FLOAT) {
     data <- readBin(fh, numeric(), size = nbytespervox, n = nv, endian = "big")
@@ -251,8 +269,6 @@ read.fs.mgh <- function(filepath, is_gzipped = "AUTO", flatten = FALSE, with_hea
       warning = function(w) {}
     )
   }
-
-  close(fh)
 
   if (drop_empty_dims) {
     data <- drop(data)

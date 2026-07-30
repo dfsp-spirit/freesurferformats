@@ -47,6 +47,10 @@
   endian <- if (endsWith(header$datatype, "BE")) "big" else "little"
   dsize <- if (startsWith(header$datatype, "Float64")) 8L else 4L
   n2r <- (fs - offset) / dsize
+
+  # Validate allocation size before reading
+  validate_allocation_size(c(n2r), dsize)
+
   derived <- list(derived = list(filename_part = filename_part, data_offset = offset, endian = endian, dsize = dsize))
 
   fh <- file(description = filepath, open = "rb")
@@ -57,7 +61,7 @@
     add = TRUE
   )
   seek(con = fh, where = offset, origin = "start")
-  rawdata <- readBin(con = fh, what = numeric(), n = n2r, size = dsize, endian = endian)
+  rawdata <- read_safe_bin(con = fh, what = numeric(), n = n2r, size = dsize, endian = endian)
 
   if (id == "mrtrix tracks") { # TCK
     # "The binary track data themselves are stored as triplets of floating-point values:"

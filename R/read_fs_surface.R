@@ -326,6 +326,11 @@ read.fs.surface <- function(filepath, format = "auto") {
 
     num_vertices <- fread3(fh)
     num_quad_faces <- fread3(fh) # These are QUAD faces
+
+    # Validate allocation sizes
+    validate_allocation_size(c(num_vertices, 3L), 4L)
+    validate_allocation_size(c(num_quad_faces, 4L), 4L)
+
     num_tris_faces <- num_quad_faces * 2L # There are twice as many tris faces
     cat(sprintf("Reading quad surface file, expecting %d vertices and %d quad faces.\n", num_vertices, num_quad_faces))
 
@@ -380,6 +385,11 @@ read.fs.surface <- function(filepath, format = "auto") {
 
     num_vertices <- readBin(fh, integer(), size = 4, n = 1, endian = "big")
     num_faces <- readBin(fh, integer(), size = 4, n = 1, endian = "big")
+
+    # Validate allocation sizes
+    validate_allocation_size(c(num_vertices, 3L), 4L)
+    validate_allocation_size(c(num_faces, 3L), 4L)
+
     ret_list$internal$num_vertices_expected <- num_vertices
     ret_list$internal$num_faces_expected <- num_faces
 
@@ -584,6 +594,7 @@ read.fs.surface.mz3 <- function(filepath) {
     }
     is_gzipped <- TRUE
   }
+  on.exit(close(fh), add = TRUE)
   attr <- readBin(fh, integer(), size = 2, n = 1, endian = "little")
   num_faces <- magic <- readBin(fh, integer(), size = 4, n = 1, endian = "little")
   num_vertices <- readBin(fh, integer(), size = 4, n = 1, endian = "little")
@@ -609,6 +620,14 @@ read.fs.surface.mz3 <- function(filepath) {
     if (num_faces < 1L) {
       stop("Must contain at least one face is faces is set.") # nocov
     }
+  }
+
+  # Validate allocation sizes
+  if (is_vert) {
+    validate_allocation_size(c(num_vertices, 3L), 4L)
+  }
+  if (is_face) {
+    validate_allocation_size(c(num_faces, 3L), 4L)
   }
 
   # header_bytes = 16L; # these have already been read above.
@@ -646,7 +665,6 @@ read.fs.surface.mz3 <- function(filepath) {
   ret_list$metadata <- list("vertex_colors" = vertex_colors, "scalars" = scalars)
   class(ret_list) <- c("fs.surface", class(ret_list))
 
-  close(fh)
   return(ret_list)
 }
 

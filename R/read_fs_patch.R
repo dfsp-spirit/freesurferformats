@@ -42,6 +42,9 @@ read.fs.patch <- function(filepath, format = "auto") {
 
   num_points <- readBin(fh, integer(), size = 4, endian = "big") # the 'points' are actually vertex coordinates
 
+  # Validate allocation size for the points matrix (7 doubles per point)
+  validate_allocation_size(c(num_points, 7L), 8L)
+
   # message(sprintf("About to read %d points from version %d binary patch file.\n", num_points, version));
 
   points <- matrix(rep(0., num_points * 7), ncol = 7)

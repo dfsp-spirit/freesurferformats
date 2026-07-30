@@ -74,9 +74,18 @@ read.dti.trk <- function(filepath, shift_origin = TRUE) {
 
   # Read TRACK data
   if (trk$header$n_count > 0L) {
+    # Validate maximum allocation for tracks (reasonable upper bound)
+    # A typical TRK file should not have more than ~10 million tracks
+    max_tracks <- .Machine$integer.max
+    if (trk$header$n_count > max_tracks) {
+      stop(sprintf("TRK file header reports %d tracks, which exceeds maximum safe limit.", trk$header$n_count))
+    }
     for (track_idx in 1L:trk$header$n_count) {
       current_track <- list("scalars" = NULL, "properties" = NULL, "coords" = NULL)
       current_track$num_points <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
+      if (current_track$num_points < 0L || current_track$num_points > 10000000L) {
+        stop(sprintf("Track %d has %d points, which exceeds maximum safe limit.", track_idx, current_track$num_points))
+      }
       current_track$coords <- matrix(rep(NA, (current_track$num_points * 3L)), ncol = 3)
 
       if (trk$header$n_scalars > 0L) {

@@ -151,7 +151,7 @@ nifti.file.version <- function(filepath) {
     fh <- fileopen.gz.or.not(filepath)
     sizeof_hdr <- readBin(fh, integer(), n = 1, size = 4, endian = "big")
   }
-  close(fh)
+  on.exit(close(fh), add = TRUE)
 
 
   if (sizeof_hdr == 540L) {
@@ -218,7 +218,10 @@ read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   read_size_bytes <- header$bitpix / 8L # bitpix is the size in bits, but we need bytes.
   dti <- nifti.dtype.info(header$datatype, header$bitpix)
 
-  data <- readBin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian)
+  # Security: validate allocation size before reading data
+  validate_allocation_size(data_dim, read_size_bytes)
+
+  data <- read_safe_bin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian)
   data <- array(data, dim = data_dim)
   if (drop_empty_dims) {
     return(drop(data))

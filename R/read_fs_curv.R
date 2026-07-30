@@ -60,7 +60,11 @@ read.fs.curv <- function(filepath, format = "auto", with_header = FALSE) {
   header$num_verts <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
   header$num_faces <- readBin(fh, integer(), n = 1, size = 4, endian = endian)
   header$values_per_vertex <- readBin(fh, integer(), n = 1, endian = endian)
-  data <- readBin(fh, numeric(), size = 4, n = header$num_verts, endian = endian)
+
+  # Validate allocation size before reading data
+  validate_allocation_size(c(header$num_verts), 4L)
+
+  data <- read_safe_bin(fh, numeric(), size = 4, n = header$num_verts, endian = endian)
 
   if (with_header) {
     return(list("header" = header, "data" = data))

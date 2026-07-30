@@ -9,7 +9,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/dfsp-spirit/freesurferformats
 BugReports: https://github.com/dfsp-spirit/freesurferformats/issues
-Roxygen: list(markdown = TRUE, line_length = 80)
+Roxygen: list(markdown = TRUE)
 Imports:
     utils,
     pkgfilecache (>= 0.1.1),
@@ -23,4 +23,4 @@ Suggests:
     gifti (>= 0.7.5),
     cifti (>= 0.4.5)
 VignetteBuilder: knitr
-RoxygenNote: 7.3.3
+Config/roxygen2/version: 8.0.0
