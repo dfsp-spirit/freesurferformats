@@ -1,0 +1,44 @@
+# Compute Talairach RAS for surface RAS (e.g., vertex coordinates).
+
+Compute Talairach RAS for surface RAS (e.g., vertex coordinates).
+
+## Usage
+
+``` r
+surfaceras.to.talairach(
+  sras_coords,
+  talairach,
+  header_cras,
+  first_voxel_RAS = c(1, 1, 1)
+)
+```
+
+## Arguments
+
+- sras_coords:
+
+  nx3 numerical vector, the input surface RAS coordinates. Could be the
+  vertex coordinates of an 'fs.surface' instance, or the RAS coords from
+  a surface label. Use the orig surfaces.
+
+- talairach:
+
+  the 4x4 numerical talairach matrix, or a character string which will
+  be interpreted as the path to an xfm file containing the matrix
+  (typically `$SUBJECTS_DIR/$subject/mri/transforms/talairach.xfm`).
+
+- header_cras:
+
+  an MGH header instance from which to extract the cras (center RAS), or
+  the cras vector, i.e., a numerical vector of length 3
+
+- first_voxel_RAS:
+
+  the RAS of the first voxel, see
+  [`mghheader.centervoxelRAS.from.firstvoxelRAS`](https://dfsp-spirit.github.io/freesurferformats/reference/mghheader.centervoxelRAS.from.firstvoxelRAS.md)
+  for details. Ignored if 'header_cras' is a vector.
+
+## Value
+
+The Talairach RAS coordinates for the vertices of the orig surfaces (or
+coords in surface RAS space). Based on linear transform.

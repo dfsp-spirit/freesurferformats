@@ -1,0 +1,94 @@
+# Read surface morphometry data from CIFTI dscalar files.
+
+Used the 'cifti' package to load the full data from a CIFTI file, then
+extracts and reconstructs the data for a surface, based on the metadata
+like vertex counts, indices and offset in the CIFTI file.
+
+## Usage
+
+``` r
+read.fs.morph.cifti(
+  filepath,
+  brain_structure = "CIFTI_STRUCTURE_CORTEX_LEFT",
+  data_column = 1L
+)
+```
+
+## Arguments
+
+- filepath:
+
+  character string, the full path to a file in CIFTI 2 format, should
+  end with '.dscalar.nii'. Note that this is NOT a NIFTI file, despite
+  the '.nii' part. It uses a CIFTIv2 header though. See the spec for
+  details.
+
+- brain_structure:
+
+  character string or integer, the brain structure for which the data
+  should be extracted from the file. Can be a CIFTI brain structure
+  string (one of 'CIFTI_STRUCTURE_CORTEX_LEFT' or
+  'CIFTI_STRUCTURE_CORTEX_RIGHT'), or simply one of 'lh', 'rh' (which
+  are used as aliases for the former). If you specify 'both', the
+  concatenated data for 'lh' (first) and 'rh' will be returned, but you
+  will get no information on hemi boundaries. If it is an integer, it
+  will be interpreted as an index into the list of structures within the
+  CIFTI file, use with care.
+
+- data_column:
+
+  integer, the data column to return. A CIFTI file can contain several
+  measures in different data columns (e.g., cortical thickness and
+  surface area) in a single file. This specifies which column/measure
+  you want. The columns are not named, so you will need to know this in
+  advance if the file has several measures.
+
+## Value
+
+The reconstructed data for the given surface, one value per vertex in
+the surface. The value for vertices which did not have a value in the
+CIFTI data is set to `NA`.
+
+## Note
+
+This function calls code from the 'cifti' package by John Muschelli:
+<https://CRAN.R-project.org/package=cifti>.
+
+## References
+
+See
+<https://www.nitrc.org/forum/attachment.php?attachid=341&group_id=454&forum_id=1955>
+for the CIFTI 2 file format spec. See
+<https://www.nitrc.org/projects/cifti/> for more details on CIFTI,
+including example files.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
+cifti_example_data_dir <- "~/data/cifti"
+cii_file <- file.path(
+  cifti_example_data_dir,
+  "Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii"
+)
+sf_lh <- freesurferformats::read.fs.surface(file.path(
+  cifti_example_data_dir,
+  "Conte69.L.inflated.32k_fs_LR.surf.gii"
+))
+sf_rh <- freesurferformats::read.fs.surface(file.path(
+  cifti_example_data_dir,
+  "Conte69.R.inflated.32k_fs_LR.surf.gii"
+))
+morph_lh <- read.fs.morph.cifti(cii_file, "lh")
+# Myelin data
+morph_rh <- read.fs.morph.cifti(cii_file, "rh")
+morph2_lh <- read.fs.morph.cifti(cii_file, "lh", 2)
+# Cortical Thickness data
+morph2_rh <- read.fs.morph.cifti(cii_file, "rh", 2L)
+# fsbrain::vis.fs.surface(sf_lh, per_vertex_data = morph_lh);
+# fsbrain::vis.fs.surface(sf_rh, per_vertex_data = morph_rh);
+# fsbrain::vis.fs.surface(list('lh'=sf_lh, 'rh'=sf_rh),
+# per_vertex_data = list('lh'=morph2_lh, 'rh'=morph2_rh));
+} # }
+```

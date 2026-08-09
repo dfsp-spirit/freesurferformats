@@ -1,0 +1,197 @@
+# Writing FreeSurfer neuroimaging data with freesurferformats
+
+In this document, we show how to write brain imaging data to
+[FreeSurfer](https://surfer.nmr.mgh.harvard.edu) binary files.
+
+## Writing FreeSurfer neuroimaging data with freesurferformats
+
+### Writing 1D morphometry data or other per-vertex information (in MGH, MGZ or curv format)
+
+Morphometry data, or *vertex-wise measures*, are data that usually
+describe a measure like cortical thickness or surface area over the
+cortex. There is one scalar value per vertex of the brain surface mesh.
+Of course, you could write whatever you want (p-values, effect sizes at
+the vertex, …), as long as the data is scalar.
+
+The package provides the `write.fs.morph` function to write any scalar
+data that does not require metadata like MR acquisition parameters or
+transforms. With this function, the format gets determined automatically
+from the file name. In the following example, we load the area and
+thickness values for a subject and write the product of area and
+thickness (which is *not* cortical volume, by the way) to new files in
+MGH, MGZ and curv format.
+
+Let’s first load the data:
+
+``` r
+
+library("freesurferformats")
+area <- read.fs.morph(system.file("extdata", "lh.thickness", package = "freesurferformats", mustWork = TRUE))
+thickness <- read.fs.morph(system.file("extdata", "lh.area.gz", package = "freesurferformats", mustWork = TRUE))
+mymorphdata <- area * thickness
+```
+
+Now we could write our derived data like this:
+
+``` r
+
+format1 <- write.fs.morph(tempfile(fileext = "mgz"), mymorphdata)
+format2 <- write.fs.morph(tempfile(fileext = "mgh"), mymorphdata)
+format3 <- write.fs.morph(tempfile(fileext = "curv"), mymorphdata)
+```
+
+### Writing MGH and MGZ format files with full control over the header
+
+When writing 3D or 4D images, the voxels alone are sometimes not enough:
+depending on what you intend to do with the data later on, you may want
+to save metadata like MR acquisition parameters or vox2ras
+transformation matrices in the file header. This is possible with the
+`write.fs.mgh` function, that gives you full control over the MGH
+header. The two relevant pieces of header data are:
+
+- the `vox2ras_matrix`: a 4x4 double matrix that encodes the affine
+  transformation from voxel indices to *x, y, z* coordinates in space
+- the `mr_params`: a double vector of length 4 that contains the
+  following values (in this order):
+  - tr: repetition time in ms
+  - flipangle: flip angle in radians
+  - te: echo time in ms
+  - ti: inversion time in ms
+
+Here is an example that writes a file in MGH format including custom
+header data:
+
+``` r
+
+mgh_outfile <- "mystudy/subject1/mri/shifted_brain.mgz"
+data <- array(data = rep(1L, 256 * 256 * 256), dim = c(256, 256, 256))
+# not exactly a brain, but will do.
+mr_params <- c(2300, 0.1, 2., 900.)
+vox2ras_matrix <- matrix(c(-1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 127.5, -98.6273, 79.0953, 1.000), nrow = 4, byrow = FALSE)
+write.fs.mgh(mgh_outfile, data, vox2ras_matrix = vox2ras_matrix, mr_params = mr_params)
+```
+
+Note that *if and only if* you provide a `ras2vox_matrix`, the
+*ras_good* flag will be set to `TRUE` in the file header. If you do not
+provide `mr_params`, they default to all zero.
+
+#### MGH data types
+
+Data can be stored in the following data types in MGH files:
+
+- ‘MRI_UCHAR’ : 1 byte unsigned integer
+- ‘MRI_SHORT’ : 2 byte signed integer
+- ‘MRI_INT’ : 4 byte signed integer
+- ‘MRI_FLOAT’ : 4 byte signed floating point
+
+One can control the data type that is used through the `dtype`
+parameter. The default value, ‘auto’, will determine the MRI data type
+from the R data type of the `data` parameter. The following rules are
+applied for R data types:
+
+- *logical* : the data gets coerced to integer, it is written as
+  ‘MRI_UCHAR’
+- *integer* : written as ‘MRI_INT’ (no matter the range of values)
+- *double* : written as ‘MRI_FLOAT’
+
+You can manually set the ‘dtype’ parameter to force a certain MRI data
+type. E.g., you could force ‘MRI_SHORT’ for your integer data if you are
+sure that the supported value range of that data type is enough for the
+values contained in your data. Be aware though that chosing an
+unsuitable MRI data type for your data will lead to an MGH file with
+incorrect data.
+
+*Hint*: If you need to save data in a certain data type, cast your data
+before passing them to the `write.fs.mgh` function. E.g., if you have
+integers but want to store them as ‘MRI_FLOAT’, do the following:
+
+``` r
+
+some_surface_mask <- rep(1L, 163842)
+some_surface_mask[30000:45000] <- 0L
+write.fs.mgh("regionmask_stored_as_MRI_FLOAT.mgh", as.double(some_surface_mask))
+```
+
+Notice: That was an example only. For a label, storing the indices as
+MRI_FLOAT makes little sense (you could use
+[`as.logical()`](https://rdrr.io/r/base/logical.html) instead to store
+them as as ‘MRI_UCHAR’).
+
+### Writing ‘curv’ format files (morphometry data)
+
+You can use `write.fs.curv` to write arbitrary data in binary curv
+format. The result is identical to using `write.fs.morph` with any
+filename that does not end in `mgh` or `mgz`.)
+
+``` r
+
+data <- rnorm(120000, 2.0, 1.0)
+curvfile <- "mystudy/subject1/surf/lh.random"
+write.fs.curv(curvfile, data)
+```
+
+It’s worth knowing the if your filename ends with `.gz`, the file will
+be written compressed.
+
+### Writing surface format files
+
+You can use `write.fs.surface` to write triangular meshes in binary
+surface format (the format used for files like ‘surf/lh.white’ or
+‘surf/rh.pial’). A mesh is defined by a list of vertices and a list of
+faces as indices into the latter, knows as an *indexed face-set*.
+
+``` r
+
+vertices <- matrix(rep(0.3, 15), nrow = 3)
+# 5 vertices
+faces <- matrix(c(1L, 2L, 3L, 2L, 4L, 3L, 4L, 5L, 3L), nrow = 3, byrow = TRUE)
+# 3 faces
+
+write.fs.surface(tempfile(fileext = "white"), vertices, faces)
+```
+
+The vertex indices used to define the faces should be 1-based, as used
+in R. They will be written 0-based to the file.
+
+You can also use this function to write meshes in FreeSurfer ASCII
+format (`.asc`) or in VTK ASCII format (`.vtk`), see the parameter
+`format` for details.
+
+### Writing label files
+
+Labels can be written with the `write.fs.label` function. A label is
+nothing but a list of vertex indices. These indices should be passed
+1-based, as they are used in `R`.
+
+``` r
+
+output_file <- tempfile()
+# generate data
+vertex_indices <- seq(from = 10000, to = 20000)
+# write label to file
+write.fs.label(output_file, vertex_indices)
+```
+
+You can attach a single floating point value to each vertex of the
+label, see the parameter ‘vertex_data’ for details.
+
+### Writing color lookup table (LUT) files in ASCII format
+
+The following example uses the `write.fs.colortable` function to write a
+colortable:
+
+``` r
+
+colortable_df <- data.frame(
+  "struct_index" = c(0, 1), "struct_name" = c("struct1", "struct2"),
+  "r" = c(80, 100), "g" = c(50, 40), "b" = c(250, 200), "a" = c(0, 0), stringsAsFactors = FALSE
+)
+output_file <- tempfile(fileext = ".txt")
+write.fs.colortable(output_file, colortable_df)
+```
+
+A colortable is a table that contains one structure per row, and assigns
+each structure an RGBA color. Colortables are typically used to color
+the different brain regions of the segmented brain volume. The file
+‘FreeSurferColorLUT.txt’ that comes with FreeSurfer is an example for a
+colortable.
