@@ -90,3 +90,35 @@ On the console, run `Rscript -e "roxygen2::roxygenise()"`
   this locally, make sure to push the tag: `git push --tags`.
 - Log into github.com, and make a release there based on the tag. Copy
   relevant CHANGES section as description.
+
+## Continuous integration results:
+
+[![R-CMD-check](https://github.com/dfsp-spirit/freesurferformats/workflows/R-CMD-check/badge.svg)](https://github.com/dfsp-spirit/freesurferformats/actions)
+
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
+AppVeyor CI under Windows
+
+[![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats)
+Test coverage
+
+The displayed status represents the development version. Don’t worry if
+you are using the stable version from CRAN and CI is currently failing.
+
+### Contributing
+
+If you found a bug, have any question, suggestion or comment on
+freesurferformats, please [open an
+issue](https://github.com/dfsp-spirit/freesurferformats/issues). I will
+definitely answer and try to help.
+
+Please see
+[CONTRIBUTING.md](https://dfsp-spirit.github.io/freesurferformats/CONTRIBUTING.md)
+for instructions on how to contribute code.
+
+## Author and Contact
+
+The freesurferformats package was written by [Tim
+Schäfer](https://ts.rcmd.org). To contact me in person, please use the
+maintainer email address listed on the [CRAN webpage for
+freesurferformats](https://cran.r-project.org/package=freesurferformats).

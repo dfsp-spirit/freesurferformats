@@ -53,7 +53,7 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p><a href="https://ci.appveyor.com/project/dfsp-spirit/freesurferformats" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&amp;svg=true" alt="AppVeyor build status"></a> <a href="https://codecov.io/gh/dfsp-spirit/freesurferformats" class="external-link"><img src="https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg" alt="codecov"></a> <a href="https://CRAN.R-project.org/package=freesurferformats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/freesurferformats"></a> <!-- badges: end --></p>
+  <main id="main" class="col-md-9">
 <div class="section level1">
 <div class="page-header"><h1 id="freesurferformats">freesurferformats<a class="anchor" aria-label="anchor" href="#freesurferformats"></a>
 </h1></div>
@@ -229,8 +229,9 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>FREESURFERFORMATS_MAX_ALLOC_BYTES <span class="op">=</span> <span class="fl">5e8</span><span class="op">)</span> <span class="co"># 500 MB</span></span></code></pre>
 </div>
 <div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+<h2 id="license-and-author">License and Author<a class="anchor" aria-label="anchor" href="#license-and-author"></a>
 </h2>
+<p>Written by <a href="https://ts.rcmd.org" class="external-link">Tim Schäfer</a>.</p>
 <p>The <em>freesurferformats</em> package is <a href="https://en.wikipedia.org/wiki/Free_software" class="external-link">free software</a>, published under the <a href="https://opensource.org/licenses/MIT" class="external-link">MIT license</a>.</p>
 <p>Note: The file LICENSE in this repository is a CRAN license template only (as required by CRAN) and does not contain the full MIT license text. See the file <a href="./LICENSE_FULL">LICENSE_FULL</a> for the full license text.</p>
 </div>
@@ -261,42 +262,9 @@ A BibTeX entry for LaTeX users is
 <p>A poster of <em>freesurferformats</em> has been presented at INSAR 2020 Annual Meeting: <a href="https://insar.confex.com/insar/2020/meetingapp.cgi/Paper/33181" class="external-link">Abstract</a>, <a href="https://insar.confex.com/insar/2020/techdemo/eposter.cgi?eposterid=227" class="external-link">ePoster</a></p>
 </div>
 <div class="section level2">
-<h2 id="development">Development<a class="anchor" aria-label="anchor" href="#development"></a>
+<h2 id="developer-information">Developer Information<a class="anchor" aria-label="anchor" href="#developer-information"></a>
 </h2>
-<div class="section level3">
-<h3 id="installing-the-development-version">Installing the development version<a class="anchor" aria-label="anchor" href="#installing-the-development-version"></a>
-</h3>
-<p>You can install the latest development version directly from Github if you need features which have not been released yet. Please run the tests before using the dev version (see the <em>Unit tests / CI</em> section below).</p>
-<p>If you do not have <code>devtools</code> and related tools installed yet:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"devtools"</span>, <span class="st">"knitr"</span>, <span class="st">"rmarkdown"</span>, <span class="st">"testthat"</span>, <span class="st">"covr"</span><span class="op">)</span><span class="op">)</span>;</span></code></pre></div>
-<p>Then:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"dfsp-spirit/freesurferformats"</span>, build_vignettes<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p>While the development versions may have new features, you should not consider their API stable. Wait for the next release if you are not fine with adapting your code to API changes later. If in doubt, do <strong>not</strong> use the dev version.</p>
-</div>
-<div class="section level3">
-<h3 id="unit-tests-and-continuous-integration">Unit tests and Continuous integration<a class="anchor" aria-label="anchor" href="#unit-tests-and-continuous-integration"></a>
-</h3>
-<p>This package comes with <a href="./tests/testthat/">lots of unit tests</a>. To run them, in a clean R session:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/dfsp-spirit/freesurferformats" class="external-link">freesurferformats</a></span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">check</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Continuous integration results:</p>
-<!-- badges: start -->
-
-<p><a href="https://ci.appveyor.com/project/dfsp-spirit/freesurferformats" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&amp;svg=true" alt="AppVeyor build status"></a> AppVeyor CI under Windows</p>
-<p><a href="https://codecov.io/gh/dfsp-spirit/freesurferformats" class="external-link"><img src="https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg" alt="codecov"></a> Test coverage <!-- badges: end --></p>
-<p>The displayed status represents the development version. Don’t worry if you are using the stable version from CRAN and CI is currently failing.</p>
-</div>
-<div class="section level3">
-<h3 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
-</h3>
-<p>If you found a bug, have any question, suggestion or comment on freesurferformats, please <a href="https://github.com/dfsp-spirit/freesurferformats/issues" class="external-link">open an issue</a>. I will definitely answer and try to help.</p>
-<p>Please see <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> for instructions on how to contribute code.</p>
-<p>The freesurferformats package was written by <a href="https://ts.rcmd.org" class="external-link">Tim Schäfer</a>. To contact me in person, please use the maintainer email address listed on the <a href="https://cran.r-project.org/package=freesurferformats" class="external-link">CRAN webpage for freesurferformats</a>.</p>
-</div>
+<p>Please refer to <a href="./README_DEVELOPMENT.html">README_DEVELOPMENT.md</a>.</p>
 </div>
 </div>
 
@@ -342,7 +310,9 @@ A BibTeX entry for LaTeX users is
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/dfsp-spirit/freesurferformats/actions" class="external-link"><img src="https://github.com/dfsp-spirit/freesurferformats/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://ci.appveyor.com/project/dfsp-spirit/freesurferformats" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&amp;svg=true" alt="AppVeyor build status"></a></li>
+<li><a href="https://codecov.io/gh/dfsp-spirit/freesurferformats" class="external-link"><img src="https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg" alt="codecov"></a></li>
+<li><a href="https://CRAN.R-project.org/package=freesurferformats" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/freesurferformats"></a></li>
 </ul>
 </div>
 

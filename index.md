@@ -1,10 +1,5 @@
 # freesurferformats
 
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
-[![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats)
-[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
-
 GNU R package to read and write structural neuroimaging file formats.
 Comes with support for file formats used by
 [FreeSurfer](https://freesurfer.net/),
@@ -383,7 +378,9 @@ options(freesurferformats.max_alloc_bytes = Inf)    # disable (use with care)
 Sys.setenv(FREESURFERFORMATS_MAX_ALLOC_BYTES = 5e8) # 500 MB
 ```
 
-## License
+## License and Author
+
+Written by [Tim Schäfer](https://ts.rcmd.org).
 
 The *freesurferformats* package is [free
 software](https://en.wikipedia.org/wiki/Free_software), published under
@@ -434,70 +431,7 @@ Meeting:
 [Abstract](https://insar.confex.com/insar/2020/meetingapp.cgi/Paper/33181),
 [ePoster](https://insar.confex.com/insar/2020/techdemo/eposter.cgi?eposterid=227)
 
-## Development
+## Developer Information
 
-### Installing the development version
-
-You can install the latest development version directly from Github if
-you need features which have not been released yet. Please run the tests
-before using the dev version (see the *Unit tests / CI* section below).
-
-If you do not have `devtools` and related tools installed yet:
-
-``` r
-
-install.packages(c("devtools", "knitr", "rmarkdown", "testthat", "covr"));
-```
-
-Then:
-
-``` r
-
-devtools::install_github("dfsp-spirit/freesurferformats", build_vignettes=TRUE)
-```
-
-While the development versions may have new features, you should not
-consider their API stable. Wait for the next release if you are not fine
-with adapting your code to API changes later. If in doubt, do **not**
-use the dev version.
-
-### Unit tests and Continuous integration
-
-This package comes with [lots of unit
-tests](https://dfsp-spirit.github.io/freesurferformats/tests/testthat/).
-To run them, in a clean R session:
-
-``` r
-
-library(devtools)
-library(freesurferformats)
-devtools::check()
-```
-
-Continuous integration results:
-
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
-AppVeyor CI under Windows
-
-[![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats)
-Test coverage
-
-The displayed status represents the development version. Don’t worry if
-you are using the stable version from CRAN and CI is currently failing.
-
-### Contributing
-
-If you found a bug, have any question, suggestion or comment on
-freesurferformats, please [open an
-issue](https://github.com/dfsp-spirit/freesurferformats/issues). I will
-definitely answer and try to help.
-
-Please see
-[CONTRIBUTING.md](https://dfsp-spirit.github.io/freesurferformats/CONTRIBUTING.md)
-for instructions on how to contribute code.
-
-The freesurferformats package was written by [Tim
-Schäfer](https://ts.rcmd.org). To contact me in person, please use the
-maintainer email address listed on the [CRAN webpage for
-freesurferformats](https://cran.r-project.org/package=freesurferformats).
+Please refer to
+[README_DEVELOPMENT.md](https://dfsp-spirit.github.io/freesurferformats/README_DEVELOPMENT.md).
