@@ -19,3 +19,6 @@ appveyor\.yml
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
 ^\.pre-commit-config\.yaml$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
