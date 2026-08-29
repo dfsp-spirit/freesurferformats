@@ -4,6 +4,7 @@ freesurferformats Changes
 Current WIP
 -------------
 - SEC: add configurable max memory allocation via R option or env var, and other sanity fixes
+- NEW: support reading a brain atlas from a LUT and region info in a CSV file. also support writing to these files.
 
 
 Version 1.0.1
