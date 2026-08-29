@@ -39,8 +39,10 @@ print(annot)
 }
 \seealso{
 Other atlas functions:
+\code{\link[=atlas.from.lut.and.csv]{atlas.from.lut.and.csv()}},
 \code{\link[=colortable.from.annot]{colortable.from.annot()}},
 \code{\link[=read.fs.colortable]{read.fs.colortable()}},
+\code{\link[=write.atlas.to.lut.and.csv]{write.atlas.to.lut.and.csv()}},
 \code{\link[=write.fs.annot]{write.fs.annot()}},
 \code{\link[=write.fs.annot.gii]{write.fs.annot.gii()}},
 \code{\link[=write.fs.colortable]{write.fs.colortable()}}
