@@ -14,7 +14,7 @@ CHANGES
 CITATION.cff
 appveyor\.yml
 ^appveyor\.yml$
-
+dev_tools/
 ^\.github$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
