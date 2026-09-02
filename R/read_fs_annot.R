@@ -635,7 +635,8 @@ annot.max.region.idx <- function(annot) {
 #' lh_annot
 #' # shows info including region IDs
 #' rh_annot <- read.fs.annot("~/data/study1/subject1/label/rh.aparc.annot")
-#' rh_annot_mod <- annot.unique(rh_annot, annot.max.region.idx(lh_annot) + 1L, region_name_prefix = "rh_")
+#' rh_annot_mod <- annot.unique(rh_annot, annot.max.region.idx(lh_annot) + 1L,
+#'                              region_name_prefix = "rh_")
 #' }
 #'
 #' @note This function is not part of the official API and should not be used. It is currently broken.
