@@ -3,6 +3,8 @@ freesurferformats Changes
 
 Current WIP
 -------------
+- NEW: support reading CIFTI dlabel (surface parcellation) and dtseries (surface time series) files via the 'cifti' package: new functions `read.fs.parcellation.cifti()` and `read.fs.series.cifti()`. The shared surface-extraction logic of `read.fs.morph.cifti()` was refactored into internal helpers.
+- ENH: keep additional CIFTI test data (dlabel, dtseries, ptseries) in `extra_test_data` (excluded from the package via `.Rbuildignore`, since it would exceed the 5 MB CRAN size limit), and add a dev script to fetch it.
 - SEC: add configurable max memory allocation via R option or env var, and other sanity fixes
 - NEW: support reading a brain atlas from a LUT and region info in a CSV file. also support writing to these files.
 - FIX: Fix the RAS geometry written by `write.fs.mgh` when a `vox2ras` matrix with anisotropic voxels whose axes are not aligned with the coordinate axes is given. The direction cosines (`Mdc`) are now normalized per column, i.e., each voxel size is applied to its own column, instead of being misaligned, which previously corrupted the stored orientation.
