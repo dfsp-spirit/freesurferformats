@@ -1,0 +1,92 @@
+Copyright and license information for freesurferformats and its optional data files
+======================================================================================
+
+This file documents the ownership of copyright and intellectual property of
+all components of the freesurferformats package, including the optional data files
+that can be downloaded at runtime via download_opt_data(). It is provided in
+compliance with the CRAN Repository Policy
+(https://cran.r-project.org/web/packages/policies.html).
+
+
+1. Package code
+---------------
+
+The freesurferformats package code is (c) Tim Schaefer, and is licensed under the
+MIT license. See the files 'LICENSE' and 'LICENSE_FULL' for details.
+
+
+2. Demo data downloaded by download_opt_data(): subjects_dir/subject1
+---------------------------------------------------------------------
+
+The demo subject data ('subjects_dir/subject1', including the mri/, surf/,
+label/, and ext/ subdirectories) was created by Tim Schaefer, the author of
+freesurferformats, using FreeSurfer. It is the author's own data and carries no
+third-party copyright. It is provided for testing, examples, and the vignette.
+
+
+3. CIFTI-2 example data downloaded by download_opt_data(): cifti/
+-----------------------------------------------------------------
+
+The files 'Conte69.L.inflated.32k_fs_LR.surf.gii',
+'Conte69.R.inflated.32k_fs_LR.surf.gii', and
+'Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii' are part of the official
+CIFTI-2 example dataset provided by the CIFTI Connectivity File Format project on
+NITRC (https://www.nitrc.org/projects/cifti/). The example dataset is provided
+under the Open Data Commons Public Domain Dedication and Licence (PDDL 1.0), see
+http://opendatacommons.org/licenses/pddl/1.0/. The Conte69 surface template
+contained in these files was created by the Van Essen Lab (Washington University
+School of Medicine) as part of the Human Connectome Project (HCP); see the HCP
+Open Access Data Use Terms (https://www.humanconnectome.org/license).
+
+Please cite:
+
+  * Van Essen DC, et al. The WU-Minn Human Connectome Project: An overview.
+    NeuroImage 2013;80:62-79.
+
+
+4. MNI152 template downloaded by download_opt_data(): nifti2/
+-------------------------------------------------------------
+
+The file 'avg152T1_LR_nifti2.nii.gz' is a NIfTI-2 conversion of the MNI152
+('avg152T1') 1mm T1-weighted average brain template. The MNI152 template
+originates from the Montreal Neurological Institute (MNI) / ICBM project and is
+widely redistributed (e.g., as part of FSL and SPM) for non-commercial research
+use. The NIfTI-2 variant distributed here is a derived conversion prepared for
+testing the NIfTI-2 reader.
+
+
+5. MRtrix3 test data downloaded by download_opt_data(): dwi/
+------------------------------------------------------------
+
+The files 'tracks.tck' and 'tracks.tsf' are synthetic tractography test data in
+the MRtrix3 track (TCK) and track scalar (TSF) file formats. They were generated
+with MRtrix3 (https://www.mrtrix3.org/) and contributed to freesurferformats via
+pull request #36 (https://github.com/dfsp-spirit/freesurferformats/pull/36)
+under the package's MIT license. They do not contain any third-party image data.
+The TCK/TSF file format is defined by the MRtrix3 project (J-Donald Tournier et
+al.) and is described at
+https://mrtrix.readthedocs.io/en/latest/getting_started/image_data.html.
+
+Please cite:
+
+  * Tournier JD, et al. MRtrix3: A fast, flexible and open software framework for
+    medical image processing and visualisation. NeuroImage 2019;202:116137.
+
+
+6. Trademarks
+-------------
+
+'FreeSurfer', 'Conte69', 'HCP', 'MNI' and 'MRtrix3' are names, marks, or project
+names of their respective owners. Their use here is factual and does not imply
+endorsement by, or affiliation with, the respective owners.
+
+
+7. Availability
+---------------
+
+None of the optional data files described above are part of the freesurferformats
+package itself. They are downloaded on demand from a public web server
+(https://rcmd.org/projects/nitestdata/) or from the GitHub release
+(https://github.com/dfsp-spirit/freesurferformats/releases/tag/nitestdata-v1)
+into a local package file cache managed by the 'pkgfilecache' package. Users must
+comply with the respective licenses of the data they download.
