@@ -37,9 +37,11 @@ contained it or not.
 ## See also
 
 Other atlas functions:
+[`atlas.from.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/atlas.from.lut.and.csv.md),
 [`colortable.from.annot()`](https://dfsp-spirit.github.io/freesurferformats/reference/colortable.from.annot.md),
 [`read.fs.annot()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.annot.md),
 [`read.fs.colortable()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.colortable.md),
+[`write.atlas.to.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.atlas.to.lut.and.csv.md),
 [`write.fs.annot()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.annot.md),
 [`write.fs.annot.gii()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.annot.gii.md)
 

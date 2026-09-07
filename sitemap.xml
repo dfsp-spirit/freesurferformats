@@ -13,6 +13,7 @@
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/annot.max.region.idx.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/annot.unique.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/assert.surface.html</loc></url>
+<url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/atlas.from.lut.and.csv.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/bvsmp.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/cdata.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/check.dtype.for.data.html</loc></url>
@@ -131,8 +132,10 @@
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.ni2.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.nii.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.txt.html</loc></url>
+<url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.parcellation.cifti.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.patch.asc.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.patch.html</loc></url>
+<url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.series.cifti.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.asc.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.bvsrf.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.byu.html</loc></url>
@@ -190,6 +193,7 @@
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/validate_allocation_size.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/vertex.euclid.dist.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/vertexdists.to.point.html</loc></url>
+<url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/write.atlas.to.lut.and.csv.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.annot.gii.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.annot.html</loc></url>
 <url><loc>https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.colortable.html</loc></url>

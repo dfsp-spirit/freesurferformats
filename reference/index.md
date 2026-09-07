@@ -5,6 +5,10 @@
 - [`annot.max.region.idx()`](https://dfsp-spirit.github.io/freesurferformats/reference/annot.max.region.idx.md)
   : Get max region index of an fs.annot instance.
 
+- [`atlas.from.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/atlas.from.lut.and.csv.md)
+  : Construct a brain atlas from a colortable (LUT) file and a
+  per-vertex label file.
+
 - [`bvsmp()`](https://dfsp-spirit.github.io/freesurferformats/reference/bvsmp.md)
   : Create new bvsmp instance encoding morph data for Brainvoyager.
 
@@ -256,11 +260,17 @@
 - [`read.fs.morph.txt()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.txt.md)
   : Read morphometry data from plain text file
 
+- [`read.fs.parcellation.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.parcellation.cifti.md)
+  : Read surface parcellation data from CIFTI dlabel files.
+
 - [`read.fs.patch()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.patch.md)
   : Read FreeSurfer binary or ASCII patch file.
 
 - [`read.fs.patch.asc()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.patch.asc.md)
   : Read FreeSurfer ASCII format patch.
+
+- [`read.fs.series.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.series.cifti.md)
+  : Read surface time series data from CIFTI dtseries files.
 
 - [`read.fs.surface()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.surface.md)
   : Read file in FreeSurfer surface format or various mesh formats.
@@ -395,6 +405,10 @@
 
 - [`vertexdists.to.point()`](https://dfsp-spirit.github.io/freesurferformats/reference/vertexdists.to.point.md)
   : Compute Euclidean distance from all mesh vertices to given point.
+
+- [`write.atlas.to.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.atlas.to.lut.and.csv.md)
+  : Write a brain atlas to a colortable (LUT) file and a per-vertex
+  label file.
 
 - [`write.fs.annot()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.annot.md)
   : Write annotation to binary file.
