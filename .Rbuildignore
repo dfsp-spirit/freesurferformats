@@ -24,4 +24,5 @@ dev_tools/
 ^pkgdown$
 extra_test_data
 renovate.json
+dev_tools
 
