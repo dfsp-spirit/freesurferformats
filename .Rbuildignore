@@ -22,3 +22,6 @@ dev_tools/
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+extra_test_data
+renovate.json
+
