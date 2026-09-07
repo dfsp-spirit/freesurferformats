@@ -5,6 +5,8 @@ Current WIP
 -------------
 - SEC: add configurable max memory allocation via R option or env var, and other sanity fixes
 - NEW: support reading a brain atlas from a LUT and region info in a CSV file. also support writing to these files.
+- FIX: Fix the RAS geometry written by `write.fs.mgh` when a `vox2ras` matrix with anisotropic voxels whose axes are not aligned with the coordinate axes is given. The direction cosines (`Mdc`) are now normalized per column, i.e., each voxel size is applied to its own column, instead of being misaligned, which previously corrupted the stored orientation.
+- ENH: Add tests that cross-validate the FreeSurfer reference files `brain.mgz` (shipped in `inst/extdata`) and `brain.nii` (kept in `extra_test_data`, which is not part of the package due to the 5 MB size limit). The tests check that reading both files yields identical voxel data and geometry, and that a NIfTI header generated from the MGH volume matches the FreeSurfer NIfTI reference. They are skipped when `extra_test_data` is not available (CRAN, installed package) and run in git checkouts of the repository, including continuous integration.
 
 
 Version 1.0.1

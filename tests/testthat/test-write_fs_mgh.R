@@ -185,3 +185,38 @@ test_that("Improper use of write.fs.mgh leads to errors", {
   expect_error(write.fs.mgh(filepath, data = array(seq.int(6), dim = rep(1L, 6L)))) # invalid data: too many dimensions (>5)
   expect_error(write.fs.mgh(filepath, data = rep("hi", 100L))) # invalid data: character strings not supported, no suitable MRI_DTYPE
 })
+
+
+test_that("An MGH volume written with an anisotropic, rotated vox2ras matrix reads back with the same geometry", {
+  # Regression test: the direction cosines (Mdc) written to the MGH header must be the columns of
+  # the vox2ras linear part normalized by their own voxel size. A previous version normalized them
+  # with the voxel sizes misaligned (row-wise instead of column-wise), which corrupted the stored
+  # orientation for anisotropic volumes whose axes are not aligned with the coordinate axes.
+  data <- array(as.integer(sample(0:255, 4 * 5 * 6, replace = TRUE)), dim = c(4, 5, 6, 1))
+
+  # A rotation about the z axis combined with anisotropic voxel sizes (1, 2, 3) mm. The columns of
+  # the resulting linear part have norms 1, 2 and 3 and contain off-axis entries, which exposes
+  # misaligned column normalization.
+  rot_z <- matrix(c(0, -1, 0, 1, 0, 0, 0, 0, 1), nrow = 3, byrow = TRUE)
+  vox2ras <- diag(4)
+  vox2ras[1:3, 1:3] <- rot_z %*% diag(c(1, 2, 3))
+  vox2ras[1:3, 4] <- c(10, -20, 30)
+
+  output_file <- tempfile(fileext = ".mgz")
+  write.fs.mgh(output_file, data, vox2ras_matrix = vox2ras)
+
+  mgh <- read.fs.mgh(output_file, with_header = TRUE)
+  expect_equal(mgh$data, data)
+  expect_equal(mghheader.vox2ras(mgh), vox2ras, tolerance = 1e-4)
+
+  # And a second, differently signed/rotated anisotropic case for good measure.
+  rot_z2 <- matrix(c(0, 1, 0, -1, 0, 0, 0, 0, -1), nrow = 3, byrow = TRUE)
+  vox2ras2 <- diag(4)
+  vox2ras2[1:3, 1:3] <- rot_z2 %*% diag(c(1.5, 2.0, 3.5))
+  vox2ras2[1:3, 4] <- c(5, 6, 7)
+  output_file2 <- tempfile(fileext = ".mgz")
+  write.fs.mgh(output_file2, data, vox2ras_matrix = vox2ras2)
+  mgh2 <- read.fs.mgh(output_file2, with_header = TRUE)
+  expect_equal(mghheader.vox2ras(mgh2), vox2ras2, tolerance = 1e-4)
+})
+

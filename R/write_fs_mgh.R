@@ -135,7 +135,12 @@ write.fs.mgh <- function(filepath, data, vox2ras_matrix = NULL, mr_params = c(0.
     MdcD <- vox2ras_matrix[1:3, 1:3] # The upper left 3x3 part of the 4x4 vox2ras matrix
     delta <- sqrt(colSums(MdcD**2)) # a 3x1 vector, the x,y,z voxel sizes
 
-    delta_tvec <- rep(delta, 3) # 3x3 matrix
+    # Normalize the columns of MdcD by their own norm (= the voxel size along that axis), to get
+    # the unit direction cosines of the 3 volume axes. Each column of the vox2ras matrix is the
+    # direction cosine vector of one volume axis scaled by its voxel size, so the normalization
+    # divisor must repeat each voxel size *per column* (each = 3), not per row (times = 3), which
+    # would misalign the voxel sizes for anisotropic volumes with off-axis orientation.
+    delta_tvec <- rep(delta, each = 3) # 3x3 matrix (in column-major order)
     Mdc <- as.vector(MdcD / delta_tvec)
     Pcrs_c <- c(dim1 / 2, dim2 / 2, dim3 / 2, 1) # center voxel index
     Pxyz_c <- vox2ras_matrix %*% Pcrs_c # RAS coord of center voxel
