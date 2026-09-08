@@ -1,4 +1,7 @@
 <!-- badges: start -->
+[![DOI](https://zenodo.org/badge/203574524.svg)](https://doi.org/10.5281/zenodo.3540434)
+[![unittests](https://github.com/dfsp-spirit/freesurferformats/actions/workflows/R-CMD-check.yaml/badge.svg?branch=master)](https://github.com/dfsp-spirit/freesurferformats/actions)
+[![docs](https://github.com/dfsp-spirit/freesurferformats/actions/workflows/pkgdown.yaml/badge.svg?branch=master)](https://github.com/dfsp-spirit/freesurferformats/actions)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/dfsp-spirit/freesurferformats?branch=master&svg=true)](https://ci.appveyor.com/project/dfsp-spirit/freesurferformats)
 [![codecov](https://codecov.io/gh/dfsp-spirit/freesurferformats/branch/master/graph/badge.svg)](https://codecov.io/gh/dfsp-spirit/freesurferformats)
 [![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
@@ -82,9 +85,6 @@ If you want support for as many neuroimaging file formats as possible, do this i
 ```r
 install.packages("freesurferformats", dependencies=TRUE);
 ```
-
-
-[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
 In case something goes wrong, don't worry. Just install the missing [system dependencies](#system-dependencies) and retry.
 
