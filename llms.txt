@@ -208,8 +208,6 @@ do this instead to install with all optional dependencies:
 install.packages("freesurferformats", dependencies=TRUE);
 ```
 
-[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
-
 In case something goes wrong, don’t worry. Just install the missing
 [system dependencies](#system-dependencies) and retry.
 
