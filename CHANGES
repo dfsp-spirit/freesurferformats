@@ -1,6 +1,15 @@
 freesurferformats Changes
 =========================
 
+
+Version 1.0.3 -- Current WIP
+-----------------------------
+- FIX: `read.fs.volume.nii()` now returns the voxel data in the raw NIFTI file storage order by default. Its `...` parameters used to be passed on to `oro.nifti::readNIfTI()`, whose default is `reorient = TRUE`. That reorientation permutes and/or flips the voxel data, but does not update the `sform` header fields, so the returned `data` array did not match the geometry derived from these fields in the returned header (and thus not `mghheader.vox2ras()`). This silently yielded wrong results for all NIFTI files whose `sform` is not aligned with the RAS axes, e.g. `inst/extdata/vol27int.nii.gz` or scanner-space data in LAS orientation, and it made volumes with an oblique (rotated) `sform` unreadable, since `oro.nifti` aborted with the error "Transformation is not simple, cannot reorient!".
+- NEW: `read.fs.volume.nii()` has an explicit `reorient` parameter now (default `FALSE`) instead of relying on `...`. Reorienting on read, and passing a `nifti` instance that was read with `reorient = TRUE`, are discouraged and now raise a warning.
+- NEW: `read.fs.volume.nii()` returns a `vox2ras_matrix` entry in the header if the NIFTI file contains `sform` or `qform` geometry information, just like `read.fs.mgh()` does.
+
+
+
 Version 1.0.2 -- Improved CIFTI support and security
 -----------------------------------------------------
 - NEW: support reading CIFTI dlabel (surface parcellation) and dtseries (surface time series) files via the 'cifti' package: new functions `read.fs.parcellation.cifti()` and `read.fs.series.cifti()`. The shared surface-extraction logic of `read.fs.morph.cifti()` was refactored into internal helpers.
@@ -9,9 +18,6 @@ Version 1.0.2 -- Improved CIFTI support and security
 - NEW: support reading a brain atlas from a LUT and region info in a CSV file. also support writing to these files.
 - FIX: Fix the RAS geometry written by `write.fs.mgh` when a `vox2ras` matrix with anisotropic voxels whose axes are not aligned with the coordinate axes is given. The direction cosines (`Mdc`) are now normalized per column, i.e., each voxel size is applied to its own column, instead of being misaligned, which previously corrupted the stored orientation. This is a rare special case.
 - ENH: Add tests that cross-validate the FreeSurfer reference files `brain.mgz` (shipped in `inst/extdata`) and `brain.nii` (kept in `extra_test_data`, which is not part of the package due to the 5 MB size limit). The tests check that reading both files yields identical voxel data and geometry, and that a NIfTI header generated from the MGH volume matches the FreeSurfer NIfTI reference. They are skipped when `extra_test_data` is not available (CRAN, installed package) and run in git checkouts of the repository, including continuous integration.
-- FIX: `read.fs.volume.nii()` now returns the voxel data in the raw NIFTI file storage order by default. Its `...` parameters used to be passed on to `oro.nifti::readNIfTI()`, whose default is `reorient = TRUE`. That reorientation permutes and/or flips the voxel data, but does not update the `sform` header fields, so the returned `data` array did not match the geometry derived from these fields in the returned header (and thus not `mghheader.vox2ras()`). This silently yielded wrong results for all NIFTI files whose `sform` is not aligned with the RAS axes, e.g. `inst/extdata/vol27int.nii.gz` or scanner-space data in LAS orientation, and it made volumes with an oblique (rotated) `sform` unreadable, since `oro.nifti` aborted with the error "Transformation is not simple, cannot reorient!".
-- NEW: `read.fs.volume.nii()` has an explicit `reorient` parameter now (default `FALSE`) instead of relying on `...`. Reorienting on read, and passing a `nifti` instance that was read with `reorient = TRUE`, are discouraged and now raise a warning.
-- NEW: `read.fs.volume.nii()` returns a `vox2ras_matrix` entry in the header if the NIFTI file contains `sform` or `qform` geometry information, just like `read.fs.mgh()` does.
 
 
 Version 1.0.1 -- Nifti conversion support and fixes
