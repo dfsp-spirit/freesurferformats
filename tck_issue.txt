@@ -1,0 +1,105 @@
+freesurferformats: issues found in the DTI streamline readers (TRK/TCK/TSF)
+==========================================================================
+Found 2026-09-16 while evaluating a yabplot-style plot_tracts() for fsbrain.
+All findings below were reproduced empirically (no code reading only). Nothing fixed yet.
+
+Files: R/read_dti_trk.R, R/read_dti_tcktsf.R
+
+
+WHAT IS ALREADY CORRECT (do not "fix" these)
+--------------------------------------------
+* TRK header parse matches the spec byte-for-byte (id@0, dim@6, voxel_size@12, origin@24,
+  n_scalars@36, 200 scalar names, n_properties@238, 200 property names, vox_to_ras@440,
+  reserved 444, voxel_order@948, pad2, image_orientation_patient, 6 pad bytes,
+  n_count@988, version@992, hdr_size@996 -> 1000). Verified by manual parse of real files.
+* Endianness detection via hdr_size == 1000 works (little/big).
+* Track/point counts are byte-exact vs an independent Python parse:
+  XTRACT IFOF_L.trk -> 1708 streamlines / 180852 points (R = Python).
+* TCK/TSF splitting on NaN runs is correct: AAL116 exemplar .tck -> 6670 tracks in R =
+  6670 distinct finite runs in Python. (Header says count: 6786; the difference is 116
+  empty/degenerate streamlines - MRtrix writes a NaN separator for those too.)
+* Float32LE handling, scalars, properties, validate_allocation_size guard: fine.
+
+
+ISSUES (most severe first)
+--------------------------
+1) [SILENT DATA CORRUPTION] .tck.gz is read as garbage, no error
+   read.dti.tck("x.tck.gz") returns plausible-looking junk (e.g. 7622 "tracks" whose
+   coords are +-3.4e38) instead of failing.
+   Cause: the text header is read with readLines(), which decompresses .gz transparently,
+   but the payload is read from file(filepath, "rb") (does NOT decompress - verified:
+   file(...,"rb") yields gzip magic 1f 8b, gzfile(...,"rb") yields "mrtrix"), and
+   n2r = (file.size() - offset)/dsize is computed from the COMPRESSED size.
+   Why it matters: QSIRecon/MRtrix pipelines emit .tck.gz (our sub-01 tractogram is
+   8.9 GB gz). Repro: gzip -k a real .tck, then read.dti.tck(paste0(f, ".gz")).
+   Fix: detect gzip (magic bytes) and use gzfile(); size the payload from the
+   uncompressed size, or better, read until the Inf/Inf/Inf terminator.
+
+2) [USABILITY] Whole-file allocation makes real data fail with a confusing error
+   n2r = (file.size() - offset)/dsize reads the entire payload as doubles. The 8.9 GB gz
+   file => n2r = 2.2e9 => "Requested allocation of 8907.1 MB exceeds the safety limit of
+   2000.0 MB. Set a higher limit with options(...)". The message blames the guard, but the
+   real problems are (a) gzip and (b) that a 10M-streamline whole-brain tractogram cannot
+   be held in R at all. Repro: read.dti.tck(<qsirecon tck.gz>).
+   Fix: gz support; add max_streamlines / subset reading; consider chunked/streaming read;
+   make the guard message mention the compressed-size pitfall.
+
+3) [BUG] 100 KB minimum file size rejects valid TCK files
+   if (fs/1024 < 100) stop("File not in TCK/TSF format: file too small.") in
+   .read.dti.tcktsf(). Verified: a valid 160-byte, 2-streamline .tck is rejected.
+   Fix: drop the heuristic; validate the header + terminator instead.
+   Repro: write header (count: 2, datatype Float32LE, END) + 6 floats + Inf triple.
+
+4) [FRAGILE] Header cut off after 50 lines
+   L <- readLines(filepath, n = 50L); k <- grep("END", L) -> "invalid format" if END is
+   not in the first 50 lines. Our QSIRecon file's header is 35 lines, so it just fits;
+   a longer command_history/comments/labels block would break it.
+   Fix: read until "END" (growing the read), or find the data offset from the header.
+
+5) [BUG] TRK: n_count == 0 returns 0 tracks SILENTLY
+   Spec says 0 = count unknown/not stored. Verified by patching bytes 989:992 of a real
+   file to 0: read.dti.trk() returns an empty $tracks with no warning (vis.dti.trk then
+   stops with "Empty track file").
+   Fix: warn about the unsupported case (or read until EOF).
+   Related dead code: max_tracks <- .Machine$integer.max; if (n_count > max_tracks) can
+   never be TRUE (n_count is read as a 4-byte integer).
+
+6) [API GAP] TRK: header$vox2ras is exposed but never applied to the coordinates
+   $tracks[[i]]$coords are the raw values from the file, which are NOT necessarily RAS mm.
+   The XTRACT atlas files (e.g. xtract_medium/*.trk) store coords in their own 1mm voxel
+   grid with voxel_order "LPS" and
+     vox_to_ras = [[-1,0,0,78],[0,-1,0,76],[0,0,1,-50],[0,0,0,1]]
+   Raw coords of IFOF_L: x[85.2,125.2]; after applying vox2ras: x[-47.2,-7.2] (MNI152 RAS,
+   confirmed by landmarks: CST_L/R at x ~ -17/+17 with z -51..+80 = medulla..motor cortex,
+   FMaj on the midline reaching y -102.5 = occipital pole). Plotting raw coords gives a
+   left-right AND anterior-posterior mirrored brain.
+   Fix: add an option like read.dti.trk(..., coords = c("native","ras")) - or document
+   loudly that the caller must apply header$vox2ras (as the doc note already implies).
+   Also worth documenting: shift_origin only covers the TrackVis-vs-DSI-Studio half-voxel
+   difference; it does not handle non-identity LPS/affine files.
+
+7) [PERFORMANCE] TRK reads point-by-point
+   The per-point readBin(fh, numeric(), n = 3, size = 4) loop runs at ~385k points/s vs
+   ~57M floats/s for a bulk readBin (~50x). Measured: 0.5 s for 180852 points, fine today,
+   but the reader will not scale to bundle sets with millions of points.
+   Fix: read each track's coords in one readBin (n = num_points * 3) and matrix(byrow=TRUE),
+   or read the whole payload once and split by the interleaved int32 lengths.
+
+NICE-TO-HAVE (not bugs)
+-----------------------
+* No writer for TRK/TCK (round-tripping a modified tractogram is impossible).
+* No subset reading (first N streamlines / bbox filter), needed for whole-brain files.
+* No EOF/structure validation in TRK (nothing checks that the track list ends exactly at
+  file.size()), so truncated files are not detected explicitly.
+* vis.dti.trk() in fsbrain is rgl-only and does not use the affine either; a new
+  renderable-based implementation is planned in fsbrain instead (see the connectome work's
+  fs.coloredpaths + scimesh line_layer()/generate_tubes()).
+
+TEST DATA USED (all local, for re-checking)
+-------------------------------------------
+* /tmp/xtract_probe/xtract_tiny/*.trk - 37 XTRACT bundles, MNI152, LPS+affine (see 6).
+* /tmp/tcktest/*.tck(.gz) - real MRtrix3 3.0.4 files from QSIRecon sub-01
+  (qsirecon-MRtrix3_fork-SS3T_act-HSVS, ACPC space, 6670 tracks, Float32LE).
+* Whole-brain subject tractogram (8.9 GB gz, iFOD2, -select 10000000):
+  .../qsirecon/derivatives/qsirecon-MRtrix3_fork-SS3T_act-HSVS/sub-01/dwi/
+  sub-01_space-ACPC_model-ifod2_streamlines.tck.gz
