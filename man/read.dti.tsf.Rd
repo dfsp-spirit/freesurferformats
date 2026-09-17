@@ -4,16 +4,27 @@
 \alias{read.dti.tsf}
 \title{Read DTI tracking per-coord data from file in MRtrix 'TSF' format.}
 \usage{
-read.dti.tsf(filepath)
+read.dti.tsf(filepath, max_tracks = Inf)
 }
 \arguments{
-\item{filepath}{character string, path to the \code{TSF} file to read.}
+\item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
+to read. Gzip-compressed files (i.e., \code{.tck.gz}) are supported and the
+compression is detected from the file content, not the file name.}
+
+\item{max_tracks}{numeric, the maximum number of tracks to read. Use
+\code{Inf} (the default) to read all tracks. This allows reading a subset
+of a very large tractogram without holding all of it in memory.}
 }
 \value{
-named list with entries 'header' and 'scalars'. The scalar data are available in 2 representations: 'merged': a vector of all values (requires external knowledge on track borders), and 'scalar_list': organized into a list of vectors. Each vector represents the values for the points of one track.
+named list with entries 'header' and 'scalars'. The scalar data are
+available in 3 representations: 'merged' (a vector of all values), 'lengths'
+(the number of values per track) and 'scalar_list' (a list of vectors, one
+per track, which is expensive for large files and should be avoided for
+whole-brain data in favour of 'merged' and 'lengths').
 }
 \description{
-Read DTI tracking per-coord data from file in MRtrix 'TSF' format.
+Reads per-vertex track scalars from a TSF file, optionally
+gzip-compressed.
 }
 \examples{
 \dontrun{

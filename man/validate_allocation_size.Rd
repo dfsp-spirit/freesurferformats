@@ -7,18 +7,23 @@
 validate_allocation_size(
   dims,
   bytes_per_elem,
-  max_bytes = get_max_alloc_bytes()
+  max_bytes = get_max_alloc_bytes(),
+  label = NULL
 )
 }
 \arguments{
 \item{dims}{numeric vector of dimension sizes (e.g., \code{c(256, 256, 256)}).}
 
 \item{bytes_per_elem}{single numeric value, the number of bytes per element
-(e.g., \code{4} for float32).}
+as stored in memory (e.g., \code{8} for a \code{numeric()} vector).}
 
 \item{max_bytes}{single numeric value, the maximum allowed allocation in bytes.
 Defaults to the result of \code{get_max_alloc_bytes()}. Pass \code{Inf} to
 disable the limit check (negative/NA/Inf dims are still rejected).}
+
+\item{label}{character string or NULL, a human-readable description of what
+is being allocated. Included in the error message to help the user
+understand which part of a file the limit was hit on.}
 }
 \value{
 the total number of elements (as double), invisibly. The function
@@ -28,5 +33,10 @@ stops with an error if the allocation would be unsafe.
 Given dimension sizes and bytes per element, checks that the
 total allocation size is safe. Catches negative/NA/Inf dimensions, integer
 overflow (by converting to double), and enforces the max allocation limit.
+
+Note that \code{bytes_per_elem} must be the size of an element \emph{in memory},
+which is not necessarily the size on disk: \code{readBin()} into a
+\code{numeric()} vector allocates 8 bytes per element even when the values
+are stored as 4 byte floats.
 }
 \keyword{internal}

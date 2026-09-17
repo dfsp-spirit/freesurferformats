@@ -4,16 +4,27 @@
 \alias{read.dti.tck}
 \title{Read DTI tracking data from file in MRtrix 'TCK' format.}
 \usage{
-read.dti.tck(filepath)
+read.dti.tck(filepath, max_tracks = Inf)
 }
 \arguments{
-\item{filepath}{character string, path to the \code{TCK} file to read.}
+\item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
+to read. Gzip-compressed files (i.e., \code{.tck.gz}) are supported and the
+compression is detected from the file content, not the file name.}
+
+\item{max_tracks}{numeric, the maximum number of tracks to read. Use
+\code{Inf} (the default) to read all tracks. This allows reading a subset
+of a very large tractogram without holding all of it in memory.}
 }
 \value{
-named list with entries 'header' and 'tracks'. The tracks are organized into a list of matrices. Each n x 3 matrix represents the coordinates for the n points of one track, the values in each row are the xyz-coords.
+named list with entries 'header' and 'tracks'. The tracks are stored
+in an \code{\link{is.fs.tracts}} instance: all coordinates are kept in a
+single matrix and \code{tracks[[i]]} returns the n x 3 coordinate matrix of
+the i-th track. Use \code{fs.tracts.lengths(tck$tracks)} to get the number
+of points of each track, and \code{as.list(tck$tracks)} to convert to a
+plain list of matrices.
 }
 \description{
-Read DTI tracking data from file in MRtrix 'TCK' format.
+Reads streamlines from a TCK file, optionally gzip-compressed.
 }
 \examples{
 \dontrun{

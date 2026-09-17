@@ -2,11 +2,24 @@
 % Please edit documentation in R/read_dti_tcktsf.R
 \name{.read.dti.tcktsf}
 \alias{.read.dti.tcktsf}
-\title{.read.dti.tcktsf}
+\title{Read DTI tracking data from MRtrix TCK and TSF files.}
 \usage{
-.read.dti.tcktsf(filepath)
+.read.dti.tcktsf(filepath, max_tracks = Inf)
+}
+\arguments{
+\item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
+to read. Gzip-compressed files (i.e., \code{.tck.gz}) are supported and the
+compression is detected from the file content, not the file name.}
+
+\item{max_tracks}{numeric, the maximum number of tracks to read. Use
+\code{Inf} (the default) to read all tracks. This allows reading a subset
+of a very large tractogram without holding all of it in memory.}
+}
+\value{
+named list with entries \code{header} and either \code{tracks} (for
+TCK files) or \code{scalars} (for TSF files).
 }
 \description{
-.read.dti.tcktsf
+Read DTI tracking data from MRtrix TCK and TSF files.
 }
 \keyword{internal}

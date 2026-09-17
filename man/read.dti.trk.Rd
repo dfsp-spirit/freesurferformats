@@ -4,21 +4,27 @@
 \alias{read.dti.trk}
 \title{Read fiber tracks from Diffusion Toolkit in trk format.}
 \usage{
-read.dti.trk(filepath, shift_origin = TRUE)
+read.dti.trk(filepath, shift_origin = TRUE, max_tracks = Inf)
 }
 \arguments{
 \item{filepath}{character string, path to file in trk format.}
 
 \item{shift_origin}{logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to \code{TRUE} (the default) to compute the corrected \code{vox2ras} that maps to voxel centers, as used by TrackVis. Set to \code{FALSE} if the file was written by DSI Studio, which does not apply this shift. See the notes for details.}
+
+\item{max_tracks}{numeric, the maximum number of tracks to read. Use \code{Inf}
+(the default) to read all tracks. This allows reading a subset of a very
+large tractogram without holding all of it in memory.}
 }
 \value{
-named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}. The returned header will contain the field \code{vox2ras} (the raw matrix stored in the TRK file, mapping from mm space to RAS) and, if \code{shift_origin} is \code{TRUE}, the additional field \code{vox2ras_corrected} (the computed matrix mapping from voxel indices to voxel center RAS coordinates).
+named list, the parsed file data. The naming of the variables follows the spec at \code{http://trackvis.org/docs/?subsect=fileformat}. The returned header will contain the field \code{vox2ras} (the raw matrix stored in the TRK file, mapping from mm space to RAS) and, if \code{shift_origin} is \code{TRUE}, the additional field \code{vox2ras_corrected} (the computed matrix mapping from voxel indices to voxel center RAS coordinates). The tracks are stored in an \code{\link{is.fs.tracts}} instance: \code{tracks[[i]]} returns a list with the entries \code{coords} (n x 3 matrix), \code{num_points} (integer), \code{scalars} (matrix or NULL) and \code{properties} (numeric vector or NULL) for the i-th track. Use \code{fs.tracts.lengths(trk$tracks)} to get the number of points of each track, and \code{as.list(trk$tracks)} to convert to a plain list.
 }
 \description{
 Read fiber tracks from Diffusion Toolkit in trk format.
 }
 \note{
 The 4x4 matrix stored in TRK files (labeled \code{vox_to_ras} in the spec) is actually a transformation from \strong{mm} space to RAS, not from voxel space to RAS. The TRK format was designed by TrackVis with the assumption that voxels are 1 mm\eqn{^3}, and that coordinates refer to voxel corners rather than centers. To obtain the actual vox2ras matrix (voxel center in RAS), the raw matrix must be combined with a voxel-size scaling and a half-voxel offset correction: \code{vox2ras_corrected = mm2ras \%*\% mm_correction \%*\% vox2mm}, where \code{vox2mm} scales by the inverse voxel size and \code{mm_correction} shifts by -0.5 mm. Note that DSI Studio does \strong{not} apply this half-voxel shift, so you may need to set \code{shift_origin=FALSE} for DSI Studio files.
+
+The track coordinates are returned exactly as they are stored in the file, they are \strong{not} transformed to RAS space. Use the \code{vox2ras} or \code{vox2ras_corrected} matrix from the header to transform them if needed (see \code{fs.tracts.coords}). Note that the matrix alone is not always sufficient: 'nibabel' additionally applies an axis permutation derived from the \code{voxel_order} header field when it disagrees with the orientation implied by the affine.
 }
 \examples{
 \dontrun{

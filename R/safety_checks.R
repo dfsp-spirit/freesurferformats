@@ -42,20 +42,29 @@ get_max_alloc_bytes <- function() {
 #'   total allocation size is safe. Catches negative/NA/Inf dimensions, integer
 #'   overflow (by converting to double), and enforces the max allocation limit.
 #'
+#'   Note that \code{bytes_per_elem} must be the size of an element *in memory*,
+#'   which is not necessarily the size on disk: \code{readBin()} into a
+#'   \code{numeric()} vector allocates 8 bytes per element even when the values
+#'   are stored as 4 byte floats.
+#'
 #' @param dims numeric vector of dimension sizes (e.g., \code{c(256, 256, 256)}).
 #'
 #' @param bytes_per_elem single numeric value, the number of bytes per element
-#'   (e.g., \code{4} for float32).
+#'   as stored in memory (e.g., \code{8} for a \code{numeric()} vector).
 #'
 #' @param max_bytes single numeric value, the maximum allowed allocation in bytes.
 #'   Defaults to the result of \code{get_max_alloc_bytes()}. Pass \code{Inf} to
 #'   disable the limit check (negative/NA/Inf dims are still rejected).
 #'
+#' @param label character string or NULL, a human-readable description of what
+#'   is being allocated. Included in the error message to help the user
+#'   understand which part of a file the limit was hit on.
+#'
 #' @return the total number of elements (as double), invisibly. The function
 #'   stops with an error if the allocation would be unsafe.
 #'
 #' @keywords internal
-validate_allocation_size <- function(dims, bytes_per_elem, max_bytes = get_max_alloc_bytes()) {
+validate_allocation_size <- function(dims, bytes_per_elem, max_bytes = get_max_alloc_bytes(), label = NULL) {
   if (!is.numeric(dims)) {
     stop("validate_allocation_size: 'dims' must be numeric.")
   }
@@ -79,10 +88,14 @@ validate_allocation_size <- function(dims, bytes_per_elem, max_bytes = get_max_a
   total_bytes <- total_elements * as.numeric(bytes_per_elem)
 
   if (is.finite(max_bytes) && total_bytes > max_bytes) {
+    what <- if (is.null(label)) "" else sprintf(" for %s", label)
     stop(sprintf(
-      "Requested allocation of %.1f MB exceeds the safety limit of %.1f MB.\n",
-      total_bytes / 1e6, max_bytes / 1e6
-    ), "Set a higher limit with: options(freesurferformats.max_alloc_bytes = <bytes>)\n",
+      "Requested allocation of %.2f GB%s exceeds the safety limit of %.2f GB.\n",
+      total_bytes / 1e9, what, max_bytes / 1e9
+    ), "Note that this limit protects against running out of memory: if the data really is\n",
+    "  that large, then reading it into a single R object is likely to fail anyway. Consider\n",
+    "  reading only a subset (see the 'max_tracks' parameter of the track file readers).\n",
+    "Set a higher limit with: options(freesurferformats.max_alloc_bytes = <bytes>)\n",
     "  or set environment variable: FREESURFERFORMATS_MAX_ALLOC_BYTES=<bytes>\n",
     "  Use Inf to disable the limit.")
   }

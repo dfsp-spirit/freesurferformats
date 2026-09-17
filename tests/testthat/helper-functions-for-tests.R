@@ -61,3 +61,201 @@ find_extra_test_data_file <- function(relpath) {
   }
   return(NULL)
 }
+
+
+#' @title Write a minimal TRK file for testing.
+#'
+#' @description Writes a version 2 TRK file with the given tracks, so that tests
+#' do not depend on downloaded optional data. Per-point scalars and per-track
+#' properties are filled with predictable values when requested:
+#' scalar number `s` (1-based) of point `j` of track `t` is `1000 * s + j`, and
+#' property `p` (1-based) of track `t` is `10000 * t + p`.
+#'
+#' @param path character string, the output file path.
+#' @param tracks list of numeric matrices with 3 columns, the tracks.
+#' @param endian character string, 'little' or 'big'.
+#' @param vox2ras 4x4 numeric matrix, the matrix stored in the header.
+#' @param n_count integer or NULL, the value for the 'n_count' header field. NULL
+#'   stores the real number of tracks, 0L stores "unknown".
+#' @param n_scalars integer, number of scalars per point.
+#' @param n_properties integer, number of properties per track.
+#' @param voxel_size numeric vector of length 3.
+#' @param voxel_order character string, stored in the header.
+#'
+#' @return the path, invisibly.
+write_test_trk <- function(path, tracks, endian = "little", vox2ras = diag(4), n_count = NULL,
+                           n_scalars = 0L, n_properties = 0L, voxel_size = c(1, 1, 1),
+                           voxel_order = "LPS") {
+  con <- file(path, "wb")
+  on.exit({ close(con) }, add = TRUE)
+
+  w_i16 <- function(values) writeBin(as.integer(values), con, size = 2, endian = endian)
+  w_i32 <- function(values) writeBin(as.integer(values), con, size = 4, endian = endian)
+  w_f32 <- function(values) writeBin(as.numeric(values), con, size = 4, endian = endian)
+  w_chr <- function(value, n) {
+    bytes <- charToRaw(value)
+    writeBin(c(bytes, as.raw(rep(0, n - length(bytes))))[seq_len(n)], con)
+  }
+
+  w_chr("TRACK", 6)
+  w_i16(c(10, 10, 10))          # dim
+  w_f32(voxel_size)             # voxel_size
+  w_f32(c(0, 0, 0))             # origin
+  w_i16(n_scalars)
+  w_chr("", 200)                # scalar_names
+  w_i16(n_properties)
+  w_chr("", 200)                # property_names
+  w_f32(as.numeric(t(vox2ras))) # vox_to_ras
+  w_chr("", 444)                # reserved
+  w_chr(voxel_order, 4)
+  w_chr("", 4)                  # pad2
+  w_f32(rep(0, 6))              # image_orientation_patient
+  w_chr("", 2)                  # pad1
+  writeBin(as.raw(rep(0, 6)), con) # invert_x/y/z, swap_xy/yz/zx
+  w_i32(if (is.null(n_count)) length(tracks) else n_count)
+  w_i32(2L)                     # version
+  w_i32(1000L)                  # hdr_size
+
+  for (track_idx in seq_along(tracks)) {
+    track <- tracks[[track_idx]]
+    num_points <- nrow(track)
+    w_i32(num_points)
+    for (point_idx in seq_len(num_points)) {
+      w_f32(track[point_idx, ])
+      if (n_scalars > 0L) {
+        w_f32(1000 * seq_len(n_scalars) + point_idx)
+      }
+    }
+    if (n_properties > 0L) {
+      w_f32(10000 * track_idx + seq_len(n_properties))
+    }
+  }
+
+  return(invisible(path))
+}
+
+
+#' @title Write a minimal TCK file for testing.
+#'
+#' @description Writes a single-file TCK file with the given tracks, so that
+#' tests do not depend on downloaded optional data. The payload is written the
+#' way the MRtrix and nibabel writers do it, with a NaN triplet after every
+#' track and an Inf triplet at the end; see the arguments to test the other
+#' variants.
+#'
+#' @param path character string, the output file path.
+#' @param tracks list of numeric matrices with 3 columns, the tracks.
+#' @param datatype character string, one of 'Float32LE', 'Float32BE',
+#'   'Float64LE', 'Float64BE'.
+#' @param extra_header_lines character vector of additional header lines.
+#' @param terminator logical, whether to write the Inf triplet at the end.
+#' @param count_key logical, whether to write a 'count' header entry.
+#' @param count_value integer or NULL, the value to write for the 'count' header
+#'   entry. NULL writes the real number of tracks.
+#' @param nan_after_last logical, whether to write a NaN triplet after the last
+#'   track (TRUE, as MRtrix and nibabel do) or only between tracks (FALSE).
+#'
+#' @return the path, invisibly.
+write_test_tck <- function(path, tracks, datatype = "Float32LE", extra_header_lines = character(0),
+                           terminator = TRUE, count_key = TRUE, count_value = NULL,
+                           nan_after_last = TRUE) {
+  dsize <- if (grepl("64", datatype)) 8L else 4L
+  endian <- if (endsWith(datatype, "BE")) "big" else "little"
+
+  values <- numeric(0)
+  for (track_idx in seq_along(tracks)) {
+    values <- c(values, as.numeric(t(tracks[[track_idx]])))
+    if (track_idx < length(tracks) || nan_after_last) {
+      values <- c(values, NaN, NaN, NaN)
+    }
+  }
+  if (terminator) {
+    values <- c(values, Inf, Inf, Inf)
+  }
+
+  # The offset depends on its own number of digits, so iterate until it is stable.
+  offset <- 100L
+  repeat {
+    lines <- c("mrtrix tracks",
+               if (count_key) sprintf("count: %d", if (is.null(count_value)) length(tracks) else count_value),
+               paste0("datatype: ", datatype),
+               extra_header_lines,
+               sprintf("file: . %d", offset),
+               "END")
+    header <- paste0(paste(lines, collapse = "\n"), "\n")
+    new_offset <- nchar(header, type = "bytes")
+    if (new_offset == offset) {
+      break
+    }
+    offset <- new_offset
+  }
+
+  con <- file(path, "wb")
+  writeBin(charToRaw(header), con)
+  writeBin(as.numeric(values), con, size = dsize, endian = endian)
+  close(con)
+  return(invisible(path))
+}
+
+
+#' @title Write a minimal TSF file for testing.
+#'
+#' @description Writes a single-file TSF file with the given per-track values,
+#' using one NaN per track boundary and one Inf at the end.
+#'
+#' @param path character string, the output file path.
+#' @param track_values list of numeric vectors, the values of each track.
+#' @param datatype character string, one of 'Float32LE', 'Float32BE',
+#'   'Float64LE', 'Float64BE'.
+#'
+#' @return the path, invisibly.
+write_test_tsf <- function(path, track_values, datatype = "Float32LE") {
+  dsize <- if (grepl("64", datatype)) 8L else 4L
+  endian <- if (endsWith(datatype, "BE")) "big" else "little"
+
+  values <- numeric(0)
+  for (track_idx in seq_along(track_values)) {
+    values <- c(values, as.numeric(track_values[[track_idx]]), NaN)
+  }
+  values <- c(values, Inf)
+
+  offset <- 100L
+  repeat {
+    lines <- c("mrtrix track scalars",
+               sprintf("count: %d", length(track_values)),
+               paste0("datatype: ", datatype),
+               "timestamp: 12345.0",
+               sprintf("file: . %d", offset),
+               "END")
+    header <- paste0(paste(lines, collapse = "\n"), "\n")
+    new_offset <- nchar(header, type = "bytes")
+    if (new_offset == offset) {
+      break
+    }
+    offset <- new_offset
+  }
+
+  con <- file(path, "wb")
+  writeBin(charToRaw(header), con)
+  writeBin(as.numeric(values), con, size = dsize, endian = endian)
+  close(con)
+  return(invisible(path))
+}
+
+
+#' @title Deterministic pseudo-random tracks for testing.
+#'
+#' @param num_tracks integer, number of tracks to generate.
+#' @param points_per_track integer, number of points per track.
+#' @param seed integer, random seed.
+#'
+#' @return list of numeric matrices with 3 columns.
+make_test_tracks <- function(num_tracks, points_per_track, seed = 1L) {
+  set.seed(seed)
+  return(replicate(num_tracks,
+                   cbind(stats::runif(points_per_track, 0, 100),
+                         stats::runif(points_per_track, 0, 100),
+                         stats::runif(points_per_track, 0, 100)),
+                   simplify = FALSE))
+}
+
