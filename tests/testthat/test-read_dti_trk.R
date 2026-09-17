@@ -140,7 +140,7 @@ testthat::test_that('read.dti.trk() exposes the vox2ras matrices without applyin
   fp <- tempfile(fileext = '.trk');
   write_test_trk(fp, tracks, vox2ras = vox2ras);
 
-  trk <- freesurferformats::read.dti.trk(fp, shift_origin = TRUE);
+  trk <- freesurferformats::read.dti.trk(fp, shift_origin = TRUE, coords = 'native');
   testthat::expect_equal(trk$header$vox2ras, vox2ras, tolerance = 1e-5);
   testthat::expect_true(!is.null(trk$header$vox2ras_corrected));
 
@@ -148,7 +148,10 @@ testthat::test_that('read.dti.trk() exposes the vox2ras matrices without applyin
   # to RAS space. Callers have to apply the matrix themselves.
   testthat::expect_equal(trk$tracks[[1]]$coords[, 1], c(85.2, 125.2), tolerance = 1e-4);
 
-  trk_no_shift <- freesurferformats::read.dti.trk(fp, shift_origin = FALSE);
+  # Not passing 'coords' at all warns about exactly that.
+  testthat::expect_warning(freesurferformats::read.dti.trk(fp), 'not in RAS space');
+
+  trk_no_shift <- freesurferformats::read.dti.trk(fp, shift_origin = FALSE, coords = 'native');
   testthat::expect_null(trk_no_shift$header$vox2ras_corrected);
 })
 

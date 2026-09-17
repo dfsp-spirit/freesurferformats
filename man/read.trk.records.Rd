@@ -10,7 +10,10 @@ read.trk.records(
   n_scalars,
   n_properties,
   max_tracks = Inf,
-  expected_tracks = NA_real_
+  expected_tracks = NA_real_,
+  skip_tracks = 0L,
+  bbox = NULL,
+  transform = NULL
 )
 }
 \arguments{
@@ -23,12 +26,23 @@ the first track record.}
 
 \item{n_properties}{integer, number of properties per track.}
 
-\item{max_tracks}{numeric, maximum number of tracks to read. Use \code{Inf}
-to read until the end of the file.}
+\item{max_tracks}{numeric, maximum number of tracks to select. Use
+\code{Inf} to read until the end of the file.}
 
 \item{expected_tracks}{numeric, the number of tracks stated in the header, or
 NA if the header does not contain a usable count. Used to report truncated
 files, never to limit reading.}
+
+\item{skip_tracks}{integer, the number of tracks to skip before selecting
+any, see \code{\link{read.dti.trk}}.}
+
+\item{bbox}{numeric vector of length 6 or NULL, a bounding box, see
+\code{\link{read.dti.trk}}.}
+
+\item{transform}{4x4 numeric matrix or NULL. If given, it is applied to the
+coordinates of every track as it is read, before the bounding box filter is
+evaluated and before they are stored. This is used to filter in the target
+coordinate system without transforming the whole result twice.}
 }
 \value{
 named list with entries \code{coords} (matrix with 3 columns and one
@@ -37,9 +51,9 @@ row per point), \code{lengths} (integer vector, points per track),
 }
 \description{
 Reads track records from the current position of the connection
-until the end of the file or until \code{max_tracks} records have been read.
-Coordinates and per-point scalars are stored interleaved in the file, so
-each record is read with a single \code{readBin} call and split afterwards,
-instead of reading one point at a time.
+until the end of the file or until \code{max_tracks} records have been
+selected. Coordinates and per-point scalars are stored interleaved in the
+file, so each record is read with a single \code{readBin} call and split
+afterwards, instead of reading one point at a time.
 }
 \keyword{internal}

@@ -26,7 +26,18 @@ tract.}
 an \code{fs.tracts} instance.
 }
 \description{
-This is the internal constructor, use the \code{read.dti.tck},
-\code{read.dti.trk} or \code{read.dti.tsf} functions to obtain instances.
+Creates the compact container used by the DTI tract readers and
+writers. Reading a track file with \code{\link{read.dti.tck}},
+\code{\link{read.dti.trk}} or \code{\link{read.dti.tsf}} returns instances of
+this class, and this function is the way to build one from your own data,
+e.g., to write a tractogram that was assembled or edited in R with
+\code{\link{write.dti.tck}} or \code{\link{write.dti.trk}}.
 }
-\keyword{internal}
+\examples{
+# Two tracts, the first with two points and the second with one.
+coords <- matrix(c(0, 0, 0, 1, 1, 1, 5, 5, 5), ncol = 3, byrow = TRUE);
+tracts <- fs.tracts(coords, lengths = c(2L, 1L));
+length(tracts);
+tracts[[1]];
+
+}

@@ -4,7 +4,7 @@
 \alias{read.dti.tck}
 \title{Read DTI tracking data from file in MRtrix 'TCK' format.}
 \usage{
-read.dti.tck(filepath, max_tracks = Inf)
+read.dti.tck(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL)
 }
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
@@ -14,6 +14,17 @@ compression is detected from the file content, not the file name.}
 \item{max_tracks}{numeric, the maximum number of tracks to read. Use
 \code{Inf} (the default) to read all tracks. This allows reading a subset
 of a very large tractogram without holding all of it in memory.}
+
+\item{skip_tracks}{integer, the number of tracks to skip before reading any.
+Skipped tracks are never held in memory.}
+
+\item{bbox}{numeric vector of length 6 or NULL. If given, only tracks that
+have at least one point inside the box are read, the box is given as
+\code{c(xmin, xmax, ymin, ymax, zmin, zmax)} in the coordinate system of
+the stored data. This has no effect for TSF files, which store no
+coordinates. The number of matching tracks cannot be known in advance, so
+for very large files this should be combined with a \code{max_tracks}
+value that is known to be safe.}
 }
 \value{
 named list with entries 'header' and 'tracks'. The tracks are stored
@@ -30,6 +41,12 @@ Reads streamlines from a TCK file, optionally gzip-compressed.
 \dontrun{
 tckf <- "~/simple.tck"
 tck <- read.dti.tck(tckf)
+
+# Read only the first 1000 streamlines of a huge tractogram:
+first_tracks <- read.dti.tck(tckf, max_tracks = 1000)
+
+# Read the streamlines passing through a region:
+region <- read.dti.tck(tckf, bbox = c(-10, 10, -20, 20, 0, 30))
 }
 
 }

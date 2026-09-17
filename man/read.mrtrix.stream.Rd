@@ -11,6 +11,8 @@ read.mrtrix.stream(
   endian,
   values_per_point,
   max_groups = Inf,
+  skip_groups = 0L,
+  bbox = NULL,
   chunk_values = 4e+06,
   filepath = "",
   gzipped = FALSE,
@@ -28,8 +30,16 @@ read.mrtrix.stream(
 
 \item{values_per_point}{integer, 3 for TCK (xyz triples) and 1 for TSF.}
 
-\item{max_groups}{numeric, stop after this many groups. Use \code{Inf} to
-read everything.}
+\item{max_groups}{numeric, stop after this many groups have been selected.
+Use \code{Inf} to read everything.}
+
+\item{skip_groups}{integer, the number of streamlines to skip before
+selecting any. Skipped streamlines are never held in memory.}
+
+\item{bbox}{numeric vector of length 6 or NULL. If given, only streamlines
+that have at least one point inside the box are selected. The box is given
+as \code{c(xmin, xmax, ymin, ymax, zmin, zmax)} in the coordinate system
+of the stored data.}
 
 \item{chunk_values}{integer, number of values to read per chunk.}
 
@@ -52,9 +62,14 @@ named list with entries \code{data} (matrix with
 \description{
 Reads the payload sequentially in chunks and splits it into
 groups of \code{values_per_point} finite values, which are the points of the
-individual streamlines. Non-finite groups act as separators, a group of
-Inf values terminates the data. Groups that contain no points at all (two
-consecutive separators, which MRtrix writes for empty streamlines) are
-dropped, matching the 'nibabel' reader.
+individual streamlines.
+
+The end of the data is normally marked by a group of Inf values, but that
+marker is not always present: the TSF test data shipped with this package
+has none, and the MRtrix reference reader treats the plain end of the file
+as a normal end of the streamline data as well. Its absence is therefore not
+an error here, it is only reported as a warning when the header states a
+larger number of streamlines than were found, i.e., when data really is
+missing.
 }
 \keyword{internal}

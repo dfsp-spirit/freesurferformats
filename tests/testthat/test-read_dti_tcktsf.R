@@ -122,10 +122,15 @@ testthat::test_that('read.dti.tck() detects files that are not in TCK format', {
 
 
 testthat::test_that('read.dti.tck() reports unusable files clearly', {
-  # A 'count: 0' header states that the file stores no streamlines.
+  # A 'count: 0' header describes a file without any streamlines, which is a
+  # legitimate state (e.g., the result of writing an empty fs.tracts instance).
   fp_zero <- tempfile(fileext = '.tck');
   write_test_tck(fp_zero, list(cbind(c(0, 1), c(0, 1), c(0, 1))), count_value = 0L);
-  testthat::expect_error(freesurferformats::read.dti.tck(fp_zero), 'any streamlines');
+  testthat::expect_equal(length(freesurferformats::read.dti.tck(fp_zero)$tracks), 1L);
+
+  fp_empty <- tempfile(fileext = '.tck');
+  write_test_tck(fp_empty, list(), count_value = 0L);
+  testthat::expect_equal(length(freesurferformats::read.dti.tck(fp_empty)$tracks), 0L);
 
   fp_not_tck <- tempfile(fileext = '.tck');
   writeLines(rep('this is not a tck file', 5L), fp_not_tck);

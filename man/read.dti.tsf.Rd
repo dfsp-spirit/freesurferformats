@@ -4,7 +4,7 @@
 \alias{read.dti.tsf}
 \title{Read DTI tracking per-coord data from file in MRtrix 'TSF' format.}
 \usage{
-read.dti.tsf(filepath, max_tracks = Inf)
+read.dti.tsf(filepath, max_tracks = Inf, skip_tracks = 0L)
 }
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
@@ -14,6 +14,9 @@ compression is detected from the file content, not the file name.}
 \item{max_tracks}{numeric, the maximum number of tracks to read. Use
 \code{Inf} (the default) to read all tracks. This allows reading a subset
 of a very large tractogram without holding all of it in memory.}
+
+\item{skip_tracks}{integer, the number of tracks to skip before reading any.
+Skipped tracks are never held in memory.}
 }
 \value{
 named list with entries 'header' and 'scalars'. The scalar data are
