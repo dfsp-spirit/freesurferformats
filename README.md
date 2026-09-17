@@ -50,7 +50,9 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
 
-* Fiber track formats (DTI, diffusion tensor imaging): there is read support for the '.trk' format used by the [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/) and the '.tck' and '.tsf' formats used by [MRtrix3](https://www.mrtrix.org/).
+* Fiber track formats (DTI, diffusion tensor imaging): the '.trk' format used by [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/) and the '.tck' and '.tsf' formats used by [MRtrix3](https://www.mrtrix.org/) can be read, and '.trk' and '.tck' files can also be written. Very large tractograms can be processed without loading them into memory: there are functions to count the tracks, to compute their bounding box, and to iterate over them one at a time.
+
+* Diffusion MRI gradient tables (b-vectors and b-values): the FSL format, i.e. a '.bvec' and '.bval' file pair, and the MRtrix gradient table format can be read and written. Both the layout written by the FSL tools (three lines of vector components, all b-values in one line) and the layout used by other tools (one volume per line, as distributed by the Human Connectome Project) are detected automatically. Reading b-vectors and b-values together verifies that they match, and reports questionable entries -- missing values, gradient vectors that are not unit vectors, or a b-value without a direction -- instead of silently changing them. Note that the gradient vectors in these files refer to the *image* axes, so they are only meaningful together with the image they belong to.
 
 We also provide wrappers and adapter functions for existing neuroimaging file format packages, which load the data into *freesurferformats* data structures:
 
@@ -129,6 +131,7 @@ read.fs.patch()       # read a surface patch, which is a part of a surface.
 read.fs.transform()   # read spatial transformation matrix
 read.dti.tck()        # read DTI tracks from MRtrix3 'TCK' format
 read.dti.trk()        # read DTI tracks from Diffusion Toolkit/TrakVis 'TRK' format
+read.dti.gradients()  # read and validate a diffusion gradient table (FSL '.bvec'/'.bval' pair or MRtrix format)
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file

@@ -259,3 +259,47 @@ make_test_tracks <- function(num_tracks, points_per_track, seed = 1L) {
                    simplify = FALSE))
 }
 
+
+#' @title Write a gradient table file for testing.
+#'
+#' @description Writes the given lines to a file in a fresh temporary directory.
+#' The contents are given as a character vector, one string per line, so that
+#' the tests can exercise all on-disk layouts (three component lines versus one
+#' volume per line, a single row versus one value per line).
+#'
+#' @param lines character vector, the lines of the file.
+#' @param name character string, the file name to use.
+#'
+#' @return character string, the path to the written file.
+write_test_gradient_file <- function(lines, name = "grad.b") {
+  tmp_dir <- tempfile("dwigrad")
+  dir.create(tmp_dir)
+  path <- file.path(tmp_dir, name)
+  writeLines(lines, path)
+  return(path)
+}
+
+
+#' @title Write a pair of gradient table files for testing.
+#'
+#' @description Writes a b-vectors file and a b-values file into the same fresh
+#' temporary directory, which is what the automatic lookup of the b-values file
+#' needs.
+#'
+#' @param bvec_lines character vector, the lines of the b-vectors file.
+#' @param bval_lines character vector, the lines of the b-values file.
+#' @param bvec_name character string, the file name of the b-vectors file.
+#' @param bval_name character string, the file name of the b-values file.
+#'
+#' @return named list with the entries 'dir' (the temporary directory), 'bvec'
+#'   and 'bval' (the two file paths).
+write_test_gradient_pair <- function(bvec_lines, bval_lines, bvec_name = "dwi.bvec", bval_name = "dwi.bval") {
+  tmp_dir <- tempfile("dwigrad")
+  dir.create(tmp_dir)
+  bvec_path <- file.path(tmp_dir, bvec_name)
+  bval_path <- file.path(tmp_dir, bval_name)
+  writeLines(bvec_lines, bvec_path)
+  writeLines(bval_lines, bval_path)
+  return(list("dir" = tmp_dir, "bvec" = bvec_path, "bval" = bval_path))
+}
+

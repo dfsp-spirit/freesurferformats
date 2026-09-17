@@ -1,0 +1,297 @@
+# File format expansion plan
+
+Goal: grow *freesurferformats* beyond its FreeSurfer origin so that it is also a
+practical low-level I/O package for the **fMRI/HCP** and **DWI (diffusion MRI)**
+communities, without breaking the existing FreeSurfer/CAT12/FSL/BrainVoyager
+support.
+
+Status legend: `[ ]` todo, `[~]` in progress, `[x]` done, `[!]` blocked, `[-]` dropped.
+
+---
+
+## 0. Baseline: what the package supports today (2026-09-17)
+
+Own readers + writers (no FreeSurfer installation required):
+
+| Domain | Formats |
+| --- | --- |
+| Volumes | MGH/MGZ (incl. header, `vox2ras`, RAS<->vox), NIfTI-1 (`.nii`, `.nii.gz`, FS fsnifti hack), NIfTI-2 |
+| FS morphometry | `curv` (binary + ASCII), `weight`/`w`/paint, `patch` (binary + ASCII), morph in `mgh`/`mgz`/`gii`/`nii`/`ni1`/`ni2`/`txt`/`asc`/`smp` |
+| FS labels/atlases | `annot`, label (surface + volume), colortable LUT, LUT+CSV atlas |
+| Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII), SRF; read-only: BYU, GEO, TRI/ICO, STL (ASCII + binary) |
+| BrainVoyager | SMP (R/W), SRF |
+| Tracts | TRK (R/W), TCK (R/W), TSF (**read only**) + headers, streaming, `bbox`/`skip_tracks`, `fs.tracts` |
+| Transforms | LTA, `register.dat`, `xfm` -- **read only, no writer at all** |
+| GIFTI | morph, surface, label, annot (R/W), generic data array writer |
+| CIFTI-2 | `.dscalar.nii`, `.dlabel.nii`, `.dtseries.nii` -- **read only**, via the `cifti` package |
+
+Comparison baseline: nibabel supports NIfTI1/2, ANALYZE (plain/SPM99/SPM2),
+GIFTI, CIFTI-2 (full R/W), FreeSurfer (MGH/annot/label/morph/geometry), MINC1,
+MINC2, AFNI BRIK/HEAD (read-only), ECAT7, Philips PAR/REC, DICOM (`nicom`,
+read-only), and streamlines (TRK, TCK). Verified against a local checkout of
+nibabel 5.4.2-131-g699b9923 at `~/builds_and_patches/nibabel`. Two facts that
+were worth checking and that shape the plan: nibabel has **no** reader for a
+`.bvec`/`.bval` file pair (gradients only appear in `parrec.get_bvals_bvecs()`,
+for Philips PAR/REC headers), and `nibabel/streamlines/` contains **no TRX
+module** -- so neither of the two Tier 1 DWI items is a port of existing
+nibabel code, and DIPY (for gradients) and MRtrix3 (for `.grad`) are the
+references to match.
+
+Where freesurferformats already leads: OBJ/OFF/PLY/STL/MZ3/VTK/SRF/BYU/GEO
+meshes, TSF, weight/paint/patch/colortable, `register.dat`/LTA/xfm,
+BrainVoyager formats, multi-format `write.fs.morph()` dispatch.
+
+Nibabel's structural advantage for the fMRI crowd is not its format list but
+lazy, memory-mapped array access (`ArrayProxy`) -- see item **V.1**.
+
+---
+
+## I. Tier 1 -- highest value for fMRI/HCP + DWI
+
+### I.1 [~] Diffusion gradient tables: FSL `.bvec`/`.bval` + MRtrix `.grad`
+
+Implemented in `R/read_dwi_gradients.R` and `R/write_dwi_gradients.R`. The
+`read.fsl.*` / `read.mrtrix.*` names from the original sketch were dropped: the
+package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
+
+- [x] Return layout decided: `bvec` is an N x 3 matrix with columns x, y, z and
+      one row per volume; `bval` is a numeric vector of length N.
+- [x] `read.dti.bvec()` / `write.dti.bvec()`, incl. 3xN vs Nx3 detection
+- [x] `read.dti.bval()` / `write.dti.bval()` (single line and one value per line)
+- [x] `read.dti.grad()` / `write.dti.grad()` (MRtrix format, columns x, y, z, b)
+- [x] `read.dti.gradients()` entry point, with automatic b-values file lookup
+- [x] `validate.dti.gradients()` (internal): length and `n_volumes` checks, the
+      NA/NaN rules, and reporting of non-unit norms / zero directions
+- [x] `layout` parameter ('auto' / 'components' / 'volumes') to override detection
+- [x] Tests, including a real QSIPrep pair in `extra_test_data/dwi/`
+- [ ] Voxel <-> scanner conversion (`fsl2mrtrix`-style). Needs the *rotation*
+      part of the image transform, i.e. the direction cosines with the voxel
+      sizes divided out, plus MRtrix3's determinant-based first-axis flip.
+- [ ] FSL sign/hemisphere convention: documented in the code comments, but the
+      conversion itself is what makes it observable to users.
+- Effort: S-M. See section "Gradients: detailed spec" below.
+
+### I.2 [ ] CIFTI-2 write + read of `.dconn`/`.pconn`/`.ptseries`
+- Binary layer is NIfTI-2 + an XML extension; the package already has an NIfTI-2
+  writer and `xml2`, so a native writer is feasible without the `cifti` dep.
+- The hard part is the index-map/brain-model bookkeeping (dense vertex indices
+  vs parcels, `MEDIAL_WALL_ROI`), not the container.
+- Reading is currently delegated to the `cifti` package (read-only, Soft dep);
+  `.dconn` (dense connectomes, standard HCP resting-state output) cannot be read
+  at all today.
+- Effort: M-L.
+
+### I.3 [ ] BIDS metadata sidecars
+- `*_bold.json`, `*_dwi.json` (`RepetitionTime`, `SliceTiming`,
+  `PhaseEncodingDirection`, `TotalReadoutTime`, `EchoTime`), `*_events.tsv`,
+  `dataset_description.json`.
+- `jsonlite`/`read.table` make this simple; this is what makes a format usable in
+  a real HCP/BIDS dataset, and it pairs with I.1.
+- Effort: S.
+
+### I.4 [ ] FSL/ANTs/ITK transform matrices (`.mat`, `.tfm`, `.h5`)
+- The package can read FS transforms but cannot **write any transform at all**.
+- FSL `.mat` is a 4x4 text matrix (trivial); ITK `.tfm` is a small text format.
+- Effort: S-M.
+
+### I.5 [ ] VTK legacy **binary**
+- Only VTK ASCII is supported. Binary VTK is the mesh/`POLYDATA` interchange for
+  Paraview, TrackVis and DSI Studio streamline export.
+- Extending the existing VTK reader/writer covers surfaces *and* streamlines.
+- Effort: M.
+
+---
+
+## II. Tier 2 -- strong value, more work
+
+### II.1 [ ] TRX (`.trx`) streamlines, read + write
+- Modern HCP-scale successor to TRK/TCK; per-streamline/per-point data,
+  header-driven, memory-mappable. Supported by MRtrix3, DIPY, TrackVis and
+  DSI Studio. Verified absent from nibabel 5.4.2+ (`nibabel/streamlines/` has no
+  TRX module), so there is no Python implementation to copy from either.
+- `fs.tracts` already uses the contiguous-matrix + lengths layout that TRX stores
+  on disk (see comments in `R/trackvis_affine.R` and `R/fs_tracts.R`).
+- Effort: L.
+
+### II.2 [ ] ANALYZE 7.5 `.hdr`/`.img`, read + write
+- Same 348-byte header as NIfTI-1 with a different magic -> almost free, a variant
+  of the existing NIfTI-1 reader. Also gives FSL `.img`/`.hdr` pairs.
+- Best value per line of code on this list.
+- Effort: S.
+
+### II.3 [ ] GIFTI multi-array / time-series write (`.func.gii`, `.dtseries.gii`)
+- Reading is good, but the writer is morph-oriented. Surface fMRI in the
+  HCP/workbench world uses multiple data arrays + time-axis metadata.
+- Effort: M.
+
+### II.4 [ ] NRRD (`.nrrd`/`.nhdr`)
+- 4D-capable, header can carry DWI gradients and ROI metadata; used by 3D Slicer,
+  DTI-TK and increasingly in dMRI tooling.
+- Not in nibabel's documented format list either (Python uses `pynrrd`), and
+  **there is no NRRD support anywhere in R** -- an open niche.
+- Effort: M.
+
+### II.5 [ ] AFNI BRIK/HEAD (read-only)
+- nibabel is also read-only here. Real but narrower: AFNI users can convert to
+  NIfTI. The `.BRIK.gz` variants and the header attribute grammar are the work.
+- Effort: M-L.
+
+### II.6 [ ] MRtrix `.mif` image read
+- Needed for FODs/fixels/5D dMRI data and the fixel-directory format without
+  shelling out to MRtrix. The tractography side is largely covered by TCK/TSF.
+- Effort: M-L.
+
+---
+
+## III. Tier 3 -- cheap cleanups
+
+- [ ] `write.dti.tsf()` -- TSF is read-only today; per-streamline scalars
+  (FA/length along track) are a common MRtrix workflow. Near-copy of the TCK
+  writer. Effort: S.
+- [ ] `.trk.gz` -- the TCK/TSF path detects gzip by magic bytes, but the TRK
+  reader has no gzip handling at all (verified: no `gzfile`/magic-byte logic in
+  `R/read_dti_trk.R`). Effort: S.
+- [ ] STL binary write -- read exists, write does not. Effort: S.
+- [ ] Connectome Workbench `.spec` -- how HCP file collections and structure
+  mappings are declared alongside CIFTI/GIFTI. Effort: S-M.
+
+---
+
+## IV. Deliberately NOT planned (even though nibabel has them)
+
+- **MINC-1/2** -- CIVET/MNI legacy, negligible overlap with the target audiences.
+- **ECAT7** (PET) -- outside both target communities.
+- **Philips PAR/REC** -- read-only, ultra-niche, nibabel has discussed dropping it.
+- **DICOM** -- highest raw-data prevalence, but a huge effort for a worse result
+  than `dcm2niix`; R's options (`oro.dicom`, `divest`) are unmaintained. If ever
+  done, mirror nibabel's scope: read-only, uncompressed, explicit/implicit VR
+  little-endian, Siemens/Philips mosaics only.
+- **SPM99/SPM2 header quirks** -- plain NIfTI covers modern data.
+
+---
+
+## V. Cross-cutting concerns
+
+### V.1 [ ] Lazy / memory-mapped volume access
+nibabel's real advantage for the fMRI crowd is `ArrayProxy`/`LazyTractogram`:
+lazy, memory-mapped, slice-on-demand access. A 4D BOLD series (1-2 GB, or HCP's
+4D NIfTI) is painful to read eagerly, and `fs.volume` reads whole arrays.
+
+- [ ] Lazy volume handle that maps `.nii`/`.mgh` and reads only requested volumes
+- [ ] Revisit the `safety_checks.R` allocation guard for that code path
+      (the streaming-must-not-trip-the-whole-file-guard lesson from TRK applies)
+- `dti.track.iterator()` is the right precedent; apply the same idea to volumes
+  and CIFTI. This unlocks the fMRI use case more than three extra formats would.
+
+### V.2 Extension dispatch
+`read.fs.morph()`/`write.fs.morph()` dispatch on the extension, and
+`readable.files()` has a hardcoded precedence list. New formats must be
+registered consistently there.
+
+### V.3 Verification strategy
+Cross-validate semantics against an independent implementation, as was done for
+the TRK reader against nibabel. Prefer `dev_tools/` scripts for checks that need
+real data, and keep large files out of the repo (CRAN 5 MB limit ->
+`extra_test_data/`, excluded via `.Rbuildignore`).
+
+### V.4 Repo constraints to remember
+- Do **not** commit/push: leave all changes in the working tree for review.
+- `devtools::document()` with the installed roxygen 7.3.3 (DESCRIPTION claims
+  8.0.0) rewrites ~85 unrelated `man/*.Rd` files. After every `document()`:
+  revert all modified tracked `man/` files whose content did not really change,
+  then `git checkout -- DESCRIPTION`.
+- Internal helpers get man pages (no `@noRd` in this repo), documented with
+  `@keywords internal`.
+- CHANGES entries are long and explanatory, one section per version.
+
+---
+
+## Gradients: detailed spec (item I.1)
+
+### Formats to support
+
+1. **FSL `.bvec`** -- text, 3 rows x N columns (x, y, z per volume) in the
+   *voxel* coordinate system of the accompanying image. Some tools write N x 3,
+   hence the transpose heuristic.
+2. **FSL `.bval`** -- text, one b-value per volume. Usually 1 row x N columns,
+   sometimes N rows x 1 column.
+3. **MRtrix `.grad`** -- text, one row per volume with 4 columns
+   (gradient x, y, z, b-value). The gradient direction is unit length and
+   b<=0 rows represent b=0 volumes. (Verify the exact header/count line rules
+   against the MRtrix docs before implementing.)
+4. **HCP-style `bvals`/`bvecs`** -- space-separated, no extension; HCP stores
+   bvecs as N x 3. Should be accepted by the same readers.
+
+### Known pitfalls to handle explicitly
+
+- **Ambiguous transpose**: a 3x3 file (N=3) is ambiguous; must warn rather than
+  silently guess.
+- **Voxel vs scanner space**: FSL bvecs are relative to the image voxel axes, so
+  converting to/from MRtrix requires the image's sform/qform. This is why the
+  conversion helper must take a volume/header, not just the bvec file.
+- **Sign convention**: FSL treats the diffusion direction as symmetric and its
+  tools may flip bvec signs; MRtrix treats bvecs as signed directions. Any
+  conversion must document exactly what it does and must not silently flip.
+- **b=0 rows** may be `[0, 0, 0]` or an arbitrary unit vector; a b=0 row must
+  never be normalised into a fake direction.
+- **Non-unit vectors** occur in the wild; do not silently renormalise on read,
+  but report it.
+
+### API sketch (to be finalised against repo conventions)
+
+- `read.fsl.bvec(filepath, ...)` -> N x 3 matrix (one row per volume)
+- `read.fsl.bval(filepath)` -> numeric vector of length N
+- `read.mrtrix.grad(filepath)` -> N x 4 matrix (or a small S3 object)
+- matching `write.*` functions
+- consistency checker: bvec rows == bval length
+- voxel/scanner conversion helper taking a NIfTI/MGH header
+
+### Verification
+
+- Round-trip tests (read -> write -> read) for all layouts, incl. 1-volume and
+  ambiguous 3-volume files.
+- Cross-check against a known published gradient table (e.g. a well-known
+  dataset's bvals/bvecs) and against nibabel/DIPY semantics.
+- Test that a b=0 row survives a round trip unmodified.
+
+---
+
+## Progress log
+
+### Increment 1: gradient tables (2026-09-17) -- DONE
+
+- New files: `R/read_dwi_gradients.R`, `R/write_dwi_gradients.R`,
+  `tests/testthat/test-read_dwi_gradients.R`,
+  `tests/testthat/test-write_dwi_gradients.R`, 15 new man pages.
+- 7 new exports: `read.dti.bvec/bval/grad/gradients`,
+  `write.dti.bvec/bval/grad`. Internal: `validate.dti.gradients` and six helpers.
+- Tests: 140 new expectations; full suite 1648 pass, 0 fail, 3 pre-existing skips.
+  `R CMD check`: 0 errors, 0 warnings, 1 pre-existing sandbox NOTE.
+- Real test data (2.8 KB, from `~/develop/sub-01-derived`, QSIPrep output) copied
+  to `extra_test_data/dwi/`; nothing added to `inst/extdata`, so the CRAN 5 MB
+  limit is unaffected and the always-on tests are self-contained.
+
+Findings from this increment, worth not rediscovering:
+
+- **A real file mixes the layouts.** The QSIPrep subject writes the b-vectors as
+  3 component lines (FSL layout) but the b-values as one value per line, so the
+  layout has to be detected per file, not assumed from the format.
+- **The square case is genuinely ambiguous, and the references disagree.**
+  MRtrix3 transposes a bvec table when `rows != 3` and `cols == 3` and treats a
+  3x3 as components; DIPY treats a 3x3 as volumes. We follow MRtrix3 and warn.
+  For the MRtrix gradient table there is no ambiguity (the format defines one
+  row per volume), so the warning is scoped to b-vectors only -- otherwise a
+  perfectly normal 4-volume gradient table would trigger it.
+- **nibabel cannot be used as a reference for either Tier 1 DWI item** (no
+  bvec/bval reader, no TRX). DIPY and MRtrix3 are the references.
+- **The conversion needs the transform without voxel sizes.** MRtrix3's
+  `load_bvecs_bvals()` computes `grad = transform.linear() * bvecs` after
+  flipping `bvecs` row 0 when `det(linear) > 0`. MRtrix transforms are in mm
+  with unit axes, so the R equivalent must divide the voxel sizes out of
+  `vox2ras`/sform; using the raw affine would silently rescale the directions.
+- **`formatC(x, format = "g", digits = 15)` is wrong here.** With the default
+  `width = NULL` it treats `digits` as the field width and right-pads every
+  value with spaces, producing files like `"               1"`. Use
+  `sprintf("%.15g", x)`.
+- **`nibabel/streamlines/` has no TRX** as of 5.4.2-131-g699b9923, so item II.1
+  is greenfield in both ecosystems.
