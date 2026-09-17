@@ -4,12 +4,15 @@
 \alias{dti.track.bbox}
 \title{Compute the bounding box of all tract coordinates in a file.}
 \usage{
-dti.track.bbox(filepath)
+dti.track.bbox(filepath, chunk_values = 4e+06)
 }
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
 to read. Gzip-compressed files (i.e., \code{.tck.gz}) are supported and the
 compression is detected from the file content, not the file name.}
+
+\item{chunk_values}{integer, the number of payload values to read per chunk.
+Advanced tuning parameter, see \code{\link{read.dti.tck}}.}
 }
 \value{
 numeric vector of length 6,

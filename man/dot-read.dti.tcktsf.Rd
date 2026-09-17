@@ -4,7 +4,13 @@
 \alias{.read.dti.tcktsf}
 \title{Read DTI tracking data from MRtrix TCK and TSF files.}
 \usage{
-.read.dti.tcktsf(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL)
+.read.dti.tcktsf(
+  filepath,
+  max_tracks = Inf,
+  skip_tracks = 0L,
+  bbox = NULL,
+  chunk_values = 4e+06
+)
 }
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
@@ -25,6 +31,12 @@ the stored data. This has no effect for TSF files, which store no
 coordinates. The number of matching tracks cannot be known in advance, so
 for very large files this should be combined with a \code{max_tracks}
 value that is known to be safe.}
+
+\item{chunk_values}{integer, the number of payload values that are read per
+chunk. This is an advanced tuning parameter that does not change the result,
+only the peak memory usage (at most one chunk is buffered at a time) and the
+granularity of the file reads. The default of 4e6 values corresponds to
+about 32 MB of doubles. Lower it on a machine with very little free memory.}
 }
 \value{
 named list with entries \code{header} and either \code{tracks} (for

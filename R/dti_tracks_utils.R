@@ -66,13 +66,21 @@ groups.in.bbox <- function(points, lengths, bbox) {
   if (length(lengths) == 0L) {
     return(logical(0L));
   }
-  group_id <- rep.int(seq_along(lengths), lengths);
-  inside <- points[, 1L] >= bbox[1L] & points[, 1L] <= bbox[2L] &
-    points[, 2L] >= bbox[3L] & points[, 2L] <= bbox[4L] &
-    points[, 3L] >= bbox[5L] & points[, 3L] <= bbox[6L];
   # rowsum() counts the points inside the box per streamline; it is vectorized,
-  # unlike tapply() on a factor with millions of levels.
-  return(as.vector(rowsum(as.integer(inside), group_id)) > 0L);
+  # unlike tapply() on a factor with millions of levels. It omits groups that
+  # have no points at all, so the result is expanded back to one entry per
+  # streamline (an empty streamline has no point, so it is never inside a box).
+  inside_group <- logical(length(lengths));
+  with_points <- which(lengths > 0L);
+  if (length(with_points) > 0L) {
+    inside <- points[, 1L] >= bbox[1L] & points[, 1L] <= bbox[2L] &
+      points[, 2L] >= bbox[3L] & points[, 2L] <= bbox[4L] &
+      points[, 3L] >= bbox[5L] & points[, 3L] <= bbox[6L];
+    counts <- as.vector(rowsum(as.integer(inside), rep.int(with_points, lengths[with_points]),
+                               reorder = FALSE));
+    inside_group[with_points] <- counts > 0L;
+  }
+  return(inside_group);
 }
 
 
@@ -271,9 +279,9 @@ scan.trk.file <- function(filepath, want) {
     if (is.na(num_points) || num_points < 0L) {
       stop(sprintf("Invalid point count %s in TRK file '%s', the file is corrupt.\n", num_points, filepath));
     }
-    if (num_points == 0L) {
-      next;
-    }
+    # A track with zero points is legal and is counted like any other track, see
+    # read.trk.records(). Its properties still have to be consumed to stay in
+    # sync with the file.
 
     if (want_bbox) {
       record <- readBin(con, numeric(), n = num_points * values_per_point, size = 4L, endian = endian);
@@ -385,6 +393,9 @@ merge.bbox <- function(bbox1, bbox2) {
 #'
 #' @inheritParams read.dti.tck
 #'
+#' @param chunk_values integer, the number of payload values to read per chunk.
+#'   Advanced tuning parameter, see \code{\link{read.dti.tck}}.
+#'
 #' @return integer, the number of tracts in the file. Note that this can differ
 #'   from the \code{count} entry in the file header, which the MRtrix
 #'   documentation explicitly describes as unreliable, and which does not count
@@ -396,8 +407,8 @@ merge.bbox <- function(bbox1, bbox2) {
 #' }
 #'
 #' @export
-dti.track.count <- function(filepath) {
-  return(scan.dti.tract.file(filepath, want = "count")$count);
+dti.track.count <- function(filepath, chunk_values = 4e6) {
+  return(scan.dti.tract.file(filepath, want = "count", chunk_values = chunk_values)$count);
 }
 
 
@@ -408,6 +419,9 @@ dti.track.count <- function(filepath) {
 #'   to determine the axis limits for plotting a large tractogram.
 #'
 #' @inheritParams read.dti.tck
+#'
+#' @param chunk_values integer, the number of payload values to read per chunk.
+#'   Advanced tuning parameter, see \code{\link{read.dti.tck}}.
 #'
 #' @return numeric vector of length 6,
 #'   \code{c(xmin, xmax, ymin, ymax, zmin, zmax)}, or \code{NULL} if the file
@@ -420,8 +434,8 @@ dti.track.count <- function(filepath) {
 #' }
 #'
 #' @export
-dti.track.bbox <- function(filepath) {
-  return(scan.dti.tract.file(filepath, want = "bbox")$bbox);
+dti.track.bbox <- function(filepath, chunk_values = 4e6) {
+  return(scan.dti.tract.file(filepath, want = "bbox", chunk_values = chunk_values)$bbox);
 }
 
 
@@ -464,7 +478,7 @@ dti.track.bbox <- function(filepath) {
 #' }
 #'
 #' @export
-dti.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
+dti.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL, chunk_values = 4e6) {
   format <- detect.dti.tract.format(filepath);
   validate.bbox(bbox);
   if (!is.null(bbox) && identical(format, "tsf")) {
@@ -474,7 +488,8 @@ dti.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
   if (identical(format, "trk")) {
     return(trk.track.iterator(filepath, skip_tracks = skip_tracks, bbox = bbox));
   }
-  return(mrtrix.track.iterator(filepath, skip_tracks = skip_tracks, bbox = bbox));
+  return(mrtrix.track.iterator(filepath, skip_tracks = skip_tracks, bbox = bbox,
+                               chunk_values = chunk_values));
 }
 
 
@@ -487,10 +502,15 @@ dti.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
 #' @param bbox numeric vector of length 6 or NULL, a bounding box, see
 #'   \code{read.dti.tck}.
 #'
+#' @param chunk_values integer, the number of payload values to read per chunk.
+#'   This only affects the peak memory usage and the I/O granularity of the
+#'   iterator, and is rarely needed. For TRK files it is ignored, since those
+#'   records are read one at a time.
+#'
 #' @return the iterator environment.
 #'
 #' @keywords internal
-mrtrix.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
+mrtrix.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL, chunk_values = 4e6) {
   # max_tracks = 1 tells the payload opener that the data is streamed and never
   # held in memory as a whole, so its up-front allocation check does not apply.
   payload <- open.mrtrix.payload(filepath, max_tracks = 1L);
@@ -548,7 +568,7 @@ mrtrix.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
         return(NULL);
       }
 
-      chunk <- readBin(con = state$con, what = numeric(), n = 4e6, size = state$dsize,
+      chunk <- readBin(con = state$con, what = numeric(), n = chunk_values, size = state$dsize,
                        endian = state$endian);
       if (length(chunk) == 0L) {
         # Running out of data is a normal end of the streamlines, see
@@ -681,9 +701,9 @@ trk.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
       if (is.na(num_points) || num_points < 0L) {
         stop(sprintf("Invalid point count %s in TRK file '%s', the file is corrupt.\n", num_points, filepath));
       }
-      if (num_points == 0L) {
-        next; # An empty tract contributes no points.
-      }
+      # A track with zero points is legal and is returned like any other track,
+      # see read.trk.records(). Its properties still have to be consumed to stay
+      # in sync with the file.
 
       if (state$skip > 0L && is.null(itr$bbox)) {
         # The records are self-delimiting, so a skipped tract does not have to

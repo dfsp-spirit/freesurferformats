@@ -777,11 +777,17 @@ open.mrtrix.payload <- function(filepath, max_tracks = Inf) {
 #'   for very large files this should be combined with a \code{max_tracks}
 #'   value that is known to be safe.
 #'
+#' @param chunk_values integer, the number of payload values that are read per
+#'   chunk. This is an advanced tuning parameter that does not change the result,
+#'   only the peak memory usage (at most one chunk is buffered at a time) and the
+#'   granularity of the file reads. The default of 4e6 values corresponds to
+#'   about 32 MB of doubles. Lower it on a machine with very little free memory.
+#'
 #' @return named list with entries \code{header} and either \code{tracks} (for
 #'   TCK files) or \code{scalars} (for TSF files).
 #'
 #' @keywords internal
-.read.dti.tcktsf <- function(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL) {
+.read.dti.tcktsf <- function(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL, chunk_values = 4e6) {
   payload <- open.mrtrix.payload(filepath, max_tracks = max_tracks);
   con <- payload$con;
   on.exit(
@@ -796,6 +802,7 @@ open.mrtrix.payload <- function(filepath, max_tracks = Inf) {
   stream <- read.mrtrix.stream(con, payload$offset, payload$dsize, payload$endian,
                                payload$values_per_point, max_groups = max_tracks,
                                skip_groups = as.integer(skip_tracks), bbox = bbox,
+                               chunk_values = chunk_values,
                                filepath = filepath, gzipped = payload$gzipped,
                                expected_groups = payload$expected_groups);
 
@@ -894,8 +901,9 @@ read.dti.tsf.header <- function(filepath) {
 #'   plain list of matrices.
 #'
 #' @export
-read.dti.tck <- function(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL) {
-  return(.read.dti.tcktsf(filepath, max_tracks = max_tracks, skip_tracks = skip_tracks, bbox = bbox));
+read.dti.tck <- function(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NULL, chunk_values = 4e6) {
+  return(.read.dti.tcktsf(filepath, max_tracks = max_tracks, skip_tracks = skip_tracks, bbox = bbox,
+                          chunk_values = chunk_values));
 }
 
 
@@ -918,6 +926,7 @@ read.dti.tck <- function(filepath, max_tracks = Inf, skip_tracks = 0L, bbox = NU
 #'   whole-brain data in favour of 'merged' and 'lengths').
 #'
 #' @export
-read.dti.tsf <- function(filepath, max_tracks = Inf, skip_tracks = 0L) {
-  return(.read.dti.tcktsf(filepath, max_tracks = max_tracks, skip_tracks = skip_tracks, bbox = NULL));
+read.dti.tsf <- function(filepath, max_tracks = Inf, skip_tracks = 0L, chunk_values = 4e6) {
+  return(.read.dti.tcktsf(filepath, max_tracks = max_tracks, skip_tracks = skip_tracks, bbox = NULL,
+                          chunk_values = chunk_values));
 }

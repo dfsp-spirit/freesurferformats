@@ -4,7 +4,12 @@
 \alias{read.dti.tsf}
 \title{Read DTI tracking per-coord data from file in MRtrix 'TSF' format.}
 \usage{
-read.dti.tsf(filepath, max_tracks = Inf, skip_tracks = 0L)
+read.dti.tsf(
+  filepath,
+  max_tracks = Inf,
+  skip_tracks = 0L,
+  chunk_values = 4e+06
+)
 }
 \arguments{
 \item{filepath}{character string, path to the \code{TCK} or \code{TSF} file
@@ -17,6 +22,12 @@ of a very large tractogram without holding all of it in memory.}
 
 \item{skip_tracks}{integer, the number of tracks to skip before reading any.
 Skipped tracks are never held in memory.}
+
+\item{chunk_values}{integer, the number of payload values that are read per
+chunk. This is an advanced tuning parameter that does not change the result,
+only the peak memory usage (at most one chunk is buffered at a time) and the
+granularity of the file reads. The default of 4e6 values corresponds to
+about 32 MB of doubles. Lower it on a machine with very little free memory.}
 }
 \value{
 named list with entries 'header' and 'scalars'. The scalar data are

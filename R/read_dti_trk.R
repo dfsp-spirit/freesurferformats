@@ -171,10 +171,10 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
     if (is.na(num_points) || num_points < 0L) {
       stop(sprintf("Invalid point count %s for track %d, the TRK file is corrupt.\n", num_points, num_tracks + 1L));
     }
-    if (num_points == 0L) {
-      next; # An empty track contributes no points.
-    }
 
+    # A track with zero points is legal and 'nibabel' returns it as well, so it
+    # is handled like any other track. In particular its properties still have
+    # to be consumed, otherwise the stream would get out of sync with the file.
     if (skip > 0L && is.null(bbox)) {
       # Track records are self-delimiting, so a skipped track does not have to
       # be read at all.
@@ -214,7 +214,7 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
       next;
     }
 
-    if (!is.null(transform)) {
+    if (!is.null(transform) && num_points > 0L) {
       # Transform the coordinates here, so that the bounding box below is
       # evaluated in the same coordinate system as the returned coordinates. The
       # transformed values are the ones that get stored, so the transformation is
@@ -234,19 +234,21 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
 
     # Append the record. Inline on purpose, see the note at the top of this file.
     needed <- data_used + num_points;
-    if (needed > data_capacity) {
-      new_capacity <- next.buffer.capacity(needed, data_capacity,
-                                           bytes_per_elem = 8 * values_per_point,
-                                           label = "the tract coordinates");
-      grown <- matrix(0, nrow = new_capacity, ncol = values_per_point);
-      if (data_used > 0L) {
-        grown[seq_len(data_used), ] <- data[seq_len(data_used), , drop = FALSE];
+    if (num_points > 0L) {
+      if (needed > data_capacity) {
+        new_capacity <- next.buffer.capacity(needed, data_capacity,
+                                             bytes_per_elem = 8 * values_per_point,
+                                             label = "the tract coordinates");
+        grown <- matrix(0, nrow = new_capacity, ncol = values_per_point);
+        if (data_used > 0L) {
+          grown[seq_len(data_used), ] <- data[seq_len(data_used), , drop = FALSE];
+        }
+        data <- grown;
+        data_capacity <- new_capacity;
       }
-      data <- grown;
-      data_capacity <- new_capacity;
+      data[(data_used + 1L):needed, ] <- record;
+      data_used <- needed;
     }
-    data[(data_used + 1L):needed, ] <- record;
-    data_used <- needed;
 
     if (n_properties > 0L) {
       needed_properties <- num_tracks + 1L;
@@ -303,7 +305,11 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
 #'
 #' @param skip_tracks integer, the number of tracks to skip before reading any.
 #'   Skipped tracks are never held in memory. Note that the count refers to the
-#'   tracks that a reader returns, i.e., empty tracks are not counted.
+#'   tracks that a reader returns, and that empty tracks (tracks without any
+#'   point, which the TRK format allows) are returned as well, e.g., a file with
+#'   one regular track, then an empty one, yields the empty track for
+#'   \code{skip_tracks = 1}. The only exception is a \code{bbox} filter, which
+#'   drops empty tracks, since no point of them can be inside the box.
 #'
 #' @param bbox numeric vector of length 6 or NULL. If given, only tracks that
 #'   have at least one point inside the box are read, the box is given as

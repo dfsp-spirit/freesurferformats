@@ -4,7 +4,12 @@
 \alias{mrtrix.track.iterator}
 \title{Create an iterator over the tracts of an MRtrix TCK or TSF file.}
 \usage{
-mrtrix.track.iterator(filepath, skip_tracks = 0L, bbox = NULL)
+mrtrix.track.iterator(
+  filepath,
+  skip_tracks = 0L,
+  bbox = NULL,
+  chunk_values = 4e+06
+)
 }
 \arguments{
 \item{filepath}{character string, path to the file.}
@@ -13,6 +18,11 @@ mrtrix.track.iterator(filepath, skip_tracks = 0L, bbox = NULL)
 
 \item{bbox}{numeric vector of length 6 or NULL, a bounding box, see
 \code{read.dti.tck}.}
+
+\item{chunk_values}{integer, the number of payload values to read per chunk.
+This only affects the peak memory usage and the I/O granularity of the
+iterator, and is rarely needed. For TRK files it is ignored, since those
+records are read one at a time.}
 }
 \value{
 the iterator environment.

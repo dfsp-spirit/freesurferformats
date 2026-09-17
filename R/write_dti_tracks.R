@@ -145,6 +145,12 @@ build.tck.header.stable <- function(entries, datatype, count) {
 #' write.dti.tck(tck$tracks, "copy.tck.gz");
 #' }
 #'
+#' @note Tracts without any point cannot be represented in the TCK format: they
+#'   are written as a bare delimiter, which every reader (including this
+#'   package and 'nibabel') drops again, so the file reads back with fewer
+#'   tracts than it was written from. Writing such a file raises a warning.
+#'   \code{\link{write.dti.trk}} preserves empty tracts.
+#'
 #' @export
 write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL, header = list()) {
   valid_datatypes <- c("Float32BE", "Float32LE", "Float64BE", "Float64LE");
@@ -163,6 +169,17 @@ write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL,
   lengths <- fs.tracts.lengths(tract_data);
   num_tracks <- length(lengths);
   num_points <- nrow(coords);
+
+  if (any(lengths == 0L)) {
+    # An empty tract is written as a single delimiter, which is exactly what a
+    # reader drops again (an empty tract and a tract of length zero cannot be
+    # told apart in the format, and 'nibabel' drops them as well). Warn instead
+    # of silently writing a file that reads back with fewer tracts.
+    warning(sprintf(paste0("%d of the %d tracts to write are empty (they have no points).",
+                           " The TCK format cannot store them, they will be missing when the file is read",
+                           " back. Use write.dti.trk() if the empty tracts have to be preserved.\n"),
+                    sum(lengths == 0L), num_tracks), call. = FALSE);
+  }
 
   header_text <- build.tck.header.stable(header, datatype, num_tracks);
 

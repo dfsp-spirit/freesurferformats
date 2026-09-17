@@ -39,6 +39,13 @@ The format stores a triplet of NaN values between streamlines and a triplet
 of Inf values at the end. The output is read by MRtrix and by
 \code{\link{read.dti.tck}}.
 }
+\note{
+Tracts without any point cannot be represented in the TCK format: they
+are written as a bare delimiter, which every reader (including this
+package and 'nibabel') drops again, so the file reads back with fewer
+tracts than it was written from. Writing such a file raises a warning.
+\code{\link{write.dti.trk}} preserves empty tracts.
+}
 \examples{
 \dontrun{
 tck <- read.dti.tck("brain.tck", max_tracks = 1000);

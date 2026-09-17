@@ -24,7 +24,11 @@ large tractogram without holding all of it in memory.}
 
 \item{skip_tracks}{integer, the number of tracks to skip before reading any.
 Skipped tracks are never held in memory. Note that the count refers to the
-tracks that a reader returns, i.e., empty tracks are not counted.}
+tracks that a reader returns, and that empty tracks (tracks without any
+point, which the TRK format allows) are returned as well, e.g., a file with
+one regular track, then an empty one, yields the empty track for
+\code{skip_tracks = 1}. The only exception is a \code{bbox} filter, which
+drops empty tracks, since no point of them can be inside the box.}
 
 \item{bbox}{numeric vector of length 6 or NULL. If given, only tracks that
 have at least one point inside the box are read, the box is given as
