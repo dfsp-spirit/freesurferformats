@@ -12,7 +12,7 @@ read.fs.parcellation.cifti(
 )
 }
 \arguments{
-\item{filepath}{character string, the full path to a file in CIFTI 2 format, should end with '.dlabel.nii'. Note that this is NOT a NIfTI file, despite the '.nii' part; it uses a CIFTI 2 header instead. See the spec for details.}
+\item{filepath}{character string, the full path to a file in CIFTI 2 format, should end with '.dlabel.nii'. Note that this is NOT a NIfTI file, despite the '.nii' part; it uses a CIFTI 2 header instead. See the spec for details. An 'fs.cifti' object from \code{\link{read.cifti.header}} or an 'fs.cifti.data' object from \code{\link{read.cifti}} may be given instead of a path (this is faster if you need the data of several structures). An object created by the 'cifti' package is still accepted for backwards compatibility.}
 
 \item{brain_structure}{character string or integer, the brain structure for which the data should be extracted from the file. Can be a CIFTI brain structure string (one of 'CIFTI_STRUCTURE_CORTEX_LEFT' or 'CIFTI_STRUCTURE_CORTEX_RIGHT'), or simply one of 'lh', 'rh' (which are used as aliases for the former). If you specify 'both', the concatenated data for 'lh' (first) and 'rh' will be returned, but you will get no information on hemi boundaries. If it is an integer, it will be interpreted as an index into the list of structures within the CIFTI file, use with care.}
 
@@ -24,23 +24,14 @@ read.fs.parcellation.cifti(
 If 'with_label_table' is 'FALSE' (the default), an integer vector with one label key per vertex in the surface. Vertices which did not have a value in the CIFTI data are set to \code{NA}; a key of 0 denotes the unknown / medial wall label (see the label table). If 'with_label_table' is 'TRUE', a named list with entries: 'label_keys' (the integer vector), 'label_table' (a data.frame with columns 'Key', 'Red', 'Green', 'Blue', 'Alpha' and 'Label', where the RGBA values are in the range 0 to 1), 'map_name' (the name of the selected map as a character string, or 'NULL' if unnamed), and 'brain_structure' (a character string). If 'brain_structure' is 'both' and 'with_label_table' is 'TRUE', a named list with entries 'lh' and 'rh', each as described above.
 }
 \description{
-Uses the 'cifti' package to load the data from a CIFTI dlabel file (a dense surface parcellation, i.e., an integer label key per vertex) and returns the per-vertex label keys for a single brain structure. This is the CIFTI analogue of a FreeSurfer annotation file.
-}
-\note{
-This function calls code from the 'cifti' package by John Muschelli: \url{https://CRAN.R-project.org/package=cifti}.
+Read the data from a CIFTI dlabel file (a dense surface parcellation, i.e., an integer label key per vertex) and return the per-vertex label keys for a single brain structure. This is the CIFTI analogue of a FreeSurfer annotation file.
 }
 \examples{
-\dontrun{
-# Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
-cifti_example_data_dir <- "~/data/cifti"
-dlabel_file <- file.path(cifti_example_data_dir,
-  "Conte69.parcellations_VGD11b.32k_fs_LR.dlabel.nii");
-parc_lh <- read.fs.parcellation.cifti(dlabel_file, "lh");
-parc_rh <- read.fs.parcellation.cifti(dlabel_file, "rh");
-parc_with_table <- read.fs.parcellation.cifti(dlabel_file, "lh",
-  with_label_table = TRUE);
-# fsbrain::vis.fs.surface(sf_lh, per_vertex_data = parc_lh);
-}
+label_file <- system.file("extdata", "cifti", "tiny.dlabel.nii", package = "freesurferformats")
+parc_lh <- read.fs.parcellation.cifti(label_file, "lh")
+table(parc_lh)
+parc_with_table <- read.fs.parcellation.cifti(label_file, "lh", with_label_table = TRUE)
+parc_with_table$label_table
 
 }
 \references{

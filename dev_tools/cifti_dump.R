@@ -10,12 +10,25 @@ fmt_xml <- function(value) {
   value <- gsub("&", "&amp;", value, fixed = TRUE)
   value <- gsub("<", "&lt;", value, fixed = TRUE)
   value <- gsub(">", "&gt;", value, fixed = TRUE)
-  return(gsub("\n", " ", value, fixed = TRUE))
+  # Same normalization as the Python tool: newlines become spaces, and the ends are
+  # trimmed (the XML indentation around a multi-line metadata value is not data).
+  return(trimws(gsub("\n", " ", value, fixed = TRUE)))
 }
 dump_idx <- function(values) {
   if (is.null(values)) return("NONE")
   if (is.matrix(values)) values <- as.vector(t(values))
   return(sprintf("%d vals: %s", length(values), paste(as.integer(values), collapse = " ")))
+}
+dump_data <- function(filepath, dim_sizes) {
+  data <- read.cifti(filepath)$data
+  if (length(dim(data)) != 2L) {
+    return(sprintf("  data SKIPPED (only 2-dimensional matrices are dumped, this one has %d dimensions)", length(dim(data))))
+  }
+  lines <- sprintf("  data r_type=%s rows=%d cols=%d", typeof(data), nrow(data), ncol(data))
+  for (row_idx in seq_len(nrow(data))) {
+    lines <- c(lines, sprintf("  data row %d = %s", row_idx - 1L, paste(sprintf("%.6f", data[row_idx, ]), collapse = " ")))
+  }
+  return(lines)
 }
 dump_file <- function(filepath) {
   cii <- read.cifti.header(filepath)
@@ -68,6 +81,7 @@ dump_file <- function(filepath) {
       }
     }
   }
+  cat(paste(c(dump_data(filepath, cii$matrix$dim_sizes), ""), collapse = "\n"))
   invisible(NULL)
 }
 for (filepath in commandArgs(trailingOnly = TRUE)) { dump_file(filepath) }

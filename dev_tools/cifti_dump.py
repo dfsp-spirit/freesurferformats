@@ -136,6 +136,59 @@ def dump_map(map_idx, im):
     return lines
 
 
+def load_data(filepath, dim_sizes):
+    """Return the data of a CIFTI-2 file as a 2D array, in file order.
+
+    Tries nibabel's image API first. Some files (see the note at the top) cannot be
+    loaded by nibabel at all; for those, the values are read from the raw bytes at
+    the data offset with numpy, using the data type from the NIFTI-2 header. That
+    fallback assumes the format's storage order instead of proving it, so it is
+    reported on stderr; the files nibabel can load do prove it.
+    """
+    try:
+        image = nib.load(filepath)
+        data = np.asanyarray(image.dataobj)
+        if data.ndim == 2:
+            return data
+        return data.reshape(dim_sizes, order="F")
+    except Exception as exc:
+        print("  note: nibabel could not load the data of the file (%s), reading the raw bytes" % exc, file=sys.stderr)
+    with open(filepath, "rb") as fh:
+        raw = fh.read()
+    vox_offset = struct.unpack_from("<q", raw, 168)[0]
+    datatype = struct.unpack_from("<h", raw, 12)[0]
+    dtype = {2: "u1", 4: "i2", 8: "i4", 16: "f4", 64: "f8", 256: "i1", 512: "u2", 768: "u4"}[datatype]
+    values = np.frombuffer(raw, dtype="<%s" % dtype, count=int(np.prod(dim_sizes)), offset=vox_offset)
+    return values.reshape(tuple(int(s) for s in dim_sizes), order="F")
+
+
+def dump_data(filepath, dim_sizes):
+    """Dump the data values, one line per index of matrix dimension 0.
+
+    The data are dumped in the order in which they are stored in the file, which
+    is what both implementations return: values are separated by a space and
+    formatted like R's sprintf("%.6f", x). One line per index of matrix dimension
+    0 keeps a text diff readable, and it is exactly the dimension order that a
+    transposed reading would get wrong.
+    """
+    data = load_data(filepath, dim_sizes)
+    if data.ndim != 2:
+        return ["  data SKIPPED (only 2-dimensional matrices are dumped, this one has %d dimensions)" % data.ndim]
+    lines = ["  data r_type=%s rows=%d cols=%d" % (r_type_name(data.dtype), data.shape[0], data.shape[1])]
+    for row_idx in range(data.shape[0]):
+        lines.append("  data row %d = %s" % (row_idx, " ".join(fmt_num(v) for v in data[row_idx])))
+    return lines
+
+
+def r_type_name(dtype):
+    """Map a numpy dtype to the name R's typeof() reports for the values we read."""
+    if dtype.kind == "f":
+        return "double"
+    if dtype.kind in "iu":
+        return "integer"
+    return "double"
+
+
 def dump_file(filepath):
     lines = ["file %s" % filepath]
     matrix, dim_sizes = load_matrix(filepath)
@@ -143,6 +196,7 @@ def dump_file(filepath):
     lines.extend(dump_metadata(matrix.metadata))
     for map_idx, im in enumerate(matrix):
         lines.extend(dump_map(map_idx, im))
+    lines.extend(dump_data(filepath, dim_sizes))
     return lines
 
 

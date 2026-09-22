@@ -11,48 +11,27 @@ read.fs.morph.cifti(
 )
 }
 \arguments{
-\item{filepath}{character string, the full path to a file in CIFTI 2 format, should end with '.dscalar.nii'. Note that this is NOT a NIFTI file, despite the '.nii' part. It uses a CIFTIv2 header though. See the spec for details.}
+\item{filepath}{character string, the full path to a file in CIFTI 2 format, should end with '.dscalar.nii'. Note that this is NOT a NIFTI file, despite the '.nii' part. It uses a CIFTIv2 header though. See the spec for details. An 'fs.cifti' object from \code{\link{read.cifti.header}} or an 'fs.cifti.data' object from \code{\link{read.cifti}} may be given instead of a path (this is faster if you need the data of several structures). An object created by the 'cifti' package is still accepted for backwards compatibility.}
 
 \item{brain_structure}{character string or integer, the brain structure for which the data should be extracted from the file. Can be a CIFTI brain structure string (one of 'CIFTI_STRUCTURE_CORTEX_LEFT' or 'CIFTI_STRUCTURE_CORTEX_RIGHT'), or simply one of 'lh', 'rh' (which are used as aliases for the former). If you specify 'both', the concatenated data for 'lh' (first) and 'rh' will be returned, but you will get no information on hemi boundaries. If it is an integer, it will be interpreted as an index into the list of structures within the CIFTI file, use with care.}
 
 \item{data_column}{integer, the data column to return. A CIFTI file can contain several measures in different data columns (e.g., cortical thickness and surface area) in a single file. This specifies which column/measure you want. The columns are not named, so you will need to know this in advance if the file has several measures.}
 }
 \value{
-The reconstructed data for the given surface, one value per vertex in the surface. The value for vertices which did not have a value in the CIFTI data is set to \code{NA}.
+The reconstructed data for the given surface, one value per vertex in the surface. The value for vertices which did not have a value in the CIFTI data is set to \code{NA}. Note that the result always has the length of the \emph{complete} surface: CIFTI files like the ones used in the HCP leave out the medial wall vertices, and the result reports those as \code{NA}.
 }
 \description{
-Used the 'cifti' package to load the full data from a CIFTI file, then extracts and reconstructs the data for a surface, based on the metadata like vertex counts, indices and offset in the CIFTI file.
-}
-\note{
-This function calls code from the 'cifti' package by John Muschelli: \url{https://CRAN.R-project.org/package=cifti}.
+Read the data from a CIFTI dscalar file (or any other CIFTI-2 file with a
+single brainordinate dimension, e.g. a '.dtseries') and reconstruct it for one brain
+structure, based on the metadata like vertex counts, indices and offset in the CIFTI
+file. The result is a vector with one value per vertex of the surface.
 }
 \examples{
-\dontrun{
-# Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
-cifti_example_data_dir <- "~/data/cifti"
-cii_file <- file.path(
-  cifti_example_data_dir,
-  "Conte69.MyelinAndCorrThickness.32k_fs_LR.dscalar.nii"
-)
-sf_lh <- freesurferformats::read.fs.surface(file.path(
-  cifti_example_data_dir,
-  "Conte69.L.inflated.32k_fs_LR.surf.gii"
-))
-sf_rh <- freesurferformats::read.fs.surface(file.path(
-  cifti_example_data_dir,
-  "Conte69.R.inflated.32k_fs_LR.surf.gii"
-))
-morph_lh <- read.fs.morph.cifti(cii_file, "lh")
-# Myelin data
-morph_rh <- read.fs.morph.cifti(cii_file, "rh")
-morph2_lh <- read.fs.morph.cifti(cii_file, "lh", 2)
-# Cortical Thickness data
-morph2_rh <- read.fs.morph.cifti(cii_file, "rh", 2L)
-# fsbrain::vis.fs.surface(sf_lh, per_vertex_data = morph_lh);
-# fsbrain::vis.fs.surface(sf_rh, per_vertex_data = morph_rh);
-# fsbrain::vis.fs.surface(list('lh'=sf_lh, 'rh'=sf_rh),
-# per_vertex_data = list('lh'=morph2_lh, 'rh'=morph2_rh));
-}
+cifti_file <- system.file("extdata", "cifti", "tiny.dscalar.nii", package = "freesurferformats")
+morph_lh <- read.fs.morph.cifti(cifti_file, "lh")
+length(morph_lh)
+morph_lh2 <- read.fs.morph.cifti(cifti_file, "lh", 2L)
+morph_both <- read.fs.morph.cifti(cifti_file, "both")
 
 }
 \references{

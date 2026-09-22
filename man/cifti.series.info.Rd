@@ -36,10 +36,15 @@ cifti.series.info(cii, dim = 0L)
 }
 \seealso{
 Other cifti functions:
+\code{\link[=cifti.axis.labels]{cifti.axis.labels()}},
+\code{\link[=cifti.grayordinates]{cifti.grayordinates()}},
 \code{\link[=cifti.label.table]{cifti.label.table()}},
 \code{\link[=cifti.parcels]{cifti.parcels()}},
+\code{\link[=cifti.structure.data]{cifti.structure.data()}},
 \code{\link[=cifti.structures]{cifti.structures()}},
 \code{\link[=print.fs.cifti]{print.fs.cifti()}},
+\code{\link[=print.fs.cifti.data]{print.fs.cifti.data()}},
+\code{\link[=read.cifti]{read.cifti()}},
 \code{\link[=read.cifti.header]{read.cifti.header()}}
 }
 \concept{cifti functions}

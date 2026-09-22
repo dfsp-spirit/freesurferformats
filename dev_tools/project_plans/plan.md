@@ -82,10 +82,10 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 
 - [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
 - [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
-- [ ] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write)
-- [ ] I.2d parcellated files: `pscalar`, `ptseries`, `pconn`, `pdconn`, `dpconn`
-- [ ] I.2e native `read.fs.*.cifti()` (drop the `cifti` dependency), dispatch fix
-- [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads)
+- [~] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- **reading is done** (`read.cifti()`, `cifti.structure.data()`, `cifti.grayordinates()`, `cifti.axis.labels()`, native `read.fs.*.cifti()`), writing (the XML emitter and the `write.cifti()` family) is still open, see increment 7
+- [x] I.2e (partly) native `read.fs.*.cifti()`: `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` are native and accept a file path directly; the `cifti` package is only used if a client passes one of its objects. The dispatch fix for `read.fs.morph()`/`read.fs.volume()` is still open.
+- [ ] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations
+- [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads) -- the seek based column selection of `read.cifti()` exists, the dedicated row reader and its docs are open
 - [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
 
 Notes: the container is NIfTI-2 + an XML header extension (ecode 32), so no new
@@ -1018,3 +1018,85 @@ Findings worth not rediscovering:
   in Rd file ..." by the cross-reference check. Bracketed index notation was
   replaced by prose ("entries 5, 6, ... of the `dim` field") and the forward
   reference to `read.cifti()` (increment 7) by `\code{read.cifti}`.
+
+### Increment 7: CIFTI-2 data reader (2026-09-22) -- DONE for reading (item I.2c, read part)
+
+Files: `R/read_cifti.R` (new, ~600 lines incl. roxygen), rewired `R/cifti.R`,
+`tests/testthat/test-read_cifti.R` (new, 287 tests), new tests in
+`tests/testthat/test-cifti2.R`, extended `dev_tools/cifti_dump.{py,R}` (they now
+also dump the data values), new `dev_tools/check_cifti_conversion.R`. No new
+dependency (`xml2` and the NIfTI-2 reader of I.2a are reused).
+
+Public API added: `read.cifti(filepath, rows, columns)` -> `fs.cifti.data`
+(`$header` + `$data`), `print.fs.cifti.data()`, `cifti.structure.data(x,
+structure, dim)`, `cifti.grayordinates(cii, dim)`, `cifti.axis.labels(cii, dim)`.
+`read.fs.morph.cifti()`, `read.fs.series.cifti()` and
+`read.fs.parcellation.cifti()` are native now and accept a path, an `fs.cifti`
+header or an `fs.cifti.data` object; objects of the `cifti` package keep working
+(the old helpers are kept as `.cifti.legacy.*`).
+
+Findings worth keeping:
+
+- **The `Surface` element of a `MatrixIndicesMap` is optional, and no file we
+  have contains one.** Every file written by Workbench (including the official
+  2014 Conte69 files) reports the surface size only in the
+  `SurfaceNumberOfVertices` attribute of each brain model. `read.cifti.header()`
+  parses the `Surface` elements, so the surface size for the reconstruction has
+  to fall back to the brain model attribute (nibabel's `BrainModelAxis` does the
+  same); the fallback errors if several brain models of one structure disagree.
+  This was the first thing the new tests caught.
+- **A single `MatrixIndicesMap` can apply to both matrix dimensions** (`.dconn`,
+  `.pconn`, `.pdconn`): "how many brainordinate dimensions does this file have"
+  must count *dimensions covered by* brain-model mappings, not mapping elements.
+  Counting elements made a `.dconn` look like a normal dense file, which the
+  test for the ambiguous-dimension error caught.
+- **The Workbench text output is transposed relative to `read.cifti()`**: it
+  writes one line per index of matrix dimension 1, while the data array is
+  dim0-first (nibabel's order). Comparing needs `t()`.
+- **That text output has 6 significant digits**, so the Workbench value
+  comparison needs a tolerance: the largest relative difference is 2.1e-6 for
+  the fixtures and 4.7e-6 for the official `.dtseries` (the residual is exactly
+  the text rounding, e.g. Workbench writes `154.833` where the float32 value is
+  `154.8333`).
+- nibabel 5.4.2 cannot load the mixed surface+volume fixture at all, so it cannot
+  dump its data either; the dump tool now falls back to reading the raw bytes at
+  `vox_offset` with numpy (reported on stderr, since that assumes the storage
+  order instead of proving it). Workbench verifies that file's values.
+- Verification results (all with the shipped fixtures plus the three official
+  files, 16 files in total): the nibabel dump comparison is **0 differing lines**
+  (925 lines each, including all data values); the Workbench text comparison
+  passes for all 16 files; the native readers agree exactly with the `cifti`
+  package on the official files (morphometry, series, label keys and label table);
+  and the decisive semantic check passes: **averaging the official `.dtseries`
+  over the vertices of each parcel reproduces the official `.ptseries`** (max
+  absolute difference 1.2e-7 over all 108 values, i.e. float32 precision). That
+  single check covers the byte order, the dense index mapping, the surface vertex
+  indices and the parcel vertex lists of both hemispheres at once.
+
+Design decisions:
+
+- `read.cifti()` returns the array in file order (dimension 0 first), which is
+  what nibabel returns, and names the dimensions with the axis labels. `rows` and
+  `columns` are 1-based R indices into that array (the XML indices stay 0-based
+  and are documented as such); the images are scanned for a transposed reading by
+  the tests.
+- Column selection is seek based (one contiguous read per column, no full read of
+  the file), so a submatrix of a huge `.dconn` can be read; row selection still
+  reads the whole file and is documented as such. The allocation guard message now
+  points at `columns` instead of only refusing. This is most of I.2f; what is
+  missing there is the `read.cifti.rows()` convenience entry point and its docs.
+- Volume structures are *not* expanded to per-vertex data: `cifti.structure.data()`
+  returns the values with the 0-based IJK voxel indices, the volume dimensions and
+  the transformation matrix, and `read.fs.morph.cifti()` keeps erroring for them
+  (with a message that explains the alternative now).
+- A volume brain model without `VoxelIndicesIJK` (legal, meaning "all voxels") is
+  expanded in raster order (first index fastest). Both reference implementations
+  refuse such files in practice, so the writer (next step) will always write the
+  voxel indices explicitly, and this branch is only a reader leniency.
+- The `Surface`/`Volume` fallback and the dimension counting are the two places
+  where the spec is less explicit than the files are; both are now recorded here
+  and covered by tests.
+
+Still open in I.2c: the XML writer (axis objects, `cifti.header.from.axes()`,
+`write.cifti()` and the `write.fs.*.cifti()` convenience writers for `dscalar`,
+`dlabel`, `dtseries` and `dconn`), and the round trip checks that come with it.
