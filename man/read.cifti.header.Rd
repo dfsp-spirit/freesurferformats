@@ -86,6 +86,7 @@ Other cifti functions:
 \code{\link[=cifti.axis.from.template]{cifti.axis.from.template()}},
 \code{\link[=cifti.axis.labels]{cifti.axis.labels()}},
 \code{\link[=cifti.axis.parcels]{cifti.axis.parcels()}},
+\code{\link[=cifti.axis.parcels.from.annot]{cifti.axis.parcels.from.annot()}},
 \code{\link[=cifti.axis.scalars]{cifti.axis.scalars()}},
 \code{\link[=cifti.axis.series]{cifti.axis.series()}},
 \code{\link[=cifti.brain.model.surface]{cifti.brain.model.surface()}},
@@ -103,9 +104,13 @@ Other cifti functions:
 \code{\link[=cifti.volume]{cifti.volume()}},
 \code{\link[=print.fs.cifti]{print.fs.cifti()}},
 \code{\link[=print.fs.cifti.data]{print.fs.cifti.data()}},
+\code{\link[=print.fs.connectome]{print.fs.connectome()}},
 \code{\link[=read.cifti]{read.cifti()}},
+\code{\link[=read.fs.connectome.cifti]{read.fs.connectome.cifti()}},
 \code{\link[=write.cifti]{write.cifti()}},
+\code{\link[=write.fs.connectome.cifti]{write.fs.connectome.cifti()}},
 \code{\link[=write.fs.morph.cifti]{write.fs.morph.cifti()}},
+\code{\link[=write.fs.parcellated.cifti]{write.fs.parcellated.cifti()}},
 \code{\link[=write.fs.parcellation.cifti]{write.fs.parcellation.cifti()}},
 \code{\link[=write.fs.series.cifti]{write.fs.series.cifti()}}
 }

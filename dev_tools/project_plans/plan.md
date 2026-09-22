@@ -84,7 +84,7 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 - [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
 - [x] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- read side in increment 7, write side in increment 8. The generic writer `write.cifti()` covers all nine standard file types, the user-facing writers cover the three dense surface types; the parcellated convenience writers belong to I.2d.
 - [x] I.2e (partly) native `read.fs.*.cifti()`: `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` are native and accept a file path directly; the `cifti` package is only used if a client passes one of its objects. The dispatch fix for `read.fs.morph()`/`read.fs.volume()` is still open.
-- [ ] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations
+- [x] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations -- done in increment 9, see the progress log. The writers are `write.fs.connectome.cifti()` (the four connectome types) and `write.fs.parcellated.cifti()` (`.pscalar`/`.ptseries`), the axis comes from `cifti.axis.parcels.from.annot()` or from a template.
 - [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads) -- the seek based column selection of `read.cifti()` exists, the dedicated row reader and its docs are open
 - [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
 
@@ -1154,3 +1154,77 @@ Findings worth keeping:
   Renamed in the same commit, while the entry is unreleased.
 - `cifti.structure.canonical()`/`cifti.structure.short()` are vectorized now; using them
   on a vector of structures in an error message exposed that they were not.
+
+### Increment 9: CIFTI-2 parcellated files and connectomes (2026-09-22) -- DONE (item I.2d)
+
+Files: `R/cifti_parcels.R` (parcels axis from annotations), `R/read_cifti_connectome.R`
+(`read.fs.connectome.cifti()`, the `fs.connectome` class and its print method),
+`R/write_cifti_connectome.R` (`write.fs.connectome.cifti()`,
+`write.fs.parcellated.cifti()`), `tests/testthat/test-cifti_parcels.R` (58 tests),
+`tests/testthat/test-cifti_connectome.R` (110 tests), and a third section in
+`dev_tools/check_cifti_conversion.R` (written files, the parcel semantic check and the
+annotation check). Item I.2c was already complete, so I.2d was the missing half of the
+parcellated support; the plan's "pscalar/ptseries/pconn/pdconn/dpconn writers" are covered
+by the two new writers.
+
+Public API added: `read.fs.connectome.cifti(filepath, rows, columns)` (plus the
+`fs.connectome` class with a print method), `write.fs.connectome.cifti(filepath, data,
+template, axes, metadata)`, `write.fs.parcellated.cifti(filepath, data, template, axes,
+map_names, start, step, unit, metadata)` and `cifti.axis.parcels.from.annot(annots,
+structure, parcel_names, default_label_name)`.
+
+Findings worth keeping:
+
+- **The official example files of the plan do not fit together.** The official
+  `Conte69.parcellations_VGD11b.32k_fs_LR.dlabel.nii` describes the *complete* fs_LR
+  surface (32,492 vertices per hemisphere), while the official `.dtseries`/`.ptseries` use
+  the reduced grayordinates mapping (30,424 lh, 30,527 rh), so Connectome Workbench
+  refuses to combine them: `wb_command -cifti-parcellate <dtseries> <dlabel> COLUMN <out>`
+  aborts with "data file is missing vertex 7 in structure CORTEX_LEFT, which is used by
+  label 'MEDIAL.WALL'". The parcel lists of the official `.ptseries` are therefore the
+  reference for the parcel handling, not the dlabel; the check script builds the parcels
+  axis from the official `.ptseries` and reproduces its values, which is a stronger check
+  anyway (it is Workbench's own parcellation).
+- **A parcel's vertex indices are per brain structure, and the hemispheres overlap
+  numerically.** Averaging the values of the vertices of a parcel requires the mapping
+  from (structure, vertex index) to a matrix column, i.e. the brainordinate table of the
+  file (`cifti.grayordinates()`); `unique(unlist(parcel$vertices))` silently mixes the two
+  hemispheres and produces a wrong mean for every parcel that spans both (the first version
+  of the check script did exactly that and was off by up to 1.2). Increment 7 got this
+  right by taking the vertices per structure; the lesson is that the *axis* alone is not
+  enough to index the data.
+- `vapply(x, f, numeric(n))` returns an `n` x `length(x)` matrix, i.e. series x parcels,
+  which is already the matrix dimension order the writer wants. Adding a `t()` (as the
+  first version did) triggers the writer's transpose hint - the hint works.
+- **An axis object is a list, so it cannot be passed to `cifti.check.axes()` directly.**
+  `cifti.check.axes()` expects a list *of* axes; a single axis (a list of ~9 entries with a
+  `type` entry) is reported as "A CIFTI-2 file has at most two matrix dimensions, but 9
+  axes were given". The writers therefore detect the single-axis input form by the presence
+  of the `type` entry (`is.list(axes) && !is.null(axes$type)`) and wrap it. The same
+  pattern is worth using for any future "one axis or a list of axes" parameter.
+- **`sprintf()` with a multi-line `paste0()` format needs one argument per placeholder.**
+  Two `%s` placeholders and a single pasted argument are an error at *call* time ("too few
+  arguments"), which is easy to miss because the message looks unrelated to the format
+  string.
+- **`identical()` on dimensions needs `unname()`**: `vapply()` over a named list returns a
+  named vector, while `dim(matrix)` is unnamed, so `identical(dim(data), dim_sizes)` was
+  false for an otherwise matching matrix. The error message it produced was correct
+  ("has the dimensions 3 x 3, but its axes describe a matrix of size 3 x 3"), which made
+  the cause visible.
+- The region names of the two hemispheres are matched *after* removing hemisphere markers
+  (`L_`/`R_`/`LH_`/`RH_`/`Left_`/`Right_`, as a prefix, a suffix or an infix), because a
+  parcel of a parcellated file is a region that spans the structures it occurs in: a
+  Schaefer atlas names the same region `7Networks_LH_Vis_1` and `7Networks_RH_Vis_1`, and
+  without the normalization every region would become two parcels. Names without a marker
+  are returned unchanged, and a name that consists of nothing but a marker is not touched.
+- The parcels of an annotation are ordered like its label table (the atlas order), not like
+  the vertices of the mesh: the first vertex of a hemisphere is somewhere in the middle of
+  the brain, so a first-appearance order would look arbitrary and would change whenever the
+  mesh changes.
+- Verification results: 7 files written by the new writers (all four connectome types, the
+  two parcellated types and the official 54 parcel `.ptseries`) are read back by Connectome
+  Workbench with identical values and by nibabel with an *identical* parsed dump (433
+  identical dump lines), a parcellated file built from two FreeSurfer annotations is
+  accepted by both, and the official `.ptseries` values are reproduced exactly through our
+  writer (max absolute difference 0e+00, i.e. the same float32 numbers). The annotation
+  check also verifies that the parcels cover every vertex of the annotation exactly once.
