@@ -37,6 +37,8 @@ group.start.rows <- function(lengths) {
 #'   selected groups) and \code{lengths} (their lengths).
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 subset.groups <- function(points, lengths, sel) {
   sel <- as.integer(sel);
   if (length(sel) == 0L) {
@@ -375,6 +377,8 @@ coord.bbox <- function(coords) {
 #' @return numeric vector of length 6, the union of the two boxes.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 merge.bbox <- function(bbox1, bbox2) {
   if (is.null(bbox1)) {
     return(bbox2);

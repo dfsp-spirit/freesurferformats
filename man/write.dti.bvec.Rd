@@ -37,12 +37,12 @@ components for a square file, so reading such a file back yields the
 transposed matrix and warns about the ambiguity.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.grad}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

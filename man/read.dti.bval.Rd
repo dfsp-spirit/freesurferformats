@@ -26,12 +26,12 @@ volume, usually in a single row. The HCP variant, which stores one value
 per line, is read as well.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.grad}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.bvec}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

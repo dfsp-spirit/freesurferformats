@@ -273,6 +273,8 @@ transform2voxel <- function(tf, src = NULL, dst = NULL) {
 #' @return `NULL` or a geometry list as returned by \code{\link{volume.geometry}}.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.geometry.for.side <- function(tf, side, volume = NULL) {
   if (!is.null(volume)) {
     return(volume.geometry(volume))
@@ -292,6 +294,8 @@ transform.geometry.for.side <- function(tf, side, volume = NULL) {
 #' @return `NULL` or character string.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.descriptor.path <- function(descriptor) {
   if (is.null(descriptor) || is.null(descriptor$path)) {
     return(NULL)
@@ -373,6 +377,8 @@ transform2lps <- function(tf) {
 #' @return an `fs.transform` instance whose matrix is expressed in the requested convention.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.flip.handedness <- function(tf, target) {
   if (!is.fs.transform(tf)) {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
@@ -420,6 +426,8 @@ transform.flip.handedness <- function(tf, target) {
 #' @return character string, either 'fsl' or 'scanner'.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.world.frame <- function(tf) {
   for (side in c("src", "dst")) {
     descriptor <- tf[[side]]

@@ -355,6 +355,8 @@ lta.volume.info.lines <- function(descriptor, section_name) {
 #' @return character vector with one entry per row of the matrix.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.matrix.row.lines <- function(matrix) {
   return(apply(matrix, 1L, function(matrix_row) transform.values.text(matrix_row)))
 }
@@ -367,6 +369,8 @@ transform.matrix.row.lines <- function(matrix) {
 #' @return character string, the values separated by single spaces.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.values.text <- function(values) {
   return(paste(vapply(values, transform.value.text, character(1L)), collapse = " "))
 }
@@ -387,6 +391,8 @@ transform.values.text <- function(values) {
 #' @return character string, the text representation of the value.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.value.text <- function(value) {
   if (!is.finite(value)) { # NA, NaN and Inf, which are written as such
     return(sprintf("%.17g", value))

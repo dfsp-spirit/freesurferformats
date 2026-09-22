@@ -31,12 +31,12 @@ the table in the \code{dw_scheme} entry of a \code{.mif} header. A first line
 consisting of a single integer is accepted as a volume count header.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.bvec}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

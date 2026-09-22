@@ -278,6 +278,8 @@ apply.affine.to.coords <- function(coords, affine) {
 #' @return numeric vector of length 6.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.bbox <- function(bbox, affine) {
   corners <- as.matrix(expand.grid(
     x = bbox[1:2], y = bbox[3:4], z = bbox[5:6]

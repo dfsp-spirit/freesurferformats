@@ -27,12 +27,12 @@ MRI dataset to a plain text file, which is the \emph{bvals} part of the FSL
 bvecs/bvals format.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.grad}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bvec}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

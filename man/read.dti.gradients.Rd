@@ -61,12 +61,12 @@ above the b=0 threshold but a zero direction; (4) volumes with a small
 positive b-value but a non-zero direction.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.grad}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.bvec}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

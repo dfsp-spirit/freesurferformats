@@ -38,12 +38,12 @@ The b-vectors are returned exactly as they are stored, i.e. they are
 \code{\link[freesurferformats]{read.dti.gradients}}) are not replaced here.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.grad}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.bvec}()},
-\code{\link{write.dti.grad}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}},
+\code{\link[=write.dti.grad]{write.dti.grad()}}
 }
 \concept{dti functions}

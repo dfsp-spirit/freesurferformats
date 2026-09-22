@@ -35,12 +35,12 @@ commands expects, and the format of the \code{dw_scheme} entry in the header of
 a \code{.mif} image.
 }
 \seealso{
-Other dti functions: 
-\code{\link{read.dti.bval}()},
-\code{\link{read.dti.bvec}()},
-\code{\link{read.dti.grad}()},
-\code{\link{read.dti.gradients}()},
-\code{\link{write.dti.bval}()},
-\code{\link{write.dti.bvec}()}
+Other dti functions:
+\code{\link[=read.dti.bval]{read.dti.bval()}},
+\code{\link[=read.dti.bvec]{read.dti.bvec()}},
+\code{\link[=read.dti.grad]{read.dti.grad()}},
+\code{\link[=read.dti.gradients]{read.dti.gradients()}},
+\code{\link[=write.dti.bval]{write.dti.bval()}},
+\code{\link[=write.dti.bvec]{write.dti.bvec()}}
 }
 \concept{dti functions}

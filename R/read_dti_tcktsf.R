@@ -67,6 +67,8 @@ is.gzip.file <- function(filepath) {
 #' @return a connection, call \code{close()} on it when done.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 open.maybe.gzip <- function(filepath, gzipped, mode = "rb") {
   if (identical(mode, "rb")) {
     if (gzipped) {
@@ -388,6 +390,8 @@ infinite.rows <- function(mat) {
 #'   (matrix, the points of the trailing incomplete streamline).
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 split.mrtrix.chunk <- function(mat, pending, finish_pending = FALSE) {
   values_per_point <- ncol(mat);
   empty_mat <- matrix(numeric(0L), nrow = 0L, ncol = values_per_point);
@@ -695,6 +699,8 @@ validate.bbox <- function(bbox) {
 #'   \code{is_tck} and \code{expected_groups}.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 open.mrtrix.payload <- function(filepath, max_tracks = Inf) {
   file_header <- read.mrtrix.header(filepath);
   header <- file_header$header;

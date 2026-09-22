@@ -308,6 +308,8 @@ guess.transform.format <- function(filepath) {
 #' @return character string, the printable characters of the beginning of the file.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 transform.file.sniff.text <- function(filepath, num_bytes = 256L) {
   raw_bytes <- readBin(filepath, "raw", n = num_bytes)
   if (length(raw_bytes) == 0L) {
@@ -327,6 +329,8 @@ transform.file.sniff.text <- function(filepath, num_bytes = 256L) {
 #' @return logical, whether the line contains exactly `num` numerical values and nothing else.
 #'
 #' @keywords internal
+#'
+#' @exportS3Method NULL
 text.line.is.numeric <- function(line, num) {
   fields <- strsplit(trimws(line), "[[:space:]]+")[[1L]]
   if (length(fields) != num) {
