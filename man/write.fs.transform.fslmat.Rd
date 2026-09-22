@@ -20,7 +20,7 @@ with the \code{-omat} option and that FSL, MRtrix3 and FreeSurfer read as the re
 matrix must map voxel coordinates to voxel coordinates (\code{space_in} and \code{space_out} are 'voxel'), because that
 is what an FSL matrix stores: it relates the voxel grid of the image given to \verb{flirt -in} to the voxel grid of
 the image given to \code{flirt -ref}, and it does not record which images those were. Use
-\code{\link{transform.to.voxel}} to convert a transformation in world coordinates into one that can be
+\code{\link{transform2voxel}} to convert a transformation in world coordinates into one that can be
 written.
 }
 \examples{
@@ -52,10 +52,10 @@ Other header coordinate space:
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
-\code{\link[=transform.to.lps]{transform.to.lps()}},
-\code{\link[=transform.to.ras]{transform.to.ras()}},
-\code{\link[=transform.to.voxel]{transform.to.voxel()}},
-\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=transform2lps]{transform2lps()}},
+\code{\link[=transform2ras]{transform2ras()}},
+\code{\link[=transform2voxel]{transform2voxel()}},
+\code{\link[=transform2world]{transform2world()}},
 \code{\link[=write.fs.transform]{write.fs.transform()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.itk]{write.fs.transform.itk()}},

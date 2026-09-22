@@ -1,7 +1,7 @@
 # Cross-validate the FSL transformation conversion of this package against two independent implementations.
 #
 # The package converts an FSL/FLIRT matrix ('*.mat') into a world transformation, see
-# 'transform.to.world()'. FSL does not use the world space of the image header for this, but a space with unit
+# 'transform2world()'. FSL does not use the world space of the image header for this, but a space with unit
 # voxel axes and a flipped first axis, so the conversion is not obvious and must be verified against reference
 # implementations rather than derived from first principles.
 #
@@ -119,7 +119,7 @@ for (pair in image_pairs) {
     mat_file <- file.path(work_dir, sprintf("%s_%s.mat", gsub("[^a-zA-Z0-9]", "_", pair$name), transform_name))
     writeLines(apply(matrix, 1L, function(r) paste(sprintf("%.12g", r), collapse = " ")), mat_file)
 
-    our_transform <- transform.to.world(read.fs.transform(mat_file), src = src_volume, dst = dst_volume)
+    our_transform <- transform2world(read.fs.transform(mat_file), src = src_volume, dst = dst_volume)
 
     # 1. FreeSurfer: the LTA file holds the world transformation directly.
     if (has_lta_convert) {
@@ -170,7 +170,7 @@ for (pair in image_pairs) {
     }
 
     # 3. Internal consistency: converting back must return the matrix we started with.
-    round_trip <- max(abs(transform.to.voxel(our_transform)$matrix - matrix))
+    round_trip <- max(abs(transform2voxel(our_transform)$matrix - matrix))
     checks <- checks + 1L
     status <- if (round_trip < 1e-10) "OK" else { failures <- failures + 1L; "MISMATCH" }
     cat(sprintf("   [%-16s] %-28s : max abs difference %.3g  %s\n", transform_name, "round trip to voxel and back", round_trip, status))
@@ -304,7 +304,7 @@ if (!file.exists(itk_example_file)) {
     reference <- tryCatch(read_matrix_file(mrtrix_itk_file), error = function(e) NULL)
     status <- compare_with_reference(
       "itk (ANTS in)", "vs MRtrix3 itk_import",
-      transform.to.ras(itk_transform)$matrix, reference, 1e-9
+      transform2ras(itk_transform)$matrix, reference, 1e-9
     )
     counters <- tally(status, checks, failures)
     checks <- counters$checks

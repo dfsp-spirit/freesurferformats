@@ -21,7 +21,7 @@ workflows that write their transformations with them. The file name extension is
 
 An ITK transform operates on the world coordinates of the images, which in ITK are
 left-posterior-superior, so only a transformation that maps LPS coordinates can be written. Use
-\code{\link{transform.to.lps}} to convert a transformation in RAS coordinates.
+\code{\link{transform2lps}} to convert a transformation in RAS coordinates.
 }
 \note{
 The file that is written uses the class 'AffineTransform_double_3_3', i.e. the parameters are stored in
@@ -33,7 +33,7 @@ of rotation, see the note in \code{\link{read.fs.transform.itk}}.
 \examples{
 xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
 out_file <- tempfile(fileext = ".tfm")
-write.fs.transform.itk(transform.to.lps(read.fs.transform(xfm_file)), out_file)
+write.fs.transform.itk(transform2lps(read.fs.transform(xfm_file)), out_file)
 readLines(out_file)
 unlink(out_file)
 
@@ -59,10 +59,10 @@ Other header coordinate space:
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
-\code{\link[=transform.to.lps]{transform.to.lps()}},
-\code{\link[=transform.to.ras]{transform.to.ras()}},
-\code{\link[=transform.to.voxel]{transform.to.voxel()}},
-\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=transform2lps]{transform2lps()}},
+\code{\link[=transform2ras]{transform2ras()}},
+\code{\link[=transform2voxel]{transform2voxel()}},
+\code{\link[=transform2world]{transform2world()}},
 \code{\link[=write.fs.transform]{write.fs.transform()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},

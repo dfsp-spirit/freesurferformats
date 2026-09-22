@@ -131,17 +131,17 @@ test_that("Real ITK transforms written by other tools can be read.", {
 
   # The matrices are in LPS coordinates, and converting them to RAS must not change anything else.
   for (tf in list(ants_tf, forward_tf, inverse_tf)) {
-    ras_tf <- transform.to.ras(tf)
+    ras_tf <- transform2ras(tf)
     expect_equal(ras_tf$space_in, "ras")
     expect_equal(ras_tf$matrix, diag(c(-1, -1, 1, 1)) %*% tf$matrix %*% diag(c(-1, -1, 1, 1)))
-    expect_equal(transform.to.lps(ras_tf)$matrix, tf$matrix)
+    expect_equal(transform2lps(ras_tf)$matrix, tf$matrix)
   }
 })
 
 
 test_that("An ITK text transform can be written and read back.", {
   xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
-  tf <- transform.to.lps(read.fs.transform(xfm_file))
+  tf <- transform2lps(read.fs.transform(xfm_file))
   out_file <- tempfile(fileext = ".tfm")
 
   write.fs.transform.itk(tf, out_file)
@@ -163,7 +163,7 @@ test_that("An ITK text transform can be written and read back.", {
 
   # ITK transforms operate on LPS coordinates, so a transformation in RAS coordinates has to be converted, and a
   # non-affine matrix cannot be stored in this format.
-  expect_error(write.fs.transform.itk(read.fs.transform(xfm_file), out_file), "transform.to.lps")
+  expect_error(write.fs.transform.itk(read.fs.transform(xfm_file), out_file), "transform2lps")
   non_affine <- diag(4L)
   non_affine[4L, ] <- c(0, 0, 1, 5)
   expect_error(write.fs.transform.itk(fs.transform(matrix = non_affine, space_in = "lps", space_out = "lps"), out_file), "affine")
@@ -201,27 +201,27 @@ test_that("A transformation can be converted between the RAS and the LPS convent
   xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
   tf <- read.fs.transform(xfm_file) # RAS
 
-  lps_tf <- transform.to.lps(tf)
+  lps_tf <- transform2lps(tf)
   expect_equal(lps_tf$space_in, "lps")
   expect_equal(lps_tf$space_out, "lps")
   expect_equal(lps_tf$matrix, diag(c(-1, -1, 1, 1)) %*% tf$matrix %*% diag(c(-1, -1, 1, 1)))
   # The conversion is its own inverse, and a transformation that is already in the requested convention is
   # returned unchanged.
-  expect_equal(transform.to.ras(lps_tf)$matrix, tf$matrix)
-  expect_equal(transform.to.ras(tf), tf)
-  expect_equal(transform.to.lps(lps_tf), lps_tf)
+  expect_equal(transform2ras(lps_tf)$matrix, tf$matrix)
+  expect_equal(transform2ras(tf), tf)
+  expect_equal(transform2lps(lps_tf), lps_tf)
   expect_equal(lps_tf$format, tf$format) # provenance is kept
 
   # The conversion needs world coordinates, since the convention is a property of them.
   voxel_tf <- fs.transform(matrix = diag(4), space_in = "voxel", space_out = "voxel", voxel_base = 0L)
-  expect_error(transform.to.ras(voxel_tf), "transform.to.world")
+  expect_error(transform2ras(voxel_tf), "transform2world")
 
   # And the voxel conversion refuses an LPS transformation, since the volume geometry of this package describes
   # RAS coordinates: silently mixing the two would produce wrong coordinates.
   src_volume <- read.fs.volume(system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE), with_header = TRUE)
   dst_volume <- read.fs.volume(system.file("extdata", "vol27int.nii.gz", package = "freesurferformats", mustWork = TRUE), with_header = TRUE)
-  expect_error(transform.to.voxel(lps_tf, src = src_volume, dst = dst_volume), "transform.to.ras")
+  expect_error(transform2voxel(lps_tf, src = src_volume, dst = dst_volume), "transform2ras")
 
-  expect_error(transform.to.ras("not a transform"))
-  expect_error(transform.to.lps("not a transform"))
+  expect_error(transform2ras("not a transform"))
+  expect_error(transform2lps("not a transform"))
 })

@@ -63,7 +63,7 @@ read.fs.transform <- function(filepath, format = "auto") {
 #' @return an `fs.transform` instance. An ITK transform operates on the world coordinates of the images, which in
 #'   ITK are left-posterior-superior, so `space_in` and `space_out` are 'lps' and `voxel_base` is `NA`. This is
 #'   not the RAS space that the other formats of this package use, and it is not converted silently: use
-#'   \code{\link{transform.to.ras}} to get a transformation in RAS coordinates. The volumes are not recorded in
+#'   \code{\link{transform2ras}} to get a transformation in RAS coordinates. The volumes are not recorded in
 #'   the file, so `src` and `dst` are `NULL`. The ITK class name (e.g. 'AffineTransform_float_3_3') is stored in
 #'   the `type` field, and the values of the `FixedParameters` entry in the `fixed_parameters` field.
 #'
@@ -89,7 +89,7 @@ read.fs.transform <- function(filepath, format = "auto") {
 #'
 #' @examples
 #' xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
-#' tf <- transform.to.ras(transform.to.lps(read.fs.transform(xfm_file)))
+#' tf <- transform2ras(transform2lps(read.fs.transform(xfm_file)))
 #' summary(tf)$space_in
 #'
 #' @family header coordinate space
@@ -211,11 +211,11 @@ itk.numeric.value <- function(lines, key, filepath) {
 #' @return an `fs.transform` instance. An FSL matrix maps the voxel coordinates of the image given to `flirt
 #'   -in` to those of the image given to `flirt -ref`. Both are voxel indices, so `space_in` and `space_out` are
 #'   'voxel' and `voxel_base` is 0 (FSL voxel indices are zero-based). The two images are not recorded in the
-#'   file, so `src` and `dst` are `NULL` and the volumes have to be passed to \code{\link{transform.to.world}}
+#'   file, so `src` and `dst` are `NULL` and the volumes have to be passed to \code{\link{transform2world}}
 #'   to interpret the matrix in world coordinates.
 #'
 #' @examples
-#' # Write the example LTA as an FSL matrix and read it back, since no FSL installation is needed for that.
+#' # Write the example LTA as an FSL matrix and read it back: no FSL installation is needed for that.
 #' lta_file <- system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)
 #' mat_file <- tempfile(fileext = ".mat")
 #' write.fs.transform(read.fs.transform(lta_file), mat_file, format = "fslmat")

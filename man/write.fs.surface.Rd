@@ -61,7 +61,8 @@ Other mesh export functions:
 \code{\link[=write.fs.surface.off]{write.fs.surface.off()}},
 \code{\link[=write.fs.surface.off.ply2]{write.fs.surface.off.ply2()}},
 \code{\link[=write.fs.surface.ply]{write.fs.surface.ply()}},
-\code{\link[=write.fs.surface.ply2]{write.fs.surface.ply2()}}
+\code{\link[=write.fs.surface.ply2]{write.fs.surface.ply2()}},
+\code{\link[=write.fs.surface.vtk]{write.fs.surface.vtk()}}
 }
 \concept{mesh export functions}
 \concept{mesh functions}

@@ -97,6 +97,17 @@ fsl.scaled.voxel.matrix <- function(geometry) {
   return(transformed %*% coord_switch)
 }
 
+# Note on the naming and the roxygen tags of the 'transform2*' functions below: a function whose name has the
+# form 'generic.something' is treated as an S3 method for 'generic' by roxygen2 and by 'R CMD check', and
+# 'transform' is a standard generic (as are 'all' and 'any', which is why the internal predicates in
+# R/read_dti_tcktsf.R are called 'finite.rows' and not 'all.finite.rows'). Such a function cannot be documented
+# without a check finding: as an S3 method it would have to have the signature of the generic
+# ('transform(_data, ...)', which does not match), and documented as a plain function it is reported as "S3
+# method shown with full name". The names 'transform2world' and 'transform2voxel' therefore follow the
+# convention that this package already uses for conversions ('mghheader.tkreg2scanner'). The explicit
+# '@usage' and '@export <name>' tags are still useful: they state the usage without the S3 markup that
+# roxygen2 would otherwise guess, and they export the function by name.
+
 
 #' @title Convert a transformation to the world (RAS) coordinate space.
 #'
@@ -130,14 +141,16 @@ fsl.scaled.voxel.matrix <- function(geometry) {
 #' # Read an LTA file, which records both volumes it relates, and convert it to world coordinates.
 #' lta_file <- system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)
 #' tf <- read.fs.transform(lta_file)
-#' tf_world <- transform.to.world(tf)
+#' tf_world <- transform2world(tf)
 #' tf_world$space_in
 #' tf_world$matrix
 #'
 #' @family header coordinate space
 #'
-#' @export
-transform.to.world <- function(tf, src = NULL, dst = NULL) {
+#' @usage transform2world(tf, src = NULL, dst = NULL)
+#'
+#' @export transform2world
+transform2world <- function(tf, src = NULL, dst = NULL) {
   if (!is.fs.transform(tf)) {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
   }
@@ -182,24 +195,26 @@ transform.to.world <- function(tf, src = NULL, dst = NULL) {
 
 #' @title Convert a transformation to voxel coordinates.
 #'
-#' @description The inverse operation of \code{\link{transform.to.world}}: given a transformation that operates
+#' @description The inverse operation of \code{\link{transform2world}}: given a transformation that operates
 #' on world coordinates, compute the matrix that maps voxel indices of one volume to voxel indices of another.
 #' The result can be saved as an FSL matrix, see \code{\link{write.fs.transform.fslmat}}.
 #'
-#' @inheritParams transform.to.world
+#' @inheritParams transform2world
 #'
 #' @return an `fs.transform` instance whose matrix operates on (zero-based) voxel coordinates.
 #'
 #' @examples
 #' lta_file <- system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)
-#' tf_world <- transform.to.world(read.fs.transform(lta_file))
-#' tf_voxel <- transform.to.voxel(tf_world)
+#' tf_world <- transform2world(read.fs.transform(lta_file))
+#' tf_voxel <- transform2voxel(tf_world)
 #' max(abs(tf_voxel$matrix - read.fs.transform(lta_file)$matrix)) # back where we started
 #'
 #' @family header coordinate space
 #'
-#' @export
-transform.to.voxel <- function(tf, src = NULL, dst = NULL) {
+#' @usage transform2voxel(tf, src = NULL, dst = NULL)
+#'
+#' @export transform2voxel
+transform2voxel <- function(tf, src = NULL, dst = NULL) {
   if (!is.fs.transform(tf)) {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
   }
@@ -207,7 +222,7 @@ transform.to.voxel <- function(tf, src = NULL, dst = NULL) {
     return(tf) # nothing to do, it is already in voxel space
   }
   if (identical(tf$space_in, "lps") || identical(tf$space_out, "lps")) {
-    stop("Cannot convert this transformation to voxel coordinates: it operates on LPS world coordinates, while the volume geometry used here describes RAS coordinates. Use 'transform.to.ras' to convert it to RAS coordinates first.\n")
+    stop("Cannot convert this transformation to voxel coordinates: it operates on LPS world coordinates, while the volume geometry used here describes RAS coordinates. Use 'transform2ras' to convert it to RAS coordinates first.\n")
   }
 
   src_geometry <- transform.geometry.for.side(tf, "src", src)
@@ -290,7 +305,7 @@ transform.descriptor.path <- function(descriptor) {
 #' in world coordinates that are left-posterior-superior (LPS), while the other file formats of this package use
 #' right-anterior-superior (RAS) coordinates. The two conventions differ in the sign of the first two axes only,
 #' so converting a transformation between them neither needs nor uses the geometry of a volume, unlike the
-#' conversion between voxel and world coordinates, see \code{\link{transform.to.world}}. A transformation that
+#' conversion between voxel and world coordinates, see \code{\link{transform2world}}. A transformation that
 #' is already in RAS coordinates is returned unchanged.
 #'
 #' @param tf an `fs.transform` instance whose matrix operates on world coordinates, i.e. `space_in` and
@@ -300,38 +315,46 @@ transform.descriptor.path <- function(descriptor) {
 #'
 #' @examples
 #' # An ITK transform operates on LPS coordinates, the FreeSurfer formats on RAS coordinates.
-#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE))
+#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm",
+#'   package = "freesurferformats", mustWork = TRUE
+#' ))
 #' summary(tf)$space_in
-#' summary(transform.to.lps(tf))$space_in
-#' summary(transform.to.ras(transform.to.lps(tf)))$space_in
+#' summary(transform2lps(tf))$space_in
+#' summary(transform2ras(transform2lps(tf)))$space_in
 #'
 #' @family header coordinate space
 #'
-#' @export
-transform.to.ras <- function(tf) {
+#' @usage transform2ras(tf)
+#'
+#' @export transform2ras
+transform2ras <- function(tf) {
   return(transform.flip.handedness(tf, "ras"))
 }
 
 
 #' @title Convert a transformation to LPS world coordinates.
 #'
-#' @description The reverse of \code{\link{transform.to.ras}}, for transformations that have to be expressed in
+#' @description The reverse of \code{\link{transform2ras}}, for transformations that have to be expressed in
 #' the world coordinates that ITK and the tools built on it use. A transformation that is already in LPS
 #' coordinates is returned unchanged.
 #'
-#' @inheritParams transform.to.ras
+#' @inheritParams transform2ras
 #'
 #' @return an `fs.transform` instance whose matrix operates on LPS coordinates.
 #'
 #' @examples
-#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE))
+#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm",
+#'   package = "freesurferformats", mustWork = TRUE
+#' ))
 #' # The matrix changes, because the sign of the first two axes changes.
-#' max(abs(transform.to.lps(tf)$matrix - tf$matrix)) > 0
+#' max(abs(transform2lps(tf)$matrix - tf$matrix)) > 0
 #'
 #' @family header coordinate space
 #'
-#' @export
-transform.to.lps <- function(tf) {
+#' @usage transform2lps(tf)
+#'
+#' @export transform2lps
+transform2lps <- function(tf) {
   return(transform.flip.handedness(tf, "lps"))
 }
 
@@ -363,7 +386,7 @@ transform.flip.handedness <- function(tf, target) {
 
   world_spaces <- c("ras", "lps")
   if (!(tf$space_in %in% world_spaces) || !(tf$space_out %in% world_spaces)) {
-    stop(sprintf("Cannot convert this transformation to '%s' coordinates: the LPS and RAS conventions differ in world coordinates only, but this transformation maps '%s' to '%s' coordinates. Use 'transform.to.world' to convert it to world coordinates first.\n", target, as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot convert this transformation to '%s' coordinates: the LPS and RAS conventions differ in world coordinates only, but this transformation maps '%s' to '%s' coordinates. Use 'transform2world' to convert it to world coordinates first.\n", target, as.character(tf$space_in), as.character(tf$space_out)))
   }
 
   sign_flip <- diag(c(-1.0, -1.0, 1.0, 1.0))
@@ -390,7 +413,7 @@ transform.flip.handedness <- function(tf, target) {
 #' it was read from: an FSL matrix uses the FSL convention, see \code{\link{fsl.scaled.voxel.matrix}}, while the
 #' matrices of the other formats use the RAS space of the volume headers. The frame is taken from the volume
 #' descriptors if they state it and is derived from the format otherwise, so that
-#' \code{\link{transform.to.world}} and \code{\link{transform.to.voxel}} always agree.
+#' \code{\link{transform2world}} and \code{\link{transform2voxel}} always agree.
 #'
 #' @param tf an `fs.transform` instance.
 #'

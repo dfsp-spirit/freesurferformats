@@ -13,7 +13,7 @@ read.fs.transform.itk(filepath)
 an \code{fs.transform} instance. An ITK transform operates on the world coordinates of the images, which in
 ITK are left-posterior-superior, so \code{space_in} and \code{space_out} are 'lps' and \code{voxel_base} is \code{NA}. This is
 not the RAS space that the other formats of this package use, and it is not converted silently: use
-\code{\link{transform.to.ras}} to get a transformation in RAS coordinates. The volumes are not recorded in
+\code{\link{transform2ras}} to get a transformation in RAS coordinates. The volumes are not recorded in
 the file, so \code{src} and \code{dst} are \code{NULL}. The ITK class name (e.g. 'AffineTransform_float_3_3') is stored in
 the \code{type} field, and the values of the \code{FixedParameters} entry in the \code{fixed_parameters} field.
 }
@@ -45,7 +45,7 @@ by converting files that encode the same transformation, and both are avoided by
 }
 \examples{
 xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
-tf <- transform.to.ras(transform.to.lps(read.fs.transform(xfm_file)))
+tf <- transform2ras(transform2lps(read.fs.transform(xfm_file)))
 summary(tf)$space_in
 
 }
@@ -69,10 +69,10 @@ Other header coordinate space:
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
-\code{\link[=transform.to.lps]{transform.to.lps()}},
-\code{\link[=transform.to.ras]{transform.to.ras()}},
-\code{\link[=transform.to.voxel]{transform.to.voxel()}},
-\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=transform2lps]{transform2lps()}},
+\code{\link[=transform2ras]{transform2ras()}},
+\code{\link[=transform2voxel]{transform2voxel()}},
+\code{\link[=transform2world]{transform2world()}},
 \code{\link[=write.fs.transform]{write.fs.transform()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},

@@ -17,6 +17,6 @@ The world space that a transformation between voxel coordinates refers to depend
 it was read from: an FSL matrix uses the FSL convention, see \code{\link{fsl.scaled.voxel.matrix}}, while the
 matrices of the other formats use the RAS space of the volume headers. The frame is taken from the volume
 descriptors if they state it and is derived from the format otherwise, so that
-\code{\link{transform.to.world}} and \code{\link{transform.to.voxel}} always agree.
+\code{\link{transform2world}} and \code{\link{transform2voxel}} always agree.
 }
 \keyword{internal}

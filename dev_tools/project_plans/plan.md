@@ -18,7 +18,7 @@ Own readers + writers (no FreeSurfer installation required):
 | Volumes | MGH/MGZ (incl. header, `vox2ras`, RAS<->vox), NIfTI-1 (`.nii`, `.nii.gz`, FS fsnifti hack), NIfTI-2 |
 | FS morphometry | `curv` (binary + ASCII), `weight`/`w`/paint, `patch` (binary + ASCII), morph in `mgh`/`mgz`/`gii`/`nii`/`ni1`/`ni2`/`txt`/`asc`/`smp` |
 | FS labels/atlases | `annot`, label (surface + volume), colortable LUT, LUT+CSV atlas |
-| Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII), SRF; read-only: BYU, GEO, TRI/ICO, STL (ASCII + binary) |
+| Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII + binary, both VTK cell array layouts), SRF; read-only: BYU, GEO, TRI/ICO, STL (ASCII + binary) |
 | BrainVoyager | SMP (R/W), SRF |
 | Tracts | TRK (R/W), TCK (R/W), TSF (**read only**) + headers, streaming, `bbox`/`skip_tracks`, `fs.tracts` |
 | Transforms | LTA, `register.dat`, `xfm` -- **read only, no writer at all** |
@@ -100,11 +100,24 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
 - FSL `.mat` is a 4x4 text matrix (trivial); ITK `.tfm` is a small text format.
 - Effort: S-M.
 
-### I.5 [ ] VTK legacy **binary**
+### I.5 [x] VTK legacy **binary** -- DONE
 - Only VTK ASCII is supported. Binary VTK is the mesh/`POLYDATA` interchange for
   Paraview, TrackVis and DSI Studio streamline export.
 - Extending the existing VTK reader/writer covers surfaces *and* streamlines.
 - Effort: M.
+- Done: the reader now supports both encodings and both cell array layouts (the
+  `OFFSETS`/`CONNECTIVITY` layout of VTK 5.1+ and the counts+indices layout of
+  VTK 4.2), detects the layout from the content, reads `LINES` sections as
+  `fs.tracts` (`read.fs.tracts.vtk()`) and skips attribute sections; the writer
+  got the `version` and `binary` parameters. A pre-existing bug was found on the
+  way: the reader could not read *any* file written by VTK 5.1+ (wrong cell
+  layout) and no VTK ASCII file with more than one coordinate per line, i.e. it
+  failed on Paraview exports. Details and the verification against VTK,
+  FreeSurfer and a file from the VTK 4.2 era are in `R/vtk_legacy.R`,
+  `dev_tools/check_vtk_conversion.R` and `CHANGES` (Version 1.1.0).
+- Not done: writing streamlines (`write.fs.tracts.vtk()`), which is a small
+  follow-up now that the cell array encoder is in place; `TRIANGLE_STRIPS` and
+  non-triangular polygons are rejected by name.
 
 ---
 

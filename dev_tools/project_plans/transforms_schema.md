@@ -99,13 +99,13 @@ Consequences:
 ## 3. Conversion is explicit, never silent
 
 - Readers return exactly what the file says, tagged with spaces. They never convert.
-- `transform.to.world(tf, src = NULL, dst = NULL)` / `transform.to.voxel(...)`: convert
+- `transform2world(tf, src = NULL, dst = NULL)` / `transform2voxel(...)`: convert
   between voxel and RAS using the volume geometry. Error (not a warning, not a guess) when the
   required geometry is missing, naming what to pass.
 - `invert.fs.transform(tf)`: swaps `src`/`dst` and inverts `matrix`; spaces swap accordingly.
 - `write.fs.transform()` validates: writing `format = "fslmat"` requires
   `space_in == space_out == "voxel"` and `voxel_base == 0`, otherwise it errors with a hint to
-  call `transform.to.voxel()` first. Same "refuse rather than guess" policy for the other writers
+  call `transform2voxel()` first. Same "refuse rather than guess" policy for the other writers
   (e.g. an RAS2RAS LTA written as an xfm is fine; a voxel-space matrix is not).
 
 ## 4. API surface
@@ -163,7 +163,7 @@ absent (see `find_extra_test_data_file()`), so no MRtrix/FreeSurfer dependency i
 2. **DONE (2026-09-22)** - FSL `.mat` read (`read.fs.transform.fslmat()`) and write
    (`write.fs.transform.fslmat()`), content-based format detection (`guess.transform.format()`, needed because
    `.mat` is shared with binary ANTs/ITK transforms), `volume.geometry()`, `fsl.scaled.voxel.matrix()`,
-   `transform.to.world()` and `transform.to.voxel()`. Verified against FreeSurfer and MRtrix3 with
+   `transform2world()` and `transform2voxel()`. Verified against FreeSurfer and MRtrix3 with
    `dev_tools/check_transform_conversion.R` (32 checks, 0 failures), tests in
    `tests/testthat/test-transform_conversion.R`.
 3. **DONE (2026-09-22)** - writers for `lta`, `dat` and `xfm` (`write.fs.transform.lta/.dat/.xfm()`), with the
@@ -174,7 +174,7 @@ absent (see `find_extra_test_data_file()`), so no MRtrix/FreeSurfer dependency i
    Also: 17 significant digits for exact double round trips, and `read.fs.transform.dat()` now keeps the
    subject and the resolutions so that a round trip is lossless.
 4. **DONE (2026-09-22)** - ITK text transforms: `read.fs.transform.itk()` and `write.fs.transform.itk()`,
-   `transform.to.ras()`/`transform.to.lps()`, content-based detection of the format (needed because '.mat' and
+   `transform2ras()`/`transform2lps()`, content-based detection of the format (needed because '.mat' and
    '.txt' are shared), and refusals for the non-affine classes and for files with several transformations.
    Verified against MRtrix3's `itk_import` on a real ANTs file with a non-zero center of rotation (1e-14) and
    against FreeSurfer for the writer (difference 0, using an ITK file that FreeSurfer wrote itself). Found and
@@ -188,7 +188,7 @@ absent (see `find_extra_test_data_file()`), so no MRtrix/FreeSurfer dependency i
 - `space_in`/`space_out` vocabulary: `"voxel" | "ras" | "lps"`, with the frame carried by `src`/`dst`.
   One value was added during increment 2: `frame = "fsl"` for the FSL world space (see below). It is a
   separate frame and not 'ras', because calling it RAS would be a lie that costs the user millimetres.
-- `transform.to.world()`/`transform.to.voxel()` accept `fs.volume` instances, `nifti` instances and headers.
+- `transform2world()`/`transform2voxel()` accept `fs.volume` instances, `nifti` instances and headers.
 
 ## 9. The FSL world space (verified 2026-09-22)
 

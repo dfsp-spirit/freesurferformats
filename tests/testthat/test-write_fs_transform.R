@@ -105,7 +105,7 @@ test_that("A transformation can be written as an xfm file and read back.", {
   fsl_tf <- read.fs.transform(mat_file)
   src_volume <- read.fs.volume(system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE), with_header = TRUE)
   dst_volume <- read.fs.volume(system.file("extdata", "vol27int.nii.gz", package = "freesurferformats", mustWork = TRUE), with_header = TRUE)
-  fsl_world <- transform.to.world(fsl_tf, src = src_volume, dst = dst_volume)
+  fsl_world <- transform2world(fsl_tf, src = src_volume, dst = dst_volume)
   expect_error(write.fs.transform.xfm(fsl_world, out_file), "frame")
 
   expect_error(write.fs.transform.xfm("not a transform", out_file))

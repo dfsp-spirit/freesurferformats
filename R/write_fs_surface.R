@@ -182,17 +182,31 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 }
 
 
-#' @title Write mesh to file in VTK ASCII format
+#' @title Write mesh to file in VTK legacy format
+#'
+#' @description The VTK legacy format is the plain text/binary format that is
+#'   supported by all versions of the VTK library; the XML based VTK format
+#'   (.vtp) is not the same thing. Two variants of the file layout exist and are
+#'   both still written by software in use today: the old layout introduced in
+#'   VTK 4.2, and the layout that VTK produces since version 5.1 (released 2015).
+#'   The parameter 'version' selects which one to write.
 #'
 #' @param filepath string. Full path to the output surface file, should end with '.vtk', but that is not enforced.
 #'
 #' @param vertex_coords n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.
 #'
-#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in VTK style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
+#'
+#' @param version double, the VTK version whose file layout to write. Either 4.2 (the default) or 5.1. Version 4.2 writes the cell array layout that every VTK version can read, version 5.1 writes the `OFFSETS`/`CONNECTIVITY` layout that VTK itself has been producing since 2015. Only change this if you know that the software you hand the file to requires the newer layout.
+#'
+#' @param binary logical, whether to write the data in binary form instead of the ASCII text form. Binary files are much smaller and much faster to read and write, but they are not human readable. Defaults to FALSE.
 #'
 #' @return string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
+#' @note Binary data in the VTK legacy format is always big endian, the format has no way of expressing a different byte order. The vertex coordinates are written as single precision (4 byte) floats in both encodings, which is what VTK itself does.
+#'
 #' @family mesh functions
+#' @family mesh export functions
 #'
 #' @examples
 #' \dontrun{
@@ -203,36 +217,148 @@ write.fs.surface.asc <- function(filepath, vertex_coords, faces) {
 #' mesh <- read.fs.surface(surface_file)
 #' # Now save it:
 #' write.fs.surface.vtk(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces)
+#' # Or as a binary file using the layout of VTK 5.1:
+#' write.fs.surface.vtk(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces,
+#'   version = 5.1, binary = TRUE
+#' )
 #' }
 #'
 #' @export
-write.fs.surface.vtk <- function(filepath, vertex_coords, faces) {
+write.fs.surface.vtk <- function(filepath, vertex_coords, faces, version = 4.2, binary = FALSE) {
   check.verts.faces(vertex_coords, faces)
 
-  fh <- file(filepath, "w")
+  if (!is.logical(binary) || length(binary) != 1L || is.na(binary)) {
+    stop("Parameter 'binary' must be a single logical value (TRUE or FALSE).\n")
+  }
 
-  num_verts <- nrow(vertex_coords)
+  version_num <- suppressWarnings(as.numeric(version))
+  if (length(version_num) != 1L || is.na(version_num)) {
+    stop("Parameter 'version' must be a single number, either 4.2 or 5.1.\n")
+  }
+  version <- sprintf("%.1f", version_num)
+  if (!(version %in% c("4.2", "5.1"))) {
+    stop(sprintf(
+      "Parameter 'version' must be either 4.2 or 5.1, but it is '%s'. Version 4.2 writes the cell array layout that all VTK versions can read, version 5.1 writes the layout that VTK itself has been producing since 2015.\n",
+      version
+    ))
+  }
+
+  if (any(faces == 0L)) {
+    stop("The vertex indices defining the faces must be 1-based (GNU R style). That means the value 0 must not occur in the matrix 'faces'. To write a mesh whose faces use 0-based indices, add 1 to all values in 'faces' first.\n")
+  }
+  if (!identical(storage.mode(faces), "integer")) {
+    storage.mode(faces) <- "integer"
+  }
+
   num_faces <- nrow(faces)
+  if (num_faces > (.Machine$integer.max %/% 3L)) {
+    stop(sprintf("The mesh has %d faces, which is too many for the VTK legacy format.\n", num_faces))
+  }
 
-  # write header
-  writeLines(c("# vtk DataFile Version 1.0", "fsbrain output", "ASCII", "DATASET POLYDATA", sprintf("POINTS %d float", num_verts)), fh)
-  close(fh)
+  # From R (one-based) to VTK (zero-based) vertex indices.
+  faces <- faces - 1L
 
+  con <- file(filepath, "wb") # in binary mode, so that writeLines() does not translate line endings
+  on.exit(
+    {
+      close(con)
+    },
+    add = TRUE
+  )
 
-  # Append the vertex data
-  write.table(vertex_coords, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE)
+  writeLines(c(
+    sprintf("# vtk DataFile Version %s", version),
+    "fsbrain output",
+    if (binary) "BINARY" else "ASCII",
+    "DATASET POLYDATA"
+  ), con)
 
-  fh <- file(filepath, "a")
-  writeLines(c(sprintf("POLYGONS %d %d", num_faces, num_faces * 4L)), fh)
-  close(fh)
-
-  # Append the face data
-
-  faces <- faces - 1L # from R to 0-based indices
-  faces <- cbind(3L, faces) # in VTK format, each face line starts with the number of vertices
-  write.table(faces, file = filepath, append = TRUE, quote = FALSE, sep = " ", row.names = FALSE, col.names = FALSE)
+  if (binary) {
+    vtk.write.surface.binary(con, vertex_coords, faces, version)
+  } else {
+    vtk.write.surface.ascii(con, vertex_coords, faces, version)
+  }
 
   return(invisible("tris"))
+}
+
+
+#' @title Write the sections of a triangular mesh in VTK ASCII format.
+#'
+#' @param con a connection opened for writing.
+#'
+#' @param vertex_coords n x 3 matrix of doubles, the vertex coordinates.
+#'
+#' @param faces n x 3 matrix of integers, the vertex indices of the faces,
+#'   already converted to zero-based indices.
+#'
+#' @param version character string, either '4.2' or '5.1'.
+#'
+#' @return \code{NULL}, invisibly.
+#'
+#' @keywords internal
+vtk.write.surface.ascii <- function(con, vertex_coords, faces, version) {
+  writeLines(sprintf("POINTS %d float", nrow(vertex_coords)), con)
+  writeLines(sprintf("%.15g %.15g %.15g", vertex_coords[, 1L], vertex_coords[, 2L], vertex_coords[, 3L]), con)
+
+  num_faces <- nrow(faces)
+  if (version == "4.2") {
+    # Old layout: the cell array holds the vertex count of every cell followed by
+    # its vertex indices, so it is four times as long as the number of cells.
+    writeLines(sprintf("POLYGONS %.0f %.0f", num_faces, num_faces * 4), con)
+    writeLines(sprintf("3 %d %d %d", faces[, 1L], faces[, 2L], faces[, 3L]), con)
+  } else {
+    # New layout: separate OFFSETS and CONNECTIVITY arrays, the two numbers of
+    # the section header line are the lengths of those two arrays.
+    writeLines(sprintf("POLYGONS %.0f %.0f", num_faces + 1, num_faces * 3), con)
+    writeLines("OFFSETS vtktypeint64", con)
+    writeLines(sprintf("%.0f", seq(from = 0, by = 3, length.out = num_faces + 1L)), con)
+    writeLines("CONNECTIVITY vtktypeint64", con)
+    writeLines(sprintf("%d %d %d", faces[, 1L], faces[, 2L], faces[, 3L]), con)
+  }
+  return(invisible(NULL))
+}
+
+
+#' @title Write the sections of a triangular mesh in binary VTK format.
+#'
+#' @param con a connection opened for binary writing.
+#'
+#' @param vertex_coords n x 3 matrix of doubles, the vertex coordinates.
+#'
+#' @param faces n x 3 matrix of integers, the vertex indices of the faces,
+#'   already converted to zero-based indices.
+#'
+#' @param version character string, either '4.2' or '5.1'.
+#'
+#' @return \code{NULL}, invisibly.
+#'
+#' @note Binary data in the VTK legacy format is always big endian, the format
+#'   has no way of expressing a different byte order.
+#'
+#' @keywords internal
+vtk.write.surface.binary <- function(con, vertex_coords, faces, version) {
+  writeLines(sprintf("POINTS %d float", nrow(vertex_coords)), con)
+  writeBin(as.numeric(t(vertex_coords)), con, size = 4L, endian = "big")
+
+  num_faces <- nrow(faces)
+  if (version == "4.2") {
+    writeLines(sprintf("POLYGONS %.0f %.0f", num_faces, num_faces * 4), con)
+    if (num_faces > 0L) {
+      # Every cell is a 4 byte vertex count followed by that many 4 byte vertex indices.
+      records <- cbind(3L, faces)
+      writeBin(as.integer(t(records)), con, size = 4L, endian = "big")
+    }
+  } else {
+    writeLines(sprintf("POLYGONS %.0f %.0f", num_faces + 1, num_faces * 3), con)
+    writeLines("OFFSETS vtktypeint64", con)
+    writeBin(as.integer(seq(from = 0, by = 3, length.out = num_faces + 1L)), con, size = 8L, endian = "big")
+    writeLines("CONNECTIVITY vtktypeint64", con)
+    if (num_faces > 0L) {
+      writeBin(as.integer(t(faces)), con, size = 8L, endian = "big")
+    }
+  }
+  return(invisible(NULL))
 }
 
 

@@ -12,7 +12,7 @@ read.fs.transform.fslmat(filepath)
 \value{
 an \code{fs.transform} instance. An FSL matrix maps the voxel coordinates of the image given to \verb{flirt -in} to those of the image given to \code{flirt -ref}. Both are voxel indices, so \code{space_in} and \code{space_out} are
 'voxel' and \code{voxel_base} is 0 (FSL voxel indices are zero-based). The two images are not recorded in the
-file, so \code{src} and \code{dst} are \code{NULL} and the volumes have to be passed to \code{\link{transform.to.world}}
+file, so \code{src} and \code{dst} are \code{NULL} and the volumes have to be passed to \code{\link{transform2world}}
 to interpret the matrix in world coordinates.
 }
 \description{
@@ -20,7 +20,7 @@ Read the plain text 4x4 matrix that FSL's \code{flirt} writes with the \code{-om
 MRtrix3 and FreeSurfer read as the registration between two images.
 }
 \examples{
-# Write the example LTA as an FSL matrix and read it back, since no FSL installation is needed for that.
+# Write the example LTA as an FSL matrix and read it back: no FSL installation is needed for that.
 lta_file <- system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)
 mat_file <- tempfile(fileext = ".mat")
 write.fs.transform(read.fs.transform(lta_file), mat_file, format = "fslmat")
@@ -48,10 +48,10 @@ Other header coordinate space:
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
-\code{\link[=transform.to.lps]{transform.to.lps()}},
-\code{\link[=transform.to.ras]{transform.to.ras()}},
-\code{\link[=transform.to.voxel]{transform.to.voxel()}},
-\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=transform2lps]{transform2lps()}},
+\code{\link[=transform2ras]{transform2ras()}},
+\code{\link[=transform2voxel]{transform2voxel()}},
+\code{\link[=transform2world]{transform2world()}},
 \code{\link[=write.fs.transform]{write.fs.transform()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},

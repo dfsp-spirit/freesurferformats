@@ -6,7 +6,7 @@
 #' disagree about which spaces they can express. A transformation is only written if the format can represent it
 #' exactly, because a silent conversion would change the meaning of the matrix: FSL matrix files, for example,
 #' store voxel-to-voxel matrices, so a transformation in world coordinates must be converted first with
-#' \code{\link{transform.to.voxel}}. A format that cannot express the transformation at all is an error, not a
+#' \code{\link{transform2voxel}}. A format that cannot express the transformation at all is an error, not a
 #' warning.
 #'
 #' @param tf an `fs.transform` instance, the transformation to write.
@@ -21,7 +21,9 @@
 #' @return the `fs.transform` instance `tf`, invisibly.
 #'
 #' @examples
-#' tf <- read.fs.transform(system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE))
+#' tf <- read.fs.transform(system.file("extdata", "talairach.lta",
+#'   package = "freesurferformats", mustWork = TRUE
+#' ))
 #' out_file <- tempfile(fileext = ".mat")
 #' # An LTA of type 0 is a voxel-to-voxel transformation, so it can be written as an FSL matrix.
 #' write.fs.transform(tf, out_file, format = "fslmat")
@@ -76,7 +78,7 @@ write.fs.transform <- function(tf, filepath, format = "auto") {
 #' matrix must map voxel coordinates to voxel coordinates (`space_in` and `space_out` are 'voxel'), because that
 #' is what an FSL matrix stores: it relates the voxel grid of the image given to `flirt -in` to the voxel grid of
 #' the image given to `flirt -ref`, and it does not record which images those were. Use
-#' \code{\link{transform.to.voxel}} to convert a transformation in world coordinates into one that can be
+#' \code{\link{transform2voxel}} to convert a transformation in world coordinates into one that can be
 #' written.
 #'
 #' @param tf an `fs.transform` instance whose matrix maps voxel coordinates to voxel coordinates.
@@ -100,10 +102,10 @@ write.fs.transform.fslmat <- function(tf, filepath) {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
   }
   if (!identical(tf$space_in, "voxel") || !identical(tf$space_out, "voxel")) {
-    stop(sprintf("Cannot write this transformation as an FSL matrix: an FSL matrix maps voxel coordinates to voxel coordinates, but this one maps '%s' to '%s' coordinates. Use 'transform.to.voxel' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an FSL matrix: an FSL matrix maps voxel coordinates to voxel coordinates, but this one maps '%s' to '%s' coordinates. Use 'transform2voxel' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
   if (!identical(tf$voxel_base, 0L)) {
-    stop(sprintf("Cannot write this transformation as an FSL matrix: FSL voxel coordinates are zero-based (the first voxel is index 0), but this transformation uses the base %s. Use 'transform.to.voxel' to convert it first.\n", as.character(tf$voxel_base)))
+    stop(sprintf("Cannot write this transformation as an FSL matrix: FSL voxel coordinates are zero-based (the first voxel is index 0), but this transformation uses the base %s. Use 'transform2voxel' to convert it first.\n", as.character(tf$voxel_base)))
   }
 
   matrix_lines <- transform.matrix.row.lines(tf$matrix)
@@ -150,7 +152,7 @@ guess.writable.transform.format <- function(filepath) {
 #'
 #'   An ITK transform operates on the world coordinates of the images, which in ITK are
 #'   left-posterior-superior, so only a transformation that maps LPS coordinates can be written. Use
-#'   \code{\link{transform.to.lps}} to convert a transformation in RAS coordinates.
+#'   \code{\link{transform2lps}} to convert a transformation in RAS coordinates.
 #'
 #' @param tf an `fs.transform` instance whose matrix maps LPS coordinates to LPS coordinates.
 #'
@@ -167,7 +169,7 @@ guess.writable.transform.format <- function(filepath) {
 #' @examples
 #' xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
 #' out_file <- tempfile(fileext = ".tfm")
-#' write.fs.transform.itk(transform.to.lps(read.fs.transform(xfm_file)), out_file)
+#' write.fs.transform.itk(transform2lps(read.fs.transform(xfm_file)), out_file)
 #' readLines(out_file)
 #' unlink(out_file)
 #'
@@ -179,7 +181,7 @@ write.fs.transform.itk <- function(tf, filepath) {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
   }
   if (!identical(tf$space_in, "lps") || !identical(tf$space_out, "lps")) {
-    stop(sprintf("Cannot write this transformation as an ITK transform: ITK transforms operate on the world coordinates of an image, which are left-posterior-superior, but this transformation maps '%s' to '%s' coordinates. Use 'transform.to.lps' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an ITK transform: ITK transforms operate on the world coordinates of an image, which are left-posterior-superior, but this transformation maps '%s' to '%s' coordinates. Use 'transform2lps' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
   if (!all(abs(tf$matrix[4L, ] - c(0, 0, 0, 1)) < sqrt(.Machine$double.eps))) {
     stop("Cannot write this transformation as an ITK affine transform: its last matrix row is not '0 0 0 1'.\n")
@@ -248,13 +250,13 @@ write.fs.transform.lta <- function(tf, filepath) {
     }
   }
   if (is.na(lta_type)) {
-    stop(sprintf("Cannot write this transformation as an LTA file: its spaces are '%s' to '%s', and an LTA matrix maps either voxel coordinates to voxel coordinates or RAS coordinates to RAS coordinates. Use 'transform.to.voxel' or 'transform.to.world' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an LTA file: its spaces are '%s' to '%s', and an LTA matrix maps either voxel coordinates to voxel coordinates or RAS coordinates to RAS coordinates. Use 'transform2voxel' or 'transform2world' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
   if (lta_type == 0L && !(identical(tf$space_in, "voxel") && identical(tf$space_out, "voxel"))) {
-    stop(sprintf("Cannot write this transformation as an LTA file of type 0 (LINEAR_VOX_TO_VOX): it maps '%s' to '%s' coordinates. Use 'transform.to.voxel' to convert it first, or write a type 1 file by removing the 'type' field.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an LTA file of type 0 (LINEAR_VOX_TO_VOX): it maps '%s' to '%s' coordinates. Use 'transform2voxel' to convert it first, or write a type 1 file by removing the 'type' field.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
   if (lta_type == 1L && !(identical(tf$space_in, "ras") && identical(tf$space_out, "ras"))) {
-    stop(sprintf("Cannot write this transformation as an LTA file of type 1 (LINEAR_RAS_TO_RAS): it maps '%s' to '%s' coordinates. Use 'transform.to.world' to convert it first, or write a type 0 file by removing the 'type' field.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an LTA file of type 1 (LINEAR_RAS_TO_RAS): it maps '%s' to '%s' coordinates. Use 'transform2world' to convert it first, or write a type 0 file by removing the 'type' field.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
 
   mean_entry <- tf$header$mean
@@ -473,7 +475,7 @@ write.fs.transform.xfm <- function(tf, filepath, type = "Linear") {
     stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
   }
   if (!identical(tf$space_in, "ras") || !identical(tf$space_out, "ras")) {
-    stop(sprintf("Cannot write this transformation as an xfm file: an xfm stores a transformation between two RAS spaces, but this one maps '%s' to '%s' coordinates. Use 'transform.to.world' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
+    stop(sprintf("Cannot write this transformation as an xfm file: an xfm stores a transformation between two RAS spaces, but this one maps '%s' to '%s' coordinates. Use 'transform2world' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
   }
   frame <- transform.world.frame(tf)
   if (!identical(frame, "scanner")) {

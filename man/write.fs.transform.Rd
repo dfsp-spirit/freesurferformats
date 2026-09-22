@@ -26,11 +26,13 @@ A transformation stores its matrix together with the coordinate spaces it maps b
 disagree about which spaces they can express. A transformation is only written if the format can represent it
 exactly, because a silent conversion would change the meaning of the matrix: FSL matrix files, for example,
 store voxel-to-voxel matrices, so a transformation in world coordinates must be converted first with
-\code{\link{transform.to.voxel}}. A format that cannot express the transformation at all is an error, not a
+\code{\link{transform2voxel}}. A format that cannot express the transformation at all is an error, not a
 warning.
 }
 \examples{
-tf <- read.fs.transform(system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE))
+tf <- read.fs.transform(system.file("extdata", "talairach.lta",
+  package = "freesurferformats", mustWork = TRUE
+))
 out_file <- tempfile(fileext = ".mat")
 # An LTA of type 0 is a voxel-to-voxel transformation, so it can be written as an FSL matrix.
 write.fs.transform(tf, out_file, format = "fslmat")
@@ -64,10 +66,10 @@ Other header coordinate space:
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
-\code{\link[=transform.to.lps]{transform.to.lps()}},
-\code{\link[=transform.to.ras]{transform.to.ras()}},
-\code{\link[=transform.to.voxel]{transform.to.voxel()}},
-\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=transform2lps]{transform2lps()}},
+\code{\link[=transform2ras]{transform2ras()}},
+\code{\link[=transform2voxel]{transform2voxel()}},
+\code{\link[=transform2world]{transform2world()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},
 \code{\link[=write.fs.transform.itk]{write.fs.transform.itk()}},

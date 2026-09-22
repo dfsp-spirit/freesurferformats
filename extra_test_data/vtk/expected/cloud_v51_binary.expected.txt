@@ -1,0 +1,11 @@
+vtk_test_data_dump 1
+points 3
+0.0 0.0 0.0
+1.0 0.0 0.0
+0.0 2.0 0.0
+polys -1
+lines -1
+verts 3
+0
+1
+2

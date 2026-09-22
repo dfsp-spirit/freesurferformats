@@ -2,22 +2,40 @@
 % Please edit documentation in R/write_fs_surface.R
 \name{write.fs.surface.vtk}
 \alias{write.fs.surface.vtk}
-\title{Write mesh to file in VTK ASCII format}
+\title{Write mesh to file in VTK legacy format}
 \usage{
-write.fs.surface.vtk(filepath, vertex_coords, faces)
+write.fs.surface.vtk(
+  filepath,
+  vertex_coords,
+  faces,
+  version = 4.2,
+  binary = FALSE
+)
 }
 \arguments{
 \item{filepath}{string. Full path to the output surface file, should end with '.vtk', but that is not enforced.}
 
 \item{vertex_coords}{n x 3 matrix of doubles. Each row defined the x,y,z coords for a vertex.}
 
-\item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+\item{faces}{n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in VTK style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.}
+
+\item{version}{double, the VTK version whose file layout to write. Either 4.2 (the default) or 5.1. Version 4.2 writes the cell array layout that every VTK version can read, version 5.1 writes the \code{OFFSETS}/\code{CONNECTIVITY} layout that VTK itself has been producing since 2015. Only change this if you know that the software you hand the file to requires the newer layout.}
+
+\item{binary}{logical, whether to write the data in binary form instead of the ASCII text form. Binary files are much smaller and much faster to read and write, but they are not human readable. Defaults to FALSE.}
 }
 \value{
 string the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 }
 \description{
-Write mesh to file in VTK ASCII format
+The VTK legacy format is the plain text/binary format that is
+supported by all versions of the VTK library; the XML based VTK format
+(.vtp) is not the same thing. Two variants of the file layout exist and are
+both still written by software in use today: the old layout introduced in
+VTK 4.2, and the layout that VTK produces since version 5.1 (released 2015).
+The parameter 'version' selects which one to write.
+}
+\note{
+Binary data in the VTK legacy format is always big endian, the format has no way of expressing a different byte order. The vertex coordinates are written as single precision (4 byte) floats in both encodings, which is what VTK itself does.
 }
 \examples{
 \dontrun{
@@ -28,6 +46,10 @@ surface_file <- system.file("extdata", "lh.tinysurface",
 mesh <- read.fs.surface(surface_file)
 # Now save it:
 write.fs.surface.vtk(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces)
+# Or as a binary file using the layout of VTK 5.1:
+write.fs.surface.vtk(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces,
+  version = 5.1, binary = TRUE
+)
 }
 
 }
@@ -52,5 +74,14 @@ Other mesh functions:
 \code{\link[=write.fs.surface.byu]{write.fs.surface.byu()}},
 \code{\link[=write.fs.surface.gii]{write.fs.surface.gii()}},
 \code{\link[=write.fs.surface.mz3]{write.fs.surface.mz3()}}
+
+Other mesh export functions:
+\code{\link[=write.fs.surface]{write.fs.surface()}},
+\code{\link[=write.fs.surface.obj]{write.fs.surface.obj()}},
+\code{\link[=write.fs.surface.off]{write.fs.surface.off()}},
+\code{\link[=write.fs.surface.off.ply2]{write.fs.surface.off.ply2()}},
+\code{\link[=write.fs.surface.ply]{write.fs.surface.ply()}},
+\code{\link[=write.fs.surface.ply2]{write.fs.surface.ply2()}}
 }
+\concept{mesh export functions}
 \concept{mesh functions}

@@ -218,7 +218,7 @@ scan.mrtrix.file <- function(filepath, want, chunk_values = 4e6) {
       numeric(0L);
     }
 
-    termin <- match(TRUE, all.infinite.rows(mat));
+    termin <- match(TRUE, infinite.rows(mat));
     if (!is.na(termin)) {
       mat <- if (termin > 1L) mat[seq_len(termin - 1L), , drop = FALSE] else {
         matrix(numeric(0L), nrow = 0L, ncol = values_per_point);
@@ -591,7 +591,7 @@ mrtrix.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL, chunk
         numeric(0L);
       }
 
-      termin <- match(TRUE, all.infinite.rows(mat));
+      termin <- match(TRUE, infinite.rows(mat));
       if (!is.na(termin)) {
         state$terminator <- TRUE;
         mat <- if (termin > 1L) mat[seq_len(termin - 1L), , drop = FALSE] else {

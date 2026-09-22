@@ -333,8 +333,10 @@ next.buffer.capacity <- function(needed, capacity, bytes_per_elem = 8, label = N
 #'
 #' @return logical vector with one entry per row.
 #'
+#' @usage finite.rows(mat)
+#'
 #' @keywords internal
-all.finite.rows <- function(mat) {
+finite.rows <- function(mat) {
   finite <- rep(TRUE, nrow(mat));
   for (col_idx in seq_len(ncol(mat))) {
     finite <- finite & is.finite(mat[, col_idx]);
@@ -349,8 +351,10 @@ all.finite.rows <- function(mat) {
 #'
 #' @return logical vector with one entry per row.
 #'
+#' @usage infinite.rows(mat)
+#'
 #' @keywords internal
-all.infinite.rows <- function(mat) {
+infinite.rows <- function(mat) {
   infinite <- rep(TRUE, nrow(mat));
   for (col_idx in seq_len(ncol(mat))) {
     infinite <- infinite & is.infinite(mat[, col_idx]);
@@ -390,7 +394,7 @@ split.mrtrix.chunk <- function(mat, pending, finish_pending = FALSE) {
   points <- empty_mat;
   lengths <- integer(0L);
 
-  separator_idx <- which(!all.finite.rows(mat));
+  separator_idx <- which(!finite.rows(mat));
 
   if (length(separator_idx) == 0L) {
     # No separator at all: the whole chunk belongs to the pending streamline.
@@ -416,7 +420,7 @@ split.mrtrix.chunk <- function(mat, pending, finish_pending = FALSE) {
     # streamlines only. They are collected in one go.
     if (last_sep > first_sep + 1L) {
       region <- (first_sep + 1L):(last_sep - 1L);
-      middle_finite <- all.finite.rows(mat[region, , drop = FALSE]);
+      middle_finite <- finite.rows(mat[region, , drop = FALSE]);
       runs <- rle(middle_finite);
       middle_points <- mat[region, , drop = FALSE][rep(runs$values, runs$lengths), , drop = FALSE];
       points <- rbind(points, middle_points);
@@ -560,7 +564,7 @@ read.mrtrix.stream <- function(con, offset, dsize, endian, values_per_point, max
     }
 
     # A group of infinities terminates the data. Anything after it is ignored.
-    first_infinite <- match(TRUE, all.infinite.rows(mat));
+    first_infinite <- match(TRUE, infinite.rows(mat));
     if (!is.na(first_infinite)) {
       terminator_seen <- TRUE;
       mat <- if (first_infinite > 1L) {
