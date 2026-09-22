@@ -27,7 +27,8 @@ MRtrix writes), 'Float32BE', 'Float64LE' or 'Float64BE'.}
 
 \item{header}{named list of additional header entries to store in the file,
 e.g., the header of the file the tracks were read from. The entries 'id',
-'datatype', 'count' and 'file' are always computed and cannot be set.}
+'datatype', 'count', 'file' and 'derived' are always computed by the readers
+and cannot be set.}
 }
 \value{
 the file path, invisibly.

@@ -96,16 +96,18 @@ detect.dti.tract.format <- function(filepath) {
     stop(sprintf("File '%s' does not exist.\n", filepath));
   }
 
-  fh <- file(filepath, "rb");
+  gzipped <- is.gzip.file(filepath);
+
   # The TRK magic number is the 5 byte string 'TRACK'; the header field it is
-  # stored in is 6 bytes and NUL padded.
+  # stored in is 6 bytes and NUL padded. Compressed TRK files are supported as
+  # well, so the magic bytes are read through the gzip layer when needed.
+  fh <- open.maybe.gzip(filepath, gzipped, mode = "rb");
   magic <- readBin(fh, what = "raw", n = 5L);
   close(fh);
   if (identical(magic, charToRaw("TRACK"))) {
     return("trk");
   }
 
-  gzipped <- is.gzip.file(filepath);
   con <- open.maybe.gzip(filepath, gzipped, mode = "r");
   on.exit(
     {
@@ -259,14 +261,15 @@ scan.trk.file <- function(filepath, want) {
   values_per_point <- 3L + trk_header$n_scalars;
   num_properties <- trk_header$n_properties;
 
-  con <- file(filepath, "rb");
+  gzipped <- is.gzip.file(filepath);
+  con <- open.maybe.gzip(filepath, gzipped, mode = "rb");
   on.exit(
     {
       close(con);
     },
     add = TRUE
   );
-  seek(con, where = trk_header$hdr_size, origin = "start");
+  skip.connection.bytes(con, trk_header$hdr_size, gzipped, filepath);
 
   count <- 0L;
   bbox <- NULL;
@@ -293,10 +296,10 @@ scan.trk.file <- function(filepath, want) {
     } else {
       # The records are self-delimiting, so the payload can be skipped over
       # without reading it at all.
-      seek(con, where = 4 * num_points * values_per_point, origin = "current");
+      skip.connection.bytes(con, 4 * num_points * values_per_point, gzipped, filepath);
     }
     if (num_properties > 0L) {
-      seek(con, where = 4 * num_properties, origin = "current");
+      skip.connection.bytes(con, 4 * num_properties, gzipped, filepath);
     }
     count <- count + 1L;
   }
@@ -307,16 +310,19 @@ scan.trk.file <- function(filepath, want) {
 
 #' @title Skip over bytes of a connection, transparently handling gzip.
 #'
-#' @description R cannot seek on a gzfile connection (the underlying
-#'   \code{gzseek()} fails with 'invalid or incomplete compressed data' and only
-#'   warns instead of failing loudly), so compressed connections are skipped by
-#'   reading and discarding the bytes instead.
+#' @description Skips forward from the current position of the connection. R
+#'   cannot seek on a gzfile connection (the underlying \code{gzseek()} fails
+#'   with 'invalid or incomplete compressed data' and only warns instead of
+#'   failing loudly), so compressed connections are skipped by reading and
+#'   discarding the bytes instead.
 #'
 #' @param con a connection opened in binary read mode.
 #'
-#' @param num_bytes numeric, the number of bytes to skip.
+#' @param num_bytes numeric, the number of bytes to skip, relative to the
+#'   current position of the connection.
 #'
-#' @param gzipped logical, whether the connection is a gzfile connection.
+#' @param gzipped logical, whether the connection is a gzfile connection, as
+#'   reported by \code{is.gzip.file}.
 #'
 #' @param filepath character string, used in error messages only.
 #'
@@ -328,7 +334,7 @@ skip.connection.bytes <- function(con, num_bytes, gzipped, filepath = "") {
     return(invisible(TRUE));
   }
   if (!gzipped) {
-    seek(con, where = num_bytes, origin = "start");
+    seek(con, where = num_bytes, origin = "current");
     return(invisible(TRUE));
   }
 
@@ -669,12 +675,14 @@ trk.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
   values_per_point <- 3L + trk_header$n_scalars;
   num_properties <- trk_header$n_properties;
 
-  con <- file(filepath, "rb");
-  seek(con, where = trk_header$hdr_size, origin = "start");
+  gzipped <- is.gzip.file(filepath);
+  con <- open.maybe.gzip(filepath, gzipped, mode = "rb");
+  skip.connection.bytes(con, trk_header$hdr_size, gzipped, filepath);
 
   state <- new.env(parent = emptyenv());
   state$con <- con;
   state$endian <- endian;
+  state$gzipped <- gzipped;
   state$skip <- as.integer(skip_tracks);
 
   itr <- new.env(parent = emptyenv());
@@ -708,9 +716,9 @@ trk.track.iterator <- function(filepath, skip_tracks = 0L, bbox = NULL) {
       if (state$skip > 0L && is.null(itr$bbox)) {
         # The records are self-delimiting, so a skipped tract does not have to
         # be read at all.
-        seek(state$con, where = 4 * num_points * values_per_point, origin = "current");
+        skip.connection.bytes(state$con, 4 * num_points * values_per_point, state$gzipped, filepath);
         if (num_properties > 0L) {
-          seek(state$con, where = 4 * num_properties, origin = "current");
+          skip.connection.bytes(state$con, 4 * num_properties, state$gzipped, filepath);
         }
         state$skip <- state$skip - 1L;
         next;

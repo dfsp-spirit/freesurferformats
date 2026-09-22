@@ -12,7 +12,7 @@ read.fs.surface.stl.bin(filepath, digits = 6L)
 \item{digits}{the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.}
 }
 \value{
-an \code{fs.surface} instance.
+an \code{fs.surface} instance. The normals of the faces are available in the 'metadata' property, in the entry 'normals' (a matrix with one row per face). Note that the normal vectors stored in the file are ignored, the returned normals are computed from the geometry, see \code{\link{mesh.face.normals}}.
 }
 \description{
 The STL format is a mesh format that is often used for 3D printing, it stores geometry information. It is known as stereolithography format. A binary and an ASCII version exist. This function reads the binary version.

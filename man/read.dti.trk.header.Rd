@@ -7,7 +7,9 @@
 read.dti.trk.header(filepath, shift_origin = TRUE)
 }
 \arguments{
-\item{filepath}{character string, path to a file in TRK format.}
+\item{filepath}{character string, path to a file in TRK format. Gzip-compressed
+files (typically named \code{.trk.gz}) are supported, the compression is
+detected from the file content, not from the file name.}
 
 \item{shift_origin}{logical, whether to compute the corrected \code{vox2ras}
 matrix, see \code{\link{read.dti.trk}}.}

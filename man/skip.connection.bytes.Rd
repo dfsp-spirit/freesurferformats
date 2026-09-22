@@ -9,9 +9,11 @@ skip.connection.bytes(con, num_bytes, gzipped, filepath = "")
 \arguments{
 \item{con}{a connection opened in binary read mode.}
 
-\item{num_bytes}{numeric, the number of bytes to skip.}
+\item{num_bytes}{numeric, the number of bytes to skip, relative to the
+current position of the connection.}
 
-\item{gzipped}{logical, whether the connection is a gzfile connection.}
+\item{gzipped}{logical, whether the connection is a gzfile connection, as
+reported by \code{is.gzip.file}.}
 
 \item{filepath}{character string, used in error messages only.}
 }
@@ -19,9 +21,10 @@ skip.connection.bytes(con, num_bytes, gzipped, filepath = "")
 \code{TRUE}, invisibly.
 }
 \description{
-R cannot seek on a gzfile connection (the underlying
-\code{gzseek()} fails with 'invalid or incomplete compressed data' and only
-warns instead of failing loudly), so compressed connections are skipped by
-reading and discarding the bytes instead.
+Skips forward from the current position of the connection. R
+cannot seek on a gzfile connection (the underlying \code{gzseek()} fails
+with 'invalid or incomplete compressed data' and only warns instead of
+failing loudly), so compressed connections are skipped by reading and
+discarding the bytes instead.
 }
 \keyword{internal}

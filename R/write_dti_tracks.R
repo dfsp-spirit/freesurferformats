@@ -1,4 +1,4 @@
-# Functions to write DTI tract files in MRtrix TCK and TrackVis TRK format -----
+# Functions to write DTI tract files in MRtrix TCK/TSF and TrackVis TRK format ----
 #
 # The readers in read_dti_tcktsf.R and read_dti_trk.R return tracks as an
 # fs.tracts instance, and the writers in this file accept that, so that a
@@ -6,6 +6,11 @@
 # information, and so that subsets of huge tractograms can be exported (the
 # typical workflow being: read a few thousand tracks of a 10 GB tractogram and
 # write them to a small file).
+#
+# The TCK and the TSF format share the header format and store a payload of
+# interleaved float values, they differ in the number of values per point (3
+# coordinates versus one scalar) and in the terminator (an Inf triplet versus no
+# terminator at all), see write.mrtrix.streamlines().
 
 
 #' @title Convert a collection of tracts to an fs.tracts instance.
@@ -55,7 +60,16 @@ as.fs.tracts <- function(tracts, kind = "tck") {
 }
 
 
-#' @title Build the text header of an MRtrix TCK file.
+#' @title Build the text header of an MRtrix streamlines file.
+#'
+#' @description MRtrix streamlines files (TCK for the tracks, TSF for per-point
+#'   values along the tracks) share one header format, they only differ in the
+#'   identifier line and in the meaning of the payload. The header is
+#'   ASCII text, and its length is stored within the header itself as the offset
+#'   at which the binary payload starts.
+#'
+#' @param header_id character string, the file type identifier, one of 'mrtrix
+#'   tracks' (TCK) or 'mrtrix track scalars' (TSF).
 #'
 #' @param entries named list of additional header entries.
 #'
@@ -68,9 +82,12 @@ as.fs.tracts <- function(tracts, kind = "tck") {
 #' @return character string, the header including the terminating newline.
 #'
 #' @keywords internal
-build.tck.header <- function(entries, datatype, count, offset) {
-  reserved <- c("id", "datatype", "count", "file");
-  lines <- c("mrtrix tracks",
+build.mrtrix.header <- function(header_id, entries, datatype, count, offset) {
+  # 'derived' is not a file property but the entry that the header readers add to
+  # describe the payload they found, so it is dropped as well: passing a header
+  # that was read from a file back to a writer would otherwise store it.
+  reserved <- c("id", "datatype", "count", "file", "derived");
+  lines <- c(header_id,
              paste0("datatype: ", datatype),
              sprintf("count: %d", count));
   if (length(entries) > 0L) {
@@ -85,28 +102,184 @@ build.tck.header <- function(entries, datatype, count, offset) {
 }
 
 
-#' @title Determine the length of an MRtrix TCK header.
+#' @title Determine the length of an MRtrix streamlines header.
 #'
 #' @description The length of the header determines the data offset that is
-#'   stored *inside* the header, so the two have to be reconciled.
+#'   stored *inside* the header, so the two have to be reconciled: the offset is
+#'   written with a number of digits that depends on its own value, which can
+#'   change the length of the header. Starting from an offset guess and
+#'   recomputing until it is stable always terminates, since the length only
+#'   ever grows with the number of digits and that number is bounded.
 #'
-#' @inheritParams build.tck.header
+#' @inheritParams build.mrtrix.header
 #'
 #' @return named list with entries \code{text} (the header) and \code{offset}.
 #'
 #' @keywords internal
-build.tck.header.stable <- function(entries, datatype, count) {
+build.mrtrix.header.stable <- function(header_id, entries, datatype, count) {
   offset <- 100L;
-  text <- build.tck.header(entries, datatype, count, offset);
+  text <- build.mrtrix.header(header_id, entries, datatype, count, offset);
   for (attempt in seq_len(10L)) {
     new_offset <- nchar(text, type = "bytes");
     if (new_offset == offset) {
       return(list(text = text, offset = offset));
     }
     offset <- new_offset;
-    text <- build.tck.header(entries, datatype, count, offset);
+    text <- build.mrtrix.header(header_id, entries, datatype, count, offset);
   }
-  stop("Internal error: could not determine the length of the TCK header.\n");
+  stop("Internal error: could not determine the length of the MRtrix header.\n");
+}
+
+
+#' @title Write the payload of an MRtrix streamlines file.
+#'
+#' @description Writes the concatenated per-point values of all streamlines,
+#'   separated by a NaN value after every streamline, as the TCK and TSF formats
+#'   require. The data are written in chunks of streamlines, so that the extra
+#'   memory needed does not depend on the size of the tractogram. This is shared
+#'   by the TCK and the TSF writer, which differ only in the number of values per
+#'   point and in the terminator they append.
+#'
+#' @param con a connection opened in binary write mode.
+#'
+#' @param values numeric matrix, the concatenated per-point values of all
+#'   streamlines, with one column per value (3 coordinates for the TCK format,
+#'   one scalar for the TSF format).
+#'
+#' @param lengths integer vector, the number of points of each streamline.
+#'
+#' @param dsize integer, the number of bytes per value (4 or 8).
+#'
+#' @param endian character string, 'little' or 'big'.
+#'
+#' @param terminator numeric vector or NULL. If given, it is written after the
+#'   last streamline (the TCK format appends a vector of Inf values, the TSF
+#'   format has no terminator, so the NaN delimiter of the last streamline
+#'   already ends the file).
+#'
+#' @param chunk_tracks integer, the number of streamlines that are converted and
+#'   written at once.
+#'
+#' @return the number of streamlines written, invisibly.
+#'
+#' @keywords internal
+write.mrtrix.streamlines <- function(con, values, lengths, dsize, endian, terminator = NULL, chunk_tracks = 10000L) {
+  values <- as.matrix(values);
+  num_values_per_point <- ncol(values);
+  num_tracks <- length(lengths);
+
+  written <- 0L;
+  while (written < num_tracks) {
+    track_indices <- seq.int(written + 1L, min(written + chunk_tracks, num_tracks));
+    chunk_lengths <- lengths[track_indices];
+    chunk_values <- subset.groups(values, lengths, track_indices)$points;
+
+    # The row of a point in the output: the points of a track are shifted down by
+    # one row for the NaN delimiter of each preceding track in this chunk.
+    out <- matrix(NaN, nrow = sum(chunk_lengths) + length(chunk_lengths), ncol = num_values_per_point);
+    if (sum(chunk_lengths) > 0L) {
+      point_rows <- rep.int(group.start.rows(chunk_lengths) + seq_along(chunk_lengths) - 1L,
+                            chunk_lengths) + sequence(chunk_lengths) - 1L;
+      out[point_rows, ] <- chunk_values;
+    }
+    writeBin(as.numeric(t(out)), con, size = dsize, endian = endian);
+    written <- written + length(track_indices);
+  }
+
+  if (!is.null(terminator)) {
+    writeBin(as.numeric(terminator), con, size = dsize, endian = endian);
+  }
+
+  return(invisible(num_tracks));
+}
+
+
+#' @title Parse and validate the datatype of an MRtrix streamlines file.
+#'
+#' @description The TCK and TSF formats store float values of 32 or 64 bit, in
+#'   either byte order.
+#'
+#' @param datatype character string, the datatype.
+#'
+#' @return named list with entries \code{dsize} (bytes per value) and
+#'   \code{endian} ('little' or 'big').
+#'
+#' @keywords internal
+parse.mrtrix.write.datatype <- function(datatype) {
+  valid_datatypes <- c("Float32BE", "Float32LE", "Float64BE", "Float64LE");
+  if (!datatype %in% valid_datatypes) {
+    stop(sprintf("Invalid 'datatype' '%s', must be one of %s.\n", datatype, paste(valid_datatypes, collapse = ", ")));
+  }
+  return(list(dsize = if (startsWith(datatype, "Float64")) 8L else 4L,
+              endian = if (endsWith(datatype, "BE")) "big" else "little"));
+}
+
+
+#' @title Convert scalar values for streamlines to a list of vectors.
+#'
+#' @description Normalizes the several input forms accepted by
+#'   \code{\link{write.dti.tsf}} to a list of numeric vectors, one per
+#'   streamline, and checks the lengths for consistency.
+#'
+#' @param tracts the input, see \code{\link{write.dti.tsf}}.
+#'
+#' @param lengths integer vector or NULL, the number of values per streamline.
+#'   Only used when \code{tracts} is a plain vector of values.
+#'
+#' @return named list with entries \code{values} (list of numeric vectors) and
+#'   \code{lengths} (integer vector).
+#'
+#' @keywords internal
+as.tsf.scalars <- function(tracts, lengths = NULL) {
+  values <- tracts;
+
+  if (is.fs.tracts(tracts)) {
+    scalars <- tracts$scalars;
+    if (is.null(scalars)) {
+      stop(paste0("The 'tracts' instance contains no per-point values. Use fs.tracts(coords, lengths, scalars = values) ",
+                  "to attach them, or pass the values themselves (with 'lengths').\n"));
+    }
+    if (is.null(dim(scalars))) {
+      scalars <- matrix(scalars, ncol = 1L);
+    }
+    if (ncol(scalars) != 1L) {
+      stop(sprintf(paste0("A TSF file stores exactly one value per point, but the 'tracts' instance has %d columns of scalars.",
+                          " Select one of them first, e.g. write.dti.tsf(tracts$scalars[, 1L, drop = FALSE], filepath, lengths = fs.tracts.lengths(tracts)).\n"),
+                   ncol(scalars)));
+    }
+    return(list(values = as.numeric(scalars),
+                lengths = fs.tracts.lengths(tracts)));
+  }
+
+  if (is.list(tracts) && !is.null(tracts$merged) && !is.null(tracts$lengths)) {
+    # The 'scalars' entry of the result of read.dti.tsf(), so that a scalar file
+    # can be read and written back without any conversion in between.
+    values <- tracts$merged;
+    lengths <- tracts$lengths;
+  } else if (is.list(tracts)) {
+    if (!all(vapply(tracts, is.numeric, logical(1L))) || any(vapply(tracts, function(x) !is.null(dim(x)), logical(1L)))) {
+      stop("Parameter 'tracts' must be an fs.tracts instance, a list of numeric vectors, or a numeric vector (with 'lengths').\n");
+    }
+    lengths <- vapply(tracts, length, integer(1L));
+    values <- unlist(tracts, use.names = FALSE);
+  } else if (!is.numeric(tracts) || !is.null(dim(tracts))) {
+    stop("Parameter 'tracts' must be an fs.tracts instance, a list of numeric vectors, or a numeric vector (with 'lengths').\n");
+  }
+
+  if (is.null(lengths)) {
+    stop(paste0("Parameter 'lengths' is required when the values are given as a plain vector, since a TSF file stores ",
+                "no track boundaries: the number of values per track has to be stated separately.\n"));
+  }
+  lengths <- as.integer(lengths);
+  if (any(is.na(lengths)) || any(lengths < 0L)) {
+    stop("Parameter 'lengths' must be a non-negative integer vector.\n");
+  }
+  values <- as.numeric(values);
+  if (sum(lengths) != length(values)) {
+    stop(sprintf("Inconsistent 'lengths': the lengths sum up to %d but there are %d values.\n", sum(lengths), length(values)));
+  }
+
+  return(list(values = values, lengths = lengths));
 }
 
 
@@ -132,7 +305,8 @@ build.tck.header.stable <- function(entries, datatype, count) {
 #'
 #' @param header named list of additional header entries to store in the file,
 #'   e.g., the header of the file the tracks were read from. The entries 'id',
-#'   'datatype', 'count' and 'file' are always computed and cannot be set.
+#'   'datatype', 'count', 'file' and 'derived' are always computed by the readers
+#'   and cannot be set.
 #'
 #' @return the file path, invisibly.
 #'
@@ -153,12 +327,9 @@ build.tck.header.stable <- function(entries, datatype, count) {
 #'
 #' @export
 write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL, header = list()) {
-  valid_datatypes <- c("Float32BE", "Float32LE", "Float64BE", "Float64LE");
-  if (!datatype %in% valid_datatypes) {
-    stop(sprintf("Invalid 'datatype' '%s', must be one of %s.\n", datatype, paste(valid_datatypes, collapse = ", ")));
-  }
-  dsize <- if (startsWith(datatype, "Float64")) 8L else 4L;
-  endian <- if (endsWith(datatype, "BE")) "big" else "little";
+  dtype_info <- parse.mrtrix.write.datatype(datatype);
+  dsize <- dtype_info$dsize;
+  endian <- dtype_info$endian;
 
   if (is.null(gzip)) {
     gzip <- endsWith(tolower(filepath), ".gz");
@@ -168,7 +339,6 @@ write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL,
   coords <- fs.tracts.coords(tract_data);
   lengths <- fs.tracts.lengths(tract_data);
   num_tracks <- length(lengths);
-  num_points <- nrow(coords);
 
   if (any(lengths == 0L)) {
     # An empty tract is written as a single delimiter, which is exactly what a
@@ -181,7 +351,7 @@ write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL,
                     sum(lengths == 0L), num_tracks), call. = FALSE);
   }
 
-  header_text <- build.tck.header.stable(header, datatype, num_tracks);
+  header_text <- build.mrtrix.header.stable("mrtrix tracks", header, datatype, num_tracks);
 
   con <- if (gzip) gzfile(filepath, open = "wb") else file(filepath, open = "wb");
   on.exit(
@@ -193,28 +363,128 @@ write.dti.tck <- function(tracts, filepath, datatype = "Float32LE", gzip = NULL,
 
   writeBin(charToRaw(header_text$text), con);
 
-  # Write the payload in chunks of tracks to keep the extra memory bounded: each
-  # track contributes its points plus a NaN triplet as a separator.
-  chunk_tracks <- 10000L;
-  written <- 0L;
-  while (written < num_tracks) {
-    track_indices <- seq.int(written + 1L, min(written + chunk_tracks, num_tracks));
-    chunk_lengths <- lengths[track_indices];
-    chunk_points <- subset.groups(coords, lengths, track_indices)$points;
+  # The payload consists of the coordinates, with a NaN triplet between the
+  # tracks and an Inf triplet at the end.
+  write.mrtrix.streamlines(con, coords, lengths, dsize, endian, terminator = c(Inf, Inf, Inf));
 
-    # Row of the points in the output: the points of a track are shifted by the
-    # separators of all preceding tracks.
-    out_rows <- sum(chunk_lengths) + length(chunk_lengths);
-    out <- matrix(NaN, nrow = out_rows, ncol = 3L);
-    if (sum(chunk_lengths) > 0L) {
-      point_rows <- rep.int(group.start.rows(chunk_lengths) + seq_along(chunk_lengths) - 1L,
-                            chunk_lengths) + sequence(chunk_lengths) - 1L;
-      out[point_rows, ] <- chunk_points;
-    }
-    writeBin(as.numeric(t(out)), con, size = dsize, endian = endian);
-    written <- written + length(track_indices);
+  return(invisible(filepath));
+}
+
+
+#' @title Write per-point track values to a file in MRtrix TSF format.
+#'
+#' @description The TSF format stores one scalar value per point of a
+#'   streamline, e.g., the fractional anisotropy, the distance along the track
+#'   or a value sampled from an image at the point coordinates. It is the
+#'   companion format of the TCK format: a TSF file contains no coordinates and
+#'   no track boundaries, it is just a stream of values that has to be read
+#'   together with the tractogram it describes. The number of values per track
+#'   is therefore required to write the file, and a TSF file without the
+#'   matching TCK file is meaningless to every reader (MRtrix checks this, see
+#'   the note below).
+#'
+#' @param tracts the values to write. This can be an \code{fs.tracts} instance
+#'   whose \code{scalars} entry holds a single column of values (as returned by
+#'   \code{\link{read.dti.trk}} for a file with one scalar, see
+#'   \code{\link{fs.tracts}} to construct one), the \code{scalars} entry of the
+#'   result of \code{\link{read.dti.tsf}} (so that a scalar file can be read and
+#'   written back), a list of numeric vectors (one per track), or a single
+#'   numeric vector of all values concatenated (in which case \code{lengths} is
+#'   required).
+#'
+#' @param filepath character string, the path of the file to write.
+#'
+#' @param lengths integer vector or NULL, the number of values per track. This
+#'   is ignored unless \code{tracts} is a plain vector, and has to be given in
+#'   that case.
+#'
+#' @param datatype character string, one of 'Float32LE' (the default, and what
+#'   MRtrix writes), 'Float32BE', 'Float64LE' or 'Float64BE'.
+#'
+#' @param gzip logical or NULL, whether to gzip-compress the output. If
+#'   \code{NULL} (the default), the file is compressed when the file name ends in
+#'   '.gz'.
+#'
+#' @param header named list of additional header entries to store in the file,
+#'   e.g., the header of the file the tracks were read from. The entries 'id',
+#'   'datatype', 'count', 'file' and 'derived' are always computed by the readers
+#'   and cannot be set.
+#'
+#' @return the file path, invisibly.
+#'
+#' @examples
+#' # A TSF file stores one value per point. Since the format contains no track
+#' # boundaries, the track lengths have to be provided:
+#' tsff <- tempfile(fileext = ".tsf");
+#' values_by_track <- list(c(0.1, 0.2, 0.3), c(0.4, 0.5));
+#' write.dti.tsf(values_by_track, tsff);
+#' read.dti.tsf(tsff)$scalars$scalar_list;
+#'
+#' # The same file can be written from one vector of values and the lengths:
+#' write.dti.tsf(c(0.1, 0.2, 0.3, 0.4, 0.5), tsff, lengths = c(3L, 2L));
+#'
+#' \dontrun{
+#' # Read the values of a track scalar file, modify them and write them back:
+#' tsf <- read.dti.tsf("brain.tsf");
+#' tsf$scalars$merged <- tsf$scalars$merged * 2;
+#' write.dti.tsf(tsf$scalars, "brain_doubled.tsf");
+#'
+#' # Sample an image along the tracks of a tractogram and store the result. The
+#' # values of a TRK file that has one scalar are accepted as they are:
+#' trk <- read.dti.trk("brain.trk");
+#' write.dti.tsf(trk$tracks, "brain.trk.tsf");
+#' }
+#'
+#' @seealso \code{\link{read.dti.tsf}}, \code{\link{write.dti.tck}}
+#'
+#' @note The TSF format stores a NaN value after every track, and unlike the TCK
+#'   format it has no Inf terminator: the reader relies on the delimiters to
+#'   split the value stream into tracks. A file whose values are not delimited
+#'   exactly like the tracks of the tractogram can therefore not be detected as
+#'   broken by this package, but MRtrix reports the mismatch of the track counts
+#'   when the file is used (e.g., in \code{tcksample} or \code{tsfvalidate}).
+#'
+#' @export
+write.dti.tsf <- function(tracts, filepath, lengths = NULL, datatype = "Float32LE", gzip = NULL, header = list()) {
+  dtype_info <- parse.mrtrix.write.datatype(datatype);
+  dsize <- dtype_info$dsize;
+  endian <- dtype_info$endian;
+
+  if (is.null(gzip)) {
+    gzip <- endsWith(tolower(filepath), ".gz");
   }
-  writeBin(as.numeric(c(Inf, Inf, Inf)), con, size = dsize, endian = endian);
+
+  scalar_data <- as.tsf.scalars(tracts, lengths = lengths);
+  values <- scalar_data$values;
+  lengths <- scalar_data$lengths;
+  num_tracks <- length(lengths);
+
+  if (any(lengths == 0L)) {
+    warning(sprintf(paste0("%d of the %d tracks to write are empty (they have no points).",
+                           " The TSF format cannot store them, they will be missing when the file is read",
+                           " back, and the remaining values cannot be matched to the tracks of the tractogram",
+                           " file anymore. Remove the empty tracks from both files instead of writing this file.\n"),
+                    sum(lengths == 0L), num_tracks), call. = FALSE);
+  }
+
+  header_text <- build.mrtrix.header.stable("mrtrix track scalars", header, datatype, num_tracks);
+
+  con <- if (gzip) gzfile(filepath, open = "wb") else file(filepath, open = "wb");
+  on.exit(
+    {
+      close(con);
+    },
+    add = TRUE
+  );
+
+  writeBin(charToRaw(header_text$text), con);
+
+  # One value per point, with a NaN after *every* track, including the last one:
+  # unlike the TCK format, the TSF format has no Inf terminator, the final NaN
+  # of the last track is what ends the file. MRtrix rejects a file that ends
+  # with an Inf value (or that has no delimiter after the last track) with a
+  # track count mismatch.
+  write.mrtrix.streamlines(con, values, lengths, dsize, endian, terminator = NULL);
 
   return(invisible(filepath));
 }
@@ -311,6 +581,12 @@ write.trk.header <- function(con, header, num_tracks, endian) {
 #'   writes little endian files, big endian support is for reading files written
 #'   on old big endian systems.
 #'
+#' @param gzip logical or NULL, whether to gzip-compress the output. If
+#'   \code{NULL} (the default), the file is compressed when the file name ends in
+#'   '.gz'. Note that the TrackVis tools and MRtrix do not read compressed track
+#'   files, so this is useful for archiving and for passing the file back to
+#'   \code{\link{read.dti.trk}}, but not for exchanging it with other software.
+#'
 #' @return the file path, invisibly.
 #'
 #' @examples
@@ -324,12 +600,16 @@ write.trk.header <- function(con, header, num_tracks, endian) {
 #' }
 #'
 #' @export
-write.dti.trk <- function(tracts, filepath, header = NULL, coords_space = NULL, endian = "little") {
+write.dti.trk <- function(tracts, filepath, header = NULL, coords_space = NULL, endian = "little", gzip = NULL) {
   if (!endian %in% c("little", "big")) {
     stop("Parameter 'endian' must be one of 'little' or 'big'.\n");
   }
   if (is.null(header)) {
     header <- list();
+  }
+
+  if (is.null(gzip)) {
+    gzip <- endsWith(tolower(filepath), ".gz");
   }
 
   if (is.null(coords_space)) {
@@ -366,7 +646,7 @@ write.dti.trk <- function(tracts, filepath, header = NULL, coords_space = NULL, 
     write_header$voxel_order <- "RAS";
   }
 
-  con <- file(filepath, "wb");
+  con <- if (gzip) gzfile(filepath, "wb") else file(filepath, "wb");
   on.exit(
     {
       close(con);

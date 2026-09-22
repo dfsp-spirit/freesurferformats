@@ -15,7 +15,9 @@
 #'   touching the track data. This is cheap even for huge tractograms and can be
 #'   used to inspect a file before deciding whether to read its tracks.
 #'
-#' @param filepath character string, path to a file in TRK format.
+#' @param filepath character string, path to a file in TRK format. Gzip-compressed
+#'   files (typically named \code{.trk.gz}) are supported, the compression is
+#'   detected from the file content, not from the file name.
 #'
 #' @param shift_origin logical, whether to compute the corrected \code{vox2ras}
 #'   matrix, see \code{\link{read.dti.trk}}.
@@ -36,7 +38,7 @@
 read.dti.trk.header <- function(filepath, shift_origin = TRUE) {
   endian <- get.dti.trk.endianness(filepath);
 
-  fh <- file(filepath, "rb");
+  fh <- open.maybe.gzip(filepath, is.gzip.file(filepath), mode = "rb");
   on.exit(
     {
       close(fh);
@@ -128,6 +130,13 @@ read.dti.trk.header <- function(filepath, shift_origin = TRUE) {
 #'   evaluated and before they are stored. This is used to filter in the target
 #'   coordinate system without transforming the whole result twice.
 #'
+#' @param gzipped logical, whether the connection reads a gzip-compressed file,
+#'   see \code{\link{is.gzip.file}}. R cannot seek in such a connection, so
+#'   skipped tracks are skipped by reading and discarding them.
+#'
+#' @param filepath character string, the path of the file, used in error
+#'   messages and for skipping in compressed files.
+#'
 #' @return named list with entries \code{coords} (matrix with 3 columns and one
 #'   row per point), \code{lengths} (integer vector, points per track),
 #'   \code{scalars} (matrix or NULL) and \code{properties} (matrix or NULL).
@@ -135,7 +144,7 @@ read.dti.trk.header <- function(filepath, shift_origin = TRUE) {
 #' @keywords internal
 read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = Inf,
                              expected_tracks = NA_real_, skip_tracks = 0L, bbox = NULL,
-                             transform = NULL) {
+                             transform = NULL, gzipped = FALSE, filepath = "") {
   values_per_point <- 3L + n_scalars;
 
   # Coordinates and scalars are stored interleaved in the file, so they are kept
@@ -178,9 +187,9 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
     if (skip > 0L && is.null(bbox)) {
       # Track records are self-delimiting, so a skipped track does not have to
       # be read at all.
-      seek(fh, where = 4 * num_points * values_per_point, origin = "current");
+      skip.connection.bytes(fh, 4 * num_points * values_per_point, gzipped, filepath);
       if (n_properties > 0L) {
-        seek(fh, where = 4 * n_properties, origin = "current");
+        skip.connection.bytes(fh, 4 * n_properties, gzipped, filepath);
       }
       skip <- skip - 1L;
       next;
@@ -295,7 +304,12 @@ read.trk.records <- function(fh, endian, n_scalars, n_properties, max_tracks = I
 
 #' @title Read fiber tracks from Diffusion Toolkit in trk format.
 #'
-#' @param filepath character string, path to file in trk format.
+#' @param filepath character string, path to file in trk format. Gzip-compressed
+#'   files are supported as well (the compression is detected from the file
+#'   content, so a \code{.trk.gz} file is read like any other TRK file), which is
+#'   convenient since tractograms are large and are regularly stored compressed.
+#'   Note that track files cannot be compressed on the fly for other software:
+#'   the TrackVis tools and MRtrix do not read compressed track files.
 #'
 #' @param shift_origin logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to `TRUE` (the default) to compute the corrected `vox2ras` that maps to voxel centers, as used by TrackVis. Set to `FALSE` if the file was written by DSI Studio, which does not apply this shift. See the notes for details.
 #'
@@ -384,14 +398,15 @@ read.dti.trk <- function(filepath, shift_origin = TRUE, max_tracks = Inf, skip_t
     num_tracks_to_read <- min(num_tracks_stored, max_tracks);
   }
 
-  fh <- file(filepath, "rb");
+  gzipped <- is.gzip.file(filepath);
+  fh <- open.maybe.gzip(filepath, gzipped, mode = "rb");
   on.exit(
     {
       close(fh);
     },
     add = TRUE
   );
-  seek(fh, where = trk_header$hdr_size, origin = "start");
+  skip.connection.bytes(fh, trk_header$hdr_size, gzipped, filepath);
 
   # When a bounding box is combined with coords='ras', the coordinates have to be
   # transformed before the box is tested. Doing that per track keeps the filter
@@ -405,7 +420,9 @@ read.dti.trk <- function(filepath, shift_origin = TRUE, max_tracks = Inf, skip_t
                                  expected_tracks = num_tracks_stored,
                                  skip_tracks = skip_tracks,
                                  bbox = bbox,
-                                 transform = record_transform);
+                                 transform = record_transform,
+                                 gzipped = gzipped,
+                                 filepath = filepath);
 
   track_coords <- track_data$coords;
   if (apply_affine && is.null(record_transform)) {
@@ -434,25 +451,34 @@ read.dti.trk <- function(filepath, shift_origin = TRUE, max_tracks = Inf, skip_t
 #'
 #' @keywords internal
 get.dti.trk.endianness <- function(filepath) {
-  fh <- file(filepath, "rb");
+  # Reading the whole 1000 byte header at once (instead of seeking to the header
+  # size field and reading 4 bytes) keeps this function independent of seeking,
+  # which is what makes it work for gzip-compressed files as well.
+  con <- open.maybe.gzip(filepath, is.gzip.file(filepath), mode = "rb");
   on.exit(
     {
-      close(fh);
+      close(con);
     },
     add = TRUE
   );
-
-  seek(fh, where = 996L, origin = "start");
+  header_bytes <- readBin(con, what = "raw", n = 1000L);
 
   endian <- "little";
-  sizeof_hdr_little <- readBin(fh, integer(), n = 1, size = 4, endian = endian);
+  sizeof_hdr_little <- if (length(header_bytes) == 1000L) {
+    readBin(header_bytes[997:1000], integer(), n = 1, size = 4, endian = endian)
+  } else {
+    integer(0L)
+  }
 
   if (length(sizeof_hdr_little) == 1L && !is.na(sizeof_hdr_little) && sizeof_hdr_little == 1000L) {
     return(endian);
   } else {
-    seek(fh, where = 996L, origin = "start");
     endian <- "big";
-    sizeof_hdr_big <- readBin(fh, integer(), n = 1, size = 4, endian = endian);
+    sizeof_hdr_big <- if (length(header_bytes) == 1000L) {
+      readBin(header_bytes[997:1000], integer(), n = 1, size = 4, endian = endian)
+    } else {
+      integer(0L)
+    }
     if (length(sizeof_hdr_big) == 1L && !is.na(sizeof_hdr_big) && sizeof_hdr_big == 1000L) {
       return(endian);
     } else {

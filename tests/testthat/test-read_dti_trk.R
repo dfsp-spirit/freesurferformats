@@ -186,3 +186,63 @@ testthat::test_that('read.dti.trk() rejects files that are not TRK', {
   writeLines(rep('this is not a trk file at all', 3L), fp);
   testthat::expect_error(freesurferformats::read.dti.trk(fp), 'not in TRK format');
 })
+
+
+testthat::test_that('read.dti.trk() reads gzip-compressed files', {
+  tracks <- make_test_tracks(4L, 3L, seed = 11L);
+  fp <- tempfile(fileext = '.trk');
+  write_test_trk(fp, tracks, n_scalars = 1L, n_properties = 1L, voxel_size = c(2, 2, 2), voxel_order = 'RAS');
+
+  # Compressing the file byte by byte is what the 'gzip' program does, so this
+  # is how compressed track files appear in the wild.
+  fp_gz <- tempfile(fileext = '.trk.gz');
+  gz_con <- gzfile(fp_gz, 'wb');
+  writeBin(readBin(fp, 'raw', file.size(fp)), gz_con);
+  close(gz_con);
+
+  testthat::expect_equal(freesurferformats:::detect.dti.tract.format(fp_gz), 'trk');
+  testthat::expect_equal(freesurferformats::read.dti.trk.header(fp_gz), freesurferformats::read.dti.trk.header(fp));
+
+  plain <- freesurferformats::read.dti.trk(fp, coords = 'native');
+  compressed <- freesurferformats::read.dti.trk(fp_gz, coords = 'native');
+  testthat::expect_equal(compressed$tracks, plain$tracks);
+  testthat::expect_equal(compressed$header, plain$header);
+
+  # Neither the payload offset nor the header size may be seeked to in a
+  # compressed file, this checks that the coordinates are not shifted.
+  testthat::expect_equal(freesurferformats::fs.tracts.coords(freesurferformats::read.dti.trk(fp_gz, coords = 'ras')$tracks),
+                         freesurferformats::fs.tracts.coords(freesurferformats::read.dti.trk(fp, coords = 'ras')$tracks));
+
+  # The endianness is detected from the compressed data as well.
+  fp_be <- tempfile(fileext = '.trk');
+  write_test_trk(fp_be, tracks, endian = 'big');
+  fp_be_gz <- tempfile(fileext = '.trk.gz');
+  gz_con <- gzfile(fp_be_gz, 'wb');
+  writeBin(readBin(fp_be, 'raw', file.size(fp_be)), gz_con);
+  close(gz_con);
+  testthat::expect_equal(freesurferformats::read.dti.trk(fp_be_gz)$tracks,
+                         freesurferformats::read.dti.trk(fp_be)$tracks);
+})
+
+
+testthat::test_that('a real-world gzip-compressed TRK file is read like the uncompressed original', {
+  fp <- find_extra_test_data_file('tracts/STR_R.trk');
+  fp_gz <- find_extra_test_data_file('tracts/STR_R.trk.gz');
+  testthat::skip_if(is.null(fp), 'Test data missing.');
+  testthat::skip_if(is.null(fp_gz), 'Test data missing.');
+
+  # The file stores the streamlines of the right superior thalamic radiation of
+  # a human subject, computed with the XTRACT protocol, in TrackVis TRK format.
+  # See the attribution file in the same directory for the details and the
+  # license of the data.
+  plain <- freesurferformats::read.dti.trk(fp, coords = 'native');
+  compressed <- freesurferformats::read.dti.trk(fp_gz, coords = 'native');
+
+  testthat::expect_equal(length(plain$tracks), 20L);
+  testthat::expect_equal(nrow(freesurferformats::fs.tracts.coords(plain$tracks)), 1464L);
+  testthat::expect_equal(compressed$tracks, plain$tracks);
+  testthat::expect_equal(compressed$header, plain$header);
+
+  testthat::expect_equal(freesurferformats::dti.track.count(fp_gz), 20L);
+  testthat::expect_equal(freesurferformats::dti.track.bbox(fp_gz), freesurferformats::dti.track.bbox(fp));
+})

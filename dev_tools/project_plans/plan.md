@@ -18,9 +18,9 @@ Own readers + writers (no FreeSurfer installation required):
 | Volumes | MGH/MGZ (incl. header, `vox2ras`, RAS<->vox), NIfTI-1 (`.nii`, `.nii.gz`, FS fsnifti hack), NIfTI-2 |
 | FS morphometry | `curv` (binary + ASCII), `weight`/`w`/paint, `patch` (binary + ASCII), morph in `mgh`/`mgz`/`gii`/`nii`/`ni1`/`ni2`/`txt`/`asc`/`smp` |
 | FS labels/atlases | `annot`, label (surface + volume), colortable LUT, LUT+CSV atlas |
-| Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII + binary, both VTK cell array layouts), SRF; read-only: BYU, GEO, TRI/ICO, STL (ASCII + binary) |
+| Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII + binary, both VTK cell array layouts), SRF, STL (ASCII + binary, R/W); read-only: BYU, GEO, TRI/ICO |
 | BrainVoyager | SMP (R/W), SRF |
-| Tracts | TRK (R/W), TCK (R/W), TSF (**read only**) + headers, streaming, `bbox`/`skip_tracks`, `fs.tracts` |
+| Tracts | TRK (R/W, incl. `.trk.gz`), TCK (R/W), TSF (R/W) + headers, streaming, `bbox`/`skip_tracks`, `fs.tracts` |
 | Transforms | LTA, `register.dat`, `xfm` -- **read only, no writer at all** |
 | GIFTI | morph, surface, label, annot (R/W), generic data array writer |
 | CIFTI-2 | `.dscalar.nii`, `.dlabel.nii`, `.dtseries.nii` -- **read only**, via the `cifti` package |
@@ -164,13 +164,33 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
 
 ## III. Tier 3 -- cheap cleanups
 
-- [ ] `write.dti.tsf()` -- TSF is read-only today; per-streamline scalars
-  (FA/length along track) are a common MRtrix workflow. Near-copy of the TCK
-  writer. Effort: S.
-- [ ] `.trk.gz` -- the TCK/TSF path detects gzip by magic bytes, but the TRK
-  reader has no gzip handling at all (verified: no `gzfile`/magic-byte logic in
-  `R/read_dti_trk.R`). Effort: S.
-- [ ] STL binary write -- read exists, write does not. Effort: S.
+- [x] `write.dti.tsf()` -- done. `write.dti.tsf()` accepts the `scalars` entry
+  of `read.dti.tsf()`, an `fs.tracts` instance with a single column of scalars, a
+  list of vectors, or one vector plus the new `lengths` parameter. The payload
+  layout is the one MRtrix writes (NaN after *every* track, no Inf terminator) --
+  it differs from the TCK layout, and MRtrix verifies the track count of a scalar
+  file against the tractogram it is used with, so this matters. The header and
+  payload builders are now shared with the TCK writer (`build.mrtrix.header()`,
+  `write.mrtrix.streamlines()`), and the refactor is byte-identical for TCK.
+  Verified with `dev_tools/check_mrtrix_tsf.R` (8 checks against MRtrix3 3.0.8,
+  including `tsfvalidate` on all 4 data types and a byte comparison of the payload
+  with a `tcksample`-written file from the real whole-brain opt data). Effort: S.
+- [x] `.trk.gz` -- done. All five code paths handle compressed files
+  (`read.dti.trk()`, `read.dti.trk.header()`, `get.dti.trk.endianness()`,
+  `scan.trk.file()`, `trk.track.iterator()`), plus `detect.dti.tract.format()`,
+  by using the existing `skip.connection.bytes()` for every seek and by reading
+  the header as a whole. `write.dti.trk()` gained a `gzip` parameter. Verified
+  with `dev_tools/check_trk_gzip.R` (8 checks, nibabel reads our compressed
+  files), and with real test data (`extra_test_data/tracts/STR_R.trk[.gz]`, an
+  MIT licensed XTRACT tractogram, added to the repo for exactly this purpose).
+  Effort: S.
+- [x] STL write -- done, and slightly more than planned: `write.fs.surface.stl()`
+  writes both variants (binary by default), `write.fs.surface()` dispatches to it
+  for `.stl`, `.stla` and `.stlb` (the missing dispatch used to write a FreeSurfer
+  binary surface for a `.stl` file name, silently), the readers now return the
+  face normals they documented but dropped, and the stale `misc3d` note is gone.
+  Verified with `dev_tools/check_stl_conversion.R` (12 checks: VTK, FreeSurfer
+  `mris_convert` and meshio). Effort: S.
 - [ ] Connectome Workbench `.spec` -- how HCP file collections and structure
   mappings are declared alongside CIFTI/GIFTI. Effort: S-M.
 

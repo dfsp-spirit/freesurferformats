@@ -9,7 +9,7 @@
 #'
 #' @param faces n x 3 matrix of integers. Each row defined the 3 vertex indices that make up the face. WARNING: Vertex indices should be given in R-style, i.e., the index of the first vertex is 1. However, they will be written in FreeSurfer style, i.e., all indices will have 1 substracted, so that the index of the first vertex will be zero.
 #'
-#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young University (BYU) mesh format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
+#' @param format character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young University (BYU) mesh format, 'stl' for the stereolithography (STL) format used for 3D printing, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. A path ending in '.stla' is interpreted as the ASCII variant of the STL format and one ending in '.stlb' or '.stl' as the binary variant. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
 #'
 #' @return character string, the format that was written. One of "tris" or "quads". Currently only triangular meshes are supported, so always 'tris'.
 #'
@@ -30,8 +30,8 @@
 #'
 #' @export
 write.fs.surface <- function(filepath, vertex_coords, faces, format = "auto") {
-  if (!(format %in% c("auto", "bin", "asc", "vtk", "obj", "off", "ply", "gii", "mz3", "byu"))) {
-    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu').")
+  if (!(format %in% c("auto", "bin", "asc", "vtk", "obj", "off", "ply", "gii", "mz3", "byu", "stl"))) {
+    stop("Format must be one of c('auto', 'bin', 'asc', 'vtk', 'obj', 'off', 'ply', 'gii', 'mz3', 'byu', 'stl').")
   }
 
   if (!identical(storage.mode(faces), "integer")) {
@@ -69,6 +69,15 @@ write.fs.surface <- function(filepath, vertex_coords, faces, format = "auto") {
 
   if (format == "byu" | (format == "auto" & filepath.ends.with(filepath, c(".byu")))) {
     return(write.fs.surface.byu(filepath, vertex_coords, faces))
+  }
+
+  if (format == "stl" | (format == "auto" & filepath.ends.with(filepath, c(".stl", ".stla", ".stlb")))) {
+    # The STL format has no format marker that a reader could use, so the
+    # extension decides here: '.stla' is the ASCII variant and '.stl' and
+    # '.stlb' are the binary variant (as in the writer below, the binary one is
+    # the default, because it is much smaller and it is what most tools write).
+    ascii <- filepath.ends.with(filepath, c(".stla"))
+    return(write.fs.surface.stl(filepath, vertex_coords, faces, ascii = ascii))
   }
 
   TRIS_MAGIC_FILE_TYPE_NUMBER <- 16777214L
@@ -359,6 +368,258 @@ vtk.write.surface.binary <- function(con, vertex_coords, faces, version) {
     }
   }
   return(invisible(NULL))
+}
+
+
+#' @title Write mesh to file in STL format (ASCII or binary).
+#'
+#' @description The STL format (stereolithography, the format used for 3D
+#'   printing) stores a triangular mesh as a list of triangles, each with its
+#'   vertex coordinates repeated and with a normal vector, instead of storing a
+#'   vertex list and indices into it. Both the ASCII and the binary version of
+#'   the format are written by this function, the binary one being the default
+#'   since it is much smaller and it is what most software uses. The resulting
+#'   files can be read back with \code{\link{read.fs.surface.stl}} and are
+#'   accepted by mesh viewers and slicers.
+#'
+#' @param filepath character string, the path of the file to write.
+#'
+#' @param vertex_coords n x 3 matrix of doubles, the vertex coordinates.
+#'
+#' @param faces n x 3 matrix of integers, the vertex indices of the triangles.
+#'   The STL format has no support for polygons with more than 3 vertices, so a
+#'   quad mesh has to be converted first with \code{\link{faces.quad.to.tris}}.
+#'
+#' @param ascii logical, whether to write the ASCII version of the format. The
+#'   default is the binary version, which is smaller by a factor of about 5 and
+#'   which is what most mesh processing software writes. Use the ASCII version if
+#'   the file has to be readable by humans or by software that supports only the
+#'   ASCII variant.
+#'
+#' @param solid_name character string, the name of the mesh. Only used in the
+#'   ASCII version, where the format requires the name in the first and the last
+#'   line of the file.
+#'
+#' @return character string, the format that was written: 'tris'.
+#'
+#' @family mesh export functions
+#'
+#' @examples
+#' \dontrun{
+#' # Write a mesh as binary and as ASCII STL:
+#' mesh <- read.fs.surface(system.file("extdata", "cube.stl", package = "freesurferformats"));
+#' write.fs.surface.stl(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces);
+#' write.fs.surface.stl(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces, ascii = TRUE);
+#'
+#' # The file format is also chosen by the file name when using the generic
+#' # writer:
+#' write.fs.surface(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces);
+#' }
+#'
+#' @note The normals of the triangles are computed from the vertex coordinates
+#'   (the STL format stores them, but no reader has to trust them). A degenerate
+#'   triangle, i.e., one whose vertices are collinear or identical, has no
+#'   normal, so a zero vector is written for it.
+#'
+#' @note An indexed mesh is stored as a polygon soup in an STL file: every
+#'   triangle repeats the coordinates of its vertices. Reading such a file back
+#'   with \code{\link{read.fs.surface.stl}} merges the repeated vertices again
+#'   (using the \code{digits} precision of that function), so a round trip
+#'   through an STL file preserves the geometry of the mesh, but not the order or
+#'   the count of the vertices in the vertex list.
+#'
+#' @export
+write.fs.surface.stl <- function(filepath, vertex_coords, faces, ascii = FALSE, solid_name = "mesh") {
+  if (!is.logical(ascii) || length(ascii) != 1L || is.na(ascii)) {
+    stop("Parameter 'ascii' must be a single logical value (TRUE or FALSE).\n")
+  }
+  if (ncol(faces) == 4L) {
+    stop(paste0("The STL format stores only triangular faces, but the 'faces' parameter defines quadrangular faces. ",
+                "Convert the mesh with 'faces.quad.to.tris' first.\n"));
+  }
+  check.verts.faces(vertex_coords, faces)
+
+  if (any(faces == 0L)) {
+    stop(paste0("The vertex indices defining the faces must be 1-based (GNU R style). That means the value 0 must not ",
+                "occur in the matrix 'faces', but ", sum(faces == 0L), " of the ", length(faces), " face vertex indices ",
+                "have this value (most likely you will need to add 1 to all values in 'faces').\n"));
+  }
+
+  num_faces <- nrow(faces);
+  face_normals <- mesh.face.normals(vertex_coords, faces);
+
+  con <- file(filepath, "wb");
+  on.exit(
+    {
+      close(con);
+    },
+    add = TRUE
+  );
+
+  if (ascii) {
+    write.stl.ascii(con, vertex_coords, faces, face_normals, solid_name);
+  } else {
+    write.stl.binary(con, vertex_coords, faces, face_normals);
+  }
+
+  return(invisible("tris"));
+}
+
+
+#' @title Compute the normals of the triangles of a mesh.
+#'
+#' @description The normal of a triangle is the unit vector orthogonal to its
+#'   plane, it is computed as the normalized cross product of two of its edges.
+#'   The STL format stores one normal per triangle, and the value is computed
+#'   from the geometry instead of being taken from the data, since a mesh in
+#'   index representation does not store normals at all.
+#'
+#' @param vertex_coords n x 3 matrix of doubles, the vertex coordinates.
+#'
+#' @param faces n x 3 matrix of integers, the vertex indices of the triangles.
+#'
+#' @return n x 3 matrix of doubles, the normalized normal of every face. Rows of
+#'   degenerate triangles (whose 3 vertices lie on one line, which includes
+#'   triangles with repeated vertices) are zero vectors, since such triangles
+#'   have no plane and hence no normal.
+#'
+#' @keywords internal
+mesh.face.normals <- function(vertex_coords, faces) {
+  v1 <- vertex_coords[faces[, 1L], , drop = FALSE];
+  v2 <- vertex_coords[faces[, 2L], , drop = FALSE];
+  v3 <- vertex_coords[faces[, 3L], , drop = FALSE];
+
+  edge1 <- v2 - v1;
+  edge2 <- v3 - v1;
+
+  normals <- cbind(edge1[, 2L] * edge2[, 3L] - edge1[, 3L] * edge2[, 2L],
+                   edge1[, 3L] * edge2[, 1L] - edge1[, 1L] * edge2[, 3L],
+                   edge1[, 1L] * edge2[, 2L] - edge1[, 2L] * edge2[, 1L]);
+
+  lengths <- sqrt(rowSums(normals^2));
+  # Dividing a matrix by a vector of its row count divides row-wise (R recycles
+  # the shorter argument column by column).
+  degenerate <- lengths == 0;
+  lengths[degenerate] <- 1;
+  normals <- normals / lengths;
+  normals[degenerate, ] <- 0;
+  return(normals);
+}
+
+
+#' @title Write the sections of a triangular mesh in ASCII STL format.
+#'
+#' @description Writes the 'solid' block of the ASCII variant of the STL format,
+#'   with 7 lines per face ('facet normal', 'outer loop', 3 'vertex' lines,
+#'   'endloop', 'endfacet'). This is the layout that
+#'   \code{\link{read.fs.surface.stl.ascii}} and other STL readers expect.
+#'
+#' @param con a connection opened in binary write mode, the file is written as
+#'   text through it.
+#'
+#' @param vertex_coords n x 3 matrix of doubles, the vertex coordinates.
+#'
+#' @param faces n x 3 matrix of integers, the vertex indices of the triangles.
+#'
+#' @param face_normals n x 3 matrix of doubles, the normals of the faces, see
+#'   \code{\link{mesh.face.normals}}.
+#'
+#' @param solid_name character string, the name of the mesh.
+#'
+#' @return \code{NULL}, invisibly. The data are written to \code{con}.
+#'
+#' @keywords internal
+write.stl.ascii <- function(con, vertex_coords, faces, face_normals, solid_name = "mesh") {
+  num_faces <- nrow(faces);
+  solid_name <- as.character(solid_name)[1L];
+
+  writeLines(sprintf("solid %s", solid_name), con);
+
+  if (num_faces > 0L) {
+    # The faces are written in chunks to keep the number of sprintf calls per
+    # call and the temporary memory bounded, this does not change the output.
+    chunk_faces <- 10000L;
+    written <- 0L;
+    while (written < num_faces) {
+      face_indices <- seq.int(written + 1L, min(written + chunk_faces, num_faces));
+      chunk_normals <- face_normals[face_indices, , drop = FALSE];
+      chunk_vertices <- vertex_coords[as.vector(t(faces[face_indices, , drop = FALSE])), , drop = FALSE];
+
+      vertex_lines <- sprintf("    vertex %.6f %.6f %.6f", chunk_vertices[, 1L], chunk_vertices[, 2L],
+                              chunk_vertices[, 3L]);
+      # The 3 vertex lines of a face are 3 consecutive entries of vertex_lines.
+      vertex_lines <- matrix(vertex_lines, ncol = 3L, byrow = TRUE);
+
+      lines <- character(7L * length(face_indices));
+      lines[seq.int(1L, length(lines), by = 7L)] <- sprintf("facet normal %.6f %.6f %.6f", chunk_normals[, 1L],
+                                                            chunk_normals[, 2L], chunk_normals[, 3L]);
+      lines[seq.int(2L, length(lines), by = 7L)] <- "  outer loop";
+      lines[seq.int(3L, length(lines), by = 7L)] <- vertex_lines[, 1L];
+      lines[seq.int(4L, length(lines), by = 7L)] <- vertex_lines[, 2L];
+      lines[seq.int(5L, length(lines), by = 7L)] <- vertex_lines[, 3L];
+      lines[seq.int(6L, length(lines), by = 7L)] <- "  endloop";
+      lines[seq.int(7L, length(lines), by = 7L)] <- "endfacet";
+
+      writeLines(lines, con);
+      written <- written + length(face_indices);
+    }
+  }
+
+  writeLines(sprintf("endsolid %s", solid_name), con);
+  return(invisible(NULL));
+}
+
+
+#' @title Write the sections of a triangular mesh in binary STL format.
+#'
+#' @description Writes the binary variant of the STL format: an 80 byte header,
+#'   a 4 byte face count, and then 50 bytes per face (3 float32 values for the
+#'   face normal, 9 float32 values for the 3 vertex coordinates, and a zero
+#'   uint16 attribute byte count). All values are little endian, as the format
+#'   requires. Note that the header must not start with the string 'solid',
+#'   which is how readers tell the ASCII and the binary variant apart.
+#'
+#' @inheritParams write.stl.ascii
+#'
+#' @return \code{NULL}, invisibly. The data are written to \code{con}.
+#'
+#' @keywords internal
+write.stl.binary <- function(con, vertex_coords, faces, face_normals) {
+  num_faces <- nrow(faces);
+
+  header_text <- sprintf("Binary STL file written by the freesurferformats R package, %d triangular faces.", num_faces);
+  header_bytes <- charToRaw(substr(header_text, 1L, 80L));
+  header_bytes <- c(header_bytes, raw(80L - length(header_bytes)));
+  writeBin(header_bytes, con);
+
+  writeBin(as.integer(num_faces), con, size = 4L, endian = "little");
+
+  if (num_faces > 0L) {
+    chunk_faces <- 10000L;
+    written <- 0L;
+    while (written < num_faces) {
+      face_indices <- seq.int(written + 1L, min(written + chunk_faces, num_faces));
+      chunk_size <- length(face_indices);
+
+      # The 12 float32 values of a face, in file order: normal, then the 3
+      # vertices. Serializing to a raw vector and re-arranging the bytes allows
+      # writing a whole chunk with a single writeBin call.
+      values <- cbind(face_normals[face_indices, , drop = FALSE],
+                      matrix(as.vector(t(vertex_coords[as.vector(t(faces[face_indices, , drop = FALSE])), , drop = FALSE])),
+                             ncol = 9L, byrow = TRUE));
+      value_bytes <- writeBin(as.numeric(t(values)), raw(), size = 4L, endian = "little");
+
+      # One face is 50 bytes: 48 of them hold floats, the remaining 2 are the
+      # uint16 attribute byte count, which is always zero ('no additional data').
+      out <- matrix(raw(50L), nrow = 50L, ncol = chunk_size); # in R, a raw matrix is initialized to zeros.
+      out[seq_len(48L), ] <- matrix(value_bytes, nrow = 48L);
+      writeBin(as.vector(out), con);
+
+      written <- written + chunk_size;
+    }
+  }
+
+  return(invisible(NULL));
 }
 
 

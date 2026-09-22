@@ -9,7 +9,8 @@ write.dti.trk(
   filepath,
   header = NULL,
   coords_space = NULL,
-  endian = "little"
+  endian = "little",
+  gzip = NULL
 )
 }
 \arguments{
@@ -39,6 +40,12 @@ present, and 'native' otherwise. This makes a read-write round trip with
 \item{endian}{character string, 'little' (the default) or 'big'. TrackVis
 writes little endian files, big endian support is for reading files written
 on old big endian systems.}
+
+\item{gzip}{logical or NULL, whether to gzip-compress the output. If
+\code{NULL} (the default), the file is compressed when the file name ends in
+'.gz'. Note that the TrackVis tools and MRtrix do not read compressed track
+files, so this is useful for archiving and for passing the file back to
+\code{\link{read.dti.trk}}, but not for exchanging it with other software.}
 }
 \value{
 the file path, invisibly.

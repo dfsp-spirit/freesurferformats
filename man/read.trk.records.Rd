@@ -13,7 +13,9 @@ read.trk.records(
   expected_tracks = NA_real_,
   skip_tracks = 0L,
   bbox = NULL,
-  transform = NULL
+  transform = NULL,
+  gzipped = FALSE,
+  filepath = ""
 )
 }
 \arguments{
@@ -43,6 +45,13 @@ any, see \code{\link{read.dti.trk}}.}
 coordinates of every track as it is read, before the bounding box filter is
 evaluated and before they are stored. This is used to filter in the target
 coordinate system without transforming the whole result twice.}
+
+\item{gzipped}{logical, whether the connection reads a gzip-compressed file,
+see \code{\link{is.gzip.file}}. R cannot seek in such a connection, so
+skipped tracks are skipped by reading and discarding them.}
+
+\item{filepath}{character string, the path of the file, used in error
+messages and for skipping in compressed files.}
 }
 \value{
 named list with entries \code{coords} (matrix with 3 columns and one

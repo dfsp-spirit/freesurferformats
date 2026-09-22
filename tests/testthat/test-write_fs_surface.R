@@ -139,6 +139,117 @@ test_that("One can export and re-read surface meshes in PLY format", {
 })
 
 
+test_that("One can export and re-read surface meshes in STL format", {
+  surface_file <- system.file("extdata", "cube.stl", package = "freesurferformats", mustWork = TRUE)
+  mesh <- read.fs.surface(surface_file)
+  num_faces <- nrow(mesh$faces)
+
+  # The coordinates of every triangle, sorted, so that meshes can be compared
+  # even though the vertex order of a polygon soup is reconstructed on reading.
+  triangle_coords <- function(m) {
+    t(apply(m$faces, 1L, function(f) sort(c(m$vertices[f[1L], ], m$vertices[f[2L], ], m$vertices[f[3L], ]))))
+  }
+
+  for (ascii in c(FALSE, TRUE)) {
+    format_name <- if (ascii) "ASCII" else "binary"
+    stl_file <- tempfile(fileext = if (ascii) ".stla" else ".stl")
+    write.fs.surface.stl(stl_file, mesh$vertices, mesh$faces, ascii = ascii)
+
+    # The binary version stores an 84 byte preamble and 50 bytes per face, the
+    # ASCII version one 'solid' line, 7 lines per face and one 'endsolid' line.
+    if (ascii) {
+      expect_equal(length(readLines(stl_file)), 7L * num_faces + 2L, info = format_name)
+    } else {
+      expect_equal(file.size(stl_file), 84L + 50L * num_faces, info = format_name)
+    }
+
+    mesh_reread <- read.fs.surface.stl(stl_file)
+    expect_equal(nrow(mesh_reread$vertices), nrow(mesh$vertices), info = format_name)
+    expect_equal(nrow(mesh_reread$faces), num_faces, info = format_name)
+    expect_equal(triangle_coords(mesh_reread), triangle_coords(mesh), tolerance = 1e-6, info = format_name)
+
+    # The normals of the faces of a cube are the unit vectors along the axes.
+    normals <- mesh_reread$metadata$normals
+    expect_equal(dim(normals), c(num_faces, 3L), info = format_name)
+    expect_equal(rep(1.0, num_faces), as.vector(abs(normals) %*% rep(1.0, 3L)), tolerance = 1e-6, info = format_name)
+  }
+})
+
+
+test_that("The binary STL writer stores the documented record layout", {
+  surface_file <- system.file("extdata", "cube.stl", package = "freesurferformats", mustWork = TRUE)
+  mesh <- read.fs.surface(surface_file)
+
+  stl_file <- tempfile(fileext = ".stl")
+  write.fs.surface.stl(stl_file, mesh$vertices, mesh$faces)
+
+  con <- file(stl_file, "rb")
+  header_bytes <- readBin(con, "raw", n = 80L)
+  face_count <- readBin(con, "integer", n = 1L, size = 4L, endian = "little")
+  record <- readBin(con, "double", n = 12L, size = 4L, endian = "little")
+  attr_count <- readBin(con, "integer", n = 1L, size = 2L, signed = FALSE, endian = "little")
+  close(con)
+
+  # The header must not start with the string 'solid': that is how readers, ours
+  # included, tell the ASCII and the binary version of the format apart.
+  expect_false(grepl("^solid", rawToChar(header_bytes), useBytes = TRUE))
+  expect_equal(face_count, nrow(mesh$faces))
+  expect_equal(attr_count, 0L)
+
+  # The first record holds the normal and the 3 vertex coordinates of the first
+  # face, in that order, and the normal is computed from the geometry.
+  v <- mesh$vertices[mesh$faces[1L, ], ]
+  edge1 <- v[2L, ] - v[1L, ]
+  edge2 <- v[3L, ] - v[1L, ]
+  normal <- c(edge1[2L] * edge2[3L] - edge1[3L] * edge2[2L],
+              edge1[3L] * edge2[1L] - edge1[1L] * edge2[3L],
+              edge1[1L] * edge2[2L] - edge1[2L] * edge2[1L])
+  normal <- normal / sqrt(sum(normal^2))
+  expect_equal(record[1:3], unname(normal), tolerance = 1e-6)
+  expect_equal(record[4:12], as.vector(t(unname(v))), tolerance = 1e-6)
+
+  # A degenerate triangle has no normal, it is written as a zero vector.
+  degenerate <- tempfile(fileext = ".stl")
+  write.fs.surface.stl(degenerate, matrix(c(0, 0, 0, 1, 1, 1, 2, 2, 2), ncol = 3L, byrow = TRUE),
+                       matrix(c(1L, 2L, 3L), ncol = 3L))
+  con <- file(degenerate, "rb")
+  readBin(con, "raw", n = 84L)
+  expect_equal(readBin(con, "double", n = 3L, size = 4L, endian = "little"), c(0, 0, 0))
+  close(con)
+})
+
+
+test_that("The STL writer is reachable through write.fs.surface and checks its input", {
+  surface_file <- system.file("extdata", "cube.stl", package = "freesurferformats", mustWork = TRUE)
+  mesh <- read.fs.surface(surface_file)
+  num_faces <- nrow(mesh$faces)
+
+  # '.stl' and '.stlb' request the binary version, '.stla' the ASCII one.
+  for (extension in c(".stl", ".stlb")) {
+    fp <- tempfile(fileext = extension)
+    expect_equal(write.fs.surface(fp, mesh$vertices, mesh$faces), "tris")
+    expect_equal(file.size(fp), 84L + 50L * num_faces)
+    expect_false(freesurferformats:::stl.format.file.is.ascii(fp))
+  }
+
+  fp_ascii <- tempfile(fileext = ".stla")
+  expect_equal(write.fs.surface(fp_ascii, mesh$vertices, mesh$faces), "tris")
+  expect_true(freesurferformats:::stl.format.file.is.ascii(fp_ascii))
+  expect_equal(nrow(read.fs.surface(fp_ascii)$faces), num_faces)
+
+  # The format can also be requested explicitly, for a file with any name.
+  fp_explicit <- tempfile(fileext = ".dat")
+  expect_equal(write.fs.surface(fp_explicit, mesh$vertices, mesh$faces, format = "stl"), "tris")
+  expect_equal(file.size(fp_explicit), 84L + 50L * num_faces)
+
+  # The format stores triangles only.
+  quads <- cbind(mesh$faces, mesh$faces[, 1L])
+  expect_error(write.fs.surface.stl(tempfile(fileext = ".stl"), mesh$vertices, quads), "faces.quad.to.tris")
+  expect_error(write.fs.surface.stl(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces - 1L), "1-based")
+  expect_error(write.fs.surface.stl(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces, ascii = "yes"), "ascii")
+})
+
+
 test_that("One can write meshes in all formats directly from write.fs.surface", {
   surface_file <- system.file("extdata", "lh.tinysurface", package = "freesurferformats", mustWork = TRUE)
   mesh <- read.fs.surface(surface_file)
@@ -169,6 +280,10 @@ test_that("One can write meshes in all formats directly from write.fs.surface", 
 
   # VTK format
   write.fs.surface(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces)
+
+  # STL format, the ASCII variant is requested by the file extension
+  write.fs.surface(tempfile(fileext = ".stl"), mesh$vertices, mesh$faces)
+  write.fs.surface(tempfile(fileext = ".stla"), mesh$vertices, mesh$faces)
 
   # error on invalid format
   expect_error(write.fs.surface(tempfile(fileext = ".vtk"), mesh$vertices, mesh$faces, format = "invalid format")) # invalid format

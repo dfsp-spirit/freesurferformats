@@ -12,13 +12,13 @@ read.fs.surface.stl.ascii(filepath, digits = 6L)
 \item{digits}{the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.}
 }
 \value{
-an \code{fs.surface} instance. The normals are available in the 'metadata' property.
+an \code{fs.surface} instance. The normals of the faces are available in the 'metadata' property, in the entry 'normals' (a matrix with one row per face). Note that the normal vectors stored in the file are ignored, the returned normals are computed from the geometry, see \code{\link{mesh.face.normals}}.
 }
 \description{
 The STL format is a mesh format that is often used for 3D printing, it stores geometry information. It is known as stereolithography format. A binary and an ASCII version exist. This function reads the ASCII version.
 }
 \note{
-The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the \code{misc3d} package.
+The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh has to be reconstructed, which is what the internal function \code{polygon.soup.to.indexed.mesh} does.
 }
 \references{
 See https://en.wikipedia.org/wiki/STL_(file_format) for a format description.

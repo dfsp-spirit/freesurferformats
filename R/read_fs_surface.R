@@ -205,7 +205,7 @@ read.fs.surface <- function(filepath, format = "auto") {
     return(read.fs.surface.mz3(filepath))
   }
 
-  if (format == "stl" | (format == "auto" & filepath.ends.with(filepath, c(".stl")))) {
+  if (format == "stl" | (format == "auto" & filepath.ends.with(filepath, c(".stl", ".stla", ".stlb")))) {
     return(read.fs.surface.stl(filepath))
   }
 
@@ -608,7 +608,7 @@ read.fs.surface.mz3 <- function(filepath) {
 #'
 #' @inheritParams read.fs.surface.stl.ascii
 #'
-#' @return an `fs.surface` instance.
+#' @return an `fs.surface` instance. The normals of the faces are available in the 'metadata' property, in the entry 'normals' (a matrix with one row per face). Note that the normal vectors stored in the file are ignored, the returned normals are computed from the geometry, see \code{\link{mesh.face.normals}}.
 #'
 #' @references See https://en.wikipedia.org/wiki/STL_(file_format) for the format spec.
 #'
@@ -632,7 +632,6 @@ read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
 
   # cat(sprintf("Reading %d faces from binary STL file.\n", num_faces));
 
-  all_normals <- NULL
   all_vertex_coords <- NULL
   all_attr_counts <- NULL
 
@@ -643,11 +642,6 @@ read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
     attr_count <- readBin(fh, integer(), size = 2, n = 1L, signed = FALSE, endian = "little")
     all_attr_counts <- c(all_attr_counts, attr_count)
 
-    if (is.null(all_normals)) {
-      all_normals <- face_normal
-    } else {
-      all_normals <- rbind(all_normals, face_normal)
-    }
     if (is.null(all_vertex_coords)) {
       all_vertex_coords <- vertex_coords
     } else {
@@ -659,7 +653,9 @@ read.fs.surface.stl.bin <- function(filepath, digits = 6L) {
     warning("Found non-zero face attribute count entries in file, ignored.") # nocov
   }
 
-  return(polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits))
+  mesh <- polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits);
+  mesh$metadata <- list("normals" = mesh.face.normals(mesh$vertices, mesh$faces));
+  return(mesh);
 }
 
 
@@ -721,11 +717,11 @@ stl.format.file.is.ascii <- function(filepath) {
 #'
 #' @param digits the precision (number of digits after decimal separator) to use when determining whether two x,y,z coords define the same vertex. This is used when the polygon soup is turned into an indexed mesh.
 #'
-#' @return an `fs.surface` instance. The normals are available in the 'metadata' property.
+#' @return an `fs.surface` instance. The normals of the faces are available in the 'metadata' property, in the entry 'normals' (a matrix with one row per face). Note that the normal vectors stored in the file are ignored, the returned normals are computed from the geometry, see \code{\link{mesh.face.normals}}.
 #'
 #' @references See https://en.wikipedia.org/wiki/STL_(file_format) for a format description.
 #'
-#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the `misc3d` package.
+#' @note The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh has to be reconstructed, which is what the internal function `polygon.soup.to.indexed.mesh` does.
 #'
 #' @keywords internal
 read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
@@ -742,19 +738,12 @@ read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
   line_idx <- 1L
   num_lines_left <- lines_total - line_idx
 
-  all_normals <- NULL
   all_vertex_coords <- NULL
 
   while (num_lines_left >= 7L) {
     face_info <- parse.stl.ascii.face(stl_lines[(line_idx + 1L):(line_idx + 7L)])
-    face_normal <- face_info$face_normal
     vertex_coords <- face_info$vertex_coords
 
-    if (is.null(all_normals)) {
-      all_normals <- face_normal
-    } else {
-      all_normals <- rbind(all_normals, face_normal)
-    }
     if (is.null(all_vertex_coords)) {
       all_vertex_coords <- vertex_coords
     } else {
@@ -773,7 +762,9 @@ read.fs.surface.stl.ascii <- function(filepath, digits = 6L) {
     }
   }
 
-  return(polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits))
+  mesh <- polygon.soup.to.indexed.mesh(all_vertex_coords, digits = digits);
+  mesh$metadata <- list("normals" = mesh.face.normals(mesh$vertices, mesh$faces));
+  return(mesh);
 }
 
 

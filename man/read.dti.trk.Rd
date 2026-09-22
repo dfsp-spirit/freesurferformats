@@ -14,7 +14,12 @@ read.dti.trk(
 )
 }
 \arguments{
-\item{filepath}{character string, path to file in trk format.}
+\item{filepath}{character string, path to file in trk format. Gzip-compressed
+files are supported as well (the compression is detected from the file
+content, so a \code{.trk.gz} file is read like any other TRK file), which is
+convenient since tractograms are large and are regularly stored compressed.
+Note that track files cannot be compressed on the fly for other software:
+the TrackVis tools and MRtrix do not read compressed track files.}
 
 \item{shift_origin}{logical, whether to apply the half-voxel origin shift when computing the corrected vox2ras matrix. The TRK format stores a matrix that maps to the voxel corner, not the voxel center (as is the NIfTI convention). Set to \code{TRUE} (the default) to compute the corrected \code{vox2ras} that maps to voxel centers, as used by TrackVis. Set to \code{FALSE} if the file was written by DSI Studio, which does not apply this shift. See the notes for details.}
 

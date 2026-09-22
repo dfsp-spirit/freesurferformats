@@ -1,0 +1,15 @@
+{
+  "title": "XTRACT white matter tract atlas (standardised tractography protocols), streamlines in TrackVis TRK format",
+  "authors": "Warrington S, Bryant KL, Khrapitchev AA, et al. (atlas); converted to streamlines and distributed as OSF archives by Jaan Aru (author of the 'yabplot' Python package)",
+  "source_url": "https://doi.org/10.1126/sciadv.aba8245",
+  "publication": "Warrington S, et al. (2020). XTRACT - Standardised protocols for automated tractography in the human and macaque brain. NeuroImage 217:116923.",
+  "redistribution": {
+    "available_from": "https://osf.io/7tbjg/ (and the OSF project of the 'yabplot' package)",
+    "license": {
+      "name": "MIT License",
+      "url": "https://opensource.org/licenses/MIT"
+    },
+    "note": "The archives are distributed with the MIT licensed 'yabplot' Python package (https://github.com/teanijarv/yabplot). They are redistributed here in unpacked form, unchanged, to make them available to the R packages of this project without depending on a third party file host."
+  },
+  "acquired_at": "2026-09-17"
+}
