@@ -346,7 +346,7 @@ lta.volume.info.lines <- function(descriptor, section_name) {
 
 #' @title Format the rows of a transformation matrix for a text file.
 #'
-#' @description The transformation file formats store the matrix as text, and the values are written with 17
+#' @description The transformation file formats store the matrix as text, and the values are written with enough
 #' significant digits so that reading the file back gives the exact same double values. Fewer digits are not
 #' enough: 15 digits, as used by some other tools, lose up to a few units in the last place of a double.
 #'
@@ -368,7 +368,37 @@ transform.matrix.row.lines <- function(matrix) {
 #'
 #' @keywords internal
 transform.values.text <- function(values) {
-  return(paste(sprintf("%.17g", values), collapse = " "))
+  return(paste(vapply(values, transform.value.text, character(1L)), collapse = " "))
+}
+
+
+#' @title Format a single numerical value for a transformation text file.
+#'
+#' @description 17 significant decimal digits identify a double uniquely, so writing that many of them and
+#' reading them back preserves the value exactly -- but only if the decimal conversion of the C library rounds
+#' correctly, and that is not true on every platform: on macOS (ARM64) the round trip of a value like
+#' `-1e-7 / 7` loses one unit in the last place, because the value that is written is one digit off. The round
+#' trip is therefore verified here with R's own decimal conversion, and the number of digits is increased
+#' until the value survives it. The output therefore has no more digits than the platform can handle
+#' correctly, and it is guaranteed to be read back exactly by the same platform.
+#'
+#' @param value single numerical value, the value to format.
+#'
+#' @return character string, the text representation of the value.
+#'
+#' @keywords internal
+transform.value.text <- function(value) {
+  if (!is.finite(value)) { # NA, NaN and Inf, which are written as such
+    return(sprintf("%.17g", value))
+  }
+  for (num_digits in c(17L, 18L, 19L, 20L, 22L)) {
+    text <- sprintf(paste0("%.", num_digits, "g"), value)
+    parsed <- suppressWarnings(as.numeric(text))
+    if (length(parsed) == 1L && !is.na(parsed) && parsed == value) {
+      return(text)
+    }
+  }
+  return(sprintf("%.22g", value)) # nocov
 }
 
 

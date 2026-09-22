@@ -151,8 +151,8 @@ test_that("A transformation can be written as a tkregister dat file and read bac
 
 
 test_that("Written matrices are read back exactly.", {
-  # The writers use 17 significant digits, which is the number needed for an exact round trip of a double.
-  # Fewer digits (15, as used by some other tools) lose precision.
+  # The writers use enough significant digits for an exact round trip of a double (at least 17, which is the
+  # number that identifies a double uniquely). Fewer digits (15, as used by some other tools) lose precision.
   angle <- 0.1234567890123456
   rotation <- matrix(c(
     cos(angle), -sin(angle), 0, 0,
@@ -182,6 +182,25 @@ test_that("Written matrices are read back exactly.", {
     expect_identical(read.fs.transform(out_file)$matrix, rotation)
     unlink(out_file)
   }
+})
+
+
+test_that("A formatted value is read back exactly, on every platform.", {
+  # The round trip of a value that is not exactly representable depends on the decimal conversion of the
+  # platform: on macOS ARM64, 17 significant digits of -1e-7/7 are not enough (they are one unit in the last
+  # place off), so the formatter verifies the round trip and writes more digits when it fails. This test
+  # states the invariant that the writer relies on.
+  values <- c(1.0 / 3.0, -1e-7 / 7.0, 0.1, pi, 1e-300, 2^-1074, .Machine$double.xmax, -0.0, 12345.6789)
+  for (value in values) {
+    text <- transform.value.text(value)
+    expect_true(is.character(text) && length(text) == 1L)
+    expect_equal(as.numeric(text), value, info = sprintf("value %s is written as '%s'", format(value), text))
+  }
+
+  # Non-finite values are written as such instead of failing.
+  expect_equal(transform.value.text(Inf), "Inf")
+  expect_equal(transform.value.text(NaN), "NaN")
+  expect_equal(transform.values.text(c(1.0, 2.0)), "1 2")
 })
 
 
