@@ -12,7 +12,9 @@ cifti.read.matrix(cii, rows = NULL, columns = NULL)
 \item{rows}{integer vector or \code{NULL}, the indices of matrix dimension 0 to
 read. Indices are 1-based, like everywhere else in R, and they refer to the
 rows of the returned array, i.e. to the first CIFTI matrix dimension. Use
-\code{NULL} (the default) to read all of them.}
+\code{NULL} (the default) to read all of them. Note that this selection is applied
+after reading the whole matrix: use \code{\link{read.cifti.rows}} if the file
+is too large for that.}
 
 \item{columns}{integer vector or \code{NULL}, the indices of matrix dimension 1 to
 read, i.e. the columns of the returned array. This is the matrix dimension

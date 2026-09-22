@@ -44,7 +44,9 @@
 #' @param rows integer vector or `NULL`, the indices of matrix dimension 0 to
 #'   read. Indices are 1-based, like everywhere else in R, and they refer to the
 #'   rows of the returned array, i.e. to the first CIFTI matrix dimension. Use
-#'   `NULL` (the default) to read all of them.
+#'   `NULL` (the default) to read all of them. Note that this selection is applied
+#'   after reading the whole matrix: use \code{\link{read.cifti.rows}} if the file
+#'   is too large for that.
 #'
 #' @param columns integer vector or `NULL`, the indices of matrix dimension 1 to
 #'   read, i.e. the columns of the returned array. This is the matrix dimension
@@ -78,6 +80,152 @@ read.cifti <- function(filepath, rows = NULL, columns = NULL) {
   result <- list(header = cii, data = data)
   class(result) <- "fs.cifti.data"
   return(result)
+}
+
+
+#' @title Read selected matrix rows of a CIFTI-2 file without loading the whole matrix.
+#'
+#' @description Read a few indices of CIFTI matrix dimension 0 (the rows of the
+#'   data matrix) from a large file, without ever holding the values of the rows
+#'   that are not requested in memory. \code{\link{read.cifti}} supports the same
+#'   selection, but it reads the whole matrix first and then drops the unrequested
+#'   rows, which is impossible for a file that does not fit into memory: the
+#'   matrix of an HCP subject (91,282 grayordinates in both dimensions) is 33 GB.
+#'   This function streams through the file in chunks and keeps only the requested
+#'   rows, so its memory usage is the size of the result plus one chunk (32 MB by
+#'   default), regardless of the size of the file.
+#'
+#'   Note which direction of a CIFTI-2 file is the cheap one: the values of a
+#'   *cell of a row* are stored with a stride (`dim[5]` values lie between the
+#'   values of one row), while the values of a column are contiguous. Reading
+#'   rows therefore has to touch every value of the file once (it is a
+#'   single sequential pass, not a seek per value, but the I/O is the size of the
+#'   file), while selecting `columns` reads only what was asked for. Use
+#'   \code{\link{read.cifti}} with the `columns` parameter if the rows you need are
+#'   the ones that a column selection can give you, e.g. because the matrix is
+#'   symmetric (which a `.dconn` is), and use this function for the cases that
+#'   need rows: for a `.dtseries`, one row is one time point of all grayordinates,
+#'   so reading the first few time points of a 1.7 GB file with this function
+#'   needs a few KB instead of the whole file.
+#'
+#' @inheritParams read.cifti
+#'
+#' @param rows integer vector, the indices of matrix dimension 0 to read. At least
+#'   one index has to be given; the indices are 1-based, see \code{\link{read.cifti}}.
+#'
+#' @param chunk_values integer, the number of data values that are read from the
+#'   file per chunk. This does not change the result, only the peak memory usage
+#'   and the I/O granularity, so it is rarely needed: the default of 4 millions
+#'   values corresponds to about 16 MB. The chunk size is rounded up to a whole
+#'   number of matrix columns, and the result is the same for every chunk size.
+#'
+#' @return a named list with the entries 'header' and 'data', see
+#'   \code{\link{read.cifti}}. The 'data' entry holds the requested rows, with the
+#'   requested columns if `columns` was given.
+#'
+#' @examples
+#' cifti_file <- system.file("extdata", "cifti", "tiny.dtseries.nii", package = "freesurferformats")
+#' # The first two time points of all grayordinates:
+#' first_frames <- read.cifti.rows(cifti_file, rows = 1:2)
+#' dim(first_frames$data)
+#'
+#' # A few time points and a few grayordinates:
+#' subset <- read.cifti.rows(cifti_file, rows = 2, columns = 1:3)
+#' subset$data
+#'
+#' @family cifti functions
+#' @export
+read.cifti.rows <- function(filepath, rows, columns = NULL, chunk_values = 4000000L) {
+  if (!is.character(filepath) || length(filepath) != 1L || is.na(filepath)) {
+    stop("Parameter 'filepath' must be a character string, the path of a CIFTI-2 file.")
+  }
+  cii <- read.cifti.header(filepath)
+  dim_sizes <- as.integer(cii$matrix$dim_sizes)
+  if (length(dim_sizes) != 2L) {
+    stop(sprintf(paste0("File '%s' has %d matrix dimensions, but read.cifti.rows() reads the rows of a 2-dimensional ",
+                        "matrix. Use read.cifti() for this file.\n"), cii$filepath, length(dim_sizes)))
+  }
+  if (missing(rows) || is.null(rows)) {
+    stop("Parameter 'rows' must be given: use read.cifti() to read the complete matrix.")
+  }
+  rows <- cifti.check.index.selection(rows, dim_sizes[1L], "rows", cii$filepath)
+  columns <- cifti.check.index.selection(columns, dim_sizes[2L], "columns", cii$filepath)
+
+  data <- cifti.read.rows(cii, rows, columns = columns, chunk_values = chunk_values)
+
+  dim_names <- lapply(c(0L, 1L), function(dim) {
+    return(cifti.dim.labels(cii, dim))
+  })
+  dim_names[[1L]] <- dim_names[[1L]][rows]
+  if (!is.null(columns)) {
+    dim_names[[2L]] <- dim_names[[2L]][columns]
+  }
+  dimnames(data) <- dim_names
+
+  result <- list(header = cii, data = data)
+  class(result) <- "fs.cifti.data"
+  return(result)
+}
+
+
+#' @title Read the requested matrix rows of a CIFTI-2 file.
+#'
+#' @description Workhorse of \code{\link{read.cifti.rows}}: read some indices of
+#'   matrix dimension 0 without reading the rest of the rows. If a column
+#'   selection is given, only those columns are read (they are contiguous blocks
+#'   of the file), otherwise the file is read once, in chunks, keeping the
+#'   requested rows.
+#'
+#' @inheritParams read.cifti.rows
+#'
+#' @param cii an `fs.cifti` instance, see \code{\link{read.cifti.header}}.
+#'
+#' @return a numeric matrix with one row per requested row index.
+#'
+#' @keywords internal
+cifti.read.rows <- function(cii, rows, columns = NULL, chunk_values = 4000000L) {
+  dim_sizes <- as.integer(cii$matrix$dim_sizes)
+  num_rows <- dim_sizes[1L]
+  bytes_per_value <- as.numeric(cii$niiheader$bitpix) / 8.
+
+  if (!is.numeric(chunk_values) || length(chunk_values) != 1L || is.na(chunk_values) || chunk_values < num_rows) {
+    stop(sprintf(paste0("Parameter 'chunk_values' must be a single number that is at least the size of matrix dimension 0 ",
+                        "(%d values), so that the chunks contain complete columns.\n"), num_rows))
+  }
+
+  if (!is.null(columns)) {
+    # One contiguous read per requested column. The result is small, so there is no
+    # point in reading the whole file.
+    fh <- file(cii$filepath, "rb")
+    on.exit(close(fh), add = TRUE)
+    column_values <- lapply(columns, function(column) {
+      offset <- as.numeric(cii$niiheader$vox_offset) + (column - 1) * num_rows * bytes_per_value
+      seek(fh, where = offset, origin = "start", rw = "read")
+      return(cifti.read.values(cii, num_values = num_rows, fh = fh)[rows])
+    })
+    return(matrix(unlist(column_values), nrow = length(rows), ncol = length(columns)))
+  }
+
+  # No column selection: the file has to be read once, but only the requested rows
+  # are kept. Each chunk holds a whole number of columns, so that the chunk can be
+  # treated as a small matrix whose rows can be indexed like the rows of the file.
+  values_per_chunk <- max(num_rows, floor(chunk_values / num_rows) * num_rows)
+  data <- matrix(NA_real_, nrow = length(rows), ncol = dim_sizes[2L])
+  fh <- file(cii$filepath, "rb")
+  on.exit(close(fh), add = TRUE)
+  seek(fh, where = as.numeric(cii$niiheader$vox_offset), origin = "start", rw = "read")
+  first_column <- 1L
+  remaining_values <- prod(dim_sizes)
+  while (remaining_values > 0L) {
+    values_to_read <- min(values_per_chunk, remaining_values)
+    values <- cifti.read.values(cii, num_values = values_to_read, fh = fh)
+    num_columns <- values_to_read %/% num_rows
+    chunk <- matrix(values[seq_len(num_columns * num_rows)], nrow = num_rows)
+    data[, first_column:(first_column + num_columns - 1L)] <- chunk[rows, , drop = FALSE]
+    first_column <- first_column + num_columns
+    remaining_values <- remaining_values - values_to_read
+  }
+  return(data)
 }
 
 
@@ -707,7 +855,9 @@ cifti.validate.read.size <- function(dims, bytes_per_elem, filepath) {
                   "For a CIFTI-2 file you can read only the part you need: the indices of matrix\n",
                   "  dimension 1 (the grayordinates of a dense file) can be requested with the\n",
                   "  'columns' parameter of read.cifti(), and this does not read the rest of the\n",
-                  "  file. See ?read.cifti.\n"))
+                  "  file. The rows of such a file can be read with read.cifti.rows(), which walks\n",
+                  "  the file once and keeps only the rows you asked for. See ?read.cifti and\n",
+                  "  ?read.cifti.rows.\n"))
     }
   )
   return(invisible(NULL))

@@ -52,6 +52,33 @@ workbench_check <- function(filepath) {
 
 # --- 2. nibabel: compare the parsed dump -------------------------------------
 
+# The row reader (read.cifti.rows(), item I.2f) streams through a file and keeps only the
+# requested rows, so it has to return the same values as the full reader for every chunk
+# size. The chunk size is the only knob that affects the memory usage, and the official
+# Conte69 .dtseries has 60,951 columns, i.e. the multi-chunk path with chunk boundaries at
+# several places.
+rows_check <- function(filepath) {
+  full <- read.cifti(filepath)$data
+  num_rows <- nrow(full)
+  num_columns <- ncol(full)
+  rows <- unique(c(1L, num_rows, min(3L, num_rows)))
+  columns <- unique(c(1L, min(4L, num_columns)))
+  expected <- full[rows, columns, drop = FALSE]
+  chunk_sizes <- unique(c(num_rows, num_rows * 2L, 1000000L))
+  for (chunk_values in chunk_sizes) {
+    part <- read.cifti.rows(filepath, rows = rows, columns = columns, chunk_values = chunk_values)
+    if (!isTRUE(all.equal(unname(part$data), unname(expected)))) {
+      return(sprintf("FAIL (rows %s, columns %s, chunk_values %d differ from the full read)",
+                     paste(rows, collapse = ","), paste(columns, collapse = ","), chunk_values))
+    }
+  }
+  streamed <- read.cifti.rows(filepath, rows = rows, chunk_values = num_rows)
+  if (!isTRUE(all.equal(unname(streamed$data), unname(full[rows, , drop = FALSE])))) {
+    return("FAIL (the streamed rows differ from the full read)")
+  }
+  return(sprintf("PASS (rows %s of %d, %d chunk sizes)", paste(rows, collapse = ","), num_rows, length(chunk_sizes)))
+}
+
 dump_check <- function(files) {
   py_dump <- file.path(tmp_dir, "dump_python.txt")
   r_dump <- file.path(tmp_dir, "dump_r.txt")
@@ -225,6 +252,14 @@ for (check_name in names(special_checks)) {
     failures <- failures + 1L
   }
   cat(sprintf("%-10s %-34s %s\n", "writers", check_name, result))
+}
+
+for (filepath in files) {
+  result <- rows_check(filepath)
+  if (startsWith(result, "FAIL")) {
+    failures <- failures + 1L
+  }
+  cat(sprintf("%-10s %-34s %s\n", "rows", basename(filepath), result))
 }
 
 cat(sprintf("\n%s (%d failures)\n", if (failures == 0L) "ALL CHECKS PASSED" else "CHECKS FAILED", failures))

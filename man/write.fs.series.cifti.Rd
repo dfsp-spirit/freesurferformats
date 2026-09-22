@@ -87,6 +87,7 @@ Other cifti functions:
 \code{\link[=print.fs.connectome]{print.fs.connectome()}},
 \code{\link[=read.cifti]{read.cifti()}},
 \code{\link[=read.cifti.header]{read.cifti.header()}},
+\code{\link[=read.cifti.rows]{read.cifti.rows()}},
 \code{\link[=read.fs.connectome.cifti]{read.fs.connectome.cifti()}},
 \code{\link[=write.cifti]{write.cifti()}},
 \code{\link[=write.fs.connectome.cifti]{write.fs.connectome.cifti()}},

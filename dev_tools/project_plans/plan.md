@@ -85,7 +85,7 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 - [x] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- read side in increment 7, write side in increment 8. The generic writer `write.cifti()` covers all nine standard file types, the user-facing writers cover the three dense surface types; the parcellated convenience writers belong to I.2d.
 - [x] I.2e native `read.fs.*.cifti()` (increment 7) and the dispatch fixes (increment 10): `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` read files directly, the `cifti` package is only used if a client passes one of its objects, the generic readers `read.fs.morph()`/`read.fs.volume()` detect CIFTI files and point at the CIFTI readers, and the non-CIFTI writers refuse CIFTI-2 file names. Nothing in the package requires the `cifti` package.
 - [x] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations -- done in increment 9, see the progress log. The writers are `write.fs.connectome.cifti()` (the four connectome types) and `write.fs.parcellated.cifti()` (`.pscalar`/`.ptseries`), the axis comes from `cifti.axis.parcels.from.annot()` or from a template.
-- [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads) -- the seek based column selection of `read.cifti()` exists, the dedicated row reader and its docs are open
+- [x] I.2f large files: row-wise access -- `read.cifti()` selects *columns* by seek (the contiguous direction, increment 7) and `read.cifti.rows()` (increment 11) reads selected *rows* by streaming the file once and keeping only those rows, with a constant memory footprint. The allocation guard message names both options.
 - [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
 
 Notes: the container is NIfTI-2 + an XML header extension (ecode 32), so no new
@@ -1268,3 +1268,47 @@ Findings worth keeping:
   that package (they check `requireNamespace()` first). It stays in `Suggests` for that case
   and for the cross-check in the test suite, but `read.fs.morph.cifti(file, 'lh')` works on a
   fresh installation, which was the documented workaround of the package's older versions.
+
+### Increment 11: the row-wise reader for large files (2026-09-22) -- DONE (item I.2f)
+
+Files: `R/read_cifti.R` (`read.cifti.rows()`, plus the internal `cifti.read.rows()` and a
+documented limit for `chunk_values`), `tests/testthat/test-read_cifti_rows.R` (new, 59
+tests), a row comparison for every file in `dev_tools/check_cifti_conversion.R`, and the
+allocation guard message, which now names both ways of reading a part of a file.
+
+Findings worth keeping:
+
+- **The plan's description of the direction was wrong, and the code follows the file
+  layout instead.** The spec section 8 says "a *stored* row is one index of dimension 1 and
+  its `dim[5]` values are contiguous", which describes a *column*. Matrix dimension 0
+  varies fastest, so the values of one row lie `dim[5]` values apart (a stride of 91,282
+  values for an HCP file), and only a column selection is seek based and touches nothing
+  else. The new function therefore has two paths: with a column selection it reads exactly
+  those columns (one contiguous read each, the cheap case), and without one it walks the
+  file once in chunks, keeping only the requested rows (constant memory, I/O = size of the
+  file). Both are documented in terms of that asymmetry, since it decides which function a
+  caller should use: `read.cifti(f, columns = ...)` for the seed direction of a symmetric
+  `.dconn` (or a handful of grayordinates), `read.cifti.rows(f, rows = ...)` for the time
+  points of a `.dtseries` (one row is a whole brain frame) or the seed rows of a connectome.
+- **Chunks have to be whole columns.** `matrix(values, nrow = dim[5])` is only meaningful
+  when the chunk is a multiple of `dim[5]`, so the chunk size is rounded down to a multiple
+  of the row count and a `chunk_values` below `dim[5]` is refused with that explanation.
+  Both `values_per_chunk` and the remaining value count are multiples of `dim[5]`, so every
+  chunk ends on a column boundary; an earlier version of the loop dropped the partial
+  values of the last chunk, which would have shifted all values after it.
+- **The reader must not consult the allocation guard**, exactly like the TRK streaming
+  helpers (the "streaming must not trip the whole-file guard" lesson): the file it is meant
+  for is the one whose complete matrix is refused. The test proves it with a synthetic file
+  whose header and XML describe a 5000 x 5000 matrix (100 MB) while the payload holds one
+  column: `read.cifti()` refuses it because of the limit, `read.cifti.rows()` reads the
+  column it needs and only complains when it wants values that are not in the file.
+- Building that fixture needed a correction: patching the `dim` field of an existing file
+  with `writeBin(as.numeric(10000), size = 8)` writes a *double* into an int64 field, which
+  the reader turns into 0 (and the XML then reports a mismatch, which is how it was
+  noticed). The fixture is written with `write.cifti()`'s header and XML builders and a
+  deliberately too-short payload instead, which keeps header and metadata consistent - and
+  is a nice demonstration that the writer's parts are usable independently.
+- The official Conte69 `.dtseries` (60,951 columns) is part of the row check in
+  `dev_tools/check_cifti_conversion.R` with three chunk sizes, including one of exactly
+  `dim[5]` values (2), i.e. 60,951 chunks - the chunk boundary bookkeeping is exercised for
+  real there.
