@@ -4,12 +4,16 @@
 \alias{nii1header.for.mgh}
 \title{Create a NIFTI v1 header from the header information contained in an fs.volume instance.}
 \usage{
-nii1header.for.mgh(mgh, endian = "little")
+nii1header.for.mgh(mgh, endian = "little", pair = FALSE)
 }
 \arguments{
 \item{mgh}{an \code{fs.volume} instance, or a string. If a string, it is interpreted as a filepath to a volume file (NIFTI, MGH or MGZ) that will be loaded with \code{\link{read.fs.volume}}.}
 
 \item{endian}{character string, the endianness to use. Either 'little' or 'big'. Defaults to 'little'.}
+
+\item{pair}{logical, whether the header should describe a NIFTI v1 \emph{pair} (a \code{.hdr} header file with the voxel
+data in a separate \code{.img} file, the variant of the format that FSL and 3D Slicer work with) instead of a single
+file (\code{.nii}). See \code{\link{ni1header.template}}.}
 }
 \value{
 a NIFTI v1 header structure (see \code{\link{ni1header.template}}). Note that the header may or may not contain full RAS information, depending on whether the source \code{fs.volume} contained such information or not. If the MGH header does not have valid RAS information, the qform and sform codes will be set to 0 (unknown).

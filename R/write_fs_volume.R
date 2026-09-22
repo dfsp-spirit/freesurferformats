@@ -2,7 +2,7 @@
 #'
 #' @description Write brain volume data to a file. The format is determined from the file extension of `filepath`.
 #'
-#' @param filepath string. Full path to the output file. The file extension determines the format: '.mgh' or '.mgz' for FreeSurfer MGH/MGZ format, '.nii' or '.nii.gz' for NIFTI v1 format.
+#' @param filepath string. Full path to the output file. The file extension determines the format: '.mgh' or '.mgz' for FreeSurfer MGH/MGZ format, '.nii' or '.nii.gz' for NIFTI v1 format, and '.hdr', '.img', '.hdr.gz' or '.img.gz' for a NIFTI v1 pair, i.e. a header file with a separate data file. A pair is written instead of a plain ANALYZE 7.5 file because ANALYZE cannot store the geometry of the volume, see \code{\link{write.analyze}} if you need real ANALYZE output.
 #'
 #' @param fs_vol an `fs.volume` instance, as returned by \code{\link{read.fs.volume}} with parameter `with_header=TRUE`.
 #'
@@ -17,6 +17,7 @@
 #' fs_vol <- read.fs.volume(mgh_file, with_header = TRUE)
 #' write.fs.volume(tempfile(fileext = ".mgz"), fs_vol)
 #' write.fs.volume(tempfile(fileext = ".nii.gz"), fs_vol)
+#' write.fs.volume(tempfile(fileext = ".hdr"), fs_vol)
 #' }
 #'
 #' @family volume export functions
@@ -32,8 +33,11 @@ write.fs.volume <- function(filepath, fs_vol) {
   } else if (endsWith(tolower(filepath), "nii") | endsWith(tolower(filepath), "nii.gz")) {
     niiheader <- freesurferformats::nii1header.for.mgh(fs_vol)
     freesurferformats::write.nifti1(filepath, fs_vol$data, niiheader = niiheader)
+  } else if (endsWith(tolower(filepath), ".hdr") | endsWith(tolower(filepath), ".img") | endsWith(tolower(filepath), ".hdr.gz") | endsWith(tolower(filepath), ".img.gz")) {
+    niiheader <- freesurferformats::nii1header.for.mgh(fs_vol, pair = TRUE)
+    freesurferformats::write.nifti1(filepath, fs_vol$data, niiheader = niiheader)
   } else {
-    stop("Invalid file extension for filepath supplied to 'write.fs.volume'. Use one of 'mgh', 'mgz', 'nii', or 'nii.gz'.")
+    stop("Invalid file extension for filepath supplied to 'write.fs.volume'. Use one of 'mgh', 'mgz', 'nii', 'nii.gz', 'hdr' or 'img'.")
   }
 }
 
@@ -103,6 +107,10 @@ m44_to_quaternion <- function(m) {
 #'
 #' @param endian character string, the endianness to use. Either 'little' or 'big'. Defaults to 'little'.
 #'
+#' @param pair logical, whether the header should describe a NIFTI v1 *pair* (a `.hdr` header file with the voxel
+#'   data in a separate `.img` file, the variant of the format that FSL and 3D Slicer work with) instead of a single
+#'   file (`.nii`). See \code{\link{ni1header.template}}.
+#'
 #' @return a NIFTI v1 header structure (see \code{\link{ni1header.template}}). Note that the header may or may not contain full RAS information, depending on whether the source `fs.volume` contained such information or not. If the MGH header does not have valid RAS information, the qform and sform codes will be set to 0 (unknown).
 #'
 #' @note This is intended to be used with \code{\link{write.nifti1}}, which allows users to convert MGH/MGZ data to NIFTI files.
@@ -110,7 +118,7 @@ m44_to_quaternion <- function(m) {
 #' @family nifti1 writers
 #'
 #' @export
-nii1header.for.mgh <- function(mgh, endian = "little") {
+nii1header.for.mgh <- function(mgh, endian = "little", pair = FALSE) {
   if (is.character(mgh)) {
     mgh <- freesurferformats::read.fs.volume(mgh, with_header = TRUE)
   }
@@ -122,8 +130,15 @@ nii1header.for.mgh <- function(mgh, endian = "little") {
     stop("Given or loaded fs.volume instance has no valid MGH header information.")
   }
 
-  nii_header <- freesurferformats::ni1header.template()
+  nii_header <- freesurferformats::ni1header.template(pair = pair)
   nii_header$endian <- endian
+
+  # The NIFTI header needs the voxel sizes, which are only present if the MGH header contains geometry
+  # information. Without them the file could be written, but every tool that reads it would use 1 mm voxels, so
+  # this is reported instead of writing a file with wrong geometry.
+  if (!freesurferformats::is.mghheader(mgh_header) || is.null(mgh_header$internal$xsize) || length(mgh_header$internal$xsize) == 0L || mgh_header$internal$xsize == 0) {
+    stop("The MGH header of the given fs.volume instance contains no voxel size information, so a valid NIFTI header cannot be computed from it. Read the volume with a reader that provides the geometry, e.g. read.fs.volume(), or set the 'pix_dim' field of a NIFTI v1 header manually and use write.nifti1().")
+  }
 
   # Data type mapping: MGH dtype -> NIFTI datatype/bitpix
   dtype_info <- nifti.dtypebitpix.info.from.mgh.dtype(mgh_header$dtype)
@@ -185,8 +200,9 @@ nii1header.for.mgh <- function(mgh, endian = "little") {
   # Description
   nii_header$descrip <- "freesurferformats mgh2nii"
 
-  # Standard NIFTI v1 single-file voxel offset
-  nii_header$vox_offset <- 352.0
+  # The voxel offset is 352 for a single file NIFTI image (the data starts behind the header), and 0 for a pair
+  # file, in which the data is stored in a separate '.img' file.
+  nii_header$vox_offset <- ifelse(pair, 0., 352.0)
 
   nifti.header.check(nii_header, nifti_version = 1L)
   return(nii_header)

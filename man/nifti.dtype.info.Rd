@@ -12,9 +12,12 @@ nifti.dtype.info(datatype, bitpix)
 \item{bitpix}{integer, the \code{bitpix} NIFTI v1 header field}
 }
 \value{
-named list with entries: \code{mri_dtype}: the MRI data type, as used by FreeSurfer for MGH files, \code{r_dtype}: the R data type.
+named list with entries: \code{mri_dtype}: the MRI data type, as used by FreeSurfer for MGH files, \code{r_dtype}: the R data type, \code{size}: the number of bytes per value, \code{signed}: logical, whether the values are signed (only meaningful for integer types, \code{NA} for floating point types) and \code{is_float}: logical, whether the type is a floating point type.
 }
 \description{
 Compute NIFTI v1 data type info from datatype and bitpix header field.
+}
+\note{
+The \code{signed} entry matters for reading the data: an unsigned 8 bit value of 200 is read as -56 if it is read as a signed value, which is a silent change of the data. See \code{\link{read.nifti.values}}.
 }
 \keyword{internal}

@@ -362,7 +362,9 @@ nifti.space.info <- function(xyzt_units) {
 #'
 #' @param bitpix integer, the `bitpix` NIFTI v1 header field
 #'
-#' @return named list with entries: `mri_dtype`: the MRI data type, as used by FreeSurfer for MGH files, `r_dtype`: the R data type.
+#' @return named list with entries: `mri_dtype`: the MRI data type, as used by FreeSurfer for MGH files, `r_dtype`: the R data type, `size`: the number of bytes per value, `signed`: logical, whether the values are signed (only meaningful for integer types, `NA` for floating point types) and `is_float`: logical, whether the type is a floating point type.
+#'
+#' @note The `signed` entry matters for reading the data: an unsigned 8 bit value of 200 is read as -56 if it is read as a signed value, which is a silent change of the data. See \code{\link{read.nifti.values}}.
 #'
 #' @keywords internal
 nifti.dtype.info <- function(datatype, bitpix) {
@@ -371,19 +373,19 @@ nifti.dtype.info <- function(datatype, bitpix) {
   MRI_FLOAT <- translate.mri.dtype("MRI_FLOAT")
   MRI_SHORT <- translate.mri.dtype("MRI_SHORT")
   if (datatype == 2L & bitpix == 8L) { # NIFTI: 'unsigned char'
-    return(list("mri_dtype" = MRI_UCHAR, "r_dtype" = integer()))
+    return(list("mri_dtype" = MRI_UCHAR, "r_dtype" = integer(), "size" = 1L, "signed" = FALSE, "is_float" = FALSE))
   } else if (datatype == 4L & bitpix == 16L) { # NIFTI: 'signed short'
-    return(list("mri_dtype" = MRI_SHORT, "r_dtype" = integer()))
+    return(list("mri_dtype" = MRI_SHORT, "r_dtype" = integer(), "size" = 2L, "signed" = TRUE, "is_float" = FALSE))
   } else if (datatype == 8L & bitpix == 32L) { # NIFTI: 'signed int'
-    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer()))
+    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer(), "size" = 4L, "signed" = TRUE, "is_float" = FALSE))
   } else if (datatype == 512L & bitpix == 16L) { # NIFTI: 'unsigned short', we map this to MRI_INT
-    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer()))
+    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer(), "size" = 2L, "signed" = FALSE, "is_float" = FALSE))
   } else if (datatype == 768L & bitpix == 32L) { # NIFTI: 'unsigned int', we map this to MRI_INT and print a notice
-    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer()))
+    return(list("mri_dtype" = MRI_INT, "r_dtype" = integer(), "size" = 4L, "signed" = FALSE, "is_float" = FALSE))
   } else if (datatype == 16L & bitpix == 32L) { # NIFTI: 'float'
-    return(list("mri_dtype" = MRI_FLOAT, "r_dtype" = numeric()))
+    return(list("mri_dtype" = MRI_FLOAT, "r_dtype" = numeric(), "size" = 4L, "signed" = NA, "is_float" = TRUE))
   } else if (datatype == 64L & bitpix == 64L) { # NIFTI: 'double', but we treat this as MRI_FLOAT, there is no double support for MGH afaik.
-    return(list("mri_dtype" = MRI_FLOAT, "r_dtype" = numeric()))
+    return(list("mri_dtype" = MRI_FLOAT, "r_dtype" = numeric(), "size" = 8L, "signed" = NA, "is_float" = TRUE))
   } else {
     stop(sprintf("Nifti images with datatype=%d and bitpix=%d not supported yet.\n", datatype, bitpix))
   }

@@ -4,7 +4,14 @@
 \alias{ni1header.template}
 \title{Create a template NIFTI v1 header. You will have to adapt it for your use case.}
 \usage{
-ni1header.template()
+ni1header.template(pair = FALSE)
+}
+\arguments{
+\item{pair}{logical, whether the template describes a NIFTI v1 \emph{pair} file (a \code{.hdr} header file plus a separate
+\code{.img} data file, the variant that is also used by the ANALYZE 7.5 format and that FSL writes) instead of a
+single file (\code{.nii}, the header and the data in one file). The two variants differ in the \code{magic} field and in
+the \code{vox_offset} field, which is 352 for a single file (the data starts behind the header) and 0 for a pair (the
+data starts at the first byte of the \code{.img} file). Both variants are written by \code{\link{write.nifti1}}.}
 }
 \value{
 named list, the NIFTI v1 header. All fields are present and filled with values of a proper type. Whether or not they make sense is up to you, but you will most likely have to adapt at least the following fields to your data: \code{dim_raw}, \code{datatype}, \code{bitpix}.

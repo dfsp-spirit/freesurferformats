@@ -1,0 +1,42 @@
+header_format nifti1
+header_int sizeof_hdr 348
+header_int datatype 512
+header_int bitpix 16
+header_int qform_code 0
+header_int sform_code 2
+header_int xyzt_units 0
+header_int slice_code 0
+header_int glmax 0
+header_int glmin 0
+header_float scl_slope 1.0
+header_float scl_inter 0.0
+header_float quatern_b 0.0
+header_float quatern_c -0.7071067690849304
+header_float quatern_d 0.7071067690849304
+header_float qoffset_x 10.0
+header_float qoffset_y -20.0
+header_float qoffset_z 30.0
+header_float cal_min 0.0
+header_float cal_max 0.0
+header_float vox_offset 0.0
+header_intlist dim 3 4 3 2 1 1 1 1
+header_floatlist pix_dim -1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+header_floatlist srow_x -1.0 0.0 0.0 10.0
+header_floatlist srow_y 0.0 0.0 1.0 -20.0
+header_floatlist srow_z 0.0 -1.0 0.0 30.0
+header_str descrip 
+header_hex descrip 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+header_str aux_file 
+header_hex aux_file 000000000000000000000000000000000000000000000000
+header_str intent_name 
+header_hex intent_name 00000000000000000000000000000000
+header_str magic ni1
+header_hex magic 6e693100
+dump nibabel_class Nifti1Pair
+dump magic ni1.
+dump vox_offset 0.0
+dump sform_code 2
+dump qform_code 0
+dump num_values 24
+values 40000 65535 1 50000 32768 6 7 8 9 1000 60000 12 13 14 33000 16 17 200 65534 20 21 22 23 24
+dump nibabel_affine -1.0 0.0 0.0 10.0 0.0 0.0 1.0 -20.0 0.0 -1.0 0.0 30.0 0.0 0.0 0.0 1.0

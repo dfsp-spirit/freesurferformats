@@ -1,0 +1,46 @@
+header_format analyze
+header_int sizeof_hdr 348
+header_int datatype 2
+header_int bitpix 8
+header_int views 0
+header_int vols_added 0
+header_int smin 0
+header_int glmax 0
+header_int glmin 0
+header_int dim_un0 0
+header_int unused1 0
+header_int extents 0
+header_float vox_offset 0.0
+header_float funused1 0.0
+header_float funused2 0.0
+header_float funused3 0.0
+header_float cal_min 0.0
+header_float cal_max 0.0
+header_byte orient 1
+header_intlist dim 3 4 3 2 1 1 1 1
+header_floatlist pix_dim 1.0 1.0 2.0 3.0 1.0 1.0 1.0 1.0
+header_str descrip freesurferformats
+header_hex descrip 66726565737572666572666f726d617473000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+header_str originator 
+header_hex originator 00000000000000000000
+header_str data_type 
+header_hex data_type 00000000000000000000
+header_str db_name 
+header_hex db_name 000000000000000000000000000000000000
+header_str vox_units 
+header_hex vox_units 00000000
+header_str cal_units 
+header_hex cal_units 0000000000000000
+header_str aux_file 
+header_hex aux_file 000000000000000000000000000000000000000000000000
+header_str regular 
+header_hex regular 00
+header_str hkey_un0 
+header_hex hkey_un0 00
+dump nibabel_class Spm2AnalyzeImage
+dump nibabel_orient_byte 1
+dump spm_origin none
+dump num_values 24
+values 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+dump nibabel_affine -1.0 0.0 0.0 1.5 0.0 2.0 0.0 -2.0 0.0 0.0 3.0 -1.5 0.0 0.0 0.0 1.0
+dump nibabel_spm_affine -1.0 0.0 0.0 1.5 0.0 2.0 0.0 -2.0 0.0 0.0 3.0 -1.5 0.0 0.0 0.0 1.0

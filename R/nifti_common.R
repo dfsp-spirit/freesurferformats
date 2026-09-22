@@ -188,3 +188,124 @@ read.fixed.char.binary <- function(filehandle, n, to = "UTF-8") {
   txt <- readBin(filehandle, "raw", n)
   return(iconv(rawToChar(txt[txt != as.raw(0)]), to = to))
 }
+
+
+#' @title Compute the voxel-to-RAS matrix from the geometry fields of a NIFTI v1 header.
+#'
+#' @description The NIFTI v1 header can store up to two descriptions of the mapping from voxel indices to world
+#'   coordinates: the `sform` (a full affine matrix in the `srow_x`, `srow_y` and `srow_z` fields) and the `qform` (a
+#'   rotation, given as a quaternion, plus a translation, given in the `quoffset` fields). Each of them is only valid
+#'   if the corresponding code field is not zero, and the `sform` takes precedence over the `qform` if both are
+#'   present. This is the same rule that the NIFTI standard defines and that other implementations (`nibabel`,
+#'   `oro.nifti`) follow.
+#'
+#' @param niiheader named list, a NIFTI v1 header as returned by \code{\link{read.nifti1.header}}.
+#'
+#' @return a 4x4 numeric matrix (the voxel-to-RAS transformation), or `NULL` if the header contains neither an
+#'   `sform` nor a `qform`. The matrix implements the NIFTI convention that the rotation of the `qform` applies to
+#'   the *left* of the scaled voxel axes and that the third axis is flipped if the `qfac` field (`pix_dim[1]`) is
+#'   negative.
+#'
+#' @note This is a header based re-implementation of the geometry computation of \code{\link{read.fs.volume.nii}},
+#'   which reads an `oro.nifti` instance. The two are compared against each other in the unit tests, and against
+#'   `nibabel` in `dev_tools/check_analyze_conversion.R`.
+#'
+#' @keywords internal
+nifti.header.to.vox2ras <- function(niiheader) {
+  if (!is.null(niiheader$sform_code) && niiheader$sform_code != 0L) {
+    return(rbind(niiheader$srow_x, niiheader$srow_y, niiheader$srow_z, c(0., 0., 0., 1.)))
+  }
+
+  if (is.null(niiheader$qform_code) || niiheader$qform_code == 0L) {
+    return(NULL) # Neither an sform nor a qform, the orientation is unknown.
+  }
+
+  qb <- niiheader$quatern_b
+  qc <- niiheader$quatern_c
+  qd <- niiheader$quatern_d
+
+  qa <- 1.0 - (qb * qb + qc * qc + qd * qd)
+  if (qa < 1.0e-7) {
+    qa <- 1.0 / sqrt(qb * qb + qc * qc + qd * qd)
+    qb <- qa * qb
+    qc <- qa * qc
+    qd <- qa * qd
+    qa <- 0.0
+  } else {
+    qa <- sqrt(qa)
+  }
+
+  # The rotation matrix of the quaternion, see the 'quaternion' section of the NIFTI v1 specification.
+  rot_mat <- matrix(rep(0., 9L), nrow = 3L)
+  rot_mat[1, 1] <- 1.0 - 2.0 * (qc * qc + qd * qd)
+  rot_mat[1, 2] <- 2.0 * (qb * qc - qa * qd)
+  rot_mat[1, 3] <- 2.0 * (qb * qd + qa * qc)
+  rot_mat[2, 1] <- 2.0 * (qb * qc + qa * qd)
+  rot_mat[2, 2] <- 1.0 - 2.0 * (qb * qb + qd * qd)
+  rot_mat[2, 3] <- 2.0 * (qc * qd - qa * qb)
+  rot_mat[3, 1] <- 2.0 * (qb * qd - qa * qc)
+  rot_mat[3, 2] <- 2.0 * (qc * qd + qa * qb)
+  rot_mat[3, 3] <- 1.0 - 2.0 * (qb * qb + qc * qc)
+
+  qfac <- niiheader$pix_dim[1]
+  if (qfac == 0.) {
+    qfac <- 1.
+  }
+  if (!(qfac == -1. || qfac == 1.)) {
+    stop(sprintf("Invalid 'qfac' value %.4f in the NIFTI v1 header, expected 0, 1 or -1.\n", qfac))
+  }
+
+  vox2ras <- diag(4L)
+  vox2ras[1:3, 1:3] <- rot_mat %*% diag(c(niiheader$pix_dim[2], niiheader$pix_dim[3], niiheader$pix_dim[4] * qfac))
+  vox2ras[1:3, 4L] <- c(niiheader$qoffset_x, niiheader$qoffset_y, niiheader$qoffset_z)
+
+  return(vox2ras)
+}
+
+
+#' @title Read raw voxel values of a NIFTI v1/v2 or ANALYZE file from a connection.
+#'
+#' @description Read `num_values` voxel values of the data type described by the `datatype` and `bitpix` fields of
+#'   a header, in the endianness of the file. This is the shared low level reading code of the NIFTI and ANALYZE
+#'   readers.
+#'
+#' @param fh connection to read from, positioned at the first value.
+#'
+#' @param datatype integer, the `datatype` header field.
+#'
+#' @param bitpix integer, the `bitpix` header field.
+#'
+#' @param num_values integer, the number of values to read.
+#'
+#' @param endian character string, the endianness of the file, 'little' or 'big'.
+#'
+#' @return numeric or integer vector of length `num_values`, the raw values as they are stored in the file.
+#'
+#' @note The signedness of the data type is taken from \code{\link{nifti.dtype.info}}: an unsigned 8 bit value of
+#'   200 is returned as 200, not as -56. R's `readBin` reads integers as signed by default, and it silently ignores
+#'   a `signed` argument for 4 byte integers, so the three unsigned types need special care.
+#'
+#' @keywords internal
+read.nifti.values <- function(fh, datatype, bitpix, num_values, endian) {
+  type_info <- nifti.dtype.info(datatype, bitpix)
+
+  if (type_info$is_float) {
+    return(read_safe_bin(fh, numeric(), n = num_values, size = type_info$size, endian = endian))
+  }
+
+  if (type_info$size == 4L) {
+    values <- read_safe_bin(fh, integer(), n = num_values, size = 4L, endian = endian)
+    if (!type_info$signed) {
+      # R has no unsigned 32 bit integer type, so values above 2^31-1 are returned as negative integers by readBin
+      # and have to be converted back by hand. They are returned as doubles, since integers cannot represent them.
+      values <- as.double(values)
+      negative <- values < 0.
+      if (any(negative)) {
+        values[negative] <- values[negative] + 2^32
+      }
+    }
+    return(values)
+  }
+
+  return(read_safe_bin(fh, integer(), n = num_values, size = type_info$size, endian = endian, signed = type_info$signed))
+}

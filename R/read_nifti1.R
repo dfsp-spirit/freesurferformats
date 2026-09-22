@@ -197,7 +197,31 @@ read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
     header <- read.nifti1.header(filepath)
   }
 
-  fh <- fileopen.gz.or.not(filepath)
+  endian <- header$endian
+
+  # A NIFTI v1 file can be stored in a single file (magic 'n+1', data behind the header in the same file) or as a
+  # pair of a header and a data file (magic 'ni1', data in the '.img' file). The pair variant is what FSL writes,
+  # and it is the variant that the 348 byte header has in common with the ANALYZE 7.5 format.
+  data_filepath <- filepath
+  num_skip <- header$vox_offset
+  if (!is.null(header$magic) && identical(header$magic, "ni1")) {
+    pair <- analyze.pair.files(filepath)
+    if (!pair$image_exists) {
+      stop(sprintf("The data file '%s' of the NIFTI v1 pair '%s' does not exist.\n", pair$image, pair$header))
+    }
+    if (num_skip != 0) {
+      warning(sprintf("The header of NIFTI v1 pair '%s' has a non-zero 'vox_offset' field (%.1f). For pair files the data starts at the first byte of the '.img' file, so the field is ignored.\n", filepath, num_skip))
+    }
+    data_filepath <- pair$image
+    num_skip <- 0.
+  } else if (filepath.ends.with(filepath, c(".hdr", ".hdr.gz"))) {
+    # A header file that does not carry the 'ni1' magic is either an ANALYZE 7.5 file or broken. Reading it as a
+    # single file NIFTI image would return the bytes of the header itself as voxel data, which is not an error the
+    # caller could notice.
+    stop(sprintf("File '%s' is a two-file image header and does not contain the NIFTI v1 magic string 'ni1' (found '%s'). If it is an ANALYZE 7.5 file, use read.analyze.data() or read.fs.volume.analyze() to read it.\n", filepath, ifelse(is.null(header$magic), "", header$magic)))
+  }
+
+  fh <- fileopen.gz.or.not(data_filepath)
   on.exit(
     {
       close(fh)
@@ -205,10 +229,7 @@ read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
     add = TRUE
   )
 
-  endian <- header$endian
-
   # move to data part
-  num_skip <- header$vox_offset
   discarded <- readBin(fh, integer(), n = num_skip, size = 1L, endian = endian)
   discarded <- NULL
 
@@ -216,12 +237,11 @@ read.nifti1.data <- function(filepath, drop_empty_dims = TRUE, header = NULL) {
   num_values <- prod(data_dim)
 
   read_size_bytes <- header$bitpix / 8L # bitpix is the size in bits, but we need bytes.
-  dti <- nifti.dtype.info(header$datatype, header$bitpix)
 
   # Security: validate allocation size before reading data
   validate_allocation_size(data_dim, read_size_bytes)
 
-  data <- read_safe_bin(fh, dti$r_dtype, n = num_values, size = read_size_bytes, endian = endian)
+  data <- read.nifti.values(fh, header$datatype, header$bitpix, num_values, endian)
   data <- array(data, dim = data_dim)
   if (drop_empty_dims) {
     return(drop(data))

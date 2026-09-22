@@ -15,7 +15,7 @@ Own readers + writers (no FreeSurfer installation required):
 
 | Domain | Formats |
 | --- | --- |
-| Volumes | MGH/MGZ (incl. header, `vox2ras`, RAS<->vox), NIfTI-1 (`.nii`, `.nii.gz`, FS fsnifti hack), NIfTI-2, NRRD (`.nrrd`/`.nhdr`, read-only: all types + encodings, detached/LIST, DWI metadata, ITK-verified geometry) |
+| Volumes | MGH/MGZ (incl. header, `vox2ras`, RAS<->vox), NIfTI-1 (`.nii`, `.nii.gz`, FS fsnifti hack), NIfTI-2, ANALYZE 7.5 + NIfTI-1 pairs (`.hdr`/`.img`, R/W), NRRD (`.nrrd`/`.nhdr`, read-only: all types + encodings, detached/LIST, DWI metadata, ITK-verified geometry) |
 | FS morphometry | `curv` (binary + ASCII), `weight`/`w`/paint, `patch` (binary + ASCII), morph in `mgh`/`mgz`/`gii`/`nii`/`ni1`/`ni2`/`txt`/`asc`/`smp` |
 | FS labels/atlases | `annot`, label (surface + volume), colortable LUT, LUT+CSV atlas |
 | Surfaces | FS binary surface, `.asc`, GIFTI, MZ3, OBJ, OFF, PLY, PLY2, VTK (ASCII + binary, both VTK cell array layouts), SRF, STL (ASCII + binary, R/W); read-only: BYU, GEO, TRI/ICO |
@@ -132,11 +132,42 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
   on disk (see comments in `R/trackvis_affine.R` and `R/fs_tracts.R`).
 - Effort: L.
 
-### II.2 [ ] ANALYZE 7.5 `.hdr`/`.img`, read + write
+### II.2 [x] ANALYZE 7.5 `.hdr`/`.img`, read + write
 - Same 348-byte header as NIfTI-1 with a different magic -> almost free, a variant
   of the existing NIfTI-1 reader. Also gives FSL `.img`/`.hdr` pairs.
 - Best value per line of code on this list.
-- Effort: S.
+- Done (2026-09): read + write in `R/read_analyze.R` / `R/write_analyze.R`
+  (`read.analyze.header()`, `read.analyze.data()`, `read.fs.volume.analyze()`,
+  `write.analyze()`, `analyzeheader.template()`, `analyzeheader.for.data()`,
+  `is.analyze.file()`), plus NIFTI-1 *pair* support in the NIFTI layer
+  (`read.nifti1.data()` reads pairs, `write.nifti1()` writes them when the magic is
+  `ni1`, `ni1header.template(pair=)`), dispatch in `read.fs.volume()` /
+  `write.fs.volume()`, and gzipped pairs. Cross-validated against nibabel and
+  FreeSurfer: `dev_tools/check_analyze_conversion.R` (22 checks, 0 failures),
+  fixtures from `dev_tools/generate_analyze_test_data.py`. Two real bugs in the
+  NIFTI layer were found on the way, see the progress log below.
+- Effort: S-M (the format is small, the geometry conventions are the work).
+- Done as well: the SPM/FreeSurfer `.mat` sidecar (item II.2b below), because it is the only *reliable* geometry
+  an ANALYZE file can have.
+
+### II.2b [x] Read the SPM/FS `.mat` sidecar of ANALYZE images (read-only)
+- SPM and FreeSurfer write `<base>.mat` next to `<base>.img`: a MATLAB v4 file with
+  a 4x4 double matrix `M`, the only *reliable* geometry of an ANALYZE file (nibabel
+  reads it, `Spm99AnalyzeImage.from_file_map`).
+- MATLAB v4 is uncompressed: 20 byte header + name + raw doubles, ~25 lines of R,
+  no dependency. Detect it by the 'M'/'mat' name and validate the size.
+- Would make `spm = TRUE` unnecessary for FS/SPM files, and would allow a faithful
+  round trip of such files.
+- Done (2026-09): `read.matlab.v4.matrix()` (internal, ~60 lines, all numeric
+  types, several variables, both byte orders) plus `analyze.mat.sidecar.to.vox2ras()`,
+  wired into `read.fs.volume.analyze()`: a sidecar that is present is used by
+  default (`vox2ras_source = 'mat sidecar'`), and one that cannot be used is
+  reported with a warning while the data is still read. Verified against nibabel
+  for a nibabel-written Spm99 fixture and for FreeSurfer's own output, see
+  `dev_tools/check_analyze_conversion.R` (24 checks, 0 failures).
+- Effort: S (as estimated). Not done: writing a sidecar (the writers do not
+  produce one; a NIFTI pair can store the geometry properly, which is better).
+  Read-only, as planned.
 
 ### II.3 [ ] GIFTI multi-array / time-series write (`.func.gii`, `.dtseries.gii`)
 - Reading is good, but the writer is morph-oriented. Surface fMRI in the
@@ -356,3 +387,106 @@ Findings from this increment, worth not rediscovering:
   `sprintf("%.15g", x)`.
 - **`nibabel/streamlines/` has no TRX** as of 5.4.2-131-g699b9923, so item II.1
   is greenfield in both ecosystems.
+
+### Increment 4: ANALYZE 7.5 + NIFTI v1 pairs (2026-09-22) -- DONE
+
+- New files: `R/read_analyze.R`, `R/write_analyze.R`,
+  `tests/testthat/test-read_analyze.R`, `tests/testthat/test-write_analyze.R`,
+  `dev_tools/generate_analyze_test_data.py`, `dev_tools/nibabel_analyze_dump.py`,
+  `dev_tools/check_analyze_conversion.R`, fixtures in `inst/extdata/analyze` (16
+  files) and `extra_test_data/analyze` (fixtures + 11 reference dumps + the file
+  FreeSurfer wrote).
+- 7 new exports, 17 new man pages (internal helpers included, as this repo
+  requires). Modified: `read_nifti1.R`, `read_nifti2.R`, `write_nifti1.R`,
+  `nifti_common.R`, `nifti_to_mgh.R`, `read_fs_volume.R`, `write_fs_volume.R`.
+- Checks: `dev_tools/check_analyze_conversion.R` (22 checks, 0 failures) against
+  nibabel *and* FreeSurfer; 93 + 73 new tests.
+
+Findings from this increment, worth not rediscovering:
+
+- **`.hdr`/`.img` is two formats, not one.** The 348 byte header is shared, the
+  field semantics are not: the last 4 bytes are `smin` in ANALYZE and the magic in
+  NIFTI (`ni1` = pair, `n+1` = single file), and everything from offset 56 to 147
+  (`vox_units`, `cal_units`, `dim_un0`, `funused1-3`, `compressed`, `verified`),
+  from 252 (`orient`, `originator`, `generated`, ...) and from 328 (`intent_name`
+  vs. `start_field` and friends) is different. Reading an ANALYZE file with the
+  NIFTI reader returns zeroes for the NIFTI fields for files written by nibabel,
+  but arbitrary data for files written by ANALYZE, SPM, AFNI or scanners.
+- **ANALYZE cannot store the orientation, and no reader can recover it.** The
+  format has no affine field and `pix_dim` gives only the voxel sizes, so the
+  left/right orientation is undefined (the famous defect that NIFTI was created to
+  fix). nibabel returns a *convention*: `diag(-zooms[0], zooms[1], zooms[2])` with
+  the translation from the SPM origin (`originator` field, 0-based after `-1`) or
+  from the image centre if there is none. Mirroring a brain silently is worse than
+  returning no matrix, so the default here is *no* matrix, `spm = TRUE` opts in,
+  and the check script verifies the opt-in against nibabel for every fixture.
+- **SPM re-uses ANALYZE fields**: `funused1` is the data scale factor,
+  `originator` holds 3 little endian int16 with the origin, and `<base>.mat` (a
+  MATLAB v4 file) holds the true affine. nibabel's `nib.load` picks
+  `Spm2AnalyzeImage` for ANALYZE files, so the SPM fields are the *default*
+  behaviour in the Python ecosystem. See item II.2b for the `.mat` sidecar.
+- **`orient` is a mess.** It is a 1 byte code in the spec (0=transverse
+  unflipped ... 5=sagittal flipped), FreeSurfer sets it (writing 4 for a file it
+  itself reports as 'coronal flipped'), nibabel ignores it for the affine, and
+  implementations disagree about the axis mapping. Report as-is, never use it to
+  guess an orientation.
+- **FreeSurfer cannot auto-detect its own ANALYZE output.** `mri_convert -ot mgz
+  x.hdr out.mgz` fails with 'cannot determine file type'; `-it analyze` is
+  required, and the *data* file (`.img`) has to be passed. Documented in
+  `write.analyze()`.
+- **Two real bugs in the NIFTI layer, found by this work (both fixed here):**
+  `read.nifti1.data()` read *unsigned* 8/16 bit data as signed (R's `readBin`
+  default), silently returning -56 for a `uint8` value of 200 -- which includes
+  every mask/label volume, e.g. the NIFTI file `mri_convert` writes for
+  `mri/brain.mgz`; and `read.nifti1.data()` on a `.hdr` pair returned the *header
+  file bytes* as voxel data. Both are the kind of silent wrong-data bug this
+  package exists to avoid, and neither was caught by the existing tests because
+  their fixtures have no values above the signed maximum.
+- **`readBin(size = 4, signed = FALSE)` is not an option** (it warns and ignores
+  the argument), so 32 bit unsigned data needs the same two's complement fixup as
+  in the NRRD reader. Both now share `read.nifti.values()`.
+- **nibabel repairs a wrong `bitpix` field in memory** when loading, so a dump
+  written by nibabel does not describe the file. The generator records the file
+  value separately (`dump file_bitpix`) and the reader warns while trusting
+  `datatype`, which is what nibabel does as well.
+- **The ANALYZE `originator`/`generated`/`patient_id` fields contain arbitrary
+  bytes.** Decoding them as UTF-8 (which `read.fixed.char.binary()` does) can fail
+  or return NA; decoding as ISO-8859-1 cannot. New internal helper
+  `analyze.read.char.field()`, and the writer converts back to latin-1 so the
+  bytes round trip.
+- **`matrix()` vs. a dump of a matrix.** Reference dumps store matrices in
+  row-major order (nibabel/numpy/spec order), R matrices are column-major, so
+  every comparison needs a `t()`. This produced three bogus "geometry differs by
+  30" failures in the check script before it was noticed.
+- **Test data has to be verified at generation time.** Two fixtures were silently
+  wrong until the generator got self-checks: a `uint16` fixture that overflowed
+  (32767 + 40000 wrapped to 7231, hiding the very bug it was meant to catch) and a
+  fixture whose `pixdim` stayed at 1,1,1 because nibabel derives it from the affine
+  passed to `AnalyzeImage`, not from `set_zooms()`.
+
+Findings from the `.mat` sidecar work (II.2b), worth not rediscovering:
+
+- **The sidecar is the only reliable geometry of an ANALYZE file.** NIFTI was
+  created partly because of this. Both nibabel (`Spm99AnalyzeImage`) and SPM read
+  it, and it is *not* a convention, so unlike the SPM origin heuristic it can be
+  used by default. FreeSurfer writes one next to every `-ot analyze` output (see
+  `fs_tiny.mat` in `extra_test_data/analyze`).
+- **The matrix in the file is in MATLAB's 1-based voxel space.** nibabel's
+  `to_111` step (identity with `[:3,3] = 1`) adds the *row sums* of the rotation
+  part to the translation. Skipping this is a one-voxel shift, i.e. up to several
+  millimeters, and nothing in the file or the affine would look obviously wrong.
+- **`M` and `mat` are different variables.** `mat` includes the flip of the first
+  axis, `M` does not (nibabel: "the 'M' matrix does not include flips", and it
+  applies `diag(-1,1,1,1)` for `M` because ANALYZE's `default_x_flip` is True).
+  FreeSurfer writes **only `M`**, nibabel writes both. Treating them the same
+  gives a mirrored image for every FreeSurfer file.
+- **MATLAB v4 files are parseable in ~60 lines**: type/mrows/ncols/imagf/namelen
+  (5 x int32), then the NUL-terminated name, then column-major values (the same
+  order R uses). The byte order is not stored, so validate by requiring that the
+  declared variables describe exactly the file size, and try both. v5+ files
+  (compressed, "MATLAB 5.0 MAT-file" header) cannot be read this way; report them
+  and ignore the sidecar instead of failing the whole read.
+- **Round trip confirmed**: nibabel's `Spm99AnalyzeImage` writes `mat` as the
+  affine in 1-based voxel space, and reading it back with our code reproduces the
+  affine that was passed to nibabel exactly (verified for every fixture in the
+  check script).

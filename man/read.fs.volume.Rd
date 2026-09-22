@@ -15,7 +15,7 @@ read.fs.volume(
 \arguments{
 \item{filepath}{string. Full path to the input MGZ, MGH or NIFTI file.}
 
-\item{format}{character string, one one of 'auto', 'nii', 'mgh', 'mgz' or 'nrrd'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.}
+\item{format}{character string, one one of 'auto', 'nii', 'mgh', 'mgz', 'nrrd' or 'analyze'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension. The value 'analyze' covers the two-file image formats ANALYZE 7.5 and NIFTI v1 pair files, which share the \code{.hdr}/\code{.img} file extensions, see \code{\link{read.fs.volume.analyze}}.}
 
 \item{flatten}{logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.}
 

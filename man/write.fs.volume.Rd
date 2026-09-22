@@ -7,7 +7,7 @@
 write.fs.volume(filepath, fs_vol)
 }
 \arguments{
-\item{filepath}{string. Full path to the output file. The file extension determines the format: '.mgh' or '.mgz' for FreeSurfer MGH/MGZ format, '.nii' or '.nii.gz' for NIFTI v1 format.}
+\item{filepath}{string. Full path to the output file. The file extension determines the format: '.mgh' or '.mgz' for FreeSurfer MGH/MGZ format, '.nii' or '.nii.gz' for NIFTI v1 format, and '.hdr', '.img', '.hdr.gz' or '.img.gz' for a NIFTI v1 pair, i.e. a header file with a separate data file. A pair is written instead of a plain ANALYZE 7.5 file because ANALYZE cannot store the geometry of the volume, see \code{\link{write.analyze}} if you need real ANALYZE output.}
 
 \item{fs_vol}{an \code{fs.volume} instance, as returned by \code{\link{read.fs.volume}} with parameter \code{with_header=TRUE}.}
 }
@@ -26,6 +26,7 @@ mgh_file <- system.file("extdata", "brain.mgz",
 fs_vol <- read.fs.volume(mgh_file, with_header = TRUE)
 write.fs.volume(tempfile(fileext = ".mgz"), fs_vol)
 write.fs.volume(tempfile(fileext = ".nii.gz"), fs_vol)
+write.fs.volume(tempfile(fileext = ".hdr"), fs_vol)
 }
 
 }
