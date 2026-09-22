@@ -15,7 +15,7 @@ read.fs.volume(
 \arguments{
 \item{filepath}{string. Full path to the input MGZ, MGH or NIFTI file.}
 
-\item{format}{character string, one one of 'auto', 'nii', 'mgh' or 'mgz'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.}
+\item{format}{character string, one one of 'auto', 'nii', 'mgh', 'mgz' or 'nrrd'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.}
 
 \item{flatten}{logical. Whether to flatten the return volume to a 1D vector. Useful if you know that this file contains 1D morphometry data.}
 

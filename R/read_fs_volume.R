@@ -4,7 +4,7 @@
 #'
 #' @param filepath string. Full path to the input MGZ, MGH or NIFTI file.
 #'
-#' @param format character string, one one of 'auto', 'nii', 'mgh' or 'mgz'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.
+#' @param format character string, one one of 'auto', 'nii', 'mgh', 'mgz' or 'nrrd'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.
 #'
 #' @inheritParams read.fs.mgh
 #'
@@ -33,8 +33,8 @@
 #' @export
 read.fs.volume <- function(filepath, format = "auto", flatten = FALSE, with_header = FALSE, drop_empty_dims = FALSE) {
   format <- tolower(format)
-  if (!(format %in% c("auto", "nii", "mgh", "mgz"))) {
-    stop("Format must be one of c('auto', 'nii', 'mgh', 'mgz').")
+  if (!(format %in% c("auto", "nii", "mgh", "mgz", "nrrd"))) {
+    stop("Format must be one of c('auto', 'nii', 'mgh', 'mgz', 'nrrd').")
   }
 
   if (!file.exists(filepath)) {
@@ -47,5 +47,9 @@ read.fs.volume <- function(filepath, format = "auto", flatten = FALSE, with_head
 
   if (format == "mgh" | format == "mgz" | (format == "auto" & filepath.ends.with(filepath, c(".mgh", ".mgz")))) {
     return(read.fs.mgh(filepath, flatten = flatten, with_header = with_header, drop_empty_dims = drop_empty_dims))
+  }
+
+  if (format == "nrrd" | (format == "auto" & filepath.ends.with(filepath, c(".nrrd", ".nhdr", ".nrrd.gz")))) {
+    return(read.fs.volume.nrrd(filepath, flatten = flatten, with_header = with_header, drop_empty_dims = drop_empty_dims))
   }
 }

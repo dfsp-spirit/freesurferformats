@@ -1,0 +1,16 @@
+nrrd_test_data_dump
+file vol_f32_oblique.nrrd
+dimension 3
+sizes 4 3 2
+type float
+encoding raw
+endian little
+space right-anterior-superior
+space_directions 0 1 0 -1 0 0 0 0 1
+space_origin 10 -20 30
+spacings none
+num_values 24
+values 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.5 3.75 4 4.25 4.5 4.75 5 5.25 5.5 5.75 6
+itk_origin -10 20 30
+itk_spacing 1 1 1
+itk_direction -0 1 0 -1 -0 0 0 0 1

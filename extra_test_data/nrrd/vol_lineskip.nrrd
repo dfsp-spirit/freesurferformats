@@ -1,0 +1,11 @@
+NRRD0004
+type: uint8
+dimension: 3
+sizes: 4 3 2
+encoding: raw
+line skip: 2
+
+this is a line of junk
+and this is another one
+	
+

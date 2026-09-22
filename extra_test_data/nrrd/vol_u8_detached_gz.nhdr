@@ -1,0 +1,10 @@
+NRRD0004
+type: uint8
+dimension: 3
+sizes: 4 3 2
+encoding: gzip
+space: right-anterior-superior
+space directions: (1,0,0) (0,1,0) (0,0,1)
+space origin: (0,0,0)
+data file: vol_u8_detached_gz.raw.gz
+

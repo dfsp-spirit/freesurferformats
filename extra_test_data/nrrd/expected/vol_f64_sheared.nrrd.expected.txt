@@ -1,0 +1,16 @@
+nrrd_test_data_dump
+file vol_f64_sheared.nrrd
+dimension 3
+sizes 4 3 2
+type double
+encoding raw
+endian little
+space right-anterior-superior
+space_directions 1.5 0 0 0 2 0 0.5 0 3
+space_origin -1 2 -3
+spacings none
+num_values 24
+values 1.5 3 4.5 6 7.5 9 10.5 12 13.5 15 16.5 18 19.5 21 22.5 24 25.5 27 28.5 30 31.5 33 34.5 36
+itk_origin 1 -2 -3
+itk_spacing 1.5 2 3.04138126514911
+itk_direction -1 0 -0.1643989873053573 0 -1 0 0 0 0.9863939238321437

@@ -1,0 +1,9 @@
+NRRD0004
+type: uint8
+dimension: 3
+sizes: 4 3 2
+encoding: raw
+data file: LIST
+vol_datafile_list_0.raw
+vol_datafile_list_1.raw
+

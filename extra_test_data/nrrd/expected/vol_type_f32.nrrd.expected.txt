@@ -1,0 +1,14 @@
+nrrd_test_data_dump
+file vol_type_f32.nrrd
+dimension 3
+sizes 4 3 2
+type float
+encoding raw
+endian little
+space none
+space_directions 1 0 0 0 1 0 0 0 1
+space_origin 0 0 0
+spacings none
+num_values 24
+values 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+itk_error Exception thrown in SimpleITK ImageFileReader_Execute: /tmp/SimpleITK-build/ITK/Modules/IO/NRRD/src/itkNrrdImageIO.cxx:410: itk::ERROR: NrrdImageIO(0x13631df0): ReadImageInformation: Error reading /tmp/nrrdtest/vol_type_f32.nrrd: [nrrd] nrrdLoad: trouble reading "/tmp/nrrdtest/vol_type_f32.nrrd" [nrrd] nrrdRead: trouble [nrrd] _nrrdRead: trouble reading NRRD file [nrrd] _nrrdFormatNRRD_read: trouble parsing space directions info |(1,0,0) (0,1,0) (0,0,1)| [nrrd] _nrrdReadNrrdParse_space_directions: don't yet have a valid space dimension 
