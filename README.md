@@ -32,17 +32,17 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * FreeSurfer surface file format: Contains a brain surface mesh in a binary format. Such a mesh is defined by a list of vertices (each vertex is given by its x,y,z coords) and a list of faces (each face is given by three vertex indices). An example file would be `surf/lh.white`. This format can be read and written. Reading and writing the ASCII version of the FreeSurfer surface format (`.asc` files) is also supported.
 
-* Other mesh file formats: Read and write support is available for meshes in VTK ASCII format (`.vtk` files), Surf-Ice format (`.mz3`),  Wavefront object format (`.obj`), Object File Format (`.off`), Brainvoyager SRF format (`.srf`), and Stanford triangle format (`.ply`). Additionally, meshes can be exported in PLY2 format (`.ply2`). Meshes can be imported from files in BYU format (`.byu`), GEO format (`.geo`) and TRI format (also known as ICO mesh format, `.tri`).
+* Other mesh file formats: Read and write support is available for meshes in VTK legacy format (`.vtk` files, in the ASCII and the binary encoding, and in both cell array layouts that VTK versions write), Surf-Ice format (`.mz3`),  Wavefront object format (`.obj`), Object File Format (`.off`), Brainvoyager SRF format (`.srf`), Stanford triangle format (`.ply`), and STL format (`.stl`, both the binary and the ASCII variant, which some tools write with the extensions `.stlb` and `.stla`). Additionally, meshes can be exported in PLY2 format (`.ply2`). Meshes can be imported from files in BYU format (`.byu`), GEO format (`.geo`) and TRI format (also known as ICO mesh format, `.tri`). The STL format is the format of 3D printing and of most mesh processing software, so a surface that was read by this package can be handed to those tools, and meshes written by them can be read back, even though the format stores the mesh as a polygon soup without a vertex list.
 
 * FreeSurfer label file format: Contains a list of vertices included in a label. A label is like a mask, and is typically used to describe the vertices which are part of a certain brain region. An example file would be `label/lh.cortex.label`. Volume labels are also supported. This format can be read and written.
 
-* FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and RGBA color values to a set of structures (typically brain regions). LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written.
+* FreeSurfer color lookup table (LUT) file format: Contains a color lookup table in ASCII format. This LUT assigns names and RGBA color values to a set of structures (typically brain regions). LUT data can also be extracted from an annotation, and a set of labels and a LUT can be merged into an annotation. An example file would be `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and written. A brain atlas that is distributed as such a LUT plus a per-vertex label file in CSV format (one atlas region index per surface vertex) can be read with `atlas.from.lut.and.csv()` and written back with `write.atlas.to.lut.and.csv()`. This is how several cortical atlases are distributed by third-party tools (Desikan-Killiany, Brainnetome, Schaefer, ...).
 
 * FreeSurfer *weight* file format: Contains one value per listed vertex. In contrast to curv files, weight files contain values not for all vertices of a surface, but only for a subset of vertices defined by their indices. The format is known as *weight* format, *paint* format, or simply *w* format. This format can be read and written.
 
 * FreeSurfer *patch* file format: Contains a subset of a surface (a *surface patch*), given by the vertex indices (and the faces in the ASCII version). For each patch vertex, it also stores whether the vertex is part of the patch border. This format can be read and written.
 
-* FreeSurfer spatial transformation matrices can be read from LTA, register.dat, and xfm files.
+* Spatial transformation matrices: the FreeSurfer formats LTA, register.dat (tkregister) and xfm, the FSL matrix format written by FLIRT (`-omat`), and the ITK text transform format that 3D Slicer, ANTs, SimpleITK and the derivatives of fMRIPrep/QSIPrep work with can be read *and written*. Transformations are returned as instances of the `fs.transform` class, which state what the matrix means: which coordinates it maps between (voxel indices, RAS or LPS world coordinates) and which volumes it relates, so a matrix that operates on voxel indices cannot be mistaken for one that operates on world coordinates. `transform2world()`, `transform2voxel()`, `transform2ras()` and `transform2lps()` convert a transformation between these spaces (a volume or its header is passed where geometry is needed), `invert.fs.transform()` computes the reverse mapping, and `summary()` reports the properties in machine-readable form. A transformation that a file format cannot represent is not written, instead of being written in a form that silently means something else.
 
 * FreeSurfer Group Descriptor (FSGD) files: please see the [fsbrain package](https://github.com/dfsp-spirit/fsbrain) for FSGD read and write file support. This is very handy if you conducted GLM-based statistical analyses in FreeSurfer and want to visualize the results in R.
 
@@ -50,7 +50,9 @@ You do **not** need to have FreeSurfer installed to use this package. It impleme
 
 * NIFTI v2: This package comes with its own NIFTI v2 reader and writer. The 2nd format version supports larger data dimensions and drops backwards compatibility with older NIFTI-style file formats like ANALYZE.
 
-* Fiber track formats (DTI, diffusion tensor imaging): the '.trk' format used by [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/) and the '.tck' and '.tsf' formats used by [MRtrix3](https://www.mrtrix.org/) can be read, and '.trk' and '.tck' files can also be written. Very large tractograms can be processed without loading them into memory: there are functions to count the tracks, to compute their bounding box, and to iterate over them one at a time.
+* Fiber track formats (DTI, diffusion tensor imaging): the '.trk' format used by [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/) and the '.tck' and '.tsf' formats used by [MRtrix3](https://www.mrtrix.org/) can all be read and written, both uncompressed and gzip-compressed (`.tck.gz`, `.trk.gz`, `.tsf.gz`). The compression is detected from the file content rather than from the file name, so a renamed file is read correctly, and a compressed file can be produced directly by the writers (TrackVis and MRtrix do not read compressed track files themselves, so the compression is meant for archiving and for passing files between the programs of this project). A TSF file stores one value per point along a track (e.g. the fractional anisotropy, the distance along the track, or values sampled from an image at the point coordinates) and is always used together with the tractogram it describes, since it stores no track boundaries. Streamlines that other software exported as a VTK polydata file with a `LINES` section (as Paraview, TrackVis and DSI Studio do) can be read with `read.fs.tracts.vtk()`.
+
+* Large tractograms: a whole-brain tractogram is a multi-GB file with millions of streamlines, so the track readers are built for streaming. They can be asked for a subset via `max_tracks`, can skip over tracks (`skip_tracks`) and can filter by a bounding box while reading (tracks that are filtered out are never held in memory), so a region of interest can be extracted from a huge file. There are also functions to count the tracks (`dti.track.count()`), to compute their bounding box (`dti.track.bbox()`) and to iterate over them one at a time with a constant memory footprint (`dti.track.iterator()`), and the file headers can be read on their own without touching the track data. Track coordinates are returned in an `fs.tracts` container, which keeps the coordinates of all tracks in a single matrix plus the number of points per track, so that a tractogram needs far less memory than a list with one matrix per track; `tracks[[i]]`, `length()` and `lapply()` work as for a list, and `as.list()` converts to the legacy list of matrices.
 
 * Diffusion MRI gradient tables (b-vectors and b-values): the FSL format, i.e. a '.bvec' and '.bval' file pair, and the MRtrix gradient table format can be read and written. Both the layout written by the FSL tools (three lines of vector components, all b-values in one line) and the layout used by other tools (one volume per line, as distributed by the Human Connectome Project) are detected automatically. Reading b-vectors and b-values together verifies that they match, and reports questionable entries -- missing values, gradient vectors that are not unit vectors, or a b-value without a direction -- instead of silently changing them. Note that the gradient vectors in these files refer to the *image* axes, so they are only meaningful together with the image they belong to.
 
@@ -60,7 +62,7 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 
 * GIFTI: General reading is supported based on the [gifti](https://CRAN.R-project.org/package=gifti) and [xml2](https://CRAN.R-project.org/package=xml2) packages. GIFTI is a very versatile format that can hold different kinds of data, and *freesurferformats* provides custom readers for morphometry data, surface meshes, labels and annotations. The *freesurferformats* also comes with GIFTI write support, including a general data array writer as well as custom writers for the previously listed kinds of neuroimaging data.
 
-* CIFTI: Reading of morphometry data from CIFTI v2 files (`.dscalar.nii`) is supported based on the [cifti package by John Muschelli](https://CRAN.R-project.org/package=cifti). The wrapper functions in freesurferformats support extraction of the data for a specific brain model (surface mesh), and map the data to the appropriate vertex indices of the surface based on the CIFTI metadata.
+* CIFTI: Reading of morphometry data (`.dscalar.nii`), cortical parcellations (`.dlabel.nii`) and surface time series (`.dtseries.nii`) from CIFTI v2 files is supported based on the [cifti package by John Muschelli](https://CRAN.R-project.org/package=cifti). The wrapper functions in freesurferformats support extraction of the data for a specific brain model (surface mesh), and map the data to the appropriate vertex indices of the surface based on the CIFTI metadata.
 
 
 ## News
@@ -131,7 +133,10 @@ read.fs.patch()       # read a surface patch, which is a part of a surface.
 read.fs.transform()   # read spatial transformation matrix
 read.dti.tck()        # read DTI tracks from MRtrix3 'TCK' format
 read.dti.trk()        # read DTI tracks from Diffusion Toolkit/TrakVis 'TRK' format
+read.dti.tsf()        # read DTI per-point track scalar data from MRtrix3 'TSF' format
 read.dti.gradients()  # read and validate a diffusion gradient table (FSL '.bvec'/'.bval' pair or MRtrix format)
+read.fs.tracts.vtk()  # read streamlines from a VTK polydata file, as written by Paraview, TrackVis or DSI Studio
+read.fs.parcellation.cifti() # read a cortical parcellation from a CIFTI dlabel file
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
@@ -142,6 +147,12 @@ write.fs.annot()      # write an annotation file
 write.fs.colortable() # write a color lookup table (LUT)
 write.fs.weight()     # write scalar vertex data in weight or w format
 write.fs.patch()      # write a surface patch, which is a part of a surface.
+write.fs.transform()  # write a spatial transformation matrix (LTA, register.dat, xfm, FSL or ITK format)
+write.dti.tck()       # write DTI tracks to MRtrix3 'TCK' format
+write.dti.trk()       # write DTI tracks to Diffusion Toolkit/TrackVis 'TRK' format
+write.dti.tsf()       # write DTI per-point track scalar data to MRtrix3 'TSF' format
+write.dti.bvec()      # write b-vectors in the FSL '.bvec' format (see also write.dti.bval(), write.dti.grad())
+write.atlas.to.lut.and.csv() # write a brain atlas to a colortable (LUT) and a per-vertex label file
 ```
 
 The documentation is included in the package and not repeated on this website.
