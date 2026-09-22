@@ -173,6 +173,9 @@ structures:
 
 ## News
 
+- 2026-09-08: New freesurferformats version v1.0.2 released on CRAN, see
+  the
+  [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES).
 - 2026-07-08: New freesurferformats version v1.0.1 released on CRAN, see
   the
   [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES).
@@ -207,8 +210,6 @@ do this instead to install with all optional dependencies:
 
 install.packages("freesurferformats", dependencies=TRUE);
 ```
-
-[![](https://cranlogs.r-pkg.org/badges/freesurferformats)](https://CRAN.R-project.org/package=freesurferformats)
 
 In case something goes wrong, don’t worry. Just install the missing
 [system dependencies](#system-dependencies) and retry.
