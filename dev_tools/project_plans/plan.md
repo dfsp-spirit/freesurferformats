@@ -77,8 +77,9 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
       conversion itself is what makes it observable to users.
 - Effort: S-M. See section "Gradients: detailed spec" below.
 
-### I.2 [ ] CIFTI-2 read + write for all 9 file types (incl. `.dconn`/`.pconn`)
-Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
+### I.2 [x] CIFTI-2 read + write for all 9 file types (incl. `.dconn`/`.pconn`)
+Planned in detail, see the section "CIFTI-2: detailed spec" below; implemented in increments
+5 to 12 (see the progress log for the findings of each of them). Sub-items:
 
 - [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
 - [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
@@ -89,13 +90,15 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 - [x] I.2g test data, dev tools, the check script against nibabel + Workbench, docs -- the check script is `dev_tools/check_cifti_conversion.R` (Workbench values, nibabel dumps, the written files, the parcel semantic checks and the row checks, 19 files), the test data generators are `dev_tools/generate_cifti_test_data.py` (the shipped fixtures) and `dev_tools/generate_cifti_connectome_test_data.py` (the real connectomes in `extra_test_data`), `dev_tools/neutralize_cifti_provenance.R` removes the machine paths from the provenance metadata, and the plan/README/CHANGES are updated.
 
 Notes: the container is NIfTI-2 + an XML header extension (ecode 32), so no new
-dependency is needed (`xml2` is already imported). The hard part is the
-index-map/brain-model bookkeeping, not the container. Reading is currently
-delegated to the `cifti` package (Soft dep, and its CRAN version needs the
-caller to pre-read the file, `muschellij2/cifti#9`); `.dconn` (the standard HCP
-resting-state output) cannot be read at all today - verified: both
-`cifti::read_cifti()` and our wrappers fail on a `.dconn` written by nibabel
-("Unrecognized or inconsistent voxel IJK sequence"). Effort: L.
+dependency is needed (`xml2` is already imported); the hard part was the
+index-map/brain-model bookkeeping, not the container. Reading and writing are
+native, i.e. the `cifti` package is only used for objects a client passes in and
+for the cross-checks in the test suite - which also means the workaround of its
+version 0.5.0 (read the file with that package first) is gone, and `.dconn` (the
+standard HCP resting-state output, 9 to 33 GB) can be read, in part if needed
+(`read.cifti(columns = ...)`, `read.cifti.rows()`). Effort: L (as estimated; the
+verification against Workbench and nibabel is what took the time, and the format
+has more traps than the spec text suggests, see the increment logs).
 
 ### I.3 [ ] BIDS metadata sidecars
 - `*_bold.json`, `*_dwi.json` (`RepetitionTime`, `SliceTiming`,
