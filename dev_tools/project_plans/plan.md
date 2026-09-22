@@ -81,7 +81,7 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
 Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 
 - [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
-- [ ] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
+- [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
 - [ ] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write)
 - [ ] I.2d parcellated files: `pscalar`, `ptseries`, `pconn`, `pdconn`, `dpconn`
 - [ ] I.2e native `read.fs.*.cifti()` (drop the `cifti` dependency), dispatch fix
@@ -666,7 +666,11 @@ Oracles, in decreasing strength:
    `-cifti-parcellate`, `-cifti-math`.
 3. **nibabel** reads our files and we read nibabel's (values, every XML field, the
    computed axes via `cifti2_axes`); its parser is strict, so it doubles as a
-   schema check.
+   schema check. Caveat (found in increment 6): its axis layer, and therefore
+   `nibabel.load()`, refuses files in which the same structure has both a surface
+   and a volume model ('Undefined vertex indices found for surface elements'),
+   which Workbench writes. Use `cifti2.parse_cifti2.Cifti2Parser` on the extension
+   payload for those, and do not treat a nibabel failure there as a file defect.
 4. **We read Workbench-written files** (values and XML), including the files
    generated for the test data (section 11).
 5. **The `cifti` R package** for the types it supports (it stays in `Suggests` for
@@ -943,3 +947,74 @@ Findings from this increment, worth not rediscovering:
   -print-header` prints the header and exits 255 with 'incorrect magic' for a bad
   file; at least one `-print-*` option is required and the file must be a valid
   NIFTI, `-print-xml` is CIFTI-only.
+
+### Increment 6: CIFTI-2 XML reader (2026-09-22) -- DONE (item I.2b)
+
+`R/read_cifti_header.R`: `read.cifti.header()` plus `cifti.structures()`,
+`cifti.parcels()`, `cifti.series.info()`, `cifti.label.table()` and
+`print.fs.cifti()`. 276 new tests in `tests/testthat/test-read_cifti_header.R`, 13
+new fixtures in `inst/extdata/cifti/` (see below), and the tools
+`dev_tools/generate_cifti_test_data.py` (fixture generator, writes the input
+files with nibabel and then runs Workbench), `dev_tools/cifti_dump.py` and
+`dev_tools/cifti_dump.R` (nibabel and fs.cifti reference dumps for a text diff).
+
+Findings worth not rediscovering:
+
+- **The R `dim` vector index is not the NIFTI `dim[i]` index.** `read.nifti2.header()`
+  stores the field in an R vector, so CIFTI matrix dimension 0 (NIFTI `dim[5]`) is
+  `niiheader$dim[6]`, and the number of matrix dimensions is `dim[0] - 4`. The first
+  version of `cifti.matrix.dim.sizes()` used `dim[5 + i]` and produced sizes that
+  were off by one, which the new consistency checks caught immediately (they
+  compare every mapping against the dimension size) - a good argument for having
+  them.
+- **`AppliesToMatrixDimension` and `VolumeDimensions` are comma separated**
+  (`"0,1"`, `"4,4,4"`), while the index lists are whitespace separated. The integer
+  list parser splits on both, otherwise `"0,1"` is reported as 'not an integer'.
+- **A single `MatrixIndicesMap` can apply to both dimensions** (`dconn`, `pconn`):
+  the mapping is stored once with `dims = c(0, 1)`, and the accessors accept either
+  dimension. All nine file types are covered by the parser, including `.dpconn` and
+  `.pdconn`, whose names list the dimensions in the reverse order of the file - the
+  fixtures confirm once more that the dimension order must come from the XML.
+- **SCALARS maps can contain `NamedMap` elements** (one per scalar, with `MapName`
+  and a `MetaData` that holds a `PaletteColorMapping`), LABELS maps must contain one
+  `NamedMap` with a `LabelTable` per label map, and `MapName` can be empty (Workbench
+  writes an empty element when a scalar map has no name). Metadata values can contain
+  escaped XML as *text*, which `xml2::xml_text()` unescapes.
+- **`-version-convert` is gone from Workbench 2.x** (`wb_command -cifti-convert
+  -version-convert ...` errors with 'Unexpected parameter'), so a CIFTI-1 file cannot
+  be produced or converted with the installed Workbench anymore. The error message
+  for CIFTI-1 files mentions the option and that only older Workbench versions have
+  it. A CIFTI-1 file is a *NIFTI-1* file containing CIFTI XML, so the tests simulate
+  one by appending the string to a NIFTI-1 file.
+- **nibabel 5.4.2 cannot load a CIFTI-2 file in which the same structure has both a
+  surface and a volume brain model** (`Cifti2Image.__init__` -> `get_data_shape()` ->
+  `BrainModelAxis.__init__()` raises 'Undefined vertex indices found for surface
+  elements'). Workbench writes such files, our reader reads them, and the reference
+  dump tool falls back to nibabel's raw XML parser (`Cifti2Parser().parse(xml_bytes)`
+  on the extension payload) for them. `-cifti-create-dense-scalar -left-metric <m>
+  -roi-left <roi> -right-metric <m> -volume <vol> <labelvol>` produces one if the
+  structure label volume labels cortex voxels.
+- **The two implementations agree exactly.** A text diff of the `dev_tools/cifti_dump.py`
+  and `dev_tools/cifti_dump.R` output is empty (0 differing lines) for all 13 fixtures
+  and for the three official Conte69 files (547 dump lines each, including 60951
+  vertex indices, 54 parcels with their vertex lists and 3 x 96 labels). The official
+  files were written by a different tool (Workbench 0.84, 2014) than the fixtures
+  (Workbench 2.2.1), so this covers two writers and two eras.
+- The fixture *provenance* metadata contains the absolute paths of the generating
+  machine (Workbench always writes `Provenance` and `WorkingDirectory`). The
+  generator writes into a fixed build directory (`/tmp/cifti_fixtures/build`, so the
+  files are reproducible), and the plan of record is to neutralize the paths in
+  I.2g by rewriting the extension with `write.nifti2()` (which is also a nice
+  end-to-end check of our extension writer against Workbench).
+- Write support was *not* part of this increment: the `fs.cifti` object keeps
+  everything needed to rebuild the XML, but unknown attributes of the input are not
+  preserved, so a read -> write round trip is compared on *parsed* structures, as
+  section 10 of the spec requires.
+- **`R CMD check` is clean** (0 errors / 0 warnings / 0 notes, R 4.6.1, roxygen2
+  8.0.0, full suite: 2904 pass / 0 fail / 2 skip). One trap worth remembering: the
+  roxygen markdown of `` `dim[5]`, `dim[6]` `` becomes `dim\link{5}, dim\link{6}`
+  (shortcut reference links), and a `` `foo()` `` naming a function that does not
+  exist yet becomes `\code{\link{foo}}` -- both are reported as "Missing link(s)
+  in Rd file ..." by the cross-reference check. Bracketed index notation was
+  replaced by prose ("entries 5, 6, ... of the `dim` field") and the forward
+  reference to `read.cifti()` (increment 7) by `\code{read.cifti}`.
