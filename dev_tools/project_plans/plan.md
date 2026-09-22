@@ -23,7 +23,7 @@ Own readers + writers (no FreeSurfer installation required):
 | Tracts | TRK (R/W, incl. `.trk.gz`), TCK (R/W), TSF (R/W) + headers, streaming, `bbox`/`skip_tracks`, `fs.tracts` |
 | Transforms | LTA, `register.dat`, `xfm`, FSL `-omat`, ITK text (`.tfm`/`.txt`) -- all R/W, `fs.transform` class |
 | GIFTI | morph, surface, label, annot (R/W), generic data array writer |
-| CIFTI-2 | `.dscalar.nii`, `.dlabel.nii`, `.dtseries.nii` -- **read only**, via the `cifti` package |
+| CIFTI-2 | all nine standard types (`.dscalar`, `.dlabel`, `.dtseries`, `.dconn`, `.pscalar`, `.ptseries`, `.pconn`, `.dpconn`, `.pdconn`) -- native read + write, no dependency on the `cifti` package (item I.2, increments 5-11) |
 
 Comparison baseline: nibabel supports NIfTI1/2, ANALYZE (plain/SPM99/SPM2),
 GIFTI, CIFTI-2 (full R/W), FreeSurfer (MGH/annot/label/morph/geometry), MINC1,
@@ -86,7 +86,7 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 - [x] I.2e native `read.fs.*.cifti()` (increment 7) and the dispatch fixes (increment 10): `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` read files directly, the `cifti` package is only used if a client passes one of its objects, the generic readers `read.fs.morph()`/`read.fs.volume()` detect CIFTI files and point at the CIFTI readers, and the non-CIFTI writers refuse CIFTI-2 file names. Nothing in the package requires the `cifti` package.
 - [x] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations -- done in increment 9, see the progress log. The writers are `write.fs.connectome.cifti()` (the four connectome types) and `write.fs.parcellated.cifti()` (`.pscalar`/`.ptseries`), the axis comes from `cifti.axis.parcels.from.annot()` or from a template.
 - [x] I.2f large files: row-wise access -- `read.cifti()` selects *columns* by seek (the contiguous direction, increment 7) and `read.cifti.rows()` (increment 11) reads selected *rows* by streaming the file once and keeping only those rows, with a constant memory footprint. The allocation guard message names both options.
-- [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
+- [x] I.2g test data, dev tools, the check script against nibabel + Workbench, docs -- the check script is `dev_tools/check_cifti_conversion.R` (Workbench values, nibabel dumps, the written files, the parcel semantic checks and the row checks, 19 files), the test data generators are `dev_tools/generate_cifti_test_data.py` (the shipped fixtures) and `dev_tools/generate_cifti_connectome_test_data.py` (the real connectomes in `extra_test_data`), `dev_tools/neutralize_cifti_provenance.R` removes the machine paths from the provenance metadata, and the plan/README/CHANGES are updated.
 
 Notes: the container is NIfTI-2 + an XML header extension (ecode 32), so no new
 dependency is needed (`xml2` is already imported). The hard part is the
@@ -698,25 +698,33 @@ Workbench part is live), and hand-written tests.
 
 ### 11. Test data
 
-- `inst/extdata/cifti/` (shipped with the package, a few KB each): the small files
-  written by Workbench 2.2.1 that I generated while planning -
-  `dscalar`, `dlabel`, `dtseries`, `dconn`, `pscalar`, `ptseries`, `pconn`,
-  `dpconn`, `pdconn` on a synthetic 10 vertex surface, plus (a) a nibabel-written
-  voxel-model file with all `VoxelIndicesIJK` on one line (the layout that breaks
-  `cifti`), and (b) a truncated file for the error paths. Their exact commands go
-  into the generator script so they can be regenerated; the provenance metadata
-  they contain (paths of this machine) should be replaced by something neutral
-  when committing, or the files should be regenerated in a fixed directory.
-- `extra_test_data/cifti/`: the three official example files (already in the
-  repo), plus `expected/` reference dumps, plus - very valuable because it has
-  **real geometry** and a **reduced dense mapping** - a small `.pconn` built from
-  the official `dtseries` + `dlabel`
-  (`-cifti-parcellate ... COLUMN` then `-cifti-correlation`, 54 x 54 = ~11 KB) and
-  a small `.dconn` built by restricting the dense mapping to ~300 grayordinates
-  first (`-cifti-restrict-dense-map <in> COLUMN <out> -left-roi/-right-roi` with a
-  synthetic ROI metric, then `-cifti-correlation`, ~360 KB). Those two exercise
-  "IndexCount < SurfaceNumberOfVertices", non-contiguous vertex indices and the
-  symmetric matrix case.
+- `inst/extdata/cifti/` (shipped with the package, 3 to 17 KB each): the 13 small
+  files written by Workbench 2.2.1 (`dscalar`, `dlabel`, `dtseries`, `dconn`,
+  `pscalar`, `ptseries`, `pconn`, `dpconn`, `pdconn` on a synthetic 10 vertex
+  surface, plus a file with a reduced mapping, a volume only file and a mixed
+  surface+volume file). Their exact commands are in
+  `dev_tools/generate_cifti_test_data.py`, which can regenerate them, and the
+  provenance metadata that Workbench stores in them is neutralized by
+  `dev_tools/neutralize_cifti_provenance.R` (increment 12), so the committed files
+  do not contain the paths of the machine they were made on.
+- `extra_test_data/cifti/`: the three official example files (not modified: they are
+  third party reference data), plus the files that
+  `dev_tools/generate_cifti_connectome_test_data.py` derives from them with
+  Workbench (increment 12) - `conte69.restricted300.dtseries.nii` (the official
+  `.dtseries` with its dense mapping restricted to 306 grayordinates),
+  `conte69.restricted300.dconn.nii` (its correlation, 306 x 306, 370 KB) and
+  `conte69.ptseries.corr.pconn.nii` (the correlation of the official `.ptseries`,
+  54 x 54, 147 KB, with the real Conte69 parcels of 425 to 1529 vertices). They
+  provide exactly what the shipped fixtures cannot: a real reduced mapping
+  ("IndexCount < SurfaceNumberOfVertices", non-contiguous vertex indices), real
+  parcel vertex lists, and a symmetric matrix that Workbench computed. The
+  `-cifti-parcellate` route of the original plan does not work with these files:
+  the official `.dlabel` describes the complete surface while the official
+  `.dtseries` uses the reduced mapping, so Workbench refuses to combine them
+  ('data file is missing vertex 7 ... used by label MEDIAL.WALL'), see increment 9.
+  Reference dumps of the *expected* values are not stored: the check script
+  compares live against Workbench and nibabel, and the test suite uses the parsers
+  themselves as the oracle.
 - Not shippable, and therefore only handled by the row-wise reader and documented:
   a real HCP `.dconn` (9-38 GB) and the HCP grayordinates templates.
 
@@ -1312,3 +1320,50 @@ Findings worth keeping:
   `dev_tools/check_cifti_conversion.R` with three chunk sizes, including one of exactly
   `dim[5]` values (2), i.e. 60,951 chunks - the chunk boundary bookkeeping is exercised for
   real there.
+
+### Increment 12: test data and tools, neutralized provenance (2026-09-22) -- DONE (item I.2g)
+
+Files: `dev_tools/neutralize_cifti_provenance.R` (new, plus 13 rewritten fixtures in
+`inst/extdata/cifti`), `dev_tools/generate_cifti_connectome_test_data.py` (new, plus the
+three files it creates in `extra_test_data/cifti`),
+`tests/testthat/test-cifti-connectome-official.R` (new, 36 tests), the docstring of
+`dev_tools/generate_cifti_test_data.py`, and the test data sections of this plan. The check
+script, the README, the CHANGES entries and the `?read.cifti` docs were already updated in
+the increments that produced them; the check script now covers 19 files (13 fixtures, the 3
+official example files and the 3 files derived from them).
+
+Findings worth keeping:
+
+- **The provenance metadata of the shipped fixtures named paths of this machine**, including
+  the Workbench install path and the checkout directory (`WorkingDirectory`), so the same
+  generator run on another machine would have produced different files. Rewriting the header
+  extension with the package's own writer (`cifti.header.from.axes()` plus
+  `write.nifti2()`) removes them: every absolute path in a provenance entry is reduced to
+  the name of the file it points at (so a command reads as
+  `wb_command -cifti-create-dense-scalar tiny.dscalar.nii -left-metric lh.metric.shape.gii
+  ...`, which documents *more* than the old absolute paths), and `WorkingDirectory` is
+  dropped. The script verifies that the data, the axes, the intent code and the remaining
+  metadata are unchanged, and the check script proves that Workbench and nibabel still read
+  all 19 files identically - which makes this a real end-to-end test of the extension writer
+  on files that another implementation produced.
+- The official Conte69 example files were **not** rewritten: they are third party reference
+  data and their provenance documents where they came from. Only the files this repository
+  generates are neutralized.
+- **A first version of the path removal was too narrow** (it only knew the Workbench binary
+  and the fixture build directory) and failed on the connectome files, which name the
+  repository's `extra_test_data/cifti` paths. The assertion that no absolute path is left
+  caught it, and the rule is now general: any absolute path in a `*Provenance` entry is
+  reduced to its file name. The program provenance (which documents the Workbench build) is
+  left alone, and `/usr/bin` (the compiler) is allowed.
+- **The extra test data is derived from the official files with Workbench**:
+  `-cifti-restrict-dense-map` on the official `.dtseries` (with ROI metrics that keep every
+  200th grayordinate, written as GIFTI metrics by the generator) gives a 2 x 306 file whose
+  mapping has 153 of 32,492 indices per hemisphere, and `-cifti-correlation` gives a 306 x
+  306 `.dconn` (370 KB) and, applied to the official `.ptseries`, a 54 x 54 `.pconn`
+  (147 KB) with the real parcels (425 to 1529 vertices each). An earlier attempt to use
+  `-cifti-parcellate` for the `.pconn` is not possible with these files, see increment 9.
+- The test suite uses these files for the cases that the tiny fixtures cannot cover: a
+  reduced, non-contiguous mapping (`diff(left_indices) > 1`, 153 of 32,492 vertices non-NA),
+  a symmetric matrix that Workbench computed and that `cor()` of the source file reproduces
+  to 1e-5, real parcel vertex lists, and a round trip of a real connectome through
+  `write.fs.connectome.cifti()`. The row reader is checked on the 306 x 306 file as well.

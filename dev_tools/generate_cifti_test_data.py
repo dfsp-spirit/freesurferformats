@@ -12,8 +12,15 @@ expects. The input GIFTI/NIfTI files (metrics, labels, ROIs, volumes) are writte
 with nibabel, which is only a build-time dependency.
 
 The commands run here are also the documentation of how the test data was made:
-they go into a fixed build directory so that the provenance metadata that
-Workbench stores in the CIFTI files is reproducible.
+they go into a fixed build directory, and the provenance metadata that Workbench
+stores in the CIFTI files is neutralized afterwards with
+
+    Rscript dev_tools/neutralize_cifti_provenance.R
+
+which removes the paths of the machine and of the checkout this ran in (so that
+regenerating the fixtures elsewhere produces the same files, and so that the
+package does not ship a path of a developer's machine). Run it before copying the
+files into inst/extdata/cifti.
 
 Usage:
     python3 dev_tools/generate_cifti_test_data.py --outdir /tmp/cifti_fixtures
