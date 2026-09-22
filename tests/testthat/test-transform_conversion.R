@@ -43,18 +43,20 @@ test_that("The format of a transformation file is determined from its content an
   writeLines(apply(mat, 1L, function(r) paste(sprintf("%.12g", r), collapse = " ")), no_extension)
   expect_equal(guess.transform.format(no_extension), "fslmat")
 
-  # ITK/ANTs text transforms are reported as unsupported instead of failing with a parse error.
+  # ITK/ANTs text transforms are identified as the ITK format, which the reader can handle.
   itk_file <- tempfile(fileext = ".tfm")
   writeLines(c(
     "#Insight Transform File V1.0", "#Transform 0", "Transform: AffineTransform_float_3_3",
     "Parameters: 1 0 0 0 1 0 0 0 1 0 0 0", "FixedParameters: 0 0 0"
   ), itk_file)
-  expect_error(guess.transform.format(itk_file), "ITK")
+  expect_equal(guess.transform.format(itk_file), "itk")
 
-  # So are binary ITK/ANTs transforms, which share the '.mat' extension with FSL matrices.
+  # Binary ITK/ANTs transforms share the '.mat' extension with FSL matrices. They are identified as ITK as well,
+  # and the reader reports that the binary variant is not supported instead of parsing garbage.
   itk_mat <- tempfile(fileext = ".mat")
   writeBin(c(as.raw(0L), charToRaw("AffineTransform_double_3_3"), as.raw(0L), charToRaw("fixed")), itk_mat)
-  expect_error(guess.transform.format(itk_mat), "ITK")
+  expect_equal(guess.transform.format(itk_mat), "itk")
+  expect_error(read.fs.transform(itk_mat), "binary ITK or ANTs transform")
 
   # The FreeSurfer formats are identified by their extension.
   expect_equal(guess.transform.format(system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)), "lta")

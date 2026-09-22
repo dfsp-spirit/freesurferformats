@@ -15,8 +15,8 @@
 #'
 #' @param format character string, the file format, one of 'auto' (guess from the file extension), 'fslmat' (an
 #'   FSL/FLIRT matrix file, i.e. a plain text 4x4 matrix as written by FSL's `flirt -omat`), 'lta'
-#'   (\code{\link{write.fs.transform.lta}}), 'dat' (\code{\link{write.fs.transform.dat}}) or 'xfm'
-#'   (\code{\link{write.fs.transform.xfm}}).
+#'   (\code{\link{write.fs.transform.lta}}), 'dat' (\code{\link{write.fs.transform.dat}}), 'xfm'
+#'   (\code{\link{write.fs.transform.xfm}}) or 'itk' (\code{\link{write.fs.transform.itk}}).
 #'
 #' @return the `fs.transform` instance `tf`, invisibly.
 #'
@@ -45,7 +45,7 @@ write.fs.transform <- function(tf, filepath, format = "auto") {
     format <- guess.writable.transform.format(filepath)
   }
 
-  supported <- c("fslmat", "lta", "dat", "xfm")
+  supported <- c("fslmat", "lta", "dat", "xfm", "itk")
   if (!(format %in% supported)) {
     stop(sprintf("Writing transformation files of format '%s' is not supported, supported formats are: %s.\n", format, paste(supported, collapse = ", ")))
   }
@@ -61,6 +61,9 @@ write.fs.transform <- function(tf, filepath, format = "auto") {
   }
   if (format == "xfm") {
     write.fs.transform.xfm(tf, filepath)
+  }
+  if (format == "itk") {
+    write.fs.transform.itk(tf, filepath)
   }
   return(invisible(tf))
 }
@@ -132,7 +135,66 @@ guess.writable.transform.format <- function(filepath) {
   if (extension %in% c("lta", "dat", "xfm")) {
     return(extension)
   }
+  if (extension == "tfm") {
+    return("itk")
+  }
   stop(sprintf("Could not determine the transformation format to write for file '%s', please use the 'format' parameter.\n", filepath))
+}
+
+
+#' @title Write an ITK text transform file.
+#'
+#' @description Write a transformation in the text file format of ITK, which the tools built on ITK read: 3D
+#'   Slicer (which calls it the 'ITK Transform' format), ANTs (via `ConvertTransformFile`), SimpleITK, and the
+#'   workflows that write their transformations with them. The file name extension is usually `.tfm` or `.txt`.
+#'
+#'   An ITK transform operates on the world coordinates of the images, which in ITK are
+#'   left-posterior-superior, so only a transformation that maps LPS coordinates can be written. Use
+#'   \code{\link{transform.to.lps}} to convert a transformation in RAS coordinates.
+#'
+#' @param tf an `fs.transform` instance whose matrix maps LPS coordinates to LPS coordinates.
+#'
+#' @param filepath character string, the full path of the file to write.
+#'
+#' @return the `fs.transform` instance `tf`, invisibly.
+#'
+#' @note The file that is written uses the class 'AffineTransform_double_3_3', i.e. the parameters are stored in
+#'   double precision, and it states a center of rotation of zero, with the center folded into the translation.
+#'   This is exactly the form that FreeSurfer's `lta_convert --outitk` writes, and the form that
+#'   `lta_convert --initk` can read: it rejects the 'float' variant of the classes and ignores a non-zero center
+#'   of rotation, see the note in \code{\link{read.fs.transform.itk}}.
+#'
+#' @examples
+#' xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
+#' out_file <- tempfile(fileext = ".tfm")
+#' write.fs.transform.itk(transform.to.lps(read.fs.transform(xfm_file)), out_file)
+#' readLines(out_file)
+#' unlink(out_file)
+#'
+#' @family header coordinate space
+#'
+#' @export
+write.fs.transform.itk <- function(tf, filepath) {
+  if (!is.fs.transform(tf)) {
+    stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
+  }
+  if (!identical(tf$space_in, "lps") || !identical(tf$space_out, "lps")) {
+    stop(sprintf("Cannot write this transformation as an ITK transform: ITK transforms operate on the world coordinates of an image, which are left-posterior-superior, but this transformation maps '%s' to '%s' coordinates. Use 'transform.to.lps' to convert it first.\n", as.character(tf$space_in), as.character(tf$space_out)))
+  }
+  if (!all(abs(tf$matrix[4L, ] - c(0, 0, 0, 1)) < sqrt(.Machine$double.eps))) {
+    stop("Cannot write this transformation as an ITK affine transform: its last matrix row is not '0 0 0 1'.\n")
+  }
+
+  # ITK serialises the linear part row by row, followed by the translation.
+  parameters <- c(as.numeric(t(tf$matrix[1:3, 1:3])), tf$matrix[1:3, 4L])
+  writeLines(c(
+    "#Insight Transform File V1.0",
+    "#Transform 0",
+    "Transform: AffineTransform_double_3_3",
+    sprintf("Parameters: %s", transform.values.text(parameters)),
+    "FixedParameters: 0 0 0"
+  ), filepath)
+  return(invisible(tf))
 }
 
 

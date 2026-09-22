@@ -2,7 +2,7 @@
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @param format character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA) and 'fslmat' (for an FSL/FLIRT matrix) can be given explicitly.
+#' @param format character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA), 'fslmat' (for an FSL/FLIRT matrix) and 'itk' (for an ITK text transform, e.g. a `.tfm` file) can be given explicitly.
 #'
 #' @return an `fs.transform` instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
 #'   coordinate spaces the matrix maps between (`space_in`, `space_out` and `voxel_base`). Which of them are
@@ -24,7 +24,7 @@
 #'
 #' @export
 read.fs.transform <- function(filepath, format = "auto") {
-  supported_formats <- c("auto", "xfm", "dat", "lta", "fslmat")
+  supported_formats <- c("auto", "xfm", "dat", "lta", "fslmat", "itk")
   if (!format %in% supported_formats) {
     stop(sprintf("Format must be one of %s.\n", paste(supported_formats, collapse = ", ")))
   }
@@ -45,7 +45,159 @@ read.fs.transform <- function(filepath, format = "auto") {
   if (format == "fslmat") {
     return(read.fs.transform.fslmat(filepath))
   }
+  if (format == "itk") {
+    return(read.fs.transform.itk(filepath))
+  }
   stop(sprintf("Could not read transformation file '%s'.\n", filepath)) # nocov
+}
+
+
+#' @title Read a transformation matrix from an ITK text transform file.
+#'
+#' @description Read the plain text file format that ITK and the tools built on it (3D Slicer, ANTs via
+#'   `ConvertTransformFile`, SimpleITK and the workflows of fMRIPrep/QSIPrep that are based on them) use to store
+#'   linear transformations, usually with the extension `.tfm` or `.txt`.
+#'
+#' @param filepath character string, the full path to the transform file.
+#'
+#' @return an `fs.transform` instance. An ITK transform operates on the world coordinates of the images, which in
+#'   ITK are left-posterior-superior, so `space_in` and `space_out` are 'lps' and `voxel_base` is `NA`. This is
+#'   not the RAS space that the other formats of this package use, and it is not converted silently: use
+#'   \code{\link{transform.to.ras}} to get a transformation in RAS coordinates. The volumes are not recorded in
+#'   the file, so `src` and `dst` are `NULL`. The ITK class name (e.g. 'AffineTransform_float_3_3') is stored in
+#'   the `type` field, and the values of the `FixedParameters` entry in the `fixed_parameters` field.
+#'
+#' @note The format can store many kinds of transforms besides affine ones; this function reads the affine
+#'   transformations only, i.e. the classes 'AffineTransform_float_3_3', 'AffineTransform_double_3_3',
+#'   'MatrixOffsetTransformBase_float_3_3' and 'MatrixOffsetTransformBase_double_3_3'. These are the classes
+#'   that occur in the output of the pipelines mentioned above, and the only ones for which the interpretation
+#'   of the parameters could be verified against other implementations. Files that contain several transformations
+#'   (an ITK 'CompositeTransform') are not supported either, and are reported as such: composing them requires
+#'   the ordering rules of ITK, which would be a guess without a reference to check against.
+#'
+#'   The `FixedParameters` entry is the center of rotation, so the matrix that is returned is
+#'   `y = A(x - c) + t + c`, i.e. it has the center folded in. That is the same thing that the ITK writer of
+#'   this package stores, and the transformation is not changed by it.
+#'
+#'   FreeSurfer reads ITK files as well, but two limitations of its version 7.4.1 are worth knowing when the file
+#'   has to be passed to it: it rejects the 'float' variant of the classes ('readITK: Transform type unknown!'),
+#'   and its `lta_convert --initk` ignores the `FixedParameters`, so it interprets a file with a non-zero center
+#'   of rotation differently from ITK itself (which computes `offset = translation + center - matrix * center`,
+#'   see `ComputeOffset()` in ITK's `itkMatrixOffsetTransformBase.hxx`) and from this package. Both were verified
+#'   by converting files that encode the same transformation, and both are avoided by the files that
+#'   \code{\link{write.fs.transform.itk}} writes.
+#'
+#' @examples
+#' xfm_file <- system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE)
+#' tf <- transform.to.ras(transform.to.lps(read.fs.transform(xfm_file)))
+#' summary(tf)$space_in
+#'
+#' @family header coordinate space
+#'
+#' @export
+read.fs.transform.itk <- function(filepath) {
+  all_lines <- tryCatch(readLines(filepath, warn = FALSE), error = function(e) character(0))
+  first_line <- if (length(all_lines) > 0L) trimws(all_lines[1L]) else ""
+
+  if (!startsWith(first_line, "#Insight Transform")) {
+    sniffed_text <- transform.file.sniff.text(filepath)
+    if (grepl("Transform_float_3_3|Transform_double_3_3", sniffed_text)) {
+      stop(sprintf("Transformation file '%s' is a binary ITK or ANTs transform (e.g. the '.mat' file that ANTs writes), which is not supported by this package. Convert it to the text form with the ITK tools first, e.g. 'ConvertTransformFile 3 in.mat out.txt'.\n", filepath))
+    }
+    stop(sprintf("Transformation file '%s' is not an ITK text transform: expected it to start with the header line '#Insight Transform File V1.0'.\n", filepath))
+  }
+
+  block_lines <- grep("^#Transform[[:space:]]+[0-9]+$", trimws(all_lines))
+  if (length(block_lines) == 0L) {
+    stop(sprintf("Transformation file '%s' contains no '#Transform' block.\n", filepath))
+  }
+  if (length(block_lines) > 1L) {
+    stop(sprintf("Transformation file '%s' contains %d transformations. Composing them is not supported, only files with a single transformation can be read.\n", filepath, length(block_lines)))
+  }
+
+  # The key/value lines of the block, e.g. 'Transform: AffineTransform_float_3_3'.
+  key_lines <- trimws(all_lines)
+  key_lines <- key_lines[nzchar(key_lines) & !startsWith(key_lines, "#")]
+
+  transform_class <- itk.key.value(key_lines, "Transform")
+  if (is.null(transform_class)) {
+    stop(sprintf("Transformation file '%s' does not state a 'Transform' entry, the type of the transformation is unknown.\n", filepath))
+  }
+  supported_classes <- c(
+    "AffineTransform_float_3_3", "AffineTransform_double_3_3",
+    "MatrixOffsetTransformBase_float_3_3", "MatrixOffsetTransformBase_double_3_3"
+  )
+  if (!(transform_class %in% supported_classes)) {
+    stop(sprintf("Unsupported ITK transform class '%s' in file '%s'. This package reads the affine transformations %s. Transformations of other classes (e.g. 'Euler3DTransform_*', 'VersorRigid3DTransform_*', 'BSplineTransform_*', 'DisplacementFieldTransform_*') are not supported.\n", transform_class, filepath, paste(supported_classes, collapse = ", ")))
+  }
+
+  parameters <- itk.numeric.value(key_lines, "Parameters", filepath)
+  if (length(parameters) != 12L) {
+    stop(sprintf("Expected 12 parameters for ITK affine transform '%s' in file '%s', found %d.\n", transform_class, filepath, length(parameters)))
+  }
+  fixed_parameters <- itk.numeric.value(key_lines, "FixedParameters", filepath)
+  if (length(fixed_parameters) < 3L) {
+    stop(sprintf("Expected at least 3 values in the 'FixedParameters' entry (the center of rotation) in file '%s', found %d.\n", filepath, length(fixed_parameters)))
+  }
+
+  # ITK serialises the linear part row by row, and the last three parameters are the translation. The transform
+  # is 'y = A(x - c) + t + c', where c is the center of rotation from the fixed parameters, so the center has to
+  # be folded into the translation to get a plain affine matrix.
+  linear <- matrix(parameters[1:9], ncol = 3L, byrow = TRUE)
+  translation <- parameters[10:12]
+  centre <- fixed_parameters[1:3]
+  transformed <- rbind(cbind(linear, translation + centre - (linear %*% centre)), c(0, 0, 0, 1))
+
+  return(fs.transform(
+    matrix = transformed, space_in = "lps", space_out = "lps",
+    format = "itk", source = filepath, type = transform_class,
+    fixed_parameters = fixed_parameters
+  ))
+}
+
+
+#' @title Read the value of a key of an ITK transform file.
+#'
+#' @description ITK text transforms store their content as 'key: value' lines, e.g. 'Transform:
+#'   AffineTransform_float_3_3'. This helper returns the value of such an entry.
+#'
+#' @param lines character vector, the key/value lines of the file.
+#'
+#' @param key character string, the name of the entry, e.g. 'Transform'.
+#'
+#' @return `NULL` if the entry does not exist, its value as a character string otherwise.
+#'
+#' @keywords internal
+itk.key.value <- function(lines, key) {
+  matching <- lines[startsWith(lines, paste0(key, ":"))]
+  if (length(matching) == 0L) {
+    return(NULL)
+  }
+  return(trimws(substring(matching[1L], nchar(key) + 2L)))
+}
+
+
+#' @title Read a numerical entry of an ITK transform file.
+#'
+#' @param lines character vector, the key/value lines of the file.
+#'
+#' @param key character string, the name of the entry, e.g. 'Parameters'.
+#'
+#' @param filepath character string, the path of the file, used in error messages only.
+#'
+#' @return numerical vector, the values of the entry. It is an error if the entry is missing or holds no numbers.
+#'
+#' @keywords internal
+itk.numeric.value <- function(lines, key, filepath) {
+  value <- itk.key.value(lines, key)
+  if (is.null(value)) {
+    stop(sprintf("Transformation file '%s' has no '%s' entry.\n", filepath, key))
+  }
+  values <- suppressWarnings(as.numeric(strsplit(value, "[[:space:]]+")[[1L]]))
+  if (length(values) == 0L || any(is.na(values))) {
+    stop(sprintf("Could not parse the '%s' entry of transformation file '%s', its value is '%s'.\n", key, filepath, value))
+  }
+  return(values)
 }
 
 
@@ -117,7 +269,8 @@ guess.transform.format <- function(filepath) {
     "VersorRigid3DTransform_", "DisplacementFieldTransform_", "CompositeTransform_"
   )
   if (any(sapply(itk_markers, function(marker) grepl(marker, sniffed_text, fixed = TRUE)))) {
-    stop(sprintf("Transformation file '%s' is an ITK or ANTs transformation, which is not supported yet. Convert it with the ITK tools (e.g. 'ConvertTransformFile') or use a plain text matrix.\n", filepath))
+    # Text and binary ITK transforms are both identified here. The reader reports the binary ones as unsupported.
+    return("itk")
   }
 
   extension <- tolower(sub("^.*\\.", "", basename(filepath)))
@@ -126,6 +279,9 @@ guess.transform.format <- function(filepath) {
   }
   if (extension %in% c("xfm", "dat", "lta")) {
     return(extension)
+  }
+  if (extension == "tfm") {
+    return("itk")
   }
   if (extension == "mat") {
     return("fslmat")

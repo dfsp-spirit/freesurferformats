@@ -9,7 +9,7 @@ read.fs.transform(filepath, format = "auto")
 \arguments{
 \item{filepath}{character string, the full path to the transform file.}
 
-\item{format}{character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA) and 'fslmat' (for an FSL/FLIRT matrix) can be given explicitly.}
+\item{format}{character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA), 'fslmat' (for an FSL/FLIRT matrix) and 'itk' (for an ITK text transform, e.g. a \code{.tfm} file) can be given explicitly.}
 }
 \value{
 an \code{fs.transform} instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
@@ -47,16 +47,20 @@ Other header coordinate space:
 \code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
 \code{\link[=read.fs.transform.fslmat]{read.fs.transform.fslmat()}},
+\code{\link[=read.fs.transform.itk]{read.fs.transform.itk()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
 \code{\link[=summary.fs.transform]{summary.fs.transform()}},
+\code{\link[=transform.to.lps]{transform.to.lps()}},
+\code{\link[=transform.to.ras]{transform.to.ras()}},
 \code{\link[=transform.to.voxel]{transform.to.voxel()}},
 \code{\link[=transform.to.world]{transform.to.world()}},
 \code{\link[=write.fs.transform]{write.fs.transform()}},
 \code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
 \code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},
+\code{\link[=write.fs.transform.itk]{write.fs.transform.itk()}},
 \code{\link[=write.fs.transform.lta]{write.fs.transform.lta()}},
 \code{\link[=write.fs.transform.xfm]{write.fs.transform.xfm()}}
 }

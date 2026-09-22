@@ -272,6 +272,167 @@ if (has_lta_convert) {
   }
 }
 
+# --------------------------------------------------------------------------------------------------------------
+# ITK text transform checks. ITK transforms are the ones that BIDS derivatives from fMRIPrep/QSIPrep/QSIRECON
+# carry, they operate on LPS world coordinates, and their parameters are the linear part row by row followed by
+# the translation, with the center of rotation in the fixed parameters.
+# --------------------------------------------------------------------------------------------------------------
+itk_example_file <- file.path(repo_root, "extra_test_data", "transforms", "ants_affine_double_nonzero_centre.txt")
+itk_zero_centre_file <- file.path(repo_root, "extra_test_data", "transforms", "fmriprep_fsnative_to_T1w_float.txt")
+itk_geometry_src <- system.file("extdata", "brain.mgz", package = "freesurferformats", mustWork = TRUE)
+itk_geometry_dst <- system.file("extdata", "vol27int.nii.gz", package = "freesurferformats", mustWork = TRUE)
+mrtrix_itk_file <- path.expand(paste0(
+  "~/develop/sub-01-derived/bids/derivatives/qsirecon_work/qsirecon_26_0_wf/",
+  "sub-01_mrtrix_singleshell_ss3_hsvst/recon_anatomical_wf_0/register_fs_to_qsiprep_wf/",
+  "convert_ants_to_mrtrix_transform/transform0GenericAffine.txt"
+))
+
+cat("\n## ITK text transform checks\n")
+if (!file.exists(itk_example_file)) {
+  cat("   Skipping, the example ITK transform is missing.\n")
+} else {
+  itk_transform <- read.fs.transform(itk_example_file)
+  cat(sprintf("   read '%s' (class %s, center of rotation %s)\n",
+              basename(itk_example_file), itk_transform$type,
+              paste(format(itk_transform$fixed_parameters[1:3], digits = 6), collapse = ", ")))
+
+  # MRtrix3's itk_import writes exactly 'S * M_lps * S' for the same file (it also folds the center of rotation
+  # in, and swaps the sign of the first two axes), so the two must agree to numerical precision. This is
+  # independent of the FreeSurfer check below because MRtrix was not involved in writing the input file: ANTs
+  # wrote it, and QSIRECON converted it with MRtrix 3.0.4.
+  if (file.exists(mrtrix_itk_file)) {
+    reference <- tryCatch(read_matrix_file(mrtrix_itk_file), error = function(e) NULL)
+    status <- compare_with_reference(
+      "itk (ANTS in)", "vs MRtrix3 itk_import",
+      transform.to.ras(itk_transform)$matrix, reference, 1e-9
+    )
+    counters <- tally(status, checks, failures)
+    checks <- counters$checks
+    failures <- counters$failures
+  } else {
+    cat("   vs MRtrix3 itk_import : SKIPPED, the MRtrix reference file is missing\n")
+  }
+
+  # Writing: our own copy must read back exactly.
+  written_itk_file <- file.path(work_dir, "written.tfm")
+  write.fs.transform(itk_transform, written_itk_file, format = "itk")
+  own_difference <- max(abs(read.fs.transform(written_itk_file)$matrix - itk_transform$matrix))
+  checks <- checks + 1L
+  status <- if (own_difference < 1e-15) "OK" else { failures <- failures + 1L; "MISMATCH" }
+  cat(sprintf("   [%-16s] %-28s : max abs diff %.3g  %s\n", "itk", "own read back", own_difference, status))
+
+  # FreeSurfer can read ITK transforms as well, but its 'lta_convert --initk' ignores the FixedParameters of the
+  # file, i.e. the center of rotation. ITK itself uses it: 'offset = translation + center - matrix * center',
+  # see ComputeOffset() in ITK's itkMatrixOffsetTransformBase.hxx, and this package and MRtrix3 implement the
+  # same rule (which is what the bit-exact check above verifies). Two files that encode the same ITK
+  # transformation - one with the center in the fixed parameters, one with the center folded into the
+  # translation, as ITK does internally - are converted by FreeSurfer to transformations that differ by exactly
+  # the center term. The linear parts are not affected.
+  #
+  # The FreeSurfer comparison is therefore done with a file whose center of rotation is zero, where both
+  # interpretations agree, and the non-zero case is only reported.
+  # FreeSurfer can read ITK transforms as well, with two limitations that are worth knowing: it rejects the
+  # 'float' variant of the classes ('readITK: Transform type unknown!'), and its 'lta_convert --initk' ignores
+  # the FixedParameters, i.e. the center of rotation. ITK itself uses the center: 'offset = translation + center
+  # - matrix * center', see ComputeOffset() in ITK's itkMatrixOffsetTransformBase.hxx, and this package and
+  # MRtrix3 implement exactly that rule, which the bit-exact check above verifies on the ANTs file.
+  #
+  # The writer is therefore checked against an ITK file with the double variant and a zero center, which is the
+  # form FreeSurfer writes itself with '--outitk' and the form this package writes.
+  if (has_lta_convert) {
+    freesurfer_itk_file <- file.path(work_dir, "freesurfer_outitk.txt")
+    if (file.exists(freesurfer_itk_file)) {
+      unlink(freesurfer_itk_file)
+    }
+    system2(
+      lta_convert_bin,
+      c("--inlta", system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE),
+        "--outitk", freesurfer_itk_file),
+      stdout = TRUE, stderr = TRUE, env = "FSLOUTPUTTYPE=NIFTI"
+    )
+
+    if (!file.exists(freesurfer_itk_file) || file.info(freesurfer_itk_file)$size == 0L) {
+      cat("   vs FreeSurfer lta_convert    : SKIPPED, lta_convert --outitk failed\n")
+    } else {
+      freesurfer_itk_transform <- read.fs.transform(freesurfer_itk_file)
+      readable <- (identical(freesurfer_itk_transform$type, "AffineTransform_double_3_3") &&
+        identical(freesurfer_itk_transform$space_in, "lps") &&
+        all(freesurfer_itk_transform$fixed_parameters[1:3] == 0))
+      checks <- checks + 1L
+      status <- if (readable) "OK" else { failures <- failures + 1L; "MISMATCH" }
+      cat(sprintf("   [%-16s] %-28s : %s  %s\n", "itk (from FS)", "read FreeSurfer's ITK file",
+                  paste(freesurfer_itk_transform$type, paste(freesurfer_itk_transform$fixed_parameters[1:3], collapse = ",")),
+                  status))
+
+      written_fs_file <- file.path(work_dir, "written_from_freesurfer.tfm")
+      write.fs.transform(freesurfer_itk_transform, written_fs_file, format = "itk")
+      own_difference <- max(abs(read.fs.transform(written_fs_file)$matrix - freesurfer_itk_transform$matrix))
+      checks <- checks + 1L
+      status <- if (own_difference < 1e-15) "OK" else { failures <- failures + 1L; "MISMATCH" }
+      cat(sprintf("   [%-16s] %-28s : max abs diff %.3g  %s\n", "itk (from FS)", "own read back", own_difference, status))
+
+      converted_files <- character(0)
+      conversion_failed <- FALSE
+      for (source_kind in c("original", "written")) {
+        input_file <- if (source_kind == "original") freesurfer_itk_file else written_fs_file
+        converted_file <- file.path(work_dir, sprintf("itk_fs_from_%s.lta", source_kind))
+        if (file.exists(converted_file)) {
+          unlink(converted_file)
+        }
+        console_output <- system2(
+          lta_convert_bin,
+          c("--initk", input_file, "--outlta", converted_file, "--src", itk_geometry_src, "--trg", itk_geometry_dst),
+          stdout = TRUE, stderr = TRUE, env = "FSLOUTPUTTYPE=NIFTI"
+        )
+        if (!file.exists(converted_file) || file.info(converted_file)$size == 0L) {
+          cat(sprintf("   [%-16s] %-28s : SKIPPED, lta_convert could not read the %s ITK file (%s)\n",
+                      "itk (from FS)", "vs FreeSurfer lta_convert", source_kind, paste(tail(console_output, 1L), collapse = " ")))
+          conversion_failed <- TRUE
+        } else {
+          converted_files <- c(converted_files, converted_file)
+        }
+      }
+      if (!conversion_failed && length(converted_files) == 2L) {
+        reference <- tryCatch(read.fs.transform(converted_files[1L])$matrix, error = function(e) NULL)
+        ours <- tryCatch(read.fs.transform(converted_files[2L])$matrix, error = function(e) NULL)
+        status <- compare_with_reference("itk (from FS)", "vs FreeSurfer lta_convert", ours, reference, 1e-5)
+        counters <- tally(status, checks, failures)
+        checks <- counters$checks
+        failures <- counters$failures
+      }
+    }
+
+    # The ANTs file has a non-zero center, so FreeSurfer reads it differently from ITK and from this package.
+    # Reported here for the record, not as a failure: both conversions below are done by FreeSurfer, of files
+    # that encode the same transformation.
+    converted_original <- file.path(work_dir, "itk_center_from_original.lta")
+    converted_written <- file.path(work_dir, "itk_center_from_written.lta")
+    for (input_file in c(itk_example_file, written_itk_file)) {
+      converted_file <- if (identical(input_file, itk_example_file)) converted_original else converted_written
+      if (file.exists(converted_file)) {
+        unlink(converted_file)
+      }
+      system2(
+        lta_convert_bin,
+        c("--initk", input_file, "--outlta", converted_file, "--src", itk_geometry_src, "--trg", itk_geometry_dst),
+        stdout = TRUE, stderr = TRUE, env = "FSLOUTPUTTYPE=NIFTI"
+      )
+    }
+    if (file.exists(converted_original) && file.info(converted_original)$size > 0L &&
+      file.exists(converted_written) && file.info(converted_written)$size > 0L) {
+      freesurfer_original <- read.fs.transform(converted_original)$matrix
+      freesurfer_written <- read.fs.transform(converted_written)$matrix
+      # Ignoring the center changes the translation only, so the linear parts must still agree.
+      linear_difference <- max(abs(freesurfer_original[1:3, 1:3] - freesurfer_written[1:3, 1:3]))
+      checks <- checks + 1L
+      status <- if (linear_difference < 1e-5) "OK" else { failures <- failures + 1L; "MISMATCH" }
+      cat(sprintf("   [%-16s] %-28s : max abs diff %.3g  %s\n", "itk (center)", "linear part vs FreeSurfer", linear_difference, status))
+      cat(sprintf("   (FreeSurfer ignores the center of rotation of an ITK file: the two files above encode the same\n    transformation and FreeSurfer reads them as differing by %.3f mm in the translation, see the note in the script)\n",
+                  max(abs(freesurfer_original[1:3, 4L] - freesurfer_written[1:3, 4L]))))
+    }
+  }
+}
+
 unlink(work_dir, recursive = TRUE)
 cat(sprintf("\n%d checks performed, %d failures.\n", checks, failures))
 if (failures > 0L) {

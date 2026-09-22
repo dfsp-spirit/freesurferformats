@@ -206,6 +206,9 @@ transform.to.voxel <- function(tf, src = NULL, dst = NULL) {
   if (identical(tf$space_in, "voxel") && identical(tf$space_out, "voxel")) {
     return(tf) # nothing to do, it is already in voxel space
   }
+  if (identical(tf$space_in, "lps") || identical(tf$space_out, "lps")) {
+    stop("Cannot convert this transformation to voxel coordinates: it operates on LPS world coordinates, while the volume geometry used here describes RAS coordinates. Use 'transform.to.ras' to convert it to RAS coordinates first.\n")
+  }
 
   src_geometry <- transform.geometry.for.side(tf, "src", src)
   dst_geometry <- transform.geometry.for.side(tf, "dst", dst)
@@ -281,6 +284,105 @@ transform.descriptor.path <- function(descriptor) {
   return(descriptor$path)
 }
 
+#' @title Convert a transformation to RAS world coordinates.
+#'
+#' @description ITK and the tools built on it (3D Slicer, ANTs, SimpleITK and the workflows that use them) work
+#' in world coordinates that are left-posterior-superior (LPS), while the other file formats of this package use
+#' right-anterior-superior (RAS) coordinates. The two conventions differ in the sign of the first two axes only,
+#' so converting a transformation between them neither needs nor uses the geometry of a volume, unlike the
+#' conversion between voxel and world coordinates, see \code{\link{transform.to.world}}. A transformation that
+#' is already in RAS coordinates is returned unchanged.
+#'
+#' @param tf an `fs.transform` instance whose matrix operates on world coordinates, i.e. `space_in` and
+#'   `space_out` are either 'lps' or 'ras'.
+#'
+#' @return an `fs.transform` instance whose matrix operates on RAS coordinates.
+#'
+#' @examples
+#' # An ITK transform operates on LPS coordinates, the FreeSurfer formats on RAS coordinates.
+#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE))
+#' summary(tf)$space_in
+#' summary(transform.to.lps(tf))$space_in
+#' summary(transform.to.ras(transform.to.lps(tf)))$space_in
+#'
+#' @family header coordinate space
+#'
+#' @export
+transform.to.ras <- function(tf) {
+  return(transform.flip.handedness(tf, "ras"))
+}
+
+
+#' @title Convert a transformation to LPS world coordinates.
+#'
+#' @description The reverse of \code{\link{transform.to.ras}}, for transformations that have to be expressed in
+#' the world coordinates that ITK and the tools built on it use. A transformation that is already in LPS
+#' coordinates is returned unchanged.
+#'
+#' @inheritParams transform.to.ras
+#'
+#' @return an `fs.transform` instance whose matrix operates on LPS coordinates.
+#'
+#' @examples
+#' tf <- read.fs.transform(system.file("extdata", "talairach.xfm", package = "freesurferformats", mustWork = TRUE))
+#' # The matrix changes, because the sign of the first two axes changes.
+#' max(abs(transform.to.lps(tf)$matrix - tf$matrix)) > 0
+#'
+#' @family header coordinate space
+#'
+#' @export
+transform.to.lps <- function(tf) {
+  return(transform.flip.handedness(tf, "lps"))
+}
+
+
+#' @title Convert a transformation between the LPS and the RAS convention.
+#'
+#' @description Changing the convention of the coordinates that a transformation maps flips the sign of its first
+#' two axes on each side of the transformation that changes: the input side by multiplying the matrix from the
+#' right and the output side by multiplying it from the left, with a diagonal matrix that negates x and y. That
+#' matrix is its own inverse, which is why the conversion in both directions is the same operation.
+#'
+#' @param tf an `fs.transform` instance.
+#'
+#' @param target character string, either 'ras' or 'lps'.
+#'
+#' @return an `fs.transform` instance whose matrix is expressed in the requested convention.
+#'
+#' @keywords internal
+transform.flip.handedness <- function(tf, target) {
+  if (!is.fs.transform(tf)) {
+    stop(sprintf("Parameter 'tf' must be an fs.transform instance, found %s.\n", class(tf)[1L]))
+  }
+  if (!(target %in% c("ras", "lps"))) {
+    stop(sprintf("Parameter 'target' must be 'ras' or 'lps', found '%s'.\n", target)) # nocov
+  }
+  if (identical(tf$space_in, target) && identical(tf$space_out, target)) {
+    return(tf) # nothing to do
+  }
+
+  world_spaces <- c("ras", "lps")
+  if (!(tf$space_in %in% world_spaces) || !(tf$space_out %in% world_spaces)) {
+    stop(sprintf("Cannot convert this transformation to '%s' coordinates: the LPS and RAS conventions differ in world coordinates only, but this transformation maps '%s' to '%s' coordinates. Use 'transform.to.world' to convert it to world coordinates first.\n", target, as.character(tf$space_in), as.character(tf$space_out)))
+  }
+
+  sign_flip <- diag(c(-1.0, -1.0, 1.0, 1.0))
+  input_flip <- if (identical(tf$space_in, target)) diag(4) else sign_flip
+  output_flip <- if (identical(tf$space_out, target)) diag(4) else sign_flip
+
+  result <- tf
+  result$matrix <- output_flip %*% tf$matrix %*% input_flip
+  result$space_in <- target
+  result$space_out <- target
+  # The voxel-to-RAS matrices of the descriptors have a voxel side that does not change, so only their world
+  # side is flipped.
+  for (side in c("src", "dst")) {
+    if (!is.null(result[[side]]) && !is.null(result[[side]]$vox2ras)) {
+      result[[side]]$vox2ras <- sign_flip %*% result[[side]]$vox2ras
+    }
+  }
+  return(result)
+}
 
 #' @title Determine the frame of the world space of a transformation.
 #'

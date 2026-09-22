@@ -173,7 +173,15 @@ absent (see `find_extra_test_data_file()`), so no MRtrix/FreeSurfer dependency i
    FreeSurfer's own `--outfsl`. 39 checks, 0 failures; tests in `tests/testthat/test-write_fs_transform.R`.
    Also: 17 significant digits for exact double round trips, and `read.fs.transform.dat()` now keeps the
    subject and the resolutions so that a round trip is lossless.
-4. *(later, separate)* ITK `.tfm` text, then ITK binary `.mat`.
+4. **DONE (2026-09-22)** - ITK text transforms: `read.fs.transform.itk()` and `write.fs.transform.itk()`,
+   `transform.to.ras()`/`transform.to.lps()`, content-based detection of the format (needed because '.mat' and
+   '.txt' are shared), and refusals for the non-affine classes and for files with several transformations.
+   Verified against MRtrix3's `itk_import` on a real ANTs file with a non-zero center of rotation (1e-14) and
+   against FreeSurfer for the writer (difference 0, using an ITK file that FreeSurfer wrote itself). Found and
+   documented two FreeSurfer limitations: `--initk` rejects the 'float' variant and ignores the center of
+   rotation. Binary ITK/MATLAB transforms remain unsupported (they are detected and reported as such).
+5. The binary ITK/MATLAB transform variant (`.mat`), if it is ever needed. The `read.fs.transform.itk()` error
+   message names the tool that converts it; nothing else is planned for the transformation formats.
 
 ## 8. Decisions taken
 
