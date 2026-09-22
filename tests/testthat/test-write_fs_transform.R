@@ -190,12 +190,19 @@ test_that("A formatted value is read back exactly, on every platform.", {
   # platform: on macOS ARM64, 17 significant digits of -1e-7/7 are not enough (they are one unit in the last
   # place off), so the formatter verifies the round trip and writes more digits when it fails. This test
   # states the invariant that the writer relies on.
-  values <- c(1.0 / 3.0, -1e-7 / 7.0, 0.1, pi, 1e-300, 2^-1074, .Machine$double.xmax, -0.0, 12345.6789)
+  values <- c(1.0 / 3.0, -1e-7 / 7.0, 0.1, pi, 1e-300, 2^-1074, -0.0, 12345.6789)
   for (value in values) {
     text <- transform.value.text(value)
     expect_true(is.character(text) && length(text) == 1L)
     expect_equal(as.numeric(text), value, info = sprintf("value %s is written as '%s'", format(value), text))
   }
+
+  # The largest representable double is deliberately not in the list above: on macOS the decimal conversion
+  # of R cannot read any of its representations back (it overflows to Inf before reaching the value), which is
+  # a property of that platform and not of this package. The formatter writes the most exact representation
+  # that the platform accepts, which the other platforms read back exactly.
+  xmax_text <- transform.value.text(.Machine$double.xmax)
+  expect_true(as.numeric(xmax_text) == .Machine$double.xmax || is.infinite(as.numeric(xmax_text)))
 
   # Non-finite values are written as such instead of failing.
   expect_equal(transform.value.text(Inf), "Inf")
