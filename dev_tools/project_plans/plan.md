@@ -77,15 +77,25 @@ package's existing DWI namespace is `dti.*` (`read.dti.tck`, `read.dti.trk`).
       conversion itself is what makes it observable to users.
 - Effort: S-M. See section "Gradients: detailed spec" below.
 
-### I.2 [ ] CIFTI-2 write + read of `.dconn`/`.pconn`/`.ptseries`
-- Binary layer is NIfTI-2 + an XML extension; the package already has an NIfTI-2
-  writer and `xml2`, so a native writer is feasible without the `cifti` dep.
-- The hard part is the index-map/brain-model bookkeeping (dense vertex indices
-  vs parcels, `MEDIAL_WALL_ROI`), not the container.
-- Reading is currently delegated to the `cifti` package (read-only, Soft dep);
-  `.dconn` (dense connectomes, standard HCP resting-state output) cannot be read
-  at all today.
-- Effort: M-L.
+### I.2 [ ] CIFTI-2 read + write for all 9 file types (incl. `.dconn`/`.pconn`)
+Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
+
+- [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
+- [ ] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
+- [ ] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write)
+- [ ] I.2d parcellated files: `pscalar`, `ptseries`, `pconn`, `pdconn`, `dpconn`
+- [ ] I.2e native `read.fs.*.cifti()` (drop the `cifti` dependency), dispatch fix
+- [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads)
+- [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
+
+Notes: the container is NIfTI-2 + an XML header extension (ecode 32), so no new
+dependency is needed (`xml2` is already imported). The hard part is the
+index-map/brain-model bookkeeping, not the container. Reading is currently
+delegated to the `cifti` package (Soft dep, and its CRAN version needs the
+caller to pre-read the file, `muschellij2/cifti#9`); `.dconn` (the standard HCP
+resting-state output) cannot be read at all today - verified: both
+`cifti::read_cifti()` and our wrappers fail on a `.dconn` written by nibabel
+("Unrecognized or inconsistent voxel IJK sequence"). Effort: L.
 
 ### I.3 [ ] BIDS metadata sidecars
 - `*_bold.json`, `*_dwi.json` (`RepetitionTime`, `SliceTiming`,
@@ -288,13 +298,8 @@ real data, and keep large files out of the repo (CRAN 5 MB limit ->
 
 ### V.4 Repo constraints to remember
 - Do **not** commit/push: leave all changes in the working tree for review.
-- `devtools::document()` with the installed roxygen 7.3.3 (DESCRIPTION claims
-  8.0.0) rewrites ~85 unrelated `man/*.Rd` files. After every `document()`:
-  revert all modified tracked `man/` files whose content did not really change,
-  then `git checkout -- DESCRIPTION`.
 - Internal helpers get man pages (no `@noRd` in this repo), documented with
   `@keywords internal`.
-- CHANGES entries are long and explanatory, one section per version.
 
 ---
 
@@ -345,6 +350,396 @@ real data, and keep large files out of the repo (CRAN 5 MB limit ->
 - Cross-check against a known published gradient table (e.g. a well-known
   dataset's bvals/bvecs) and against nibabel/DIPY semantics.
 - Test that a b=0 row survives a round trip unmodified.
+
+---
+
+## CIFTI-2: detailed spec (item I.2)
+
+Planned 2026-09-22, nothing implemented yet. Everything below was **verified on
+this machine** against the references, because the CIFTI-2 specification itself
+is not machine-readable: it is a scanned PDF attached to a NITRC forum post
+(<http://www.nitrc.org/forum/forum.php?thread_id=4380&forum_id=1955>, appendix in
+thread 4381), and the searchable CIFTI-1 wiki page
+(<http://www.nitrc.org/plugins/mwiki/index.php/cifti:Cifti-1>) documents the
+*previous* version, which uses different element and attribute names
+(`NodeIndices`, `TimeStep`, `UnitsXYZ`, `Version="1.0"`) and is therefore only
+useful for the general architecture, not for the details. The references used:
+
+- **nibabel 5.4.2** (`~/develop/brain_atlases/.venv/bin/python`), module
+  `nibabel.cifti2` (`cifti2.py`, `cifti2_axes.py`, `parse_cifti2.py`, ~3.8k
+  lines): a complete CIFTI-2 reader/writer whose parser follows the spec element
+  by element, including which children are legal where.
+- **Connectome Workbench 2.2.1**
+  (`~/software/connectome_workbench/workbench/bin_linux64/wb_command`), the
+  reference *implementation*: `-cifti-help` documents the mapping types and the
+  file types, `-list-commands` lists 65 CIFTI subcommands, many usable as
+  verifiers (`-nifti-information`, `-cifti-convert`, `-cifti-parcellate`,
+  `-cifti-correlation`, `-cifti-math`, `-cifti-export-dense-mapping`).
+- **The official CIFTI-2 example files** in `extra_test_data/cifti/` (2.1 MB,
+  PDDL): `dtseries`, `ptseries` and `dlabel`, written by Workbench 0.84 in 2014.
+- **The `cifti` R package 0.5.0** (CRAN): what the package uses today.
+
+### 1. The container: NIfTI-2 plus one header extension
+
+A CIFTI-2 file is a NIfTI-2 file (540 byte header, magic `n+2\0\r\n\x1a\n`) whose
+only payload variation is a **header extension with code 32** that holds the XML.
+Verified byte layout (offsets are absolute; the values are what Workbench 2.2.1
+and nibabel 5.4.2 write):
+
+| offset | field | CIFTI-2 value |
+| --- | --- | --- |
+| 0 | `sizeof_hdr` | 540 |
+| 4 | `magic[8]` | `n+2\0\r\n\x1a\n` |
+| 12 | `datatype`, `bitpix` | 16/32 (float32) for dense data - also for `dlabel` |
+| 16 | `dim[8]` | `6,1,1,1,1,M,N,1`: `dim[0]` = 6 (7 for a 3D matrix), `dim[1..4]` = 1, `dim[5]` = size of matrix dimension 0, `dim[6]` = size of dimension 1 |
+| 104 | `pixdim[8]` | Workbench: all 1; nibabel: `0,1,1,1,1,1,1,1` (qfac 0); not used |
+| 168 | `vox_offset` | 544 + extension size, and the data starts exactly there |
+| 176 | `scl_slope`, `scl_inter` | 1, 0 |
+| 344, 348 | `qform_code`, `sform_code` | 0, 0 (the geometry lives in the XML) |
+| 500 | `xyzt_units` | Workbench 10 (mm + sec), nibabel 0; readers ignore it |
+| 504 | `intent_code` | 3001-3012, one per file type, see the table below |
+| 508 | `intent_name` | `ConnDense`, `ConnDenseSeries`, `ConnParcels`, `ConnParcelSries` (sic), `ConnDenseScalar`, `ConnDenseLabel`, `ConnParcelScalr`, `ConnParcelDense`, `ConnDenseParcel` |
+| 525 | `unused_str[15]` | zeros. Note our reader calls the bytes at the end of the header "padding" and never reads the next field - both parts are wrong, see I.2a. |
+| 540 | extension flag | `01 00 00 00` (first byte non-zero = extensions follow), else four zeros |
+| 544 | extension | `int32 size`, `int32 ecode` (= 32), then the XML, NUL-padded |
+
+Extension size rule (verified on four files, incl. both writers): `size` is a
+multiple of 16, `size = 8 + length(content)`, and `content` is the XML followed by
+at least one NUL (Workbench: 1-15, nibabel: 2). Examples: 349712 = 21857 x 16 with
+12 NULs (official `dtseries`), 138288 with 6 (official `ptseries`), 944 with 2
+(nibabel's `row_major.dconn.nii`). The data length is
+`prod(dim[5:7]) * bitpix / 8`; e.g. the official `dlabel` has 779808 = 3 x 64984 x
+4 bytes after `vox_offset` 398832 = 544 + 398288.
+
+Two consequences: (a) our NIfTI-2 layer needs extension **read and write**
+(I.2a - `write.nifti2()` currently pads zeroes up to `vox_offset = 544`, which is
+a valid "no extensions" file, so nothing breaks), and (b) **gzipped CIFTI files
+must not be supported**: the format forbids compression ("CIFTI files must not be
+compressed", so that random access stays possible), so `.dscalar.nii.gz` is an
+error, not a fallback.
+
+### 2. The data layout: one positional rule for the whole format
+
+**Reader:** `m <- matrix(read.nifti.values(...), nrow = dim[5], ncol = dim[6])`,
+i.e. `m[i + 1, j + 1]` is the value for index `i` along the mapping with
+`AppliesToMatrixDimension="0"` and index `j` along the mapping of dimension 1.
+**Writer:** `dim[5] = nrow(m)`, `dim[6] = ncol(m)`, and the bytes are
+`as.vector(m)`. R's column-major order *is* the file order; there is no transpose
+anywhere in the format (a transposed reading is the most likely way to get this
+item silently wrong - see the evidence below).
+
+The naming trap: Workbench calls matrix dimension 0 the **ROW** dimension and
+dimension 1 the **COLUMN** dimension, which is the opposite of how the bytes are
+laid out (the dimension-0 index varies fastest inside a stored row). So for a
+`.dtseries` "ROW is series, COLUMN is dense" means `dim[5]` = number of series
+points and `dim[6]` = number of brainordinates, and `m` has one row per series
+point. The *file type names* list the two types in reverse of the dimension order
+(`pdconn` = "ROW is dense, COLUMN is parcels", verified: the file with
+`dim[5]` = dense and `dim[6]` = parcels must be named `.pdconn.nii`, and Workbench
+warns if it is not - while its own warning message then describes it as "dense by
+parcels"), and the intent names do the same (`ConnDenseParcel` = 3010 is
+`..._DENSE_PARCELLATED`, again with dimension 0 = dense). Bottom line: **derive
+the layout from the XML, never from the file extension or the intent name.**
+
+Evidence that the layout rule and the index bookkeeping are right, and that the
+transposed variant is wrong: from the official Conte69 `dtseries` (raw bytes) plus
+the official Conte69 `dlabel` (parcel vertex lists), I averaged the values of each
+parcel and got the official Conte69 `ptseries` values exactly - parcel
+`MEDIAL.WALL`, series 0: 1.43101 in both, and 1.39253 / 1.52133 for the next two
+parcels; the transposed reading interleaves the two series (1.43101, 2.5155,
+1.39253, 2.33944) and does not match. This single check covers the byte order, the
+dense index mapping and the parcel vertex lists at once, and it is worth turning
+into a test.
+
+### 3. The XML: the elements we must read and write
+
+```
+CIFTI Version="2"
++- Matrix
+   +- MetaData (0..1) ......... MD (0..N) -> Name, Value
+   +- LabelTable (0..1) ....... CIFTI-1 legacy, some tools put the parcel labels here
+   +- Volume (0..1) ........... CIFTI-1 legacy; CIFTI-2 puts it in the MatrixIndicesMap
+   +- MatrixIndicesMap (1..N) . AppliesToMatrixDimension ("0", "1", "0,1", ...)
+      |                         IndicesMapToDataType
+      |                         + series only: NumberOfSeriesPoints, SeriesStart,
+      |                           SeriesStep, SeriesExponent, SeriesUnit
+      +- BrainModel (0..N) ..... IndexOffset, IndexCount, ModelType, BrainStructure,
+      |                          SurfaceNumberOfVertices (surfaces only)
+      |                          -> VertexIndices (0..1) | VoxelIndicesIJK (0..1)
+      +- Parcel (0..N) ......... Name
+      |                          -> Vertices (0..N, attr BrainStructure) | VoxelIndicesIJK (0..1)
+      +- Surface (0..N) ........ BrainStructure, SurfaceNumberOfVertices
+      +- NamedMap (0..N) ....... MapName, LabelTable (0..1), MetaData (0..1)
+      |                          -> Label (Key, Red, Green, Blue, Alpha, X?, Y?, Z?)
+      +- Volume (0..1) ......... VolumeDimensions="i,j,k"
+                                 -> TransformationMatrixVoxelIndicesIJKtoXYZ
+                                    (MeterExponent, 16 values, row-major, 4x4)
+```
+
+- `IndicesMapToDataType` is one of `CIFTI_INDEX_TYPE_BRAIN_MODELS`,
+  `..._PARCELS`, `..._SERIES`, `..._SCALARS`, `..._LABELS` (exactly these five).
+- `SeriesUnit` is one of `SECOND`, `HERTZ`, `METER`, `RADIAN`; the time of index
+  `i` is `(SeriesStart + i * SeriesStep) * 10^SeriesExponent`.
+- One MatrixIndicesMap element can apply to several dimensions
+  (`AppliesToMatrixDimension="0,1"`); a `.dconn` has exactly one such element, and
+  a `.pconn`/`.dconn` therefore repeats the same brain model / parcel list for both
+  dimensions. When reading, a single map must be expanded to both dimensions;
+  when writing, the same content must be emitted once.
+- Numeric text content is whitespace separated, and `VoxelIndicesIJK` holds three
+  values per voxel: **nibabel writes them all on one line, Workbench one voxel per
+  line**. A reader must accept both (split on any whitespace, require exactly
+  `3 * IndexCount` values). This is not a theoretical detail: it is why the `cifti`
+  R package (which requires one or three values per line) fails on *every* voxel
+  model file written by nibabel - verified with `cifti::read_cifti()` on nibabel's
+  `row_major.dconn.nii`, which errors with "Unrecognized or inconsistent voxel IJK
+  sequence", and which is also why `.dconn` "cannot be read at all today". Our
+  writer should use Workbench's one-voxel-per-line layout, which both other
+  implementations accept.
+- `Parcel` has **no index attribute in CIFTI-2**: the index is the position in the
+  list (nibabel's `Cifti2Parcel` has no `index` field at all). Never reorder
+  parcels, and do not let an `Index` attribute found in some other tool's output
+  override the position.
+- The transform matrix replaces CIFTI-1's `UnitsXYZ` by `MeterExponent`
+  (Workbench writes `-3`, i.e. mm); it is stored row-major.
+- `Version` must be `"2"`. A CIFTI-1 file has a different element set and must be
+  rejected with a pointer to `wb_command -cifti-convert -version-convert in out 2`
+  (that is exactly how the official example files were produced, see their
+  provenance metadata).
+- The XML header declaration is optional (Workbench 2.2.1 writes
+  `<?xml version="1.0" encoding="UTF-8"?>`, nibabel `<?xml version="1.0" ?>`, the
+  2014 example files none at all) and the whitespace is arbitrary, so always
+  compare *parsed* structures, never strings.
+
+### 4. The nine standard file types
+
+Each row verified by creating such a file with Workbench 2.2.1 and dumping its
+header; `dim0` = the mapping of `dim[5]` (Workbench's ROW), `dim1` = `dim[6]`
+(COLUMN):
+
+| extension | dim0 | dim1 | intent code | intent name |
+| --- | --- | --- | --- | --- |
+| `.dconn.nii` | BRAIN_MODELS | BRAIN_MODELS | 3001 | `ConnDense` |
+| `.dscalar.nii` | SCALARS | BRAIN_MODELS | 3006 | `ConnDenseScalar` |
+| `.dtseries.nii` | SERIES | BRAIN_MODELS | 3002 | `ConnDenseSeries` |
+| `.dlabel.nii` | LABELS | BRAIN_MODELS | 3007 | `ConnDenseLabel` |
+| `.pconn.nii` | PARCELS | PARCELS | 3003 | `ConnParcels` |
+| `.pscalar.nii` | SCALARS | PARCELS | 3008 | `ConnParcelScalr` |
+| `.ptseries.nii` | SERIES | PARCELS | 3004 | `ConnParcelSries` |
+| `.pdconn.nii` | BRAIN_MODELS | PARCELS | 3010 | `ConnDenseParcel` |
+| `.dpconn.nii` | PARCELS | BRAIN_MODELS | 3009 | `ConnParcelDense` |
+
+`.ppseries`/`.ppscalar` (3011/3012, parcellated x parcellated, rarely used) fall
+out of the generic implementation for free. The smallest one I generated this way
+is 2164 bytes (1 parcel x 1 parcel `pconn`), the 10 x 10 `dconn` is 2640 bytes, so
+these make excellent shipped test data (section 11).
+
+### 5. Brain model bookkeeping (the actual hard part)
+
+- Every `BrainModel` covers a contiguous index range `[IndexOffset,
+  IndexOffset + IndexCount - 1]` of *its* dimension. **A structure may appear in
+  several brain models** (surface part plus volume part, or split groups), so the
+  reader must not assume one brain model per structure or per hemisphere; the
+  public accessor should return a table of ranges instead
+  (`structure, model_type, index_offset, index_count, surface_number_of_vertices`).
+- `IndexCount` is what the file contributes, `SurfaceNumberOfVertices` is the size
+  of the full surface - and they differ for grayordinates files, which drop the
+  medial wall. The official Conte69 `dtseries` has 30424 (lh) and 30527 (rh)
+  indices for 32492 vertex surfaces, so 2068 + 1965 vertices are absent.
+- `VertexIndices` may be absent (all vertices of the surface, `IndexCount` must
+  equal `SurfaceNumberOfVertices`), and `VoxelIndicesIJK` may be absent (all voxels
+  of `VolumeDimensions`) - both are legitimate and mean "everything".
+- Vertex indices are 0-based; voxel indices are 0-based IJK triplets in the grid
+  of the original volume, mapped to XYZ (mm) by the transform times
+  `10^MeterExponent`.
+- The per-vertex API keeps its current contract: the returned vector has length
+  `SurfaceNumberOfVertices` with `NA` where the file has no value (that is what
+  makes a grayordinates file usable with a full 32k surface, and what
+  `read.fs.morph.cifti()` already does today). Volume structures cannot be
+  returned as a per-vertex vector: return the index/affine information instead of
+  silently producing something.
+- Structure names must accept `CORTEX_LEFT`, `CIFTI_STRUCTURE_CORTEX_LEFT` and
+  nibabel's `CortexLeft` spelling, plus the existing `lh`/`rh` aliases (the
+  structure table is in `nibabel.cifti2.CIFTI_BRAIN_STRUCTURES` and in
+  `src/Common/StructureEnum.cxx` of Workbench).
+
+### 6. Parcels
+
+- A parcel is a name plus vertices per structure (a parcel spanning both
+  hemispheres is the normal case: the official `ptseries` has `<Vertices>` for
+  `CORTEX_LEFT` and `CORTEX_RIGHT` in each parcel) and optionally voxel indices.
+- The index is the position; names are the only labels in a parcellated file
+  (Workbench writes no `LabelTable` next to `PARCELS`; the names come from the
+  `LabelTable` of the `.dlabel` that was parcellated).
+- The medial wall is a parcel like any other when the source parcellation has a
+  label for it ("MEDIAL.WALL" is parcel 0 of the official `ptseries`) - never
+  filter it out.
+- To write a parcellated file one needs a parcels axis, from either a template
+  CIFTI file (recommended, same idea as `-cifti-create-*-from-template`) or a
+  parcellation in this package's own types: two `fs.annot` objects, grouped by
+  label *name* across hemispheres (the same normalization that was needed for the
+  yabplot atlases, where lh/rh carry `L_`/`R_` prefixes).
+
+### 7. API sketch
+
+Naming follows the package (readers `read.fs.*`, writers `write.fs.*`, internal
+helpers get man pages, `@family cifti`):
+
+- low level: `read.cifti.header(filepath)` -> an `fs.cifti` object that mirrors
+  the XML losslessly (`matrix$metadata`, `matrix$indices_maps`, each with `dims`,
+  `type`, `brain_models`, `parcels`, `surfaces`, `volumes`, `named_maps`,
+  `series`) plus the NIfTI-2 header; `cifti.structures(cii)`,
+  `cifti.parcels(cii, dim)`, `cifti.series.info(cii)`, `cifti.label.table(cii)`.
+- data: `read.cifti(filepath, rows = NULL, columns = NULL)` (header + the matrix;
+  the selection is applied while reading, not after), `read.cifti.rows(filepath,
+  indices, ...)` for the row-wise access of section 8.
+- the existing readers become native and keep their signatures and semantics:
+  `read.fs.morph.cifti()`, `read.fs.parcellation.cifti()`,
+  `read.fs.series.cifti()` - now also accepting a *file path* directly, which
+  removes the documented "read the file with the `cifti` package first"
+  workaround (`muschellij2/cifti#9`).
+- new: `read.fs.connectome.cifti(filepath, ...)` -> the `dconn`/`pconn` matrix
+  plus, for `pconn`, the parcel names; this is the piece that does not exist at
+  all today.
+- writing: `write.cifti(filepath, data, header = NULL, template = NULL, ...)` as
+  the single generic entry point (the file type follows from the axes and/or the
+  file name, and is validated: a `.pdconn.nii` name with the wrong axis order is
+  an error, not a warning as in Workbench), plus axis builders
+  `cifti.axis.brain.models()`, `cifti.axis.parcels()`, `cifti.axis.series()`,
+  `cifti.axis.scalars()`, `cifti.axis.labels()` and
+  `cifti.header.from.axes(axes, metadata = NULL)` (the equivalent of nibabel's
+  `cifti2_axes.to_header()`, which is the cleanest way to keep the "which
+  dimension is which" logic in one place).
+- convenience writers for the common cases, all accepting a `template`
+  (recommended: the grayordinates mapping of a real HCP file cannot be invented):
+  `write.fs.morph.cifti()` (`dscalar`), `write.fs.parcellation.cifti()`
+  (`dlabel`), `write.fs.series.cifti()` (`dtseries`),
+  `write.fs.connectome.cifti()` (`dconn`/`pconn`, type from the file name or an
+  explicit argument), `write.fs.parcellated.cifti()` (`pscalar`/`ptseries`).
+- dispatch fixes (small but they are real bugs today): `read.fs.morph()` on a
+  `.dscalar.nii`/`.dtseries.nii` currently treats it as a NIfTI file and
+  **silently returns the raw matrix as a morph vector** (verified: a 121902
+  element vector for the official `dtseries`), and `read.fs.volume()` fails with
+  the unrelated message "This is not a one-file NIfTI format". Both should detect
+  a CIFTI (magic `n+2` plus intent >= 3000 or extension code 32) and either do the
+  right thing or error with a pointer to the CIFTI reader.
+
+### 8. Large files: `.dconn` is 9-38 GB
+
+Reading a real HCP `.dconn` eagerly is impossible, so this is a feature, not an
+optimization. The layout makes it easy: a *stored* row is one index of dimension 1
+(one grayordinate), and its `dim[5]` values are contiguous, so
+`read.cifti.rows(filepath, indices)` = one seek plus one `readBin` per requested
+index. The eager reader must consult the existing `validate_allocation_size()`
+guard and its error message should point at the row-wise reader instead of just
+refusing. Writing large files can stay simple (`writeBin` of the whole matrix) with
+an optional chunked writer (`rows_per_chunk`) as a later extension. Do not exploit
+the symmetry of connectomes when reading or writing: the file stores the whole
+matrix.
+
+### 9. Deliberately not supported
+
+- **CIFTI-1** (`Version="1.0"`, `NodeIndices`/`TimeStep`/`CIFTI_ROOT`): reject with
+  the `-cifti-convert -version-convert` hint.
+- **The CIFTI-1 sparse (compressed row storage) and per-row GZIP
+  representations**: their intent codes were never standardised, no current tool
+  writes them; detect and reject by intent code, do not guess.
+- **gzipped CIFTI files** (forbidden by the format, see section 1).
+- The `-cifti-convert -to-gifti-ext` bridge (GIFTI is item II.3, and the bridge is
+  a Workbench convenience, not a file format).
+- Fabricating Workbench-style provenance metadata. Metadata that is in the file is
+  preserved on rewriting; nothing is invented, so round trips stay comparable.
+
+### 10. Verification strategy
+
+Oracles, in decreasing strength:
+
+1. **Semantic reproduction** (writer-independent, catches exactly the silent
+   errors this item is about): parcellate the official `dtseries` with the
+   official parcels and compare with the official `ptseries` (section 2 shows this
+   works and is decisive); correlate the official `dtseries` rows and compare with
+   Workbench's `-cifti-correlation` output; export the dense mapping with
+   `-cifti-export-dense-mapping` and compare with our brain model table.
+2. **Workbench reads our files**: `wb_command -nifti-information <file>
+   -print-header -print-matrix -print-xml` (note: a `-print-*` option is required,
+   `-help` does not exist, run a subcommand without arguments for its usage),
+   `-cifti-convert -to-text` (values as text), `-cifti-stats`, `-cifti-transpose`,
+   `-cifti-parcellate`, `-cifti-math`.
+3. **nibabel** reads our files and we read nibabel's (values, every XML field, the
+   computed axes via `cifti2_axes`); its parser is strict, so it doubles as a
+   schema check.
+4. **We read Workbench-written files** (values and XML), including the files
+   generated for the test data (section 11).
+5. **The `cifti` R package** for the types it supports (it stays in `Suggests` for
+   this purpose only) - a regression check that the existing user-visible results
+   do not change.
+6. **Round trips**: read -> write -> read, comparing parsed headers and values
+   (never bytes: XML formatting and metadata order differ legitimately), plus
+   "we wrote it, Workbench reads it, Workbench's values equal the input".
+7. **Byte level**: the extension size/padding/`vox_offset` rules of section 1, as
+   a dump comparison like the ones used for NRRD and ANALYZE.
+
+To be built like the other formats: `dev_tools/generate_cifti_test_data.py`
+(fixtures, nibabel), `dev_tools/cifti_dump.py` (reference dumps: dims, intent,
+extension layout, canonicalized XML, value statistics), `dev_tools/check_cifti_conversion.R`
+(the checks above; dumps make the nibabel part runnable without Python, the
+Workbench part is live), and hand-written tests.
+
+### 11. Test data
+
+- `inst/extdata/cifti/` (shipped with the package, a few KB each): the small files
+  written by Workbench 2.2.1 that I generated while planning -
+  `dscalar`, `dlabel`, `dtseries`, `dconn`, `pscalar`, `ptseries`, `pconn`,
+  `dpconn`, `pdconn` on a synthetic 10 vertex surface, plus (a) a nibabel-written
+  voxel-model file with all `VoxelIndicesIJK` on one line (the layout that breaks
+  `cifti`), and (b) a truncated file for the error paths. Their exact commands go
+  into the generator script so they can be regenerated; the provenance metadata
+  they contain (paths of this machine) should be replaced by something neutral
+  when committing, or the files should be regenerated in a fixed directory.
+- `extra_test_data/cifti/`: the three official example files (already in the
+  repo), plus `expected/` reference dumps, plus - very valuable because it has
+  **real geometry** and a **reduced dense mapping** - a small `.pconn` built from
+  the official `dtseries` + `dlabel`
+  (`-cifti-parcellate ... COLUMN` then `-cifti-correlation`, 54 x 54 = ~11 KB) and
+  a small `.dconn` built by restricting the dense mapping to ~300 grayordinates
+  first (`-cifti-restrict-dense-map <in> COLUMN <out> -left-roi/-right-roi` with a
+  synthetic ROI metric, then `-cifti-correlation`, ~360 KB). Those two exercise
+  "IndexCount < SurfaceNumberOfVertices", non-contiguous vertex indices and the
+  symmetric matrix case.
+- Not shippable, and therefore only handled by the row-wise reader and documented:
+  a real HCP `.dconn` (9-38 GB) and the HCP grayordinates templates.
+
+### 12. Sub-items, sequencing and effort
+
+- **I.2a** (S): NIfTI-2 header extensions - reader returns them, `write.nifti2()`
+  writes them, `vox_offset` bookkeeping, the wrong "padding" comment fixed, tests
+  (`test-read_nifti2.R`, `test-write_nifti2.R`).
+- **I.2b** (M): the XML model - parser for all five mapping types and all elements
+  of section 3, `read.cifti.header()`, structural validation with clear errors
+  (CIFTI-1, unknown type, index/graph inconsistencies), tests with the fixtures.
+- **I.2c** (M): dense data - `read.cifti()`, brain model table, the per-structure
+  and per-vertex accessors, volume structures, native
+  `read.fs.morph.cifti()`/`read.fs.series.cifti()`, `dscalar`/`dlabel`/`dtseries`/
+  `dconn` writers.
+- **I.2d** (M): parcels - parcels axis (surface + volume parcels), `dlabel` label
+  tables, `read.fs.parcellation.cifti()`, `read.fs.connectome.cifti()`,
+  `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, building a parcels axis
+  from annotations.
+- **I.2e** (S): integration - remove the hard `cifti` requirement from the code
+  paths, the CIFTI detection in `read.fs.morph()`/`read.fs.volume()`, docs
+  (`?read.cifti`, README, CHANGES).
+- **I.2f** (S): row-wise access for large files (`read.cifti.rows()`), allocation
+  guard message, tests with a synthetic large-header file.
+- **I.2g** (M): the dev tools, the check script against nibabel and Workbench, the
+  shipped fixtures, the extra test data, and the plan/README/CHANGES updates.
+- Effort: **L** overall (the earlier "M-L" estimate holds; the reading side and its
+  verification dominate, the container itself is small because the NIfTI-2 layer
+  and `xml2` are already there).
+- Risks: the spec is not machine-readable, so the XML grammar rests on nibabel's
+  parser plus Workbench's behaviour - mitigated by testing against both; the
+  `cifti` package must not regress the existing behaviour (section 10.5); the
+  naming/dimension traps of sections 2 and 4 are the most likely source of a
+  silent transposition bug, which is why the semantic reproduction check comes
+  first.
 
 ---
 
@@ -490,3 +885,61 @@ Findings from the `.mat` sidecar work (II.2b), worth not rediscovering:
   affine in 1-based voxel space, and reading it back with our code reproduces the
   affine that was passed to nibabel exactly (verified for every fixture in the
   check script).
+
+### Increment 5: NIFTI v2 header extensions (2026-09-22) -- DONE (item I.2a)
+
+- New file `R/nifti2_extensions.R` (`nifti2.extension()`,
+  `nifti2.get.extension()`, `nifti2.extension.text()` exported; the size, the
+  reader, the writer and the NUL handling as internal helpers with man pages).
+- `read.nifti2.header()` returns the extensions in a new `extensions` field,
+  `write.nifti2()` gained an `extensions` parameter (falling back to the field of
+  the header, so a header can be read and written back without losing them),
+  `ni2header.template()` no longer claims the NIFTI v1 magic, and `pix_dim` of
+  the template is no longer all zeroes.
+- New `dev_tools/nibabel_nifti2_dump.py` (dumps a file with nibabel, can also
+  write a reference file) and `dev_tools/check_nifti2_extensions.R` (28 checks,
+  0 failures): nibabel reads our files with and without extensions, compressed
+  and uncompressed, and reports the exact payloads; we read a nibabel-written
+  file; the XML metadata of the three official CIFTI-2 example files written by
+  Connectome Workbench matches nibabel byte for byte; Connectome Workbench reads
+  our file and agrees on the data offset.
+- New tests `tests/testthat/test-read_nifti2_extensions.R` and
+  `test-write_nifti2_extensions.R` (71 expectations). Full suite: 2628 pass,
+  0 fail, 2 pre-existing skips. `R CMD check`: 0 errors, 0 warnings, 0 notes.
+
+Findings from this increment, worth not rediscovering:
+
+- **The magic string of a NIFTI v2 file is `n+2\0\r\n\032\n`, and older versions
+  of this package wrote `n+1`.** Both reference implementations reject such a
+  file (nibabel: 'magic string n+1 is not valid'; Connectome Workbench:
+  'incorrect magic', exit code 255), i.e. every NIFTI-2 file this package has
+  written so far was unreadable outside R. Fixed, and reading such a file now
+  warns. The template also had `pix_dim` all zeroes, which nibabel repairs on
+  load (with a warning), so other software saw a header different from the one we
+  wrote; it is all 1.0 now, like nibabel and Workbench.
+- **FreeSurfer's `mri_convert` cannot read NIFTI-2 files at all**, not even ones
+  written by nibabel ('niiRead(): bad magic number'). It is therefore *not* a
+  reference implementation for NIFTI-2, only for NIFTI v1 and ANALYZE.
+- **Extension area layout**: 4 flag bytes at offset 540 (first byte non-zero iff
+  extensions follow), then per extension a 4 byte size (total, always a multiple
+  of 16) and a 4 byte code, then the payload; the data starts at `vox_offset`,
+  which is exactly `544 + sum(sizes)` with no extra padding. The size is
+  `(length(payload) + 23) %/% 16 * 16` (nibabel's rule, `content + 8` rounded up
+  to 16). Workbench always pads with at least one NUL, nibabel does not guarantee
+  one, and **both strip trailing NULs when reading**, so we do too (which makes a
+  payload comparison against nibabel exact, and lets a rewritten file end up with
+  a different but valid size).
+- **Reading the magic with `read.fixed.char.binary()` gives `n+2\r\n\032\n`**
+  (7 characters): that helper removes NUL bytes, so comparisons must use
+  `substr(magic, 1, 3)`.
+- nibabel reports `hdr['dim'][0]` as the number of used dimensions (3 for our
+  3D test file), not as the highest used index.
+- For a CIFTI file, `nibabel.load()` returns a `Cifti2Image` whose `.header` is a
+  *CIFTI* header with no `dim` field; the NIFTI header is at `.nifti_header`. The
+  payload of a CIFTI extension is parsed into an object by nibabel, so the raw
+  bytes are only available via the private `._raw` attribute (a useful trick for
+  a check tool, but nothing to build on).
+- Connectome Workbench as a verifier: `wb_command -nifti-information <file>
+  -print-header` prints the header and exits 255 with 'incorrect magic' for a bad
+  file; at least one `-print-*` option is required and the file must be a valid
+  NIFTI, `-print-xml` is CIFTI-only.

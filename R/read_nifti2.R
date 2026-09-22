@@ -2,7 +2,12 @@
 #'
 #' @param filepath path to a NIFTI v2 file.
 #'
-#' @return named list with NIFTI 2 header fields.
+#' @return named list with NIFTI 2 header fields. The header extensions, if the file has any, are returned in
+#'   the field `extensions`, a list in which each entry is one header extension as created by
+#'   \code{\link{nifti2.extension}} (i.e., a list with the entries 'ecode' and 'content'). CIFTI2 files store
+#'   their XML metadata in such an extension, see \code{\link{nifti2.get.extension}}.
+#'
+#' @seealso \code{\link{write.nifti2}}
 #'
 #' @export
 read.nifti2.header <- function(filepath) {
@@ -17,7 +22,7 @@ read.nifti2.header <- function(filepath) {
 #'
 #' @param little_endian internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.
 #'
-#' @return named list with NIFTI 2 header fields.
+#' @return named list with NIFTI 2 header fields, including the header extensions (field `extensions`, see \code{\link{read.nifti2.header}}).
 #'
 #' @note See https://nifti.nimh.nih.gov/pub/dist/data/nifti2/ for test data. Thanks to Anderson Winkler for his post at https://brainder.org/2015/04/03/the-nifti-2-file-format/.
 #'
@@ -51,6 +56,13 @@ read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   }
 
   niiheader$magic <- read.fixed.char.binary(fh, 8L)
+
+  # The magic of a NIFTI v2 file is the string 'n+2'. Versions of this package before 1.1.0 wrote 'n+1' here,
+  # which is the NIFTI v1 magic: the files are still readable here, but other software rejects them
+  # (nibabel reports 'magic string n+1 is not valid', Connectome Workbench reports 'incorrect magic').
+  if (!is.na(niiheader$magic) && nchar(niiheader$magic) >= 3L && identical(substr(niiheader$magic, 1L, 3L), "n+1")) {
+    warning("The magic string of this NIFTI v2 file is 'n+1', which is the NIFTI v1 magic. This violates the NIFTI v2 standard, and other software (nibabel, Connectome Workbench) refuses to read such a file. Files written by versions of this package before 1.1.0 have this problem. The file can be fixed by writing it again with a NIFTI v2 header created by this package, see ?write.nifti2.\n")
+  }
   niiheader$datatype <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
   niiheader$bitpix <- readBin(fh, integer(), n = 1, size = 2, endian = endian)
   niiheader$dim <- readBin(fh, integer(), n = 8, size = 8, endian = endian)
@@ -102,10 +114,19 @@ read.nifti2.header.internal <- function(filepath, little_endian = TRUE) {
   niiheader$intent_name <- read.fixed.char.binary(fh, 16L)
   niiheader$dim_info <- readBin(fh, integer(), n = 1, size = 1, endian = endian)
 
-  # Read the padding. May contain custom header extensions (used in CIFTI2), which we do not interprete.
-  num_skip <- 15L # padding bytes to skip.
-  discarded <- readBin(fh, integer(), n = num_skip, size = 1L)
-  discarded <- NULL
+  # 'unused_str': 15 reserved bytes, they are always zero in practice.
+  unused_str <- readBin(fh, integer(), n = 15L, size = 1L, endian = endian)
+  unused_str <- NULL
+
+  # The 4 bytes after the fixed-size header tell whether header extensions follow: if the first byte
+  # is non-zero, one or more extensions follow, and the file offset of the data ('vox_offset') is
+  # larger than 544. CIFTI2 files store their XML metadata in such an extension, see
+  # R/nifti2_extensions.R.
+  extender <- readBin(fh, integer(), n = 4L, size = 1L, endian = endian)
+  niiheader$extensions <- list()
+  if (length(extender) == 4L && extender[1L] != 0L) {
+    niiheader$extensions <- nifti2.read.extensions(fh, as.integer(niiheader$vox_offset) - 544L, endian)
+  }
 
   return(niiheader)
 }

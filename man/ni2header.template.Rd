@@ -14,6 +14,8 @@ Create a template NIFTI v2 header. You will have to adapt it for your use case.
 }
 \note{
 Commonly used data type settings are: for signed integers datatype = \code{8L} and bitpix = \code{32L}; for floats datatype = \code{16L} and bitpix = \code{32L}. See the NIFTI v2 standard for more options. You may want to call \code{\link{ni2header.for.data}} instead of this function.
+
+The 'magic' field of a NIFTI v2 file must be the string 'n+2'. Versions of this package before 1.1.0 wrote the NIFTI v1 magic 'n+1' here, which violates the standard and makes other software (nibabel, Connectome Workbench) refuse the file; \code{\link{write.nifti2}} writes the full 8 byte magic of the standard.
 }
 \seealso{
 \code{\link{ni2header.for.data}}

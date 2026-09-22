@@ -12,7 +12,7 @@ read.nifti2.header.internal(filepath, little_endian = TRUE)
 \item{little_endian}{internal logical, leave this alone. Endianness will be figured out automatically, messing with this parameter only hurts.}
 }
 \value{
-named list with NIFTI 2 header fields.
+named list with NIFTI 2 header fields, including the header extensions (field \code{extensions}, see \code{\link{read.nifti2.header}}).
 }
 \description{
 Read NIFTI v2 header from file.

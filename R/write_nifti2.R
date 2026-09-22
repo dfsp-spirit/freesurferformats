@@ -4,6 +4,8 @@
 #'
 #' @note Commonly used data type settings are: for signed integers datatype = `8L` and bitpix = `32L`; for floats datatype = `16L` and bitpix = `32L`. See the NIFTI v2 standard for more options. You may want to call \code{\link{ni2header.for.data}} instead of this function.
 #'
+#' @note The 'magic' field of a NIFTI v2 file must be the string 'n+2'. Versions of this package before 1.1.0 wrote the NIFTI v1 magic 'n+1' here, which violates the standard and makes other software (nibabel, Connectome Workbench) refuse the file; \code{\link{write.nifti2}} writes the full 8 byte magic of the standard.
+#'
 #' @seealso \code{\link{ni2header.for.data}}
 #'
 #' @export
@@ -23,7 +25,7 @@ ni2header.template <- function() {
   niiheader$bitpix <- 4 * 8L
   niiheader$slice_start <- 0L
 
-  niiheader$pix_dim <- rep(0.0, 8L)
+  niiheader$pix_dim <- rep(1.0, 8L) # the voxel sizes of the used dimensions must be positive, the fields of unused dimensions are ignored.
   niiheader$vox_offset <- 544L
   niiheader$scl_slope <- 0.0
   niiheader$scl_inter <- 0.0
@@ -56,7 +58,7 @@ ni2header.template <- function() {
   niiheader$srow_z <- rep(0.0, 4L)
 
   niiheader$intent_name <- "" # max 16 bytes
-  niiheader$magic <- "n+1" # max 4 bytes
+  niiheader$magic <- "n+2" # max 8 bytes, see the note in the documentation of this function.
 
   niiheader$dim_info <- 0L
 
@@ -104,12 +106,41 @@ ni2header.for.data <- function(niidata) {
 #'
 #' @param niiheader an optional NIFTI v2 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni2header.for.data}}.
 #'
+#' @param extensions optional list of NIFTI v2 header extensions to write between the header and the data, each
+#'   created with \code{\link{nifti2.extension}}. If left at `NULL` and the 'niiheader' has a field named
+#'   'extensions', that field is used, so that a header read with \code{\link{read.nifti2.header}} can be written
+#'   back to a new file without losing its extensions. The 'vox_offset' field of the header is adapted if it is
+#'   too small to fit the extensions, and the data is written directly after them.
+#'
 #' @family nifti2 writers
 #'
+#' @seealso \code{\link{read.nifti2.header}}, \code{\link{nifti2.get.extension}}
+#'
 #' @export
-write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
+write.nifti2 <- function(filepath, niidata, niiheader = NULL, extensions = NULL) {
   if (is.null(niiheader)) {
     niiheader <- ni2header.for.data(niidata)
+  }
+
+  if (is.null(extensions)) {
+    extensions <- niiheader$extensions
+  }
+  if (is.null(extensions)) {
+    extensions <- list()
+  }
+  if (!is.list(extensions)) {
+    stop("Parameter 'extensions' must be a list of NIFTI v2 header extensions, see nifti2.extension().")
+  }
+  if (length(extensions) > 0L) {
+    extensions <- lapply(extensions, function(ext) {
+      # Validate and normalize, so that the size computation below is safe.
+      return(nifti2.extension(ext$ecode, ext$content))
+    })
+    # The data always starts after the extensions, so the file offset of the data has to be large enough.
+    vox_offset_required <- 544L + sum(vapply(extensions, nifti2.extension.size, integer(1L)))
+    if (as.integer(niiheader$vox_offset) < vox_offset_required) {
+      niiheader$vox_offset <- vox_offset_required
+    }
   }
 
   if (!nifti.header.check(niiheader, nifti_version = 2L)) {
@@ -127,9 +158,16 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
   writeBin(as.integer(niiheader$sizeof_hdr), fh, size = 4L, endian = endian)
 
   if (nchar(niiheader$magic) > 0L) {
-    writeChar(niiheader$magic, fh, nchars = nchar(niiheader$magic), eos = NULL)
+    if (identical(substr(niiheader$magic, 1L, 3L), "n+2")) {
+      # The standard magic of a NIFTI v2 file consists of exactly these 8 bytes.
+      writeBin(as.raw(c(0x6e, 0x2b, 0x32, 0x00, 0x0d, 0x0a, 0x1a, 0x0a)), fh, endian = endian)
+    } else {
+      writeChar(niiheader$magic, fh, nchars = nchar(niiheader$magic), eos = NULL)
+      writeBin(as.raw(rep(0L, (8L - nchar(niiheader$magic)))), fh, endian = endian) # fill remaining space up to max 8 bytes with zeroes.
+    }
+  } else {
+    writeBin(as.raw(rep(0L, 8L)), fh, endian = endian) # fill all 8 bytes with zeroes.
   }
-  writeBin(as.raw(rep(0L, (8L - nchar(niiheader$magic)))), fh, endian = endian) # fill remaining space up to max 8 bytes with zeroes.
 
   writeBin(as.integer(niiheader$datatype), fh, size = 2L, endian = endian)
 
@@ -191,13 +229,18 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
 
   writeBin(as.integer(niiheader$dim_info), fh, size = 1L, endian = endian)
 
-  # add unused_str of length 15. Reserved for header extensions.
-  writeBin(as.raw(rep(0L, 15L)), fh, endian = endian) # fill with zeroes
+  # add unused_str of length 15. Reserved, always zero in practice.
+  writeBin(as.raw(rep(0L, 15L)), fh, endian = endian)
+
+  # add the extension flag bytes (4 bytes) and the header extensions, if any.
+  num_extension_bytes <- nifti2.write.extensions(fh, extensions, endian)
 
   # add zero padding up to 'vox_offset'.
-  position_now <- 540L
+  position_now <- 540L + num_extension_bytes
   num_to_fill <- as.integer(niiheader$vox_offset) - position_now
-  writeBin(as.integer(rep(0L, num_to_fill)), fh, size = 1L, endian = endian)
+  if (num_to_fill > 0L) {
+    writeBin(as.raw(rep(0L, num_to_fill)), fh, endian = endian)
+  }
 
   # Write data.
   if (as.integer(niiheader$datatype) %in% c(2L, 4L, 8L, 512L, 768L)) { # integer NIFTI data types
@@ -214,5 +257,5 @@ write.nifti2 <- function(filepath, niidata, niiheader = NULL) {
     writeBin(data_written, fh, size = as.integer(niiheader$bitpix / 8L), endian = endian)
   }
   close(fh)
-  return(invisible(list("header" = niiheader, "data" = data_written)))
+  return(invisible(list("header" = niiheader, "data" = data_written, "extensions" = extensions)))
 }

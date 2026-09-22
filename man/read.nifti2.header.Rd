@@ -10,8 +10,14 @@ read.nifti2.header(filepath)
 \item{filepath}{path to a NIFTI v2 file.}
 }
 \value{
-named list with NIFTI 2 header fields.
+named list with NIFTI 2 header fields. The header extensions, if the file has any, are returned in
+the field \code{extensions}, a list in which each entry is one header extension as created by
+\code{\link{nifti2.extension}} (i.e., a list with the entries 'ecode' and 'content'). CIFTI2 files store
+their XML metadata in such an extension, see \code{\link{nifti2.get.extension}}.
 }
 \description{
 Read NIFTI v2 header from file.
+}
+\seealso{
+\code{\link{write.nifti2}}
 }

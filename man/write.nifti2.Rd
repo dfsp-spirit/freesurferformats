@@ -4,7 +4,7 @@
 \alias{write.nifti2}
 \title{Write header and data to a file in NIFTI v2 format.}
 \usage{
-write.nifti2(filepath, niidata, niiheader = NULL)
+write.nifti2(filepath, niidata, niiheader = NULL, extensions = NULL)
 }
 \arguments{
 \item{filepath}{the file to write. The extension should be '.nii' or '.nii.gz'.}
@@ -12,11 +12,19 @@ write.nifti2(filepath, niidata, niiheader = NULL)
 \item{niidata}{array of numeric or integer data, with up to 7 dimensions. Will be written to the file with the datatype and bitpix specified in the 'niiheader' argument.}
 
 \item{niiheader}{an optional NIFTI v2 header that is suitable for the passed 'niidata'. If not given, one will be generated with \code{\link{ni2header.for.data}}.}
+
+\item{extensions}{optional list of NIFTI v2 header extensions to write between the header and the data, each
+created with \code{\link{nifti2.extension}}. If left at \code{NULL} and the 'niiheader' has a field named
+'extensions', that field is used, so that a header read with \code{\link{read.nifti2.header}} can be written
+back to a new file without losing its extensions. The 'vox_offset' field of the header is adapted if it is
+too small to fit the extensions, and the data is written directly after them.}
 }
 \description{
 Write header and data to a file in NIFTI v2 format.
 }
 \seealso{
+\code{\link{read.nifti2.header}}, \code{\link{nifti2.get.extension}}
+
 Other nifti2 writers:
 \code{\link[=write.fs.morph.ni2]{write.fs.morph.ni2()}}
 }
