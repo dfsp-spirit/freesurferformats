@@ -239,6 +239,39 @@ cifti.validate.file.extension <- function(filepath, file_type) {
 }
 
 
+#' @title Refuse a CIFTI-2 file name for a file that is not a CIFTI-2 file.
+#'
+#' @description The writers of this package that are not CIFTI writers (`write.fs.morph()`,
+#'   `write.fs.volume()`) derive the format from the file name, and a CIFTI-2 file name
+#'   looks like a NIFTI name. Writing a NIFTI file under a name like `.dscalar.nii` would
+#'   produce a file whose content contradicts its name: this package (and Connectome
+#'   Workbench) refuse to read it, because the name promises the CIFTI XML metadata that
+#'   describes what the matrix dimensions contain. This function turns that into an error
+#'   that names the writer to use instead.
+#'
+#' @param filepath character string, the name of the file that is about to be written.
+#'
+#' @return `NULL`, invisibly. Stops if the name is one of the standard CIFTI-2 file names.
+#'
+#' @keywords internal
+cifti.stop.if.cifti.name <- function(filepath) {
+  if (!is.character(filepath) || length(filepath) != 1L || is.na(filepath)) {
+    return(invisible(NULL))
+  }
+  file_type <- cifti.file.type.for.extension(filepath)
+  if (!nzchar(file_type)) {
+    return(invisible(NULL))
+  }
+  stop(sprintf(paste0("The file name '%s' is the name of a CIFTI-2 file type, and this function does not write CIFTI-2 ",
+                      "files: the file would be refused by this package (and misread by other software), because its name ",
+                      "promises the CIFTI XML metadata that describes what the matrix dimensions contain. Use write.cifti() ",
+                      "to write a CIFTI-2 file, or write.fs.morph.cifti(), write.fs.series.cifti(), ",
+                      "write.fs.parcellation.cifti(), write.fs.connectome.cifti() or write.fs.parcellated.cifti() for the ",
+                      "common cases. If you need a NIFTI file, choose a name that is not a CIFTI-2 file name.\n"),
+               basename(filepath)))
+}
+
+
 #' @title Build the NIFTI-2 header of a CIFTI-2 file.
 #'
 #' @description CIFTI-2 files are NIFTI-2 files whose header has a fixed shape: the matrix

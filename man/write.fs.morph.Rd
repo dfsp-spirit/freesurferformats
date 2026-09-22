@@ -21,6 +21,13 @@ character string. The format that was used to write the data. One of c("auto", "
 \description{
 Given data and a morphometry file name, derive the proper format from the file extension and write the file.
 }
+\note{
+A file name that is one of the standard CIFTI-2 names (e.g. \code{.dscalar.nii} or
+\code{.dlabel.nii}) is an error: such a file has to contain the CIFTI XML metadata, and
+a NIFTI file with that name is read as a CIFTI file (and refused) by this package
+and by other software. Use \code{\link{write.fs.morph.cifti}} to write morphometry
+data to a CIFTI-2 file, or \code{\link{write.cifti}} for the other CIFTI-2 types.
+}
 \seealso{
 Other morphometry functions:
 \code{\link[=fs.get.morph.file.ext.for.format]{fs.get.morph.file.ext.for.format()}},

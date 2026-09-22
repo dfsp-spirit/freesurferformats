@@ -12,6 +12,11 @@
 #'
 #' @family morphometry functions
 #'
+#' @note CIFTI-2 files (which are NIFTI-2 files, see \code{\link{read.cifti}}) are
+#'   refused with an error instead of being read as volumes: their payload is a
+#'   matrix whose dimensions the CIFTI XML metadata describes, so the values would
+#'   come back as voxels that mean nothing.
+#'
 #' @seealso To derive more information from the header, see the `mghheader.*` functions, like \code{\link[freesurferformats]{mghheader.vox2ras.tkreg}}.
 #'
 #' @examples
@@ -46,6 +51,9 @@ read.fs.volume <- function(filepath, format = "auto", flatten = FALSE, with_head
     }
     filepath <- pair$header
   }
+
+  # A CIFTI-2 file is a NIFTI-2 file, but its data are a matrix, not a volume.
+  cifti.stop.if.cifti(filepath)
 
   if (format == "nii" | (format == "auto" & filepath.ends.with(filepath, c(".nii", ".nii.gz")))) {
     return(read.fs.volume.nii(filepath, flatten = flatten, with_header = with_header, drop_empty_dims = drop_empty_dims))

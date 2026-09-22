@@ -1291,3 +1291,78 @@ cifti.file.looks.like.cifti1 <- function(filepath) {
   }
   return(length(grepRaw("CIFTI", header_bytes, fixed = TRUE)) > 0L)
 }
+
+
+#' @title Check whether a file is a CIFTI-2 file (internal helper).
+#'
+#' @description Cheap and silent check whether a file is a CIFTI-2 file, i.e. a NIFTI v2
+#'   file with a header extension of code 32, the extension that holds the CIFTI XML
+#'   metadata. The format dispatchers (`read.fs.morph()`, `read.fs.volume()`) use it to
+#'   give a helpful error: the payload of a CIFTI-2 file is a matrix whose dimensions the
+#'   XML describes, not a volume or a per-vertex vector, so reading it with the NIFTI
+#'   reader silently returns values in an order that means nothing.
+#'
+#' @inheritParams read.cifti.header
+#'
+#' @return logical, whether the file is a CIFTI-2 file. A file that does not exist or
+#'   cannot be parsed is reported as `FALSE`.
+#'
+#' @keywords internal
+cifti.file.looks.like.cifti2 <- function(filepath) {
+  if (!is.character(filepath) || length(filepath) != 1L || is.na(filepath) || !file.exists(filepath)) {
+    return(FALSE)
+  }
+  extension <- tryCatch(
+    nifti2.get.extension(read.nifti2.header(filepath), CIFTI_EXTENSION_CODE),
+    error = function(e) NULL
+  )
+  return(!is.null(extension))
+}
+
+
+#' @title Refuse to read a CIFTI file as a volume or morphometry file.
+#'
+#' @description The generic readers of this package dispatch on the file name, and a CIFTI
+#'   file is a NIFTI file as far as the name is concerned: `read.fs.morph()` used to
+#'   interpret a `.dscalar.nii` as a NIFTI morphometry file and silently returned the raw
+#'   matrix as a per-vertex vector (for the official Conte69 `.dtseries`, a 121,902 element
+#'   vector of a 60,951 x 2 matrix, i.e. plausible looking numbers in an order that means
+#'   nothing), and `read.fs.volume()` failed with the unrelated 'This is not a one-file
+#'   NIFTI format' message of `oro.nifti`. This function detects the CIFTI files and stops
+#'   with an error that names the reader to use instead, see \code{\link{read.cifti}}.
+#'
+#'   The check only costs a header read, and only for files whose name ends with `.nii` or
+#'   `.nii.gz`, since a CIFTI file always has such a name.
+#'
+#' @inheritParams read.cifti.header
+#'
+#' @return `NULL`, invisibly. Stops if the file is a CIFTI file.
+#'
+#' @keywords internal
+cifti.stop.if.cifti <- function(filepath) {
+  if (!is.character(filepath) || length(filepath) != 1L || is.na(filepath) || !file.exists(filepath)) {
+    return(invisible(NULL))
+  }
+  if (!filepath.ends.with(filepath, c(".nii", ".nii.gz"))) {
+    return(invisible(NULL))
+  }
+  if (cifti.file.looks.like.cifti2(filepath)) {
+    stop(sprintf(paste0("File '%s' is a CIFTI-2 file, not a NIFTI volume or morphometry file: its payload is a matrix ",
+                        "whose dimensions are described by the CIFTI XML metadata, e.g. the maps and the grayordinates of a ",
+                        "'.dscalar' file or the time points and the grayordinates of a '.dtseries' file. Use read.cifti() to get ",
+                        "the matrix itself, read.fs.morph.cifti(), read.fs.series.cifti() or read.fs.parcellation.cifti() to ",
+                        "reconstruct the data of one brain structure, or read.fs.connectome.cifti() for a connectome file.\n"),
+                 filepath))
+  }
+  # A CIFTI-1 file is a NIFTI-1 file with a CIFTI intent code and the XML stored as plain
+  # text. The intent code is checked as well, so that a NIFTI file which merely mentions
+  # CIFTI somewhere in its header is not mistaken for one.
+  nii1header <- tryCatch(read.nifti1.header(filepath), error = function(e) NULL)
+  if (!is.null(nii1header) && !is.null(nii1header$intent_code) && nii1header$intent_code >= 3000L &&
+      nii1header$intent_code <= 3012L && cifti.file.looks.like.cifti1(filepath)) {
+    stop(sprintf(paste0("File '%s' looks like a CIFTI-1 file, which is not supported. This package reads CIFTI-2 files ",
+                        "with read.cifti(); convert the file to CIFTI-2 first, e.g. with the Connectome Workbench command ",
+                        "'wb_command -cifti-convert -version-convert <input> 2 <output>'.\n"), filepath))
+  }
+  return(invisible(NULL))
+}

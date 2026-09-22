@@ -121,6 +121,12 @@ fwrite3 <- function(filehandle, data) {
 #'
 #' @return character string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "ni1", "ni2", "gii").
 #'
+#' @note A file name that is one of the standard CIFTI-2 names (e.g. `.dscalar.nii` or
+#'   `.dlabel.nii`) is an error: such a file has to contain the CIFTI XML metadata, and
+#'   a NIFTI file with that name is read as a CIFTI file (and refused) by this package
+#'   and by other software. Use \code{\link{write.fs.morph.cifti}} to write morphometry
+#'   data to a CIFTI-2 file, or \code{\link{write.cifti}} for the other CIFTI-2 types.
+#'
 #' @family morphometry functions
 #'
 #' @export
@@ -128,6 +134,10 @@ write.fs.morph <- function(filepath, data, format = "auto", ...) {
   if (!format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "ni1", "ni2")) {
     stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii', 'ni1', or 'ni2'.")
   }
+
+  # Writing a NIFTI file under a CIFTI-2 file name would produce a file that this package
+  # (and other software) refuses to read, because the name promises the CIFTI XML metadata.
+  cifti.stop.if.cifti.name(filepath)
 
   if (format %in% c("mgh", "mgz") | (format == "auto" & filepath.ends.with(filepath, c(".mgh", ".mgz")))) {
     write.fs.mgh(filepath, data, ...) # handles MGZ as well, based on file name.

@@ -29,6 +29,12 @@ data, multi-dimensional array. The brain imaging data, one value per voxel. The 
 \description{
 Read multi-dimensional brain imaging data from a file.
 }
+\note{
+CIFTI-2 files (which are NIFTI-2 files, see \code{\link{read.cifti}}) are
+refused with an error instead of being read as volumes: their payload is a
+matrix whose dimensions the CIFTI XML metadata describes, so the values would
+come back as voxels that mean nothing.
+}
 \examples{
 brain_image <- system.file("extdata", "brain.mgz",
   package = "freesurferformats",

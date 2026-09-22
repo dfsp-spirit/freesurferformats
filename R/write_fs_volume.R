@@ -8,6 +8,11 @@
 #'
 #' @note When writing NIFTI files, this function uses \code{\link{nii1header.for.mgh}} to compute a NIFTI v1 header from the MGH header information.
 #'
+#' @note A file name that is one of the standard CIFTI-2 names (e.g. `.dscalar.nii`) is an
+#'   error: such a file has to contain the CIFTI XML metadata, so a NIFTI file with that
+#'   name is refused by this package and misread by other software. Use
+#'   \code{\link{write.cifti}} for CIFTI-2 files.
+#'
 #' @examples
 #' \dontrun{
 #' mgh_file <- system.file("extdata", "brain.mgz",
@@ -27,6 +32,10 @@ write.fs.volume <- function(filepath, fs_vol) {
   if (!is.fs.volume(fs_vol)) {
     stop("Parameter 'fs_vol' must be an fs.volume instance.")
   }
+
+  # See write.fs.morph(): a CIFTI-2 file name promises CIFTI XML metadata, which this
+  # writer does not produce.
+  cifti.stop.if.cifti.name(filepath)
 
   if (endsWith(tolower(filepath), "mgh") | endsWith(tolower(filepath), "mgz")) {
     freesurferformats::write.fs.mgh(filepath, fs_vol$data, fs_vol$header$vox2ras_matrix)

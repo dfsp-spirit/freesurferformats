@@ -35,6 +35,12 @@
 #'   CIFTI files do not exist (the format forbids compression so that random
 #'   access remains possible).
 #'
+#' @note The generic readers \code{\link{read.fs.morph}} and
+#'   \code{\link{read.fs.volume}} dispatch on the file name and would therefore
+#'   match a CIFTI-2 file (which is a NIFTI-2 file), so they detect this case and
+#'   stop with a pointer to this function and the other CIFTI readers instead of
+#'   returning the values of the matrix in an order that means nothing.
+#'
 #' @param rows integer vector or `NULL`, the indices of matrix dimension 0 to
 #'   read. Indices are 1-based, like everywhere else in R, and they refer to the
 #'   rows of the returned array, i.e. to the first CIFTI matrix dimension. Use

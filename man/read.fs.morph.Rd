@@ -17,6 +17,14 @@ data, vector of floats. The brain morphometry data, one value per vertex.
 \description{
 Read vertex-wise brain surface data from a file. The file can be in any of the supported formats, and the format will be determined from the file extension.
 }
+\note{
+CIFTI-2 files (which are NIFTI-2 files, see \code{\link{read.cifti}}) are
+refused with an error instead of being read as NIFTI morphometry data: their
+payload is a matrix whose dimensions the CIFTI XML metadata describes, so the
+values would come back in an order that means nothing. Use
+\code{\link{read.fs.morph.cifti}} to read the morphometry data of one brain
+structure, or \code{\link{read.cifti}} for the matrix itself.
+}
 \examples{
 curvfile <- system.file("extdata", "lh.thickness",
   package = "freesurferformats", mustWork = TRUE

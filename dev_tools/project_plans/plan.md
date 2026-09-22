@@ -83,7 +83,7 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 - [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
 - [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
 - [x] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- read side in increment 7, write side in increment 8. The generic writer `write.cifti()` covers all nine standard file types, the user-facing writers cover the three dense surface types; the parcellated convenience writers belong to I.2d.
-- [x] I.2e (partly) native `read.fs.*.cifti()`: `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` are native and accept a file path directly; the `cifti` package is only used if a client passes one of its objects. The dispatch fix for `read.fs.morph()`/`read.fs.volume()` is still open.
+- [x] I.2e native `read.fs.*.cifti()` (increment 7) and the dispatch fixes (increment 10): `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` read files directly, the `cifti` package is only used if a client passes one of its objects, the generic readers `read.fs.morph()`/`read.fs.volume()` detect CIFTI files and point at the CIFTI readers, and the non-CIFTI writers refuse CIFTI-2 file names. Nothing in the package requires the `cifti` package.
 - [x] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations -- done in increment 9, see the progress log. The writers are `write.fs.connectome.cifti()` (the four connectome types) and `write.fs.parcellated.cifti()` (`.pscalar`/`.ptseries`), the axis comes from `cifti.axis.parcels.from.annot()` or from a template.
 - [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads) -- the seek based column selection of `read.cifti()` exists, the dedicated row reader and its docs are open
 - [ ] I.2g test data, dev tools, check script against nibabel + Workbench, docs
@@ -1228,3 +1228,43 @@ Findings worth keeping:
   accepted by both, and the official `.ptseries` values are reproduced exactly through our
   writer (max absolute difference 0e+00, i.e. the same float32 numbers). The annotation
   check also verifies that the parcels cover every vertex of the annotation exactly once.
+
+### Increment 10: CIFTI-2 integration, the format dispatchers (2026-09-22) -- DONE (item I.2e)
+
+Files: `R/read_cifti_header.R` (`cifti.file.looks.like.cifti2()`, `cifti.stop.if.cifti()`),
+`R/write_cifti.R` (`cifti.stop.if.cifti.name()`), the four dispatchers that now call them
+(`R/read_fs_curv.R`, `R/read_fs_volume.R`, `R/write_fs_curv.R`, `R/write_fs_volume.R`),
+and `tests/testthat/test-cifti-dispatch.R` (97 tests). Item I.2e is complete with this.
+
+Findings worth keeping:
+
+- **The silent wrong result was real, and measurable.** `read.fs.morph()` on the official
+  Conte69 `.dtseries` returned a 121,902 element vector (the values of the 60,951 x 2
+  matrix, i.e. the two measures of every grayordinate interleaved), and on a `.dscalar`
+  fixture the 88 values of the 4 x 22 matrix. Nothing about that result looks broken, which
+  is exactly why the package refuses CIFTI files in the dispatchers now instead of trying to
+  interpret them. `read.fs.volume()` failed with `oro.nifti`'s 'This is not a one-file NIFTI
+  format', which does not tell the user what the file actually is.
+- **The CIFTI-1 heuristic needs the intent code as well.** `cifti.file.looks.like.cifti1()`
+  greps the first 64 KB for the string 'CIFTI', which a NIFTI file can contain by accident
+  (a description field is enough - verified with a fixture that sets `descrip` to 'created
+  with CIFTI tools'). The dispatcher therefore only treats a NIFTI-1 file as CIFTI-1 if its
+  `intent_code` is in the CIFTI range 3000-3012 *and* the string is there, which keeps the
+  real case working (a CIFTI-1 file is a NIFTI-1 file with a CIFTI intent and the XML as
+  text) without false positives.
+- **The check is cheap and narrowly scoped**: reading the NIFTI-2 header (540 bytes, plus
+  the extension area) and only for file names ending in `.nii`/`.nii.gz`, since a CIFTI file
+  always has such a name. Reading `.mgh`/`.mgz`/`.nrrd`/`.hdr` files is untouched, and the
+  detection is based on the *content* (extension code 32), not on the file name, so a
+  misnamed NIFTI file is not affected.
+- **The same trap exists in the other direction, so the writers were guarded as well**
+  (this goes slightly beyond the I.2e bullet): `write.fs.morph()` and `write.fs.volume()`
+  used to write a NIFTI file under a name like `.dscalar.nii` without complaining, which
+  produces a file whose name promises the CIFTI XML metadata. Both now refuse the nine
+  standard CIFTI-2 names and name the CIFTI writer to use. `write.cifti()` itself is
+  unaffected (it checks the name against the axes it writes, see increment 8).
+- **Nothing in the package requires the `cifti` package.** The only `cifti::` calls left are
+  in the `.cifti.legacy.*` helpers, which are reached only when a client passes an object of
+  that package (they check `requireNamespace()` first). It stays in `Suggests` for that case
+  and for the cross-check in the test suite, but `read.fs.morph.cifti(file, 'lh')` works on a
+  fresh installation, which was the documented workaround of the package's older versions.

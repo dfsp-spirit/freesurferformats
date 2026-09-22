@@ -58,6 +58,13 @@ Reading a file twice (once for the header, once for the data) is not
 necessary to extract a single structure, but it is what this function does;
 use it if you need more than one structure or the raw matrix.
 }
+\note{
+The generic readers \code{\link{read.fs.morph}} and
+\code{\link{read.fs.volume}} dispatch on the file name and would therefore
+match a CIFTI-2 file (which is a NIFTI-2 file), so they detect this case and
+stop with a pointer to this function and the other CIFTI readers instead of
+returning the values of the matrix in an order that means nothing.
+}
 \examples{
 cifti_file <- system.file("extdata", "cifti", "tiny.dscalar.nii", package = "freesurferformats")
 cii <- read.cifti(cifti_file)

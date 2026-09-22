@@ -175,6 +175,13 @@ fread3 <- function(filehandle) {
 #'
 #' @return data, vector of floats. The brain morphometry data, one value per vertex.
 #'
+#' @note CIFTI-2 files (which are NIFTI-2 files, see \code{\link{read.cifti}}) are
+#'   refused with an error instead of being read as NIFTI morphometry data: their
+#'   payload is a matrix whose dimensions the CIFTI XML metadata describes, so the
+#'   values would come back in an order that means nothing. Use
+#'   \code{\link{read.fs.morph.cifti}} to read the morphometry data of one brain
+#'   structure, or \code{\link{read.cifti}} for the matrix itself.
+#'
 #' @examples
 #' curvfile <- system.file("extdata", "lh.thickness",
 #'   package = "freesurferformats", mustWork = TRUE
@@ -200,6 +207,11 @@ read.fs.morph <- function(filepath, format = "auto") {
   if (!format %in% c("auto", "mgh", "mgz", "curv", "gii", "smp", "nii", "ni1", "ni2")) {
     stop("Format must be one of 'auto', 'mgh', 'mgz', 'curv', 'smp', 'gii, 'nii', 'ni1', 'ni2''.")
   }
+
+  # A CIFTI-2 file is a NIFTI-2 file, but its data are a matrix, not a per-vertex vector:
+  # reading it with the NIFTI reader would return the values in an order that means
+  # nothing, so such files are refused with a pointer to the CIFTI readers.
+  cifti.stop.if.cifti(filepath)
 
   if (format == "auto") {
     format <- fs.get.morph.file.format.from.filename(filepath)

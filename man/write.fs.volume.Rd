@@ -16,6 +16,11 @@ Write brain volume data to a file. The format is determined from the file extens
 }
 \note{
 When writing NIFTI files, this function uses \code{\link{nii1header.for.mgh}} to compute a NIFTI v1 header from the MGH header information.
+
+A file name that is one of the standard CIFTI-2 names (e.g. \code{.dscalar.nii}) is an
+error: such a file has to contain the CIFTI XML metadata, so a NIFTI file with that
+name is refused by this package and misread by other software. Use
+\code{\link{write.cifti}} for CIFTI-2 files.
 }
 \examples{
 \dontrun{
