@@ -254,25 +254,25 @@ test_that("We can get the brainordinate table of a CIFTI-2 file", {
 
 test_that("We can get the axis labels of all CIFTI-2 mapping types", {
   dscalar <- read.cifti.header(cifti.test.data.file("tiny.dscalar.nii"))
-  expect_equal(cifti.axis.labels(dscalar, 0L), c("lhmap1", "lhmap2", "lhmap3", "lhmap4"))
-  expect_length(cifti.axis.labels(dscalar, 1L), 22L)
+  expect_equal(cifti.dim.labels(dscalar, 0L), c("lhmap1", "lhmap2", "lhmap3", "lhmap4"))
+  expect_length(cifti.dim.labels(dscalar, 1L), 22L)
 
   labels <- read.cifti.header(cifti.test.data.file("tiny.dlabel.nii"))
   # Connectome Workbench names label maps "#<number>".
-  expect_equal(cifti.axis.labels(labels, 0L), c("#1"))
+  expect_equal(cifti.dim.labels(labels, 0L), c("#1"))
 
   series <- read.cifti.header(cifti.test.data.file("tiny.dtseries.nii"))
-  expect_equal(cifti.axis.labels(series, 0L), c("0", "2.5", "5", "7.5"))
+  expect_equal(cifti.dim.labels(series, 0L), c("0", "2.5", "5", "7.5"))
 
   parcels <- read.cifti.header(cifti.test.data.file("tiny.pconn.nii"))
-  expect_equal(cifti.axis.labels(parcels, 0L), c("PARCEL_A", "PARCEL_B", "PARCEL_C"))
-  expect_equal(cifti.axis.labels(parcels, 1L), c("PARCEL_A", "PARCEL_B", "PARCEL_C"))
+  expect_equal(cifti.dim.labels(parcels, 0L), c("PARCEL_A", "PARCEL_B", "PARCEL_C"))
+  expect_equal(cifti.dim.labels(parcels, 1L), c("PARCEL_A", "PARCEL_B", "PARCEL_C"))
 
   # Maps without a name get a generic label.
   volume_scalars <- read.cifti.header(cifti.test.data.file("tiny_volume.dscalar.nii"))
-  expect_equal(cifti.axis.labels(volume_scalars, 0L), "map_0")
+  expect_equal(cifti.dim.labels(volume_scalars, 0L), "map_0")
 
-  expect_error(cifti.axis.labels(dscalar, 2L), "in range 0 to 1")
+  expect_error(cifti.dim.labels(dscalar, 2L), "in range 0 to 1")
 })
 
 test_that("We can read morphometry data and time series directly from the file", {

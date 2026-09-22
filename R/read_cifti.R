@@ -54,7 +54,7 @@
 #' @return a named list with the entries 'header' (an `fs.cifti` object, see
 #'   \code{\link{read.cifti.header}}) and 'data' (the numeric or integer array).
 #'   The array dimensions are named with the axis labels of the corresponding
-#'   matrix dimensions, see \code{\link{cifti.axis.labels}}. The object has class
+#'   matrix dimensions, see \code{\link{cifti.dim.labels}}. The object has class
 #'   'fs.cifti.data'.
 #'
 #' @examples
@@ -422,11 +422,11 @@ cifti.grayordinates.for.model <- function(map, model) {
 #' @examples
 #' cifti_file <- system.file("extdata", "cifti", "tiny.ptseries.nii", package = "freesurferformats")
 #' cii <- read.cifti.header(cifti_file)
-#' cifti.axis.labels(cii, dim = 1L)
+#' cifti.dim.labels(cii, dim = 1L)
 #'
 #' @family cifti functions
 #' @export
-cifti.axis.labels <- function(cii, dim = 0L) {
+cifti.dim.labels <- function(cii, dim = 0L) {
   cifti.check.object(cii)
   map <- cifti.map.for.dim(cii, dim)
   dim_size <- as.integer(cii$matrix$dim_sizes[dim + 1L])
@@ -635,7 +635,7 @@ cifti.read.matrix <- function(cii, rows = NULL, columns = NULL) {
   # Name the array dimensions after the axis they belong to, and apply the
   # selection to the labels as well.
   dim_names <- lapply(seq_along(dim_sizes) - 1L, function(dim) {
-    return(cifti.axis.labels(cii, dim))
+    return(cifti.dim.labels(cii, dim))
   })
   if (!is.null(dim_names[[1L]]) && !is.null(rows)) {
     dim_names[[1L]] <- dim_names[[1L]][rows]

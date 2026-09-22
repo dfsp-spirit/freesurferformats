@@ -36,15 +36,31 @@ cifti.series.info(cii, dim = 0L)
 }
 \seealso{
 Other cifti functions:
+\code{\link[=cifti.axis.brain.models]{cifti.axis.brain.models()}},
+\code{\link[=cifti.axis.from.template]{cifti.axis.from.template()}},
 \code{\link[=cifti.axis.labels]{cifti.axis.labels()}},
+\code{\link[=cifti.axis.parcels]{cifti.axis.parcels()}},
+\code{\link[=cifti.axis.scalars]{cifti.axis.scalars()}},
+\code{\link[=cifti.axis.series]{cifti.axis.series()}},
+\code{\link[=cifti.brain.model.surface]{cifti.brain.model.surface()}},
+\code{\link[=cifti.brain.model.volume]{cifti.brain.model.volume()}},
+\code{\link[=cifti.dim.labels]{cifti.dim.labels()}},
+\code{\link[=cifti.file.type.for.axes]{cifti.file.type.for.axes()}},
 \code{\link[=cifti.grayordinates]{cifti.grayordinates()}},
+\code{\link[=cifti.header.from.axes]{cifti.header.from.axes()}},
 \code{\link[=cifti.label.table]{cifti.label.table()}},
+\code{\link[=cifti.parcel]{cifti.parcel()}},
 \code{\link[=cifti.parcels]{cifti.parcels()}},
 \code{\link[=cifti.structure.data]{cifti.structure.data()}},
 \code{\link[=cifti.structures]{cifti.structures()}},
+\code{\link[=cifti.volume]{cifti.volume()}},
 \code{\link[=print.fs.cifti]{print.fs.cifti()}},
 \code{\link[=print.fs.cifti.data]{print.fs.cifti.data()}},
 \code{\link[=read.cifti]{read.cifti()}},
-\code{\link[=read.cifti.header]{read.cifti.header()}}
+\code{\link[=read.cifti.header]{read.cifti.header()}},
+\code{\link[=write.cifti]{write.cifti()}},
+\code{\link[=write.fs.morph.cifti]{write.fs.morph.cifti()}},
+\code{\link[=write.fs.parcellation.cifti]{write.fs.parcellation.cifti()}},
+\code{\link[=write.fs.series.cifti]{write.fs.series.cifti()}}
 }
 \concept{cifti functions}

@@ -82,7 +82,7 @@ Planned in detail, see the section "CIFTI-2: detailed spec" below. Sub-items:
 
 - [x] I.2a NIfTI-2 header extensions: read + write (`write.nifti2(..., extensions)`)
 - [x] I.2b CIFTI-2 XML reader (`read.cifti.header()`, all 5 mapping types)
-- [~] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- **reading is done** (`read.cifti()`, `cifti.structure.data()`, `cifti.grayordinates()`, `cifti.axis.labels()`, native `read.fs.*.cifti()`), writing (the XML emitter and the `write.cifti()` family) is still open, see increment 7
+- [x] I.2c dense files: `dscalar`, `dlabel`, `dtseries`, `dconn` (read + write) -- read side in increment 7, write side in increment 8. The generic writer `write.cifti()` covers all nine standard file types, the user-facing writers cover the three dense surface types; the parcellated convenience writers belong to I.2d.
 - [x] I.2e (partly) native `read.fs.*.cifti()`: `read.fs.morph.cifti()`, `read.fs.series.cifti()` and `read.fs.parcellation.cifti()` are native and accept a file path directly; the `cifti` package is only used if a client passes one of its objects. The dispatch fix for `read.fs.morph()`/`read.fs.volume()` is still open.
 - [ ] I.2d parcellated files: `read.fs.connectome.cifti()`, `pscalar`/`ptseries`/`pconn`/`pdconn`/`dpconn` writers, parcels axis from annotations
 - [ ] I.2f large files: row-wise access for `.dconn` (contiguous reads) -- the seek based column selection of `read.cifti()` exists, the dedicated row reader and its docs are open
@@ -525,8 +525,16 @@ header; `dim0` = the mapping of `dim[5]` (Workbench's ROW), `dim1` = `dim[6]`
 | `.pconn.nii` | PARCELS | PARCELS | 3003 | `ConnParcels` |
 | `.pscalar.nii` | SCALARS | PARCELS | 3008 | `ConnParcelScalr` |
 | `.ptseries.nii` | SERIES | PARCELS | 3004 | `ConnParcelSries` |
-| `.pdconn.nii` | BRAIN_MODELS | PARCELS | 3010 | `ConnDenseParcel` |
-| `.dpconn.nii` | PARCELS | BRAIN_MODELS | 3009 | `ConnParcelDense` |
+| `.pdconn.nii` | PARCELS | BRAIN_MODELS | 3010 | `ConnDenseParcel` |
+| `.dpconn.nii` | BRAIN_MODELS | PARCELS | 3009 | `ConnParcelDense` |
+
+**Correction (2026-09-22, found by increment 8):** the two rows above were swapped in the
+first version of this table. The files that Connectome Workbench 2.2.1 writes (and the
+generator script dumps) state it clearly: `.dpconn.nii` is `dim[5]` = dense (BRAIN_MODELS)
+and `dim[6]` = parcels with intent code 3009 `ConnParcelDense`, and `.pdconn.nii` is
+`dim[5]` = parcels and `dim[6]` = dense with intent code 3010 `ConnDenseParcel`. `R/write_cifti_axes.R`
+now carries the verified table, and the writer refuses a file name whose type contradicts
+the axes, so this cannot silently produce a misnamed file again.
 
 `.ppseries`/`.ppscalar` (3011/3012, parcellated x parcellated, rarely used) fall
 out of the generic implementation for free. The smallest one I generated this way
@@ -1029,7 +1037,7 @@ dependency (`xml2` and the NIfTI-2 reader of I.2a are reused).
 
 Public API added: `read.cifti(filepath, rows, columns)` -> `fs.cifti.data`
 (`$header` + `$data`), `print.fs.cifti.data()`, `cifti.structure.data(x,
-structure, dim)`, `cifti.grayordinates(cii, dim)`, `cifti.axis.labels(cii, dim)`.
+structure, dim)`, `cifti.grayordinates(cii, dim)`, `cifti.dim.labels(cii, dim)`.
 `read.fs.morph.cifti()`, `read.fs.series.cifti()` and
 `read.fs.parcellation.cifti()` are native now and accept a path, an `fs.cifti`
 header or an `fs.cifti.data` object; objects of the `cifti` package keep working
@@ -1100,3 +1108,49 @@ Design decisions:
 Still open in I.2c: the XML writer (axis objects, `cifti.header.from.axes()`,
 `write.cifti()` and the `write.fs.*.cifti()` convenience writers for `dscalar`,
 `dlabel`, `dtseries` and `dconn`), and the round trip checks that come with it.
+
+### Increment 8: CIFTI-2 writer (2026-09-22) -- DONE (item I.2c, write part)
+
+Files: `R/write_cifti_axes.R` (axis builders, file type table), `R/write_cifti.R` (XML
+emitter, `write.cifti()`), `R/write_cifti_fs.R` (the user-facing writers),
+`tests/testthat/test-write_cifti.R` (new, 234 tests). Item I.2c is complete; I.2d is now
+only about the parcellated convenience writer (`write.fs.connectome.cifti()`, building a
+parcels axis from annotations) and the remaining `pscalar`/`ptseries`/`pconn` helpers,
+because the generic writer already handles all nine file types.
+
+Public API added: `write.cifti(filepath, data, axes, template, metadata)`,
+`cifti.header.from.axes()`, `cifti.file.type.for.axes()`, `cifti.axis.from.template()`,
+the builders `cifti.axis.brain.models()`, `cifti.brain.model.surface()`,
+`cifti.brain.model.volume()`, `cifti.volume()`, `cifti.axis.parcels()`, `cifti.parcel()`,
+`cifti.axis.series()`, `cifti.axis.scalars()`, `cifti.axis.labels()`, and the writers
+`write.fs.morph.cifti()`, `write.fs.series.cifti()`, `write.fs.parcellation.cifti()`.
+
+Findings worth keeping:
+
+- **Connectome Workbench requires a child element in `BrainModel`**: a model without a
+  `VertexIndices` or `VoxelIndicesIJK` element makes it abort with "CIFTI XML error:
+  BrainModel requires a child element", although the spec text calls these elements
+  optional for the "all vertices/voxels" case (and our reader, like nibabel's parser,
+  accepts their absence). The writer therefore always writes the explicit index list, and
+  the reader keeps its leniency for files written by others.
+- The `.dpconn`/`.pdconn` rows of the file type table in section 4 of this spec were
+  **swapped**; the ground truth (fixtures and generator dump) is `.dpconn.nii` =
+  (BRAIN_MODELS, PARCELS) with intent 3009 `ConnParcelDense` and `.pdconn.nii` =
+  (PARCELS, BRAIN_MODELS) with intent 3010 `ConnDenseParcel`. The section is corrected and
+  the writer now refuses a file name that contradicts its axes, so a misnamed file cannot
+  be written silently again.
+- Verification of the writer is the same loop as for the reader, but in the other
+  direction: for all 13 fixtures, a file written from the fixture's axes and data is read
+  back by Workbench (`-cifti-convert -to-text`, values equal) and by nibabel (dump
+  identical, 368 lines), and files written from scratch (surface only, volume only,
+  connectome) are accepted by both as well.
+- The user-facing writers write only the structures the data cover: filling the remaining
+  grayordinates of a template with NaN would produce a file full of NaN, and the format has
+  no missing value. `write.cifti()` on the other hand requires the data to match the axes
+  exactly, so the explicit "give me the template mapping" case is still available.
+- Naming: the reader's accessor `cifti.axis.labels()` had to be renamed to
+  `cifti.dim.labels()` in this increment, because the writer's builder for a LABELS
+  dimension takes that name (the builder names now follow the five index types exactly).
+  Renamed in the same commit, while the entry is unreleased.
+- `cifti.structure.canonical()`/`cifti.structure.short()` are vectorized now; using them
+  on a vector of structures in an error message exposed that they were not.

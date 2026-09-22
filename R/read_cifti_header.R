@@ -238,7 +238,12 @@ cifti.map.type.description <- function(type) {
 #'
 #' @keywords internal
 cifti.structure.canonical <- function(brain_structure) {
-  if (length(brain_structure) != 1L) {
+  if (length(brain_structure) > 1L) {
+    # Structurally this is a vectorized function of a name normalizer, and the callers
+    # (e.g. the writer error messages) do use it on several structures at once.
+    return(unname(vapply(brain_structure, cifti.structure.canonical, character(1L))))
+  }
+  if (!is.character(brain_structure) && !is.na(brain_structure)) {
     stop("Parameter 'brain_structure' must be a single character string.") # nocov
   }
   if (is.na(brain_structure)) {

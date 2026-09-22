@@ -660,7 +660,9 @@ test_that("the brain structure name normalization handles all spellings", {
   expect_equal(cifti.structure.canonical("CIFTI_STRUCTURE_CEREBELLUM"), "CIFTI_STRUCTURE_CEREBELLUM")
   expect_true(is.na(cifti.structure.canonical(NA_character_)))
   expect_equal(cifti.structure.short("CIFTI_STRUCTURE_ACCUMBENS_LEFT"), "ACCUMBENS_LEFT")
-  expect_error(cifti.structure.canonical(c("lh", "rh")), "single character string")
+  # The normalizer is vectorized, and it can handle several structures at once.
+  expect_equal(cifti.structure.canonical(c("lh", "rh")), c("CIFTI_STRUCTURE_CORTEX_LEFT", "CIFTI_STRUCTURE_CORTEX_RIGHT"))
+  expect_equal(cifti.structure.short(c("lh", "BrainStem")), c("CORTEX_LEFT", "BRAIN_STEM"))
 })
 
 test_that("the print method works", {
