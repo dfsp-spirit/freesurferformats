@@ -12,7 +12,10 @@ read.fs.transform(filepath, format = "auto")
 \item{format}{character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.}
 }
 \value{
-named list, the 'matrix field contains a '4x4 numerical matrix, the transformation matrix. Other fields may exist, depending on the parsed format.
+an \code{fs.transform} instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
+coordinate spaces the matrix maps between (\code{space_in}, \code{space_out} and \code{voxel_base}). Which of them are
+known depends on the format: an xfm file states neither (both sides are RAS), a register.dat file states
+both by definition, and an LTA file states them in its header.
 }
 \description{
 Load transformation matrix from a file.
@@ -31,6 +34,8 @@ transform$matrix
 }
 \seealso{
 Other header coordinate space:
+\code{\link[=invert.fs.transform]{invert.fs.transform()}},
+\code{\link[=is.fs.transform]{is.fs.transform()}},
 \code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
 \code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
 \code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
@@ -38,10 +43,12 @@ Other header coordinate space:
 \code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
 \code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
 \code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
-\code{\link[=sm1to0]{sm1to0()}}
+\code{\link[=sm1to0]{sm1to0()}},
+\code{\link[=summary.fs.transform]{summary.fs.transform()}}
 }
 \concept{header coordinate space}

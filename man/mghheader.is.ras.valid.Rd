@@ -26,17 +26,21 @@ mghheader.is.ras.valid(vdh$header)
 }
 \seealso{
 Other header coordinate space:
+\code{\link[=invert.fs.transform]{invert.fs.transform()}},
+\code{\link[=is.fs.transform]{is.fs.transform()}},
 \code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
 \code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
 \code{\link[=mghheader.scanner2tkreg]{mghheader.scanner2tkreg()}},
 \code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
 \code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
 \code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform]{read.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
-\code{\link[=sm1to0]{sm1to0()}}
+\code{\link[=sm1to0]{sm1to0()}},
+\code{\link[=summary.fs.transform]{summary.fs.transform()}}
 }
 \concept{header coordinate space}

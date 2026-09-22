@@ -10,7 +10,12 @@ read.fs.transform.lta(filepath)
 \item{filepath}{character string, the full path to the transform file.}
 }
 \value{
-4x4 numerical matrix, the transformation matrix
+an \code{fs.transform} instance. The header of an LTA file states whether the matrix operates on voxel
+indices (type 0, LINEAR_VOX_TO_VOX) or on RAS world coordinates (type 1, LINEAR_RAS_TO_RAS), and that is
+used to set \code{space_in}, \code{space_out} and \code{voxel_base}. FreeSurfer voxel indices are zero-based. The file also
+records both volumes it relates, so \code{src} and \code{dst} contain the file name, the dimensions, the voxel size
+and the voxel-to-RAS matrix of each of them. The parsed header and volume info sections are kept in the
+\code{header} and \code{volumes} fields.
 }
 \description{
 Load transformation matrix from a FreeSurfer linear transform array (LTA) file.
@@ -28,6 +33,8 @@ transform$matrix
 }
 \seealso{
 Other header coordinate space:
+\code{\link[=invert.fs.transform]{invert.fs.transform()}},
+\code{\link[=is.fs.transform]{is.fs.transform()}},
 \code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
 \code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
 \code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
@@ -35,10 +42,12 @@ Other header coordinate space:
 \code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
 \code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
 \code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform]{read.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
-\code{\link[=sm1to0]{sm1to0()}}
+\code{\link[=sm1to0]{sm1to0()}},
+\code{\link[=summary.fs.transform]{summary.fs.transform()}}
 }
 \concept{header coordinate space}

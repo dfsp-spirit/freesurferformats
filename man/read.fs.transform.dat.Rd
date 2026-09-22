@@ -10,7 +10,10 @@ read.fs.transform.dat(filepath)
 \item{filepath}{character string, the full path to the transform file.}
 }
 \value{
-4x4 numerical matrix, the transformation matrix
+an \code{fs.transform} instance. A tkregister matrix maps the movable volume (the source) to the target
+volume, so \code{space_in} is 'voxel' and \code{space_out} is 'ras'. It produces RAS coordinates in the tkregister
+frame of the target volume, which is why \code{dst} states \code{frame = 'tkreg'}, see
+\code{\link{mghheader.vox2ras.tkreg}}. The intensity entry of the file is returned in the \code{intensity} field.
 }
 \description{
 Load transformation matrix from a tkregister dat file.
@@ -26,6 +29,8 @@ transform$matrix
 }
 \seealso{
 Other header coordinate space:
+\code{\link[=invert.fs.transform]{invert.fs.transform()}},
+\code{\link[=is.fs.transform]{is.fs.transform()}},
 \code{\link[=mghheader.is.ras.valid]{mghheader.is.ras.valid()}},
 \code{\link[=mghheader.ras2vox]{mghheader.ras2vox()}},
 \code{\link[=mghheader.ras2vox.tkreg]{mghheader.ras2vox.tkreg()}},
@@ -33,10 +38,12 @@ Other header coordinate space:
 \code{\link[=mghheader.tkreg2scanner]{mghheader.tkreg2scanner()}},
 \code{\link[=mghheader.vox2ras]{mghheader.vox2ras()}},
 \code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
+\code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform]{read.fs.transform()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
-\code{\link[=sm1to0]{sm1to0()}}
+\code{\link[=sm1to0]{sm1to0()}},
+\code{\link[=summary.fs.transform]{summary.fs.transform()}}
 }
 \concept{header coordinate space}

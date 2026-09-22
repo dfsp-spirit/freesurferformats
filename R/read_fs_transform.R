@@ -4,7 +4,10 @@
 #'
 #' @param format character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.
 #'
-#' @return named list, the 'matrix field contains a '4x4 numerical matrix, the transformation matrix. Other fields may exist, depending on the parsed format.
+#' @return an `fs.transform` instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
+#'   coordinate spaces the matrix maps between (`space_in`, `space_out` and `voxel_base`). Which of them are
+#'   known depends on the format: an xfm file states neither (both sides are RAS), a register.dat file states
+#'   both by definition, and an LTA file states them in its header.
 #'
 #' @note Currently this function has been tested with linear transformation files only, all others are unsupported.
 #'
@@ -41,7 +44,10 @@ read.fs.transform <- function(filepath, format = "auto") {
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @return 4x4 numerical matrix, the transformation matrix
+#' @return an `fs.transform` instance. An xfm file stores a linear transformation between two RAS (world)
+#'   coordinate spaces, typically the scanner space of a subject and the RAS space of an MNI or Talairach
+#'   template, so `space_in` and `space_out` are both 'ras' and `voxel_base` is `NA`. The volumes that the
+#'   transformation relates are not recorded in the file, so `src` and `dst` are `NULL`.
 #'
 #' @note Currently this function has been tested with linear transformation files only, all others are unsupported.
 #'
@@ -84,7 +90,18 @@ read.fs.transform.xfm <- function(filepath) {
 
     current_line_idx <- current_line_idx + 1L
   }
-  return(transform)
+
+  if (is.null(transform$matrix)) {
+    stop(sprintf("Found no 4x4 linear transformation matrix in xfm file '%s'. This function supports linear transformations only.\n", filepath))
+  }
+
+  # An xfm file stores a linear transformation between two RAS (world) coordinate spaces, typically the scanner
+  # space of a subject and the RAS space of an MNI or Talairach template. The volumes themselves are not
+  # recorded in the file, so neither the source nor the target can be described in more detail.
+  return(fs.transform(
+    matrix = transform$matrix, space_in = "ras", space_out = "ras",
+    format = "xfm", source = filepath, type = transform$type
+  ))
 }
 
 
@@ -92,7 +109,10 @@ read.fs.transform.xfm <- function(filepath) {
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @return 4x4 numerical matrix, the transformation matrix
+#' @return an `fs.transform` instance. A tkregister matrix maps the movable volume (the source) to the target
+#'   volume, so `space_in` is 'voxel' and `space_out` is 'ras'. It produces RAS coordinates in the tkregister
+#'   frame of the target volume, which is why `dst` states `frame = 'tkreg'`, see
+#'   \code{\link{mghheader.vox2ras.tkreg}}. The intensity entry of the file is returned in the `intensity` field.
 #'
 #' @family header coordinate space
 #'
@@ -113,10 +133,19 @@ read.fs.transform.dat <- function(filepath) {
     stop(sprintf("Expected 9 lines in tkregister dat file, found %d.\n", length(all_lines))) # nocov
   }
 
-  transform$intensity <- as.integer(trimws(all_lines[4]))
+  # The intensity is a floating point value (FreeSurfer writes e.g. 0.15), reading it as an integer truncated it.
+  transform$intensity <- as.numeric(trimws(all_lines[4]))
   transform$matrix <- parse.transform.matrix.lines(all_lines[5:8])
 
-  return(transform)
+  # A tkregister matrix maps the movable volume (the source) to the target volume, which is not recorded in the
+  # file. It consumes the voxel coordinates of the movable volume and produces RAS coordinates in the tkregister
+  # frame of the target, which is RAS with an identity rotation and the origin at the center of the target
+  # volume, see 'mghheader.vox2ras.tkreg'.
+  return(fs.transform(
+    matrix = transform$matrix, space_in = "voxel", space_out = "ras", voxel_base = 0L,
+    dst = list("frame" = "tkreg"), format = "dat", source = filepath, type = transform$type,
+    intensity = transform$intensity
+  ))
 }
 
 
@@ -124,7 +153,12 @@ read.fs.transform.dat <- function(filepath) {
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @return 4x4 numerical matrix, the transformation matrix
+#' @return an `fs.transform` instance. The header of an LTA file states whether the matrix operates on voxel
+#'   indices (type 0, LINEAR_VOX_TO_VOX) or on RAS world coordinates (type 1, LINEAR_RAS_TO_RAS), and that is
+#'   used to set `space_in`, `space_out` and `voxel_base`. FreeSurfer voxel indices are zero-based. The file also
+#'   records both volumes it relates, so `src` and `dst` contain the file name, the dimensions, the voxel size
+#'   and the voxel-to-RAS matrix of each of them. The parsed header and volume info sections are kept in the
+#'   `header` and `volumes` fields.
 #'
 #' @family header coordinate space
 #'
@@ -217,7 +251,51 @@ read.fs.transform.lta <- function(filepath) {
       stop(sprintf("Invalid LTA file section '%s' reached while parsing.\n", current_section))
     }
   }
-  return(transform)
+
+  if (is.null(transform$matrix)) {
+    stop(sprintf("Found no 4x4 transformation matrix in LTA file '%s'.\n", filepath))
+  }
+
+  # The header states whether the matrix maps voxel indices or RAS coordinates. Type 0 is LINEAR_VOX_TO_VOX and
+  # type 1 is LINEAR_RAS_TO_RAS. FreeSurfer's voxel coordinates are zero-based, i.e., the first voxel is index
+  # 0 and the center of the volume is at voxel index dim/2, see 'mghheader.vox2ras'.
+  lta_type <- suppressWarnings(as.integer(transform$header$type))
+  if (length(lta_type) != 1L) {
+    lta_type <- NA_integer_ # the file does not state a type, or states something that is not a number
+  }
+  space_in <- NA_character_
+  space_out <- NA_character_
+  voxel_base <- NA_integer_
+  if (is.na(lta_type)) {
+    warning(sprintf("LTA file '%s' does not state a transformation type, cannot determine the coordinate spaces of its matrix.\n", filepath))
+  } else if (lta_type == 0L) {
+    space_in <- "voxel"
+    space_out <- "voxel"
+    voxel_base <- 0L
+  } else if (lta_type == 1L) {
+    space_in <- "ras"
+    space_out <- "ras"
+  } else {
+    warning(sprintf("LTA file '%s' uses unsupported transformation type %d, cannot determine the coordinate spaces of its matrix.\n", filepath, lta_type))
+  }
+
+  volume_descriptor_for <- function(volume_info) {
+    if (is.null(volume_info)) {
+      return(NULL)
+    }
+    return(volume.descriptor(
+      path = volume_info$filename, dim = volume_info$volume, voxelsize = volume_info$voxelsize,
+      xras = volume_info$xras, yras = volume_info$yras, zras = volume_info$zras, cras = volume_info$cras,
+      valid = volume_info$valid
+    ))
+  }
+
+  return(fs.transform(
+    matrix = transform$matrix, space_in = space_in, space_out = space_out, voxel_base = voxel_base,
+    src = volume_descriptor_for(transform$volumes$src), dst = volume_descriptor_for(transform$volumes$dst),
+    format = "lta", source = filepath, type = transform$header$type,
+    header = transform$header, volumes = transform$volumes
+  ))
 }
 
 

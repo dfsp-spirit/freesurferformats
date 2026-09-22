@@ -46,6 +46,12 @@ lazy, memory-mapped array access (`ArrayProxy`) -- see item **V.1**.
 
 ---
 
+Locally available test data (chose small files from it and copy into repo into extra_test_data/ dir, not into inst/extdata due to CRAN 5 MB limit. in tests we will need to check whether data is there and skip tests if not)
+
+Locally there is a subject, raw DICOMs and preprocessing with various standard tools, in ~/develop/sub-01/ (raw DICOMS, bids) and the rest in ~/develop/sub-01-derived/. check this for test data.
+
+---
+
 ## I. Tier 1 -- highest value for fMRI/HCP + DWI
 
 ### I.1 [~] Diffusion gradient tables: FSL `.bvec`/`.bval` + MRtrix `.grad`
