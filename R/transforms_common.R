@@ -135,8 +135,8 @@ validate.fs.transform <- function(tf) {
     if (!is.null(side_value$vox2ras) && (!is.matrix(side_value$vox2ras) || !all(dim(side_value$vox2ras) == c(4L, 4L)))) {
       stop(sprintf("The 'vox2ras' entry of the '%s' field of an fs.transform must be a 4x4 matrix.\n", side_field))
     }
-    if (!is.null(side_value$frame) && !(side_value$frame %in% c("scanner", "tkreg"))) {
-      stop(sprintf("The 'frame' entry of the '%s' field of an fs.transform must be 'scanner' or 'tkreg', found '%s'.\n", side_field, side_value$frame))
+    if (!is.null(side_value$frame) && !(side_value$frame %in% c("scanner", "tkreg", "fsl"))) {
+      stop(sprintf("The 'frame' entry of the '%s' field of an fs.transform must be 'scanner', 'tkreg' or 'fsl', found '%s'.\n", side_field, side_value$frame))
     }
   }
 
@@ -180,7 +180,7 @@ validate.fs.transform <- function(tf) {
 #'   convention that \code{\link{mghheader.vox2ras}} implements for MGH headers: zero-based voxel indices and
 #'   the origin at `cras - Mdc_scaled * (dim/2)`. Verified against `mri_info --vox2ras` on a real volume.
 
-#' @param frame character string, either 'scanner' or 'tkreg', see the description.
+#' @param frame character string, either 'scanner', 'tkreg' or 'fsl', see the description.
 #'
 #' @param valid `NULL` or integer, the 'valid' flag of the volume info section of an LTA file, which states
 #'   whether the recorded geometry could be used by FreeSurfer.
@@ -190,8 +190,8 @@ validate.fs.transform <- function(tf) {
 #' @keywords internal
 volume.descriptor <- function(path = NULL, dim = NULL, voxelsize = NULL, xras = NULL, yras = NULL, zras = NULL,
                               cras = NULL, vox2ras = NULL, frame = "scanner", valid = NULL) {
-  if (!is.null(frame) && !(frame %in% c("scanner", "tkreg"))) {
-    stop(sprintf("Parameter 'frame' must be 'scanner' or 'tkreg', found '%s'.\n", frame))
+  if (!is.null(frame) && !(frame %in% c("scanner", "tkreg", "fsl"))) {
+    stop(sprintf("Parameter 'frame' must be 'scanner', 'tkreg' or 'fsl', found '%s'.\n", frame))
   }
 
   desc <- list()
@@ -347,6 +347,9 @@ print.fs.transform <- function(x, ...) {
     }
     if (!is.null(desc$frame) && desc$frame == "tkreg") {
       parts <- c(parts, "tkregister space")
+    }
+    if (!is.null(desc$frame) && desc$frame == "fsl") {
+      parts <- c(parts, "FSL world space")
     }
     if (length(parts) == 0L) {
       return("recorded without geometry")

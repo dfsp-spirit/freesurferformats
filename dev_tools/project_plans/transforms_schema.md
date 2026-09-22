@@ -39,7 +39,7 @@ Volume descriptor (used for `src`/`dst`), all fields optional except as noted:
 | `dim` | integer vector of 3 (or 4) volume dimensions |
 | `voxelsize` | numeric vector of 3 voxel sizes in mm |
 | `vox2ras` | 4x4 matrix, voxel -> RAS, **in the frame given by `frame` and with the zero-based voxel indices that `mghheader.vox2ras()` uses** |
-| `frame` | `"scanner"` (the volume's own RAS, as recorded in the file) or `"tkreg"` (FreeSurfer tkregister RAS). Default `"scanner"`. |
+| `frame` | `"scanner"` (the volume's own RAS, as recorded in the file), `"tkreg"` (FreeSurfer tkregister RAS) or `"fsl"` (the FSL world space, see below). Default `"scanner"`. |
 
 Rationale for splitting `space_*` and `frame`: the coordinate *type* (voxel vs RAS vs LPS) is a
 small, closed vocabulary and belongs to the matrix; *whose* RAS it is belongs to the endpoint.
@@ -160,17 +160,62 @@ absent (see `find_extra_test_data_file()`), so no MRtrix/FreeSurfer dependency i
    `summary.fs.transform()`. The three FreeSurfer readers fill the new fields, the register.dat
    intensity bug is fixed, and `read.fs.transform.xfm()`/`.lta()` now report a missing 4x4 matrix
    instead of returning a `NULL` one. Tests in `tests/testthat/test-transforms_common.R`.
-2. **FSL `.mat` read + write**, `transform.to.world()`/`transform.to.voxel()`, `.mat` sniffing.
-   `transform.to.world()` accepts `fs.volume` and `nifti` instances. Tests + validation against both
-   oracles on real data.
-3. **Writers** for `lta`, `dat`, `xfm` (+ `write.fs.transform` dispatch, round-trip tests,
-   validation that FreeSurfer itself can read what we write).
+2. **DONE (2026-09-22)** - FSL `.mat` read (`read.fs.transform.fslmat()`) and write
+   (`write.fs.transform.fslmat()`), content-based format detection (`guess.transform.format()`, needed because
+   `.mat` is shared with binary ANTs/ITK transforms), `volume.geometry()`, `fsl.scaled.voxel.matrix()`,
+   `transform.to.world()` and `transform.to.voxel()`. Verified against FreeSurfer and MRtrix3 with
+   `dev_tools/check_transform_conversion.R` (32 checks, 0 failures), tests in
+   `tests/testthat/test-transform_conversion.R`.
+3. **DONE (2026-09-22)** - writers for `lta`, `dat` and `xfm` (`write.fs.transform.lta/.dat/.xfm()`), with the
+   dispatch and the extension-based format detection extended to all four formats. Validated by having
+   FreeSurfer's `lta_convert` read both the file we wrote and the original file it came from: both convert to
+   an identical transformation (difference 0 for all three formats), plus our FSL matrix against
+   FreeSurfer's own `--outfsl`. 39 checks, 0 failures; tests in `tests/testthat/test-write_fs_transform.R`.
+   Also: 17 significant digits for exact double round trips, and `read.fs.transform.dat()` now keeps the
+   subject and the resolutions so that a round trip is lossless.
 4. *(later, separate)* ITK `.tfm` text, then ITK binary `.mat`.
 
-## 8. Open decisions
+## 8. Decisions taken
 
-- `space_in`/`space_out` vocabulary: `"voxel" | "ras" | "lps"` + `src/dst$frame`, or
-  `"voxel" | "scanner_ras" | "tkreg_ras" | "lps"`? (Recommendation: the former - the frame
-  belongs to the endpoint, and it keeps the closed vocabulary small.)
-- `transform.to.world()`: needs `src`/`dst` vox2ras. For FSL `.mat` the caller must supply both
-  images; accept full volume objects (`fs.volume`, NIfTI) or header-only lists?
+- `space_in`/`space_out` vocabulary: `"voxel" | "ras" | "lps"`, with the frame carried by `src`/`dst`.
+  One value was added during increment 2: `frame = "fsl"` for the FSL world space (see below). It is a
+  separate frame and not 'ras', because calling it RAS would be a lie that costs the user millimetres.
+- `transform.to.world()`/`transform.to.voxel()` accept `fs.volume` instances, `nifti` instances and headers.
+
+## 9. The FSL world space (verified 2026-09-22)
+
+An FSL `.mat` maps voxel indices to voxel indices, so converting it to world coordinates requires a convention,
+and FSL's convention is not the header one. Per image, with `A` the header voxel-to-RAS matrix, `vs` the voxel
+sizes and `dim` the volume dimensions:
+
+```
+U = A * diag(1/vs, 1)                     # unit direction cosines, translation unchanged
+X = U                if det(U) < 0        # the image is already in FSL's (radiological) convention
+X = U * C            otherwise, C = identity with C[1,1] = -1 and C[1,4] = (dim[1]-1)*vs[1]
+world = X_dst * M * solve(X_src)
+```
+
+`fsl.scaled.voxel.matrix()` implements this. Evidence:
+
+- Both reference implementations agree with it to machine precision on real data: FreeSurfer 7.4.1
+  (`lta_convert --infsl ... --outlta ...`, which writes the result as a RAS2RAS LTA) and MRtrix3 3.0.8
+  (`transformconvert ... flirt_import ...`, which writes its **inverse**, see `cmd/transformconvert.cpp`).
+- The same comparison rejects the naive `A_dst * M * solve(A_src)`: on a 2mm DWI and a 3mm MNI BOLD image the
+  error was up to 403 mm. That is the whole reason this needs a verified rule instead of a plausible one.
+- MRtrix3 stores 'unit spacing' transforms (its `mrinfo -transform` prints `A * diag(1/vs, 1)` with the flip
+  applied when needed), which is why the two agree only after this normalisation is taken into account.
+- FreeSurfer computes the conversion in single precision: agreement is ~1e-7 relative, not ~1e-15. Its
+  `lta_convert` also refuses a matrix with a zero determinant, and it requires `FSLOUTPUTTYPE` to be set
+  (NIFTI vs ANALYZE) because the flipping depends on it.
+- Reproduce with `dev_tools/check_transform_conversion.R` (2 image pairs x 6 matrices x 2 references + round
+  trips; skips a reference tool that is not installed).
+
+Consequence for the round trip: the voxel sizes recorded in a descriptor are derived from the matrix that is
+recorded, so an FSL-frame descriptor has unit voxel sizes. The rule is then idempotent (its output always has a
+negative determinant and unit axes), and `to.voxel(to.world(tf))` returns the original matrix exactly.
+
+## 10. Still open
+
+- ITK/ANTs transforms (item 4). `read.fs.transform()` detects them and reports them as unsupported; the
+  formula for `itk_import` is already known and MRtrix3 reproduces QSIRECON's output bit-exactly.
+- FreeSurfer writers (`lta`, `dat`, `xfm`, item 3).

@@ -31,9 +31,17 @@ Other header coordinate space:
 \code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform]{read.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.fslmat]{read.fs.transform.fslmat()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
-\code{\link[=summary.fs.transform]{summary.fs.transform()}}
+\code{\link[=summary.fs.transform]{summary.fs.transform()}},
+\code{\link[=transform.to.voxel]{transform.to.voxel()}},
+\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=write.fs.transform]{write.fs.transform()}},
+\code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
+\code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},
+\code{\link[=write.fs.transform.lta]{write.fs.transform.lta()}},
+\code{\link[=write.fs.transform.xfm]{write.fs.transform.xfm()}}
 }
 \concept{header coordinate space}

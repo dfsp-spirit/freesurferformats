@@ -2,12 +2,13 @@
 #'
 #' @param filepath character string, the full path to the transform file.
 #'
-#' @param format character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.
+#' @param format character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA) and 'fslmat' (for an FSL/FLIRT matrix) can be given explicitly.
 #'
 #' @return an `fs.transform` instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
 #'   coordinate spaces the matrix maps between (`space_in`, `space_out` and `voxel_base`). Which of them are
 #'   known depends on the format: an xfm file states neither (both sides are RAS), a register.dat file states
-#'   both by definition, and an LTA file states them in its header.
+#'   both by definition, an FSL matrix maps voxel coordinates (zero-based) to voxel coordinates, and an LTA file
+#'   states the spaces in its header.
 #'
 #' @note Currently this function has been tested with linear transformation files only, all others are unsupported.
 #'
@@ -23,20 +24,160 @@
 #'
 #' @export
 read.fs.transform <- function(filepath, format = "auto") {
-  if (!format %in% c("auto", "xfm", "dat", "lta")) {
-    stop("Format must be one of 'auto', 'xfm', 'dat', or 'lta'.")
+  supported_formats <- c("auto", "xfm", "dat", "lta", "fslmat")
+  if (!format %in% supported_formats) {
+    stop(sprintf("Format must be one of %s.\n", paste(supported_formats, collapse = ", ")))
   }
 
-  if (format == "xfm" || (format == "auto" & endsWith(filepath, ".xfm"))) {
+  if (format == "auto") {
+    format <- guess.transform.format(filepath)
+  }
+
+  if (format == "xfm") {
     return(read.fs.transform.xfm(filepath))
   }
-  if (format == "dat" || (format == "auto" & endsWith(filepath, ".dat"))) {
+  if (format == "dat") {
     return(read.fs.transform.dat(filepath))
   }
-  if (format == "lta" || (format == "auto" & endsWith(filepath, ".lta"))) {
+  if (format == "lta") {
     return(read.fs.transform.lta(filepath))
   }
-  stop("Could not auto-detect transform file format from file extension, please specify.")
+  if (format == "fslmat") {
+    return(read.fs.transform.fslmat(filepath))
+  }
+  stop(sprintf("Could not read transformation file '%s'.\n", filepath)) # nocov
+}
+
+
+#' @title Read a transformation matrix from an FSL matrix file.
+#'
+#' @description Read the plain text 4x4 matrix that FSL's `flirt` writes with the `-omat` option, and that FSL,
+#'   MRtrix3 and FreeSurfer read as the registration between two images.
+#'
+#' @param filepath character string, the full path to the transform file.
+#'
+#' @return an `fs.transform` instance. An FSL matrix maps the voxel coordinates of the image given to `flirt
+#'   -in` to those of the image given to `flirt -ref`. Both are voxel indices, so `space_in` and `space_out` are
+#'   'voxel' and `voxel_base` is 0 (FSL voxel indices are zero-based). The two images are not recorded in the
+#'   file, so `src` and `dst` are `NULL` and the volumes have to be passed to \code{\link{transform.to.world}}
+#'   to interpret the matrix in world coordinates.
+#'
+#' @examples
+#' # Write the example LTA as an FSL matrix and read it back, since no FSL installation is needed for that.
+#' lta_file <- system.file("extdata", "talairach.lta", package = "freesurferformats", mustWork = TRUE)
+#' mat_file <- tempfile(fileext = ".mat")
+#' write.fs.transform(read.fs.transform(lta_file), mat_file, format = "fslmat")
+#' read.fs.transform(mat_file)$matrix
+#' unlink(mat_file)
+#'
+#' @family header coordinate space
+#'
+#' @export
+read.fs.transform.fslmat <- function(filepath) {
+  all_lines <- readLines(filepath)
+  all_lines <- trimws(all_lines)
+  all_lines <- all_lines[nzchar(all_lines) & !startsWith(all_lines, "#")]
+
+  if (length(all_lines) < 4L) {
+    stop(sprintf("Expected 4 lines with 4 numerical values in FSL matrix file '%s', found %d lines with content.\n", filepath, length(all_lines)))
+  }
+
+  transformed <- matrix(NA_real_, nrow = 4L, ncol = 4L)
+  for (line_idx in 1:4) {
+    transformed[line_idx, ] <- scann(all_lines[line_idx], 4L, what = numeric(), line_number = line_idx)
+  }
+
+  return(fs.transform(
+    matrix = transformed, space_in = "voxel", space_out = "voxel", voxel_base = 0L,
+    format = "fslmat", source = filepath
+  ))
+}
+
+
+#' @title Determine the format of a transformation file.
+#'
+#' @description Guess the format of a transformation file from its extension and its content. Content is needed
+#' because the extension '.mat' is used by FSL for text matrices and by ANTs/ITK for binary transformations,
+#' which have nothing in common. A file that is identified as an ITK/ANTs transformation is reported as such
+#' instead of failing with a parse error, since that format is not supported yet.
+#'
+#' @param filepath character string, the full path to the transform file.
+#'
+#' @return character string, the file format, one of 'xfm', 'dat', 'lta' or 'fslmat'.
+#'
+#' @keywords internal
+guess.transform.format <- function(filepath) {
+  if (!file.exists(filepath)) {
+    stop(sprintf("Transformation file '%s' does not exist.\n", filepath))
+  }
+
+  sniffed_text <- transform.file.sniff.text(filepath)
+  itk_markers <- c(
+    "Insight Transform", "AffineTransform_", "Euler3DTransform_", "MatrixOffsetTransformBase_",
+    "VersorRigid3DTransform_", "DisplacementFieldTransform_", "CompositeTransform_"
+  )
+  if (any(sapply(itk_markers, function(marker) grepl(marker, sniffed_text, fixed = TRUE)))) {
+    stop(sprintf("Transformation file '%s' is an ITK or ANTs transformation, which is not supported yet. Convert it with the ITK tools (e.g. 'ConvertTransformFile') or use a plain text matrix.\n", filepath))
+  }
+
+  extension <- tolower(sub("^.*\\.", "", basename(filepath)))
+  if (identical(extension, basename(filepath))) {
+    extension <- "" # the file name contains no dot
+  }
+  if (extension %in% c("xfm", "dat", "lta")) {
+    return(extension)
+  }
+  if (extension == "mat") {
+    return("fslmat")
+  }
+
+  content_lines <- readLines(filepath, n = 4L, warn = FALSE)
+  if (length(content_lines) == 4L && all(sapply(content_lines, text.line.is.numeric, num = 4L))) {
+    return("fslmat")
+  }
+
+  stop(sprintf("Could not determine the format of transformation file '%s', please use the 'format' parameter.\n", filepath))
+}
+
+
+#' @title Extract the text of a file for format sniffing.
+#'
+#' @description Read the beginning of a file and return the printable characters it contains, so that the file
+#'   can be identified by markers in its content without failing on binary data.
+#'
+#' @param filepath character string, the path to the file.
+#'
+#' @param num_bytes integer, the number of bytes to inspect.
+#'
+#' @return character string, the printable characters of the beginning of the file.
+#'
+#' @keywords internal
+transform.file.sniff.text <- function(filepath, num_bytes = 256L) {
+  raw_bytes <- readBin(filepath, "raw", n = num_bytes)
+  if (length(raw_bytes) == 0L) {
+    return("")
+  }
+  printable <- raw_bytes[raw_bytes >= as.raw(32L) & raw_bytes < as.raw(127L)]
+  return(rawToChar(printable))
+}
+
+
+#' @title Check whether a text line holds a fixed number of numerical values.
+#'
+#' @param line character string, the line to check.
+#'
+#' @param num integer, the number of numerical values expected in the line.
+#'
+#' @return logical, whether the line contains exactly `num` numerical values and nothing else.
+#'
+#' @keywords internal
+text.line.is.numeric <- function(line, num) {
+  fields <- strsplit(trimws(line), "[[:space:]]+")[[1L]]
+  if (length(fields) != num) {
+    return(FALSE)
+  }
+  values <- suppressWarnings(as.numeric(fields))
+  return(!any(is.na(values)))
 }
 
 
@@ -112,7 +253,8 @@ read.fs.transform.xfm <- function(filepath) {
 #' @return an `fs.transform` instance. A tkregister matrix maps the movable volume (the source) to the target
 #'   volume, so `space_in` is 'voxel' and `space_out` is 'ras'. It produces RAS coordinates in the tkregister
 #'   frame of the target volume, which is why `dst` states `frame = 'tkreg'`, see
-#'   \code{\link{mghheader.vox2ras.tkreg}}. The intensity entry of the file is returned in the `intensity` field.
+#'   \code{\link{mghheader.vox2ras.tkreg}}. The other entries of the file are kept as the `subject`,
+#'   `in_plane_resolution`, `between_plane_resolution` and `intensity` fields.
 #'
 #' @family header coordinate space
 #'
@@ -144,6 +286,9 @@ read.fs.transform.dat <- function(filepath) {
   return(fs.transform(
     matrix = transform$matrix, space_in = "voxel", space_out = "ras", voxel_base = 0L,
     dst = list("frame" = "tkreg"), format = "dat", source = filepath, type = transform$type,
+    subject = trimws(all_lines[1]),
+    in_plane_resolution = as.numeric(trimws(all_lines[2])),
+    between_plane_resolution = as.numeric(trimws(all_lines[3])),
     intensity = transform$intensity
   ))
 }

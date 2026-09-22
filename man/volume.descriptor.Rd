@@ -43,7 +43,7 @@ not given but \code{dim}, \code{xras}, \code{yras}, \code{zras} and \code{cras} 
 convention that \code{\link{mghheader.vox2ras}} implements for MGH headers: zero-based voxel indices and
 the origin at \code{cras - Mdc_scaled * (dim/2)}. Verified against \code{mri_info --vox2ras} on a real volume.}
 
-\item{frame}{character string, either 'scanner' or 'tkreg', see the description.}
+\item{frame}{character string, either 'scanner', 'tkreg' or 'fsl', see the description.}
 
 \item{valid}{\code{NULL} or integer, the 'valid' flag of the volume info section of an LTA file, which states
 whether the recorded geometry could be used by FreeSurfer.}

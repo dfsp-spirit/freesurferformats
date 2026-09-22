@@ -9,13 +9,14 @@ read.fs.transform(filepath, format = "auto")
 \arguments{
 \item{filepath}{character string, the full path to the transform file.}
 
-\item{format}{character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.}
+\item{format}{character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA) and 'fslmat' (for an FSL/FLIRT matrix) can be given explicitly.}
 }
 \value{
 an \code{fs.transform} instance, see \code{\link{fs.transform}}. Its fields include the 'matrix', and the
 coordinate spaces the matrix maps between (\code{space_in}, \code{space_out} and \code{voxel_base}). Which of them are
 known depends on the format: an xfm file states neither (both sides are RAS), a register.dat file states
-both by definition, and an LTA file states them in its header.
+both by definition, an FSL matrix maps voxel coordinates (zero-based) to voxel coordinates, and an LTA file
+states the spaces in its header.
 }
 \description{
 Load transformation matrix from a file.
@@ -45,10 +46,18 @@ Other header coordinate space:
 \code{\link[=mghheader.vox2ras.tkreg]{mghheader.vox2ras.tkreg()}},
 \code{\link[=print.fs.transform]{print.fs.transform()}},
 \code{\link[=read.fs.transform.dat]{read.fs.transform.dat()}},
+\code{\link[=read.fs.transform.fslmat]{read.fs.transform.fslmat()}},
 \code{\link[=read.fs.transform.lta]{read.fs.transform.lta()}},
 \code{\link[=read.fs.transform.xfm]{read.fs.transform.xfm()}},
 \code{\link[=sm0to1]{sm0to1()}},
 \code{\link[=sm1to0]{sm1to0()}},
-\code{\link[=summary.fs.transform]{summary.fs.transform()}}
+\code{\link[=summary.fs.transform]{summary.fs.transform()}},
+\code{\link[=transform.to.voxel]{transform.to.voxel()}},
+\code{\link[=transform.to.world]{transform.to.world()}},
+\code{\link[=write.fs.transform]{write.fs.transform()}},
+\code{\link[=write.fs.transform.dat]{write.fs.transform.dat()}},
+\code{\link[=write.fs.transform.fslmat]{write.fs.transform.fslmat()}},
+\code{\link[=write.fs.transform.lta]{write.fs.transform.lta()}},
+\code{\link[=write.fs.transform.xfm]{write.fs.transform.xfm()}}
 }
 \concept{header coordinate space}
