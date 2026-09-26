@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>freesurferformats development information</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/README_DEVELOPMENT.md" class="external-link"><code>README_DEVELOPMENT.md</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/README_DEVELOPMENT.md" class="external-link"><code>README_DEVELOPMENT.md</code></a></small>
     </div>
 
 <div id="freesurferformats-development-information" class="section level1">
@@ -58,6 +58,13 @@
 <li>to run an individual test, or several ones, by name filter: <code>Rscript -e "devtools::test(filter = 'write_fs_annot')"</code>
 </li>
 </ul></div>
+<div class="section level2">
+<h2 id="testing-the-track-file-readers-against-large-files">Testing the track file readers against large files<a class="anchor" aria-label="anchor" href="#testing-the-track-file-readers-against-large-files"></a></h2>
+<p>The TRK/TCK/TSF readers are meant to work on whole-brain tractograms of several GB. The unit tests cover all the code paths that matter for such files without shipping any large file (see <code>tests/testthat/test-dti-large-file-handling.R</code>): the same small file is read with many different chunk sizes, the memory limit is lowered so that the check triggers on a small file, a sparse file that reports 4 GB but occupies a few KB is used for the size-dependent check, and the header of a real 8.9 GB tractogram is embedded in the test file. This runs everywhere, including on CRAN and on Windows.</p>
+<p>Throughput and the constant memory footprint over millions of streamlines cannot be checked with small files, so they are validated against a real file by a script that you have to point at a file yourself:</p>
+<p><code>Rscript dev_tools/check_large_tck.R &lt;path/to/file.tck[.gz]&gt; [n_tracks] [full_scan]</code></p>
+<p>It reports time and peak memory of a subset read, compares the coordinates read from a <code>.gz</code> file against those from the uncompressed file, checks that reading a file that cannot fit into memory fails with a helpful message, exercises the streaming iterator and the bounding box filter, reads the header only, and does a crop-and-write round trip. With <code>full_scan = TRUE</code> it also counts all tracts of the file, which reads the complete payload (about 2 minutes for a 9.7 GB file).</p>
+</div>
 <div class="section level2">
 <h2 id="checking-the-package">Checking the package<a class="anchor" aria-label="anchor" href="#checking-the-package"></a></h2>
 <p>This does a lot more than just running the tests, it checks various coding styles, metadata, and all kinds of other stuff that is specific to what the people running CRAN want you to do. It also builds the documentation by default to check whether that works, so it takes a lot of time.</p>

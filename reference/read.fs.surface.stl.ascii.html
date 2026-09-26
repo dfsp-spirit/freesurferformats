@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Read surface mesh in STL ASCII format.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/read_fs_surface.R" class="external-link"><code>R/read_fs_surface.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/read_fs_surface.R" class="external-link"><code>R/read_fs_surface.R</code></a></small>
       <div class="d-none name"><code>read.fs.surface.stl.ascii.Rd</code></div>
     </div>
 
@@ -61,11 +61,11 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>an <code>fs.surface</code> instance. The normals are available in the 'metadata' property.</p>
+    <p>an <code>fs.surface</code> instance. The normals of the faces are available in the 'metadata' property, in the entry 'normals' (a matrix with one row per face). Note that the normal vectors stored in the file are ignored, the returned normals are computed from the geometry, see <code><a href="mesh.face.normals.html">mesh.face.normals</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
-    <p>The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh needs to be reconstructed, which requires the <code>misc3d</code> package.</p>
+    <p>The STL format does not use indices into a vertex list to define faces, instead it repeats vertex coords in each face ('polygon soup'). Therefore, the mesh has to be reconstructed, which is what the internal function <code>polygon.soup.to.indexed.mesh</code> does.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

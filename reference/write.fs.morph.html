@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Write morphometry data in a format derived from the given file name.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_fs_curv.R" class="external-link"><code>R/write_fs_curv.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_fs_curv.R" class="external-link"><code>R/write_fs_curv.R</code></a></small>
       <div class="d-none name"><code>write.fs.morph.Rd</code></div>
     </div>
 
@@ -70,6 +70,14 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>character string. The format that was used to write the data. One of c("auto", "mgh", "mgz", "curv", "ni1", "ni2", "gii").</p>
+    </div>
+    <div class="section level2">
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p>A file name that is one of the standard CIFTI-2 names (e.g. <code>.dscalar.nii</code> or
+<code>.dlabel.nii</code>) is an error: such a file has to contain the CIFTI XML metadata, and
+a NIFTI file with that name is read as a CIFTI file (and refused) by this package
+and by other software. Use <code><a href="write.fs.morph.cifti.html">write.fs.morph.cifti</a></code> to write morphometry
+data to a CIFTI-2 file, or <code><a href="write.cifti.html">write.cifti</a></code> for the other CIFTI-2 types.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

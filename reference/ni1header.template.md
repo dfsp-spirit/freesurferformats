@@ -6,8 +6,22 @@ use case.
 ## Usage
 
 ``` r
-ni1header.template()
+ni1header.template(pair = FALSE)
 ```
+
+## Arguments
+
+- pair:
+
+  logical, whether the template describes a NIFTI v1 *pair* file (a
+  `.hdr` header file plus a separate `.img` data file, the variant that
+  is also used by the ANALYZE 7.5 format and that FSL writes) instead of
+  a single file (`.nii`, the header and the data in one file). The two
+  variants differ in the `magic` field and in the `vox_offset` field,
+  which is 352 for a single file (the data starts behind the header) and
+  0 for a pair (the data starts at the first byte of the `.img` file).
+  Both variants are written by
+  [`write.nifti1`](https://dfsp-spirit.github.io/freesurferformats/reference/write.nifti1.md).
 
 ## Value
 

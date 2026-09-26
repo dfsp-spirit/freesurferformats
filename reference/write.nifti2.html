@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Write header and data to a file in NIFTI v2 format.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_nifti2.R" class="external-link"><code>R/write_nifti2.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_nifti2.R" class="external-link"><code>R/write_nifti2.R</code></a></small>
       <div class="d-none name"><code>write.nifti2.Rd</code></div>
     </div>
 
@@ -44,7 +44,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write.nifti2</span><span class="op">(</span><span class="va">filepath</span>, <span class="va">niidata</span>, niiheader <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">write.nifti2</span><span class="op">(</span><span class="va">filepath</span>, <span class="va">niidata</span>, niiheader <span class="op">=</span> <span class="cn">NULL</span>, extensions <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -62,10 +62,19 @@
 <dt id="arg-niiheader">niiheader<a class="anchor" aria-label="anchor" href="#arg-niiheader"></a></dt>
 <dd><p>an optional NIFTI v2 header that is suitable for the passed 'niidata'. If not given, one will be generated with <code><a href="ni2header.for.data.html">ni2header.for.data</a></code>.</p></dd>
 
+
+<dt id="arg-extensions">extensions<a class="anchor" aria-label="anchor" href="#arg-extensions"></a></dt>
+<dd><p>optional list of NIFTI v2 header extensions to write between the header and the data, each
+created with <code><a href="nifti2.extension.html">nifti2.extension</a></code>. If left at <code>NULL</code> and the 'niiheader' has a field named
+'extensions', that field is used, so that a header read with <code><a href="read.nifti2.header.html">read.nifti2.header</a></code> can be written
+back to a new file without losing its extensions. The 'vox_offset' field of the header is adapted if it is
+too small to fit the extensions, and the data is written directly after them.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other nifti2 writers:
+    <div class="dont-index"><p><code><a href="read.nifti2.header.html">read.nifti2.header</a></code>, <code><a href="nifti2.get.extension.html">nifti2.get.extension</a></code></p>
+<p>Other nifti2 writers:
 <code><a href="write.fs.morph.ni2.html">write.fs.morph.ni2()</a></code></p></div>
     </div>
 

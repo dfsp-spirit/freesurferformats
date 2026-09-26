@@ -21,7 +21,9 @@ read.nifti2.header.internal(filepath, little_endian = TRUE)
 
 ## Value
 
-named list with NIFTI 2 header fields.
+named list with NIFTI 2 header fields, including the header extensions
+(field `extensions`, see
+[`read.nifti2.header`](https://dfsp-spirit.github.io/freesurferformats/reference/read.nifti2.header.md)).
 
 ## Note
 

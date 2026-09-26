@@ -1,10 +1,14 @@
-# Read VTK ASCII format mesh as surface.
+# Read VTK legacy format mesh as surface.
 
-This reads meshes (vtk polygon datasets) from text files in VTK ASCII
-format. See https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf
-for format spec. Note that this function does **not** read arbitrary VTK
-datasets, i.e., it supports only a subset of the possible contents of
-VTK files (i.e., polygon meshes).
+Reads meshes from files in the VTK legacy format. Both the ASCII and the
+binary encoding are supported, as are the cell array layouts written by
+VTK 4.2 and older and by VTK 5.1 and newer, see the notes. See
+<https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf> for the
+format specification. Note that this function does **not** read
+arbitrary VTK datasets, it supports only the geometry of POLYDATA
+datasets (meshes and point clouds); attribute data such as normals,
+texture coordinates or scalars is ignored. Only triangular meshes are
+supported, files containing other polygons are rejected with an error.
 
 ## Usage
 
@@ -16,7 +20,7 @@ read.fs.surface.vtk(filepath)
 
 - filepath:
 
-  string. Full path to the input surface file in VTK ASCII format.
+  string. Full path to the input surface file in VTK format.
 
 ## Value
 
@@ -30,7 +34,10 @@ to compare with data from other software.
 
 ## Note
 
-This is by far not a complete VTK format reader.
+This is by far not a complete VTK format reader. Files that store
+streamlines instead of a mesh (i.e., that contain a LINES section) are
+read with
+[`read.fs.tracts.vtk`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.tracts.vtk.md).
 
 ## See also
 
@@ -54,3 +61,12 @@ Other mesh functions:
 [`write.fs.surface.gii()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.gii.md),
 [`write.fs.surface.mz3()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.mz3.md),
 [`write.fs.surface.vtk()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.vtk.md)
+
+## Examples
+
+``` r
+surface_file <- system.file("extdata", "cube.vtk", package = "freesurferformats", mustWork = TRUE)
+mesh <- read.fs.surface.vtk(surface_file)
+cat(sprintf("Read a mesh with %d vertices and %d faces.\n", nrow(mesh$vertices), nrow(mesh$faces)))
+#> Read a mesh with 8 vertices and 12 faces.
+```

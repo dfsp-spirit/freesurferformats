@@ -9,7 +9,7 @@ For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +36,7 @@ For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Write mesh to file in FreeSurfer binary surface format</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_fs_surface.R" class="external-link"><code>R/write_fs_surface.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_fs_surface.R" class="external-link"><code>R/write_fs_surface.R</code></a></small>
       <div class="d-none name"><code>write.fs.surface.Rd</code></div>
     </div>
 
@@ -67,7 +67,7 @@ For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
-<dd><p>character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young University (BYU) mesh format, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.</p></dd>
+<dd><p>character string, the format to use. One of 'bin' for FreeSurfer binary surface format, 'asc' for FreeSurfer ASCII format, 'vtk' for VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young University (BYU) mesh format, 'stl' for the stereolithography (STL) format used for 3D printing, or 'auto' to derive the format from the file extension given in parameter 'filepath'. With 'auto', a path ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as vtk, and so on for the other formats. A path ending in '.stla' is interpreted as the ASCII variant of the STL format and one ending in '.stlb' or '.stl' as the binary variant. Everything not matching any of these is interpreted as 'bin', i.e., FreeSurfer binary surface format.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -101,7 +101,9 @@ For a subject (MRI image pre-processed with FreeSurfer) named 'bert', an example
 <code><a href="write.fs.surface.off.html">write.fs.surface.off()</a></code>,
 <code><a href="write.fs.surface.off.ply2.html">write.fs.surface.off.ply2()</a></code>,
 <code><a href="write.fs.surface.ply.html">write.fs.surface.ply()</a></code>,
-<code><a href="write.fs.surface.ply2.html">write.fs.surface.ply2()</a></code></p></div>
+<code><a href="write.fs.surface.ply2.html">write.fs.surface.ply2()</a></code>,
+<code><a href="write.fs.surface.stl.html">write.fs.surface.stl()</a></code>,
+<code><a href="write.fs.surface.vtk.html">write.fs.surface.vtk()</a></code></p></div>
     </div>
 
     <div class="section level2">

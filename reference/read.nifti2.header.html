@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Read NIFTI v2 header from file.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/read_nifti2.R" class="external-link"><code>R/read_nifti2.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/read_nifti2.R" class="external-link"><code>R/read_nifti2.R</code></a></small>
       <div class="d-none name"><code>read.nifti2.header.Rd</code></div>
     </div>
 
@@ -57,7 +57,14 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>named list with NIFTI 2 header fields.</p>
+    <p>named list with NIFTI 2 header fields. The header extensions, if the file has any, are returned in
+the field <code>extensions</code>, a list in which each entry is one header extension as created by
+<code><a href="nifti2.extension.html">nifti2.extension</a></code> (i.e., a list with the entries 'ecode' and 'content'). CIFTI2 files store
+their XML metadata in such an extension, see <code><a href="nifti2.get.extension.html">nifti2.get.extension</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="write.nifti2.html">write.nifti2</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

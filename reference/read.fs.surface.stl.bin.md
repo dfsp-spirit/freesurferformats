@@ -25,7 +25,11 @@ read.fs.surface.stl.bin(filepath, digits = 6L)
 
 ## Value
 
-an `fs.surface` instance.
+an `fs.surface` instance. The normals of the faces are available in the
+'metadata' property, in the entry 'normals' (a matrix with one row per
+face). Note that the normal vectors stored in the file are ignored, the
+returned normals are computed from the geometry, see
+[`mesh.face.normals`](https://dfsp-spirit.github.io/freesurferformats/reference/mesh.face.normals.md).
 
 ## Note
 

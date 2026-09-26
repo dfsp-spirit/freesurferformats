@@ -22,6 +22,33 @@ On the console:
 - to run an individual test, or several ones, by name filter:
   `Rscript -e "devtools::test(filter = 'write_fs_annot')"`
 
+## Testing the track file readers against large files
+
+The TRK/TCK/TSF readers are meant to work on whole-brain tractograms of
+several GB. The unit tests cover all the code paths that matter for such
+files without shipping any large file (see
+`tests/testthat/test-dti-large-file-handling.R`): the same small file is
+read with many different chunk sizes, the memory limit is lowered so
+that the check triggers on a small file, a sparse file that reports 4 GB
+but occupies a few KB is used for the size-dependent check, and the
+header of a real 8.9 GB tractogram is embedded in the test file. This
+runs everywhere, including on CRAN and on Windows.
+
+Throughput and the constant memory footprint over millions of
+streamlines cannot be checked with small files, so they are validated
+against a real file by a script that you have to point at a file
+yourself:
+
+`Rscript dev_tools/check_large_tck.R <path/to/file.tck[.gz]> [n_tracks] [full_scan]`
+
+It reports time and peak memory of a subset read, compares the
+coordinates read from a `.gz` file against those from the uncompressed
+file, checks that reading a file that cannot fit into memory fails with
+a helpful message, exercises the streaming iterator and the bounding box
+filter, reads the header only, and does a crop-and-write round trip.
+With `full_scan = TRUE` it also counts all tracts of the file, which
+reads the complete payload (about 2 minutes for a 9.7 GB file).
+
 ## Checking the package
 
 This does a lot more than just running the tests, it checks various

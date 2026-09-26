@@ -38,6 +38,17 @@ write.fs.morph(filepath, data, format = "auto", ...)
 character string. The format that was used to write the data. One of
 c("auto", "mgh", "mgz", "curv", "ni1", "ni2", "gii").
 
+## Note
+
+A file name that is one of the standard CIFTI-2 names (e.g.
+`.dscalar.nii` or `.dlabel.nii`) is an error: such a file has to contain
+the CIFTI XML metadata, and a NIFTI file with that name is read as a
+CIFTI file (and refused) by this package and by other software. Use
+[`write.fs.morph.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.morph.cifti.md)
+to write morphometry data to a CIFTI-2 file, or
+[`write.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/write.cifti.md)
+for the other CIFTI-2 types.
+
 ## See also
 
 Other morphometry functions:

@@ -5,7 +5,7 @@ Create NIFTI v1 header suitable for given data.
 ## Usage
 
 ``` r
-ni1header.for.data(niidata, allow_fshack = FALSE)
+ni1header.for.data(niidata, allow_fshack = FALSE, pair = FALSE)
 ```
 
 ## Arguments
@@ -23,6 +23,13 @@ ni1header.for.data(niidata, allow_fshack = FALSE)
   do not conform to the NIFTI v1 standard and will not be read correctly
   by most software. All FreeSurfer tools and the Python 'nibabel' module
   support it.
+
+- pair:
+
+  logical, whether the header should describe a NIFTI v1 pair (a `.hdr`
+  header file plus a separate `.img` data file) instead of a single
+  file. See
+  [`ni1header.template`](https://dfsp-spirit.github.io/freesurferformats/reference/ni1header.template.md).
 
 ## Value
 

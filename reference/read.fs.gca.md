@@ -23,8 +23,8 @@ named list, the file fields. The GCA data is in the data field.
 
 This function is based on Matlab code by Bruce Fischl, published under
 the FreeSurfer Open Source License available at
-<https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense>.
-The R version was written by Tim Schaefer.
+https://surfer.nmr.mgh.harvard.edu/fswiki/FreeSurferSoftwareLicense. The
+R version was written by Tim Schaefer.
 
 ## Examples
 

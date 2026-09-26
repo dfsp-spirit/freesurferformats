@@ -22,9 +22,12 @@ read.fs.volume(
 
 - format:
 
-  character string, one one of 'auto', 'nii', 'mgh' or 'mgz'. The format
-  to assume. If set to 'auto' (the default), the format will be derived
-  from the file extension.
+  character string, one one of 'auto', 'nii', 'mgh', 'mgz', 'nrrd' or
+  'analyze'. The format to assume. If set to 'auto' (the default), the
+  format will be derived from the file extension. The value 'analyze'
+  covers the two-file image formats ANALYZE 7.5 and NIFTI v1 pair files,
+  which share the `.hdr`/`.img` file extensions, see
+  [`read.fs.volume.analyze`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.volume.analyze.md).
 
 - flatten:
 
@@ -56,6 +59,14 @@ voxel. The data type and the dimensions depend on the data in the file,
 they are read from the header. If the parameter flatten is `TRUE`, a
 numeric vector is returned instead. Note: The return value changes if
 the parameter with_header is `TRUE`, see parameter description.
+
+## Note
+
+CIFTI-2 files (which are NIFTI-2 files, see
+[`read.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md))
+are refused with an error instead of being read as volumes: their
+payload is a matrix whose dimensions the CIFTI XML metadata describes,
+so the values would come back as voxels that mean nothing.
 
 ## See also
 

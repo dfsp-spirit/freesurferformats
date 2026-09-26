@@ -24,6 +24,13 @@ See the NIFTI v2 standard for more options. You may want to call
 [`ni2header.for.data`](https://dfsp-spirit.github.io/freesurferformats/reference/ni2header.for.data.md)
 instead of this function.
 
+The 'magic' field of a NIFTI v2 file must be the string 'n+2'. Versions
+of this package before 1.1.0 wrote the NIFTI v1 magic 'n+1' here, which
+violates the standard and makes other software (nibabel, Connectome
+Workbench) refuse the file;
+[`write.nifti2`](https://dfsp-spirit.github.io/freesurferformats/reference/write.nifti2.md)
+writes the full 8 byte magic of the standard.
+
 ## See also
 
 [`ni2header.for.data`](https://dfsp-spirit.github.io/freesurferformats/reference/ni2header.for.data.md)

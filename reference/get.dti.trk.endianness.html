@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Determine endianness of TRK file.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/read_dti_trk.R" class="external-link"><code>R/read_dti_trk.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/read_dti_trk.R" class="external-link"><code>R/read_dti_trk.R</code></a></small>
       <div class="d-none name"><code>get.dti.trk.endianness.Rd</code></div>
     </div>
 
@@ -52,7 +52,12 @@
 
 
 <dl><dt id="arg-filepath">filepath<a class="anchor" aria-label="anchor" href="#arg-filepath"></a></dt>
-<dd><p>character string, path to file in trk format.</p></dd>
+<dd><p>character string, path to file in trk format. Gzip-compressed
+files are supported as well (the compression is detected from the file
+content, so a <code>.trk.gz</code> file is read like any other TRK file), which is
+convenient since tractograms are large and are regularly stored compressed.
+Note that track files cannot be compressed on the fly for other software:
+the TrackVis tools and MRtrix do not read compressed track files.</p></dd>
 
 </dl></div>
     <div class="section level2">

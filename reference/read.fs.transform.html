@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Load transformation matrix from a file.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/read_fs_transform.R" class="external-link"><code>R/read_fs_transform.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/read_fs_transform.R" class="external-link"><code>R/read_fs_transform.R</code></a></small>
       <div class="d-none name"><code>read.fs.transform.Rd</code></div>
     </div>
 
@@ -56,12 +56,16 @@
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
-<dd><p>character string, the file format. Currently 'auto' (guess based on file extension), 'xfm' (for xform format) or 'dat' (for tkregister style, e.g. register.dat) are supported.</p></dd>
+<dd><p>character string, the file format. 'auto' guesses it from the file extension and the file content, and 'xfm' (for xform format), 'dat' (for tkregister style, e.g. register.dat), 'lta' (for FreeSurfer LTA), 'fslmat' (for an FSL/FLIRT matrix) and 'itk' (for an ITK text transform, e.g. a <code>.tfm</code> file) can be given explicitly.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>named list, the 'matrix field contains a '4x4 numerical matrix, the transformation matrix. Other fields may exist, depending on the parsed format.</p>
+    <p>an <code>fs.transform</code> instance, see <code><a href="fs.transform.html">fs.transform</a></code>. Its fields include the 'matrix', and the
+coordinate spaces the matrix maps between (<code>space_in</code>, <code>space_out</code> and <code>voxel_base</code>). Which of them are
+known depends on the format: an xfm file states neither (both sides are RAS), a register.dat file states
+both by definition, an FSL matrix maps voxel coordinates (zero-based) to voxel coordinates, and an LTA file
+states the spaces in its header.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
@@ -70,6 +74,8 @@
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other header coordinate space:
+<code><a href="invert.fs.transform.html">invert.fs.transform()</a></code>,
+<code><a href="is.fs.transform.html">is.fs.transform()</a></code>,
 <code><a href="mghheader.is.ras.valid.html">mghheader.is.ras.valid()</a></code>,
 <code><a href="mghheader.ras2vox.html">mghheader.ras2vox()</a></code>,
 <code><a href="mghheader.ras2vox.tkreg.html">mghheader.ras2vox.tkreg()</a></code>,
@@ -77,11 +83,25 @@
 <code><a href="mghheader.tkreg2scanner.html">mghheader.tkreg2scanner()</a></code>,
 <code><a href="mghheader.vox2ras.html">mghheader.vox2ras()</a></code>,
 <code><a href="mghheader.vox2ras.tkreg.html">mghheader.vox2ras.tkreg()</a></code>,
+<code><a href="print.fs.transform.html">print.fs.transform()</a></code>,
 <code><a href="read.fs.transform.dat.html">read.fs.transform.dat()</a></code>,
+<code><a href="read.fs.transform.fslmat.html">read.fs.transform.fslmat()</a></code>,
+<code><a href="read.fs.transform.itk.html">read.fs.transform.itk()</a></code>,
 <code><a href="read.fs.transform.lta.html">read.fs.transform.lta()</a></code>,
 <code><a href="read.fs.transform.xfm.html">read.fs.transform.xfm()</a></code>,
 <code><a href="sm0to1.html">sm0to1()</a></code>,
-<code><a href="sm1to0.html">sm1to0()</a></code></p></div>
+<code><a href="sm1to0.html">sm1to0()</a></code>,
+<code><a href="summary.fs.transform.html">summary.fs.transform()</a></code>,
+<code><a href="transform2lps.html">transform2lps()</a></code>,
+<code><a href="transform2ras.html">transform2ras()</a></code>,
+<code><a href="transform2voxel.html">transform2voxel()</a></code>,
+<code><a href="transform2world.html">transform2world()</a></code>,
+<code><a href="write.fs.transform.html">write.fs.transform()</a></code>,
+<code><a href="write.fs.transform.dat.html">write.fs.transform.dat()</a></code>,
+<code><a href="write.fs.transform.fslmat.html">write.fs.transform.fslmat()</a></code>,
+<code><a href="write.fs.transform.itk.html">write.fs.transform.itk()</a></code>,
+<code><a href="write.fs.transform.lta.html">write.fs.transform.lta()</a></code>,
+<code><a href="write.fs.transform.xfm.html">write.fs.transform.xfm()</a></code></p></div>
     </div>
 
     <div class="section level2">

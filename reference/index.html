@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,10 +48,38 @@
 
       <dl><dt>
 
+          <code><a href="analyzeheader.for.data.html">analyzeheader.for.data()</a></code>
+
+        </dt>
+        <dd>Create ANALYZE 7.5 header suitable for given data.</dd>
+
+        <dt>
+
+          <code><a href="analyzeheader.template.html">analyzeheader.template()</a></code>
+
+        </dt>
+        <dd>Create a template ANALYZE 7.5 header. You will have to adapt it for your use case.</dd>
+
+        <dt>
+
           <code><a href="annot.max.region.idx.html">annot.max.region.idx()</a></code>
 
         </dt>
         <dd>Get max region index of an fs.annot instance.</dd>
+
+        <dt>
+
+          <code><a href="as.fs.tracts.html">as.fs.tracts()</a></code>
+
+        </dt>
+        <dd>Convert a collection of tracts to an fs.tracts instance.</dd>
+
+        <dt>
+
+          <code><a href="as.list.fs.tracts.html">as.list(<i>&lt;fs.tracts&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Convert an fs.tracts instance to a plain list of tracts.</dd>
 
         <dt>
 
@@ -73,6 +101,146 @@
 
         </dt>
         <dd>Create CDATA element string from string.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.brain.models.html">cifti.axis.brain.models()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for brain models.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.from.template.html">cifti.axis.from.template()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis from a template file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.labels.html">cifti.axis.labels()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for label maps.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.parcels.html">cifti.axis.parcels()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for parcels.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.parcels.from.annot.html">cifti.axis.parcels.from.annot()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 parcels axis from brain surface annotations.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.scalars.html">cifti.axis.scalars()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for scalar or label maps.</dd>
+
+        <dt>
+
+          <code><a href="cifti.axis.series.html">cifti.axis.series()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for a series.</dd>
+
+        <dt>
+
+          <code><a href="cifti.brain.model.surface.html">cifti.brain.model.surface()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 brain model entry for a surface.</dd>
+
+        <dt>
+
+          <code><a href="cifti.brain.model.volume.html">cifti.brain.model.volume()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 brain model entry for volume voxels.</dd>
+
+        <dt>
+
+          <code><a href="cifti.dim.labels.html">cifti.dim.labels()</a></code>
+
+        </dt>
+        <dd>Get axis labels for a matrix dimension of a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.file.type.for.axes.html">cifti.file.type.for.axes()</a></code>
+
+        </dt>
+        <dd>Get the standard CIFTI-2 file type for a set of axes.</dd>
+
+        <dt>
+
+          <code><a href="cifti.grayordinates.html">cifti.grayordinates()</a></code>
+
+        </dt>
+        <dd>Get the brainordinate table of a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.header.from.axes.html">cifti.header.from.axes()</a></code>
+
+        </dt>
+        <dd>Create the CIFTI-2 XML metadata for a set of axes.</dd>
+
+        <dt>
+
+          <code><a href="cifti.label.table.html">cifti.label.table()</a></code>
+
+        </dt>
+        <dd>Get a label table from a CIFTI-2 label file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.parcel.html">cifti.parcel()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 parcel.</dd>
+
+        <dt>
+
+          <code><a href="cifti.parcels.html">cifti.parcels()</a></code>
+
+        </dt>
+        <dd>Get the parcel table of a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.series.info.html">cifti.series.info()</a></code>
+
+        </dt>
+        <dd>Get the series information of a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.structure.data.html">cifti.structure.data()</a></code>
+
+        </dt>
+        <dd>Extract the data of one brain structure from a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.structures.html">cifti.structures()</a></code>
+
+        </dt>
+        <dd>Get the brain model table of a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="cifti.volume.html">cifti.volume()</a></code>
+
+        </dt>
+        <dd>Create a CIFTI-2 axis for a volume.</dd>
 
         <dt>
 
@@ -108,6 +276,27 @@
 
         </dt>
         <dd>Download optional data for the freesurferformats package.</dd>
+
+        <dt>
+
+          <code><a href="dti.track.bbox.html">dti.track.bbox()</a></code>
+
+        </dt>
+        <dd>Compute the bounding box of all tract coordinates in a file.</dd>
+
+        <dt>
+
+          <code><a href="dti.track.count.html">dti.track.count()</a></code>
+
+        </dt>
+        <dd>Count the tracts in a DTI tract file.</dd>
+
+        <dt>
+
+          <code><a href="dti.track.iterator.html">dti.track.iterator()</a></code>
+
+        </dt>
+        <dd>Create an iterator over the tracts of a DTI tract file.</dd>
 
         <dt>
 
@@ -167,6 +356,27 @@
 
         <dt>
 
+          <code><a href="fs.tracts.html">fs.tracts()</a></code>
+
+        </dt>
+        <dd>Create an fs.tracts instance from a compact tract representation.</dd>
+
+        <dt>
+
+          <code><a href="fs.tracts.coords.html">fs.tracts.coords()</a></code>
+
+        </dt>
+        <dd>Get the concatenated coordinates of fs.tracts instances.</dd>
+
+        <dt>
+
+          <code><a href="fs.tracts.lengths.html">fs.tracts.lengths()</a></code>
+
+        </dt>
+        <dd>Get the number of points of each tract.</dd>
+
+        <dt>
+
           <code><a href="get_opt_data_filepath.html">get_opt_data_filepath()</a></code>
 
         </dt>
@@ -209,6 +419,20 @@
 
         <dt>
 
+          <code><a href="invert.fs.transform.html">invert.fs.transform()</a></code>
+
+        </dt>
+        <dd>Invert a transformation.</dd>
+
+        <dt>
+
+          <code><a href="is.analyze.file.html">is.analyze.file()</a></code>
+
+        </dt>
+        <dd>Check whether a file is an ANALYZE 7.5 file.</dd>
+
+        <dt>
+
           <code><a href="is.bvsmp.html">is.bvsmp()</a></code>
 
         </dt>
@@ -237,6 +461,20 @@
 
         <dt>
 
+          <code><a href="is.fs.tracts.html">is.fs.tracts()</a></code>
+
+        </dt>
+        <dd>Check whether an object is an fs.tracts instance.</dd>
+
+        <dt>
+
+          <code><a href="is.fs.transform.html">is.fs.transform()</a></code>
+
+        </dt>
+        <dd>Check whether an object is an fs.transform instance.</dd>
+
+        <dt>
+
           <code><a href="is.fs.volume.html">is.fs.volume()</a></code>
 
         </dt>
@@ -248,6 +486,13 @@
 
         </dt>
         <dd>Check whether object is an mghheader</dd>
+
+        <dt>
+
+          <code><a href="length.fs.tracts.html">length(<i>&lt;fs.tracts&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Number of tracts in an fs.tracts instance.</dd>
 
         <dt>
 
@@ -419,6 +664,27 @@
 
         <dt>
 
+          <code><a href="nifti2.extension.html">nifti2.extension()</a></code>
+
+        </dt>
+        <dd>Create a NIFTI v2 header extension.</dd>
+
+        <dt>
+
+          <code><a href="nifti2.extension.text.html">nifti2.extension.text()</a></code>
+
+        </dt>
+        <dd>Get the payload of a NIFTI v2 header extension as text.</dd>
+
+        <dt>
+
+          <code><a href="nifti2.get.extension.html">nifti2.get.extension()</a></code>
+
+        </dt>
+        <dd>Get a NIFTI v2 header extension by code.</dd>
+
+        <dt>
+
           <code><a href="nii1header.for.mgh.html">nii1header.for.mgh()</a></code>
 
         </dt>
@@ -426,10 +692,38 @@
 
         <dt>
 
+          <code><a href="print.dti.track.iterator.html">print(<i>&lt;dti.track.iterator&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print a tract file iterator.</dd>
+
+        <dt>
+
           <code><a href="print.fs.annot.html">print(<i>&lt;fs.annot&gt;</i>)</a></code>
 
         </dt>
         <dd>Print description of a brain atlas or annotation.</dd>
+
+        <dt>
+
+          <code><a href="print.fs.cifti.html">print(<i>&lt;fs.cifti&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an fs.cifti instance.</dd>
+
+        <dt>
+
+          <code><a href="print.fs.cifti.data.html">print(<i>&lt;fs.cifti.data&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an fs.cifti.data instance.</dd>
+
+        <dt>
+
+          <code><a href="print.fs.connectome.html">print(<i>&lt;fs.connectome&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an fs.connectome instance.</dd>
 
         <dt>
 
@@ -454,6 +748,20 @@
 
         <dt>
 
+          <code><a href="print.fs.tracts.html">print(<i>&lt;fs.tracts&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an fs.tracts instance.</dd>
+
+        <dt>
+
+          <code><a href="print.fs.transform.html">print(<i>&lt;fs.transform&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Print an fs.transform instance.</dd>
+
+        <dt>
+
           <code><a href="print.fs.volume.html">print(<i>&lt;fs.volume&gt;</i>)</a></code>
 
         </dt>
@@ -475,10 +783,80 @@
 
         <dt>
 
+          <code><a href="read.analyze.data.html">read.analyze.data()</a></code>
+
+        </dt>
+        <dd>Read ANALYZE 7.5 data from file.</dd>
+
+        <dt>
+
+          <code><a href="read.analyze.header.html">read.analyze.header()</a></code>
+
+        </dt>
+        <dd>Read ANALYZE 7.5 header from file.</dd>
+
+        <dt>
+
+          <code><a href="read.cifti.html">read.cifti()</a></code>
+
+        </dt>
+        <dd>Read a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="read.cifti.header.html">read.cifti.header()</a></code>
+
+        </dt>
+        <dd>Read CIFTI-2 header (XML metadata).</dd>
+
+        <dt>
+
+          <code><a href="read.cifti.rows.html">read.cifti.rows()</a></code>
+
+        </dt>
+        <dd>Read selected matrix rows of a CIFTI-2 file without loading the whole matrix.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.bval.html">read.dti.bval()</a></code>
+
+        </dt>
+        <dd>Read b-values from a FSL-style bvals file.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.bvec.html">read.dti.bvec()</a></code>
+
+        </dt>
+        <dd>Read b-vectors from a FSL-style bvecs file.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.grad.html">read.dti.grad()</a></code>
+
+        </dt>
+        <dd>Read a gradient table in MRtrix3 format.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.gradients.html">read.dti.gradients()</a></code>
+
+        </dt>
+        <dd>Read and validate a diffusion MRI gradient table.</dd>
+
+        <dt>
+
           <code><a href="read.dti.tck.html">read.dti.tck()</a></code>
 
         </dt>
         <dd>Read DTI tracking data from file in MRtrix 'TCK' format.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.tck.header.html">read.dti.tck.header()</a></code>
+
+        </dt>
+        <dd>Read the header of a file in MRtrix 'TCK' or 'TSF' format.</dd>
 
         <dt>
 
@@ -489,10 +867,24 @@
 
         <dt>
 
+          <code><a href="read.dti.trk.header.html">read.dti.trk.header()</a></code>
+
+        </dt>
+        <dd>Read the header of a TrackVis TRK file.</dd>
+
+        <dt>
+
           <code><a href="read.dti.tsf.html">read.dti.tsf()</a></code>
 
         </dt>
         <dd>Read DTI tracking per-coord data from file in MRtrix 'TSF' format.</dd>
+
+        <dt>
+
+          <code><a href="read.dti.tsf.header.html">read.dti.tsf.header()</a></code>
+
+        </dt>
+        <dd>Read the header of a file in MRtrix 'TSF' format.</dd>
 
         <dt>
 
@@ -514,6 +906,13 @@
 
         </dt>
         <dd>Read colortable file in FreeSurfer ASCII LUT format.</dd>
+
+        <dt>
+
+          <code><a href="read.fs.connectome.cifti.html">read.fs.connectome.cifti()</a></code>
+
+        </dt>
+        <dd>Read a CIFTI-2 connectome file.</dd>
 
         <dt>
 
@@ -744,7 +1143,14 @@
           <code><a href="read.fs.surface.vtk.html">read.fs.surface.vtk()</a></code>
 
         </dt>
-        <dd>Read VTK ASCII format mesh as surface.</dd>
+        <dd>Read VTK legacy format mesh as surface.</dd>
+
+        <dt>
+
+          <code><a href="read.fs.tracts.vtk.html">read.fs.tracts.vtk()</a></code>
+
+        </dt>
+        <dd>Read VTK legacy format streamlines as tracts.</dd>
 
         <dt>
 
@@ -759,6 +1165,20 @@
 
         </dt>
         <dd>Load transformation matrix from a tkregister dat file.</dd>
+
+        <dt>
+
+          <code><a href="read.fs.transform.fslmat.html">read.fs.transform.fslmat()</a></code>
+
+        </dt>
+        <dd>Read a transformation matrix from an FSL matrix file.</dd>
+
+        <dt>
+
+          <code><a href="read.fs.transform.itk.html">read.fs.transform.itk()</a></code>
+
+        </dt>
+        <dd>Read a transformation matrix from an ITK text transform file.</dd>
 
         <dt>
 
@@ -783,10 +1203,24 @@
 
         <dt>
 
+          <code><a href="read.fs.volume.analyze.html">read.fs.volume.analyze()</a></code>
+
+        </dt>
+        <dd>Read an ANALYZE 7.5 or NIFTI v1 pair file as an fs.volume.</dd>
+
+        <dt>
+
           <code><a href="read.fs.volume.nii.html">read.fs.volume.nii()</a></code>
 
         </dt>
-        <dd>Turn a 3D or 4D <code>oro.nifti</code> instance into an <code>fs.volume</code> instance with complete header.</dd>
+        <dd>Read a 3D or 4D NIFTI file into an <code>fs.volume</code> instance with complete header.</dd>
+
+        <dt>
+
+          <code><a href="read.fs.volume.nrrd.html">read.fs.volume.nrrd()</a></code>
+
+        </dt>
+        <dd>Read volume data from a file in NRRD format.</dd>
 
         <dt>
 
@@ -829,6 +1263,13 @@
 
         </dt>
         <dd>Read NIFTI v2 header from file.</dd>
+
+        <dt>
+
+          <code><a href="read.nrrd.header.html">read.nrrd.header()</a></code>
+
+        </dt>
+        <dd>Read the header of a file in NRRD format.</dd>
 
         <dt>
 
@@ -909,6 +1350,27 @@
 
         <dt>
 
+          <code><a href="sub-.fs.tracts.html">`[`(<i>&lt;fs.tracts&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Subset an fs.tracts instance.</dd>
+
+        <dt>
+
+          <code><a href="sub-sub-.fs.tracts.html">`[[`(<i>&lt;fs.tracts&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Access a single tract of an fs.tracts instance.</dd>
+
+        <dt>
+
+          <code><a href="summary.fs.transform.html">summary(<i>&lt;fs.transform&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Summarize an fs.transform instance.</dd>
+
+        <dt>
+
           <code><a href="surfaceras.to.ras.html">surfaceras.to.ras()</a></code>
 
         </dt>
@@ -930,6 +1392,34 @@
 
         <dt>
 
+          <code><a href="transform2lps.html">transform2lps()</a></code>
+
+        </dt>
+        <dd>Convert a transformation to LPS world coordinates.</dd>
+
+        <dt>
+
+          <code><a href="transform2ras.html">transform2ras()</a></code>
+
+        </dt>
+        <dd>Convert a transformation to RAS world coordinates.</dd>
+
+        <dt>
+
+          <code><a href="transform2voxel.html">transform2voxel()</a></code>
+
+        </dt>
+        <dd>Convert a transformation to voxel coordinates.</dd>
+
+        <dt>
+
+          <code><a href="transform2world.html">transform2world()</a></code>
+
+        </dt>
+        <dd>Convert a transformation to the world (RAS) coordinate space.</dd>
+
+        <dt>
+
           <code><a href="vertex.euclid.dist.html">vertex.euclid.dist()</a></code>
 
         </dt>
@@ -944,10 +1434,66 @@
 
         <dt>
 
+          <code><a href="write.analyze.html">write.analyze()</a></code>
+
+        </dt>
+        <dd>Write data to a file in ANALYZE 7.5 format.</dd>
+
+        <dt>
+
           <code><a href="write.atlas.to.lut.and.csv.html">write.atlas.to.lut.and.csv()</a></code>
 
         </dt>
         <dd>Write a brain atlas to a colortable (LUT) file and a per-vertex label file.</dd>
+
+        <dt>
+
+          <code><a href="write.cifti.html">write.cifti()</a></code>
+
+        </dt>
+        <dd>Write a CIFTI-2 file.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.bval.html">write.dti.bval()</a></code>
+
+        </dt>
+        <dd>Write b-values to a FSL-style bvals file.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.bvec.html">write.dti.bvec()</a></code>
+
+        </dt>
+        <dd>Write b-vectors to a FSL-style bvecs file.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.grad.html">write.dti.grad()</a></code>
+
+        </dt>
+        <dd>Write a gradient table in MRtrix3 format.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.tck.html">write.dti.tck()</a></code>
+
+        </dt>
+        <dd>Write tracks to a file in MRtrix TCK format.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.trk.html">write.dti.trk()</a></code>
+
+        </dt>
+        <dd>Write tracks to a file in TrackVis TRK format.</dd>
+
+        <dt>
+
+          <code><a href="write.dti.tsf.html">write.dti.tsf()</a></code>
+
+        </dt>
+        <dd>Write per-point track values to a file in MRtrix TSF format.</dd>
 
         <dt>
 
@@ -969,6 +1515,13 @@
 
         </dt>
         <dd>Write colortable file in FreeSurfer ASCII LUT format.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.connectome.cifti.html">write.fs.connectome.cifti()</a></code>
+
+        </dt>
+        <dd>Write a CIFTI-2 connectome file.</dd>
 
         <dt>
 
@@ -1014,6 +1567,13 @@
 
         <dt>
 
+          <code><a href="write.fs.morph.cifti.html">write.fs.morph.cifti()</a></code>
+
+        </dt>
+        <dd>Write morphometry data to a CIFTI-2 <code>.dscalar</code> file.</dd>
+
+        <dt>
+
           <code><a href="write.fs.morph.gii.html">write.fs.morph.gii()</a></code>
 
         </dt>
@@ -1049,10 +1609,31 @@
 
         <dt>
 
+          <code><a href="write.fs.parcellated.cifti.html">write.fs.parcellated.cifti()</a></code>
+
+        </dt>
+        <dd>Write a CIFTI-2 parcellated map or series file.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.parcellation.cifti.html">write.fs.parcellation.cifti()</a></code>
+
+        </dt>
+        <dd>Write a parcellation to a CIFTI-2 <code>.dlabel</code> file.</dd>
+
+        <dt>
+
           <code><a href="write.fs.patch.html">write.fs.patch()</a></code>
 
         </dt>
         <dd>Write a surface patch</dd>
+
+        <dt>
+
+          <code><a href="write.fs.series.cifti.html">write.fs.series.cifti()</a></code>
+
+        </dt>
+        <dd>Write time series data to a CIFTI-2 <code>.dtseries</code> file.</dd>
 
         <dt>
 
@@ -1126,10 +1707,59 @@
 
         <dt>
 
+          <code><a href="write.fs.surface.stl.html">write.fs.surface.stl()</a></code>
+
+        </dt>
+        <dd>Write mesh to file in STL format (ASCII or binary).</dd>
+
+        <dt>
+
           <code><a href="write.fs.surface.vtk.html">write.fs.surface.vtk()</a></code>
 
         </dt>
-        <dd>Write mesh to file in VTK ASCII format</dd>
+        <dd>Write mesh to file in VTK legacy format</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.html">write.fs.transform()</a></code>
+
+        </dt>
+        <dd>Write a transformation matrix to a file.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.dat.html">write.fs.transform.dat()</a></code>
+
+        </dt>
+        <dd>Write a tkregister dat file.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.fslmat.html">write.fs.transform.fslmat()</a></code>
+
+        </dt>
+        <dd>Write a transformation matrix in FSL format.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.itk.html">write.fs.transform.itk()</a></code>
+
+        </dt>
+        <dd>Write an ITK text transform file.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.lta.html">write.fs.transform.lta()</a></code>
+
+        </dt>
+        <dd>Write a FreeSurfer linear transform array (LTA) file.</dd>
+
+        <dt>
+
+          <code><a href="write.fs.transform.xfm.html">write.fs.transform.xfm()</a></code>
+
+        </dt>
+        <dd>Write an MNI transform (xfm) file.</dd>
 
         <dt>
 

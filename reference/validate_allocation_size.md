@@ -5,13 +5,20 @@ allocation size is safe. Catches negative/NA/Inf dimensions, integer
 overflow (by converting to double), and enforces the max allocation
 limit.
 
+Note that `bytes_per_elem` must be the size of an element *in memory*,
+which is not necessarily the size on disk:
+[`readBin()`](https://rdrr.io/r/base/readBin.html) into a
+[`numeric()`](https://rdrr.io/r/base/numeric.html) vector allocates 8
+bytes per element even when the values are stored as 4 byte floats.
+
 ## Usage
 
 ``` r
 validate_allocation_size(
   dims,
   bytes_per_elem,
-  max_bytes = get_max_alloc_bytes()
+  max_bytes = get_max_alloc_bytes(),
+  label = NULL
 )
 ```
 
@@ -23,8 +30,9 @@ validate_allocation_size(
 
 - bytes_per_elem:
 
-  single numeric value, the number of bytes per element (e.g., `4` for
-  float32).
+  single numeric value, the number of bytes per element as stored in
+  memory (e.g., `8` for a
+  [`numeric()`](https://rdrr.io/r/base/numeric.html) vector).
 
 - max_bytes:
 
@@ -33,6 +41,12 @@ validate_allocation_size(
   [`get_max_alloc_bytes()`](https://dfsp-spirit.github.io/freesurferformats/reference/get_max_alloc_bytes.md).
   Pass `Inf` to disable the limit check (negative/NA/Inf dims are still
   rejected).
+
+- label:
+
+  character string or NULL, a human-readable description of what is
+  being allocated. Included in the error message to help the user
+  understand which part of a file the limit was hit on.
 
 ## Value
 

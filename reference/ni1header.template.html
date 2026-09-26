@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Create a template NIFTI v1 header. You will have to adapt it for your use case.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
       <div class="d-none name"><code>ni1header.template.Rd</code></div>
     </div>
 
@@ -44,9 +44,21 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ni1header.template</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ni1header.template</span><span class="op">(</span>pair <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
+
+
+<dl><dt id="arg-pair">pair<a class="anchor" aria-label="anchor" href="#arg-pair"></a></dt>
+<dd><p>logical, whether the template describes a NIFTI v1 <em>pair</em> file (a <code>.hdr</code> header file plus a separate
+<code>.img</code> data file, the variant that is also used by the ANALYZE 7.5 format and that FSL writes) instead of a
+single file (<code>.nii</code>, the header and the data in one file). The two variants differ in the <code>magic</code> field and in
+the <code>vox_offset</code> field, which is 352 for a single file (the data starts behind the header) and 0 for a pair (the
+data starts at the first byte of the <code>.img</code> file). Both variants are written by <code><a href="write.nifti1.html">write.nifti1</a></code>.</p></dd>
+
+</dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>named list, the NIFTI v1 header. All fields are present and filled with values of a proper type. Whether or not they make sense is up to you, but you will most likely have to adapt at least the following fields to your data: <code>dim_raw</code>, <code>datatype</code>, <code>bitpix</code>.</p>

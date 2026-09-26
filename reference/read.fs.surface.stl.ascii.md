@@ -25,15 +25,18 @@ read.fs.surface.stl.ascii(filepath, digits = 6L)
 
 ## Value
 
-an `fs.surface` instance. The normals are available in the 'metadata'
-property.
+an `fs.surface` instance. The normals of the faces are available in the
+'metadata' property, in the entry 'normals' (a matrix with one row per
+face). Note that the normal vectors stored in the file are ignored, the
+returned normals are computed from the geometry, see
+[`mesh.face.normals`](https://dfsp-spirit.github.io/freesurferformats/reference/mesh.face.normals.md).
 
 ## Note
 
 The STL format does not use indices into a vertex list to define faces,
 instead it repeats vertex coords in each face ('polygon soup').
-Therefore, the mesh needs to be reconstructed, which requires the
-`misc3d` package.
+Therefore, the mesh has to be reconstructed, which is what the internal
+function `polygon.soup.to.indexed.mesh` does.
 
 ## References
 

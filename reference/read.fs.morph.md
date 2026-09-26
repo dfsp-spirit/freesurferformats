@@ -30,6 +30,19 @@ read.fs.morph(filepath, format = "auto")
 data, vector of floats. The brain morphometry data, one value per
 vertex.
 
+## Note
+
+CIFTI-2 files (which are NIFTI-2 files, see
+[`read.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md))
+are refused with an error instead of being read as NIFTI morphometry
+data: their payload is a matrix whose dimensions the CIFTI XML metadata
+describes, so the values would come back in an order that means nothing.
+Use
+[`read.fs.morph.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.cifti.md)
+to read the morphometry data of one brain structure, or
+[`read.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md)
+for the matrix itself.
+
 ## See also
 
 Other morphometry functions:

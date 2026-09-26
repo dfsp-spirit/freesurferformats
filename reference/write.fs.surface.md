@@ -40,11 +40,15 @@ write.fs.surface(filepath, vertex_coords, faces, format = "auto")
   VTK ASCII legacy format, 'ply' for Standford PLY format, 'off' for
   Object File Format, 'obj' for Wavefront object format, 'gii' for GIFTI
   format, 'mz3' for Surf-Ice MZ3 fomat, 'byu' for Brigham Young
-  University (BYU) mesh format, or 'auto' to derive the format from the
+  University (BYU) mesh format, 'stl' for the stereolithography (STL)
+  format used for 3D printing, or 'auto' to derive the format from the
   file extension given in parameter 'filepath'. With 'auto', a path
   ending in '.asc' is interpreted as 'asc', a path ending in '.vtk' as
-  vtk, and so on for the other formats. Everything not matching any of
-  these is interpreted as 'bin', i.e., FreeSurfer binary surface format.
+  vtk, and so on for the other formats. A path ending in '.stla' is
+  interpreted as the ASCII variant of the STL format and one ending in
+  '.stlb' or '.stl' as the binary variant. Everything not matching any
+  of these is interpreted as 'bin', i.e., FreeSurfer binary surface
+  format.
 
 ## Value
 
@@ -79,7 +83,9 @@ Other mesh export functions:
 [`write.fs.surface.off()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.off.md),
 [`write.fs.surface.off.ply2()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.off.ply2.md),
 [`write.fs.surface.ply()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.ply.md),
-[`write.fs.surface.ply2()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.ply2.md)
+[`write.fs.surface.ply2()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.ply2.md),
+[`write.fs.surface.stl()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.stl.md),
+[`write.fs.surface.vtk()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.surface.vtk.md)
 
 ## Examples
 

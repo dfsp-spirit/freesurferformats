@@ -12,7 +12,13 @@ get.dti.trk.endianness(filepath)
 
 - filepath:
 
-  character string, path to file in trk format.
+  character string, path to file in trk format. Gzip-compressed files
+  are supported as well (the compression is detected from the file
+  content, so a `.trk.gz` file is read like any other TRK file), which
+  is convenient since tractograms are large and are regularly stored
+  compressed. Note that track files cannot be compressed on the fly for
+  other software: the TrackVis tools and MRtrix do not read compressed
+  track files.
 
 ## Value
 

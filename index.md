@@ -78,13 +78,20 @@ implements its own readers and writers for the following file formats:
   files) is also supported.
 
 - Other mesh file formats: Read and write support is available for
-  meshes in VTK ASCII format (`.vtk` files), Surf-Ice format (`.mz3`),
-  Wavefront object format (`.obj`), Object File Format (`.off`),
-  Brainvoyager SRF format (`.srf`), and Stanford triangle format
-  (`.ply`). Additionally, meshes can be exported in PLY2 format
+  meshes in VTK legacy format (`.vtk` files, in the ASCII and the binary
+  encoding, and in both cell array layouts that VTK versions write),
+  Surf-Ice format (`.mz3`), Wavefront object format (`.obj`), Object
+  File Format (`.off`), Brainvoyager SRF format (`.srf`), Stanford
+  triangle format (`.ply`), and STL format (`.stl`, both the binary and
+  the ASCII variant, which some tools write with the extensions `.stlb`
+  and `.stla`). Additionally, meshes can be exported in PLY2 format
   (`.ply2`). Meshes can be imported from files in BYU format (`.byu`),
   GEO format (`.geo`) and TRI format (also known as ICO mesh format,
-  `.tri`).
+  `.tri`). The STL format is the format of 3D printing and of most mesh
+  processing software, so a surface that was read by this package can be
+  handed to those tools, and meshes written by them can be read back,
+  even though the format stores the mesh as a polygon soup without a
+  vertex list.
 
 - FreeSurfer label file format: Contains a list of vertices included in
   a label. A label is like a mask, and is typically used to describe the
@@ -98,7 +105,14 @@ implements its own readers and writers for the following file formats:
   also be extracted from an annotation, and a set of labels and a LUT
   can be merged into an annotation. An example file would be
   `FREESURFER_HOME/FreeSurferColorLUT.txt`. This format can be read and
-  written.
+  written. A brain atlas that is distributed as such a LUT plus a
+  per-vertex label file in CSV format (one atlas region index per
+  surface vertex) can be read with
+  [`atlas.from.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/atlas.from.lut.and.csv.md)
+  and written back with
+  [`write.atlas.to.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.atlas.to.lut.and.csv.md).
+  This is how several cortical atlases are distributed by third-party
+  tools (Desikan-Killiany, Brainnetome, Schaefer, …).
 
 - FreeSurfer *weight* file format: Contains one value per listed vertex.
   In contrast to curv files, weight files contain values not for all
@@ -112,8 +126,29 @@ implements its own readers and writers for the following file formats:
   vertex is part of the patch border. This format can be read and
   written.
 
-- FreeSurfer spatial transformation matrices can be read from LTA,
-  register.dat, and xfm files.
+- Spatial transformation matrices: the FreeSurfer formats LTA,
+  register.dat (tkregister) and xfm, the FSL matrix format written by
+  FLIRT (`-omat`), and the ITK text transform format that 3D Slicer,
+  ANTs, SimpleITK and the derivatives of fMRIPrep/QSIPrep work with can
+  be read *and written*. Transformations are returned as instances of
+  the `fs.transform` class, which state what the matrix means: which
+  coordinates it maps between (voxel indices, RAS or LPS world
+  coordinates) and which volumes it relates, so a matrix that operates
+  on voxel indices cannot be mistaken for one that operates on world
+  coordinates.
+  [`transform2world()`](https://dfsp-spirit.github.io/freesurferformats/reference/transform2world.md),
+  [`transform2voxel()`](https://dfsp-spirit.github.io/freesurferformats/reference/transform2voxel.md),
+  [`transform2ras()`](https://dfsp-spirit.github.io/freesurferformats/reference/transform2ras.md)
+  and
+  [`transform2lps()`](https://dfsp-spirit.github.io/freesurferformats/reference/transform2lps.md)
+  convert a transformation between these spaces (a volume or its header
+  is passed where geometry is needed),
+  [`invert.fs.transform()`](https://dfsp-spirit.github.io/freesurferformats/reference/invert.fs.transform.md)
+  computes the reverse mapping, and
+  [`summary()`](https://rdrr.io/r/base/summary.html) reports the
+  properties in machine-readable form. A transformation that a file
+  format cannot represent is not written, instead of being written in a
+  form that silently means something else.
 
 - FreeSurfer Group Descriptor (FSGD) files: please see the [fsbrain
   package](https://github.com/dfsp-spirit/fsbrain) for FSGD read and
@@ -133,12 +168,113 @@ implements its own readers and writers for the following file formats:
 - NIFTI v2: This package comes with its own NIFTI v2 reader and writer.
   The 2nd format version supports larger data dimensions and drops
   backwards compatibility with older NIFTI-style file formats like
-  ANALYZE.
+  ANALYZE. Header extensions, the mechanism that the format provides for
+  arbitrary additional data between the header and the voxel data (and
+  that CIFTI-2 uses to store its XML metadata), can be read and written
+  as well:
+  [`nifti2.extension()`](https://dfsp-spirit.github.io/freesurferformats/reference/nifti2.extension.md)
+  creates one,
+  [`write.nifti2()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.nifti2.md)
+  writes it, and
+  [`read.nifti2.header()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.nifti2.header.md)
+  returns the extensions it found in the `extensions` field
+  ([`nifti2.get.extension()`](https://dfsp-spirit.github.io/freesurferformats/reference/nifti2.get.extension.md)
+  looks one up by its code).
 
-- Fiber track formats (DTI, diffusion tensor imaging): there is read
-  support for the ‘.trk’ format used by the [Diffusion Toolkit /
-  TrackVis](http://www.trackvis.org/dtk/) and the ‘.tck’ and ‘.tsf’
-  formats used by [MRtrix3](https://www.mrtrix.org/).
+- ANALYZE 7.5 (`.hdr` plus `.img`) and NIFTI v1 pair files: the two-file
+  image formats can be read and written with our own implementation. The
+  two variants share the 348 byte header but not its field semantics, so
+  the package reads each of them the way its own specification defines
+  it, and detects which one a file is from the header (the `smin` field
+  of ANALYZE is the magic field of NIFTI, where `ni1` means a pair and
+  an empty value means ANALYZE). This covers the volumes written by SPM,
+  older scanners and 3D Slicer, and the `.hdr`/`.img` files of FSL, and
+  it means that this package can also read back the NIFTI v1 files it
+  writes. Note the fundamental limitation of ANALYZE 7.5: the format
+  stores voxel sizes but no orientation, so the left/right direction of
+  such an image is undefined. The transformation matrix that SPM and
+  FreeSurfer store in the MATLAB sidecar file next to the image is read
+  and used (that is the only reliable geometry such a file can have);
+  for files without it, the readers do not invent a matrix (a wrong
+  matrix silently mirrors a brain), and the voxel sizes and the
+  orientation code are returned instead. The SPM/FreeSurfer
+  interpretation of the header (their scale factor and image origin) can
+  be requested explicitly. See
+  [`read.fs.volume.analyze()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.volume.analyze.md)
+  and
+  [`write.analyze()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.analyze.md).
+
+- NRRD volumes (`.nrrd` and `.nhdr`, “nearly raw raster data”): read
+  support, with no dependency on other packages. This is the volume
+  format of 3D Slicer, the ITK/VTK tools and several diffusion MRI
+  pipelines, and the header can carry diffusion information (b-value,
+  gradient directions, measurement frame) or arbitrary key-value
+  metadata. All data types, all four encodings (`raw`, `ascii`, `gzip`,
+  `bzip2`), gzip-compressed whole files, detached headers whose data
+  lives in another file (optionally compressed), a list of several data
+  files, and the `line skip`/`byte skip` fields are supported. The world
+  transformation is returned as the same `vox2ras_matrix` that the NIFTI
+  and MGH readers produce (including the conversion from the
+  left-posterior-superior convention of NRRD), and diffusion metadata is
+  returned as a `dwi` header property, so such a volume can be used just
+  like an MGH/MGZ volume. Reading is verified value by value against
+  `pynrrd` and the geometry against ITK (see
+  `dev_tools/check_nrrd_conversion.R`). Writing NRRD is not supported.
+
+- Fiber track formats (DTI, diffusion tensor imaging): the ‘.trk’ format
+  used by [Diffusion Toolkit / TrackVis](http://www.trackvis.org/dtk/)
+  and the ‘.tck’ and ‘.tsf’ formats used by
+  [MRtrix3](https://www.mrtrix.org/) can all be read and written, both
+  uncompressed and gzip-compressed (`.tck.gz`, `.trk.gz`, `.tsf.gz`).
+  The compression is detected from the file content rather than from the
+  file name, so a renamed file is read correctly, and a compressed file
+  can be produced directly by the writers (TrackVis and MRtrix do not
+  read compressed track files themselves, so the compression is meant
+  for archiving and for passing files between the programs of this
+  project). A TSF file stores one value per point along a track
+  (e.g. the fractional anisotropy, the distance along the track, or
+  values sampled from an image at the point coordinates) and is always
+  used together with the tractogram it describes, since it stores no
+  track boundaries. Streamlines that other software exported as a VTK
+  polydata file with a `LINES` section (as Paraview, TrackVis and DSI
+  Studio do) can be read with
+  [`read.fs.tracts.vtk()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.tracts.vtk.md).
+
+- Large tractograms: a whole-brain tractogram is a multi-GB file with
+  millions of streamlines, so the track readers are built for streaming.
+  They can be asked for a subset via `max_tracks`, can skip over tracks
+  (`skip_tracks`) and can filter by a bounding box while reading (tracks
+  that are filtered out are never held in memory), so a region of
+  interest can be extracted from a huge file. There are also functions
+  to count the tracks
+  ([`dti.track.count()`](https://dfsp-spirit.github.io/freesurferformats/reference/dti.track.count.md)),
+  to compute their bounding box
+  ([`dti.track.bbox()`](https://dfsp-spirit.github.io/freesurferformats/reference/dti.track.bbox.md))
+  and to iterate over them one at a time with a constant memory
+  footprint
+  ([`dti.track.iterator()`](https://dfsp-spirit.github.io/freesurferformats/reference/dti.track.iterator.md)),
+  and the file headers can be read on their own without touching the
+  track data. Track coordinates are returned in an `fs.tracts`
+  container, which keeps the coordinates of all tracks in a single
+  matrix plus the number of points per track, so that a tractogram needs
+  far less memory than a list with one matrix per track; `tracks[[i]]`,
+  [`length()`](https://rdrr.io/r/base/length.html) and
+  [`lapply()`](https://rdrr.io/r/base/lapply.html) work as for a list,
+  and [`as.list()`](https://rdrr.io/r/base/list.html) converts to the
+  legacy list of matrices.
+
+- Diffusion MRI gradient tables (b-vectors and b-values): the FSL
+  format, i.e. a ‘.bvec’ and ‘.bval’ file pair, and the MRtrix gradient
+  table format can be read and written. Both the layout written by the
+  FSL tools (three lines of vector components, all b-values in one line)
+  and the layout used by other tools (one volume per line, as
+  distributed by the Human Connectome Project) are detected
+  automatically. Reading b-vectors and b-values together verifies that
+  they match, and reports questionable entries – missing values,
+  gradient vectors that are not unit vectors, or a b-value without a
+  direction – instead of silently changing them. Note that the gradient
+  vectors in these files refer to the *image* axes, so they are only
+  meaningful together with the image they belong to.
 
 We also provide wrappers and adapter functions for existing neuroimaging
 file format packages, which load the data into *freesurferformats* data
@@ -164,12 +300,73 @@ structures:
   as well as custom writers for the previously listed kinds of
   neuroimaging data.
 
-- CIFTI: Reading of morphometry data from CIFTI v2 files
-  (`.dscalar.nii`) is supported based on the [cifti package by John
-  Muschelli](https://CRAN.R-project.org/package=cifti). The wrapper
-  functions in freesurferformats support extraction of the data for a
-  specific brain model (surface mesh), and map the data to the
-  appropriate vertex indices of the surface based on the CIFTI metadata.
+- CIFTI: Reading of CIFTI v2 files (the NIFTI v2 based format used by
+  the Human Connectome Project) is native, i.e. it does not depend on
+  any other R package.
+  [`read.cifti.header()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.header.md)
+  parses the XML metadata of a file into an `fs.cifti` object that
+  describes the matrix dimensions (series, brainordinates, parcels,
+  scalars or labels), the brain models with their surface vertex and
+  volume voxel indices, the parcels, the label tables and the series
+  information,
+  [`read.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md)
+  additionally reads the data matrix, and
+  [`cifti.structures()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.structures.md),
+  [`cifti.parcels()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.parcels.md),
+  [`cifti.grayordinates()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.grayordinates.md),
+  [`cifti.series.info()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.series.info.md),
+  [`cifti.label.table()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.label.table.md)
+  and
+  [`cifti.dim.labels()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.dim.labels.md)
+  extract the common parts. The readers
+  [`read.fs.morph.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.cifti.md),
+  [`read.fs.parcellation.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.parcellation.cifti.md)
+  and
+  [`read.fs.series.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.series.cifti.md)
+  reconstruct the data for a single brain surface (the missing medial
+  wall vertices of a grayordinates file become `NA`),
+  [`cifti.structure.data()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.structure.data.md)
+  does the same for any structure, including volume structures, for
+  which it returns the voxel indices and the affine transformation
+  instead of pretending to have per-vertex data, and
+  [`read.fs.connectome.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.connectome.cifti.md)
+  reads the connectome types (`.dconn`, `.pconn` and the mixed
+  `.pdconn`/`.dpconn`, optionally only selected rows and columns, which
+  is the only way to work with the multi-GB `.dconn` of a real subject).
+  [`read.cifti.rows()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.rows.md)
+  reads selected rows of such a file without loading the whole matrix
+  (e.g. the first time points of a `.dtseries`), and selecting *columns*
+  reads only the requested columns of the file. All nine standard
+  CIFTI-2 file types are supported, for surface, volume and mixed brain
+  models. Writing is native as well:
+  [`write.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.cifti.md)
+  writes any of the nine file types from the axes that the
+  `cifti.axis.*()` builders create (or from the mapping of a template
+  file, which is what real data needs),
+  [`write.fs.morph.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.morph.cifti.md),
+  [`write.fs.series.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.series.cifti.md)
+  and
+  [`write.fs.parcellation.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.parcellation.cifti.md)
+  write the data representations this package uses for surfaces,
+  [`write.fs.connectome.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.connectome.cifti.md)
+  and
+  [`write.fs.parcellated.cifti()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.fs.parcellated.cifti.md)
+  write connectomes and parcellated maps or series,
+  [`cifti.axis.parcels.from.annot()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.axis.parcels.from.annot.md)
+  builds the parcels of a parcellated file from the annotations of an
+  atlas, and
+  [`cifti.header.from.axes()`](https://dfsp-spirit.github.io/freesurferformats/reference/cifti.header.from.axes.md)
+  builds the CIFTI-2 XML for inspection. Note that CIFTI files must not
+  be gzipped (the format forbids it), so `.dscalar.nii.gz` is an error.
+  The reading and writing code is verified against nibabel and
+  Connectome Workbench, see `dev_tools/check_cifti_conversion.R`. Note
+  that a CIFTI file is a NIFTI file, so the generic readers
+  [`read.fs.morph()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.morph.md)
+  and
+  [`read.fs.volume()`](https://dfsp-spirit.github.io/freesurferformats/reference/read.fs.volume.md)
+  would match it: they detect CIFTI files and point you at the CIFTI
+  readers instead of returning the values of the matrix as a volume or a
+  per-vertex vector.
 
 ## News
 
@@ -258,6 +455,8 @@ Now you can call the following functions:
 ``` r
 
 read.fs.mgh()         # read volume or morphometry data from files in MGH or MGZ format, e.g., `mri/brain.mgz` or `surf/lh.area.fwhm10.fsaverage.mgh`.
+read.fs.volume.nrrd() # read a volume in NRRD format (`.nrrd`/`.nhdr`), e.g. one written by 3D Slicer.
+read.fs.volume.analyze() # read a volume in ANALYZE 7.5 or two-file NIFTI v1 format (`.hdr`/`.img`), e.g. FSL output.
 read.fs.curv()        # read morphometry data from 'curv' format files like `surf/lh.area`
 read.fs.morph()       # read any morphometry file (mgh/mgz/curv). The format is derived from the file extension.
 read.fs.annot()       # read annotation data or brain atlas labels from files like `label/lh.aparc.annot`
@@ -269,6 +468,22 @@ read.fs.patch()       # read a surface patch, which is a part of a surface.
 read.fs.transform()   # read spatial transformation matrix
 read.dti.tck()        # read DTI tracks from MRtrix3 'TCK' format
 read.dti.trk()        # read DTI tracks from Diffusion Toolkit/TrakVis 'TRK' format
+read.dti.tsf()        # read DTI per-point track scalar data from MRtrix3 'TSF' format
+read.dti.gradients()  # read and validate a diffusion gradient table (FSL '.bvec'/'.bval' pair or MRtrix format)
+read.fs.tracts.vtk()  # read streamlines from a VTK polydata file, as written by Paraview, TrackVis or DSI Studio
+read.fs.parcellation.cifti() # read a cortical parcellation from a CIFTI dlabel file
+read.cifti()          # read the data matrix and the metadata of a CIFTI-2 file
+read.cifti.rows()     # read selected rows of a large CIFTI-2 file without loading it
+read.cifti.header()   # read only the XML metadata of a CIFTI-2 file
+cifti.structure.data() # extract the data of one brain structure (surface or volume) from a CIFTI-2 file
+write.cifti()         # write a CIFTI-2 file (any of the nine standard file types)
+write.fs.morph.cifti() # write morphometry data to a CIFTI dscalar file
+write.fs.series.cifti() # write time series data to a CIFTI dtseries file
+write.fs.parcellation.cifti() # write a parcellation to a CIFTI dlabel file
+read.fs.connectome.cifti() # read a CIFTI connectome (dconn, pconn, pdconn, dpconn)
+write.fs.connectome.cifti() # write a CIFTI connectome (dconn, pconn, pdconn, dpconn)
+write.fs.parcellated.cifti() # write a parcellated CIFTI file (pscalar, ptseries)
+cifti.axis.parcels.from.annot() # build the parcels of a parcellated CIFTI file from an atlas
 
 write.fs.mgh()        # write data with 1 to 4 dimensions to an MGH format file
 write.fs.curv()       # write a data vector to a 'curv' format file
@@ -279,6 +494,12 @@ write.fs.annot()      # write an annotation file
 write.fs.colortable() # write a color lookup table (LUT)
 write.fs.weight()     # write scalar vertex data in weight or w format
 write.fs.patch()      # write a surface patch, which is a part of a surface.
+write.fs.transform()  # write a spatial transformation matrix (LTA, register.dat, xfm, FSL or ITK format)
+write.dti.tck()       # write DTI tracks to MRtrix3 'TCK' format
+write.dti.trk()       # write DTI tracks to Diffusion Toolkit/TrackVis 'TRK' format
+write.dti.tsf()       # write DTI per-point track scalar data to MRtrix3 'TSF' format
+write.dti.bvec()      # write b-vectors in the FSL '.bvec' format (see also write.dti.bval(), write.dti.grad())
+write.atlas.to.lut.and.csv() # write a brain atlas to a colortable (LUT) and a per-vertex label file
 ```
 
 The documentation is included in the package and not repeated on this

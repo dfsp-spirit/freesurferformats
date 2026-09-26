@@ -1,8 +1,8 @@
 # Read surface time series data from CIFTI dtseries files.
 
-Uses the 'cifti' package to load the data from a CIFTI dtseries file (a
-dense surface time series) and returns the per-vertex time series for a
-single brain structure as a matrix.
+Read the data from a CIFTI dtseries file (a dense surface time series)
+and return the per-vertex time series for a single brain structure as a
+matrix.
 
 ## Usage
 
@@ -17,7 +17,13 @@ read.fs.series.cifti(filepath, brain_structure = "CIFTI_STRUCTURE_CORTEX_LEFT")
   character string, the full path to a file in CIFTI 2 format, should
   end with '.dtseries.nii'. Note that this is NOT a NIfTI file, despite
   the '.nii' part; it uses a CIFTI 2 header instead. See the spec for
-  details.
+  details. An 'fs.cifti' object from
+  [`read.cifti.header`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.header.md)
+  or an 'fs.cifti.data' object from
+  [`read.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md)
+  may be given instead of a path (this is faster if you need the data of
+  several structures). An object created by the 'cifti' package is still
+  accepted for backwards compatibility.
 
 - brain_structure:
 
@@ -38,11 +44,6 @@ did not have a value in the CIFTI data is set to `NA`. If
 'brain_structure' is 'both', a named list with entries 'lh' and 'rh',
 each a matrix as described above.
 
-## Note
-
-This function calls code from the 'cifti' package by John Muschelli:
-<https://CRAN.R-project.org/package=cifti>.
-
 ## References
 
 See
@@ -54,12 +55,11 @@ including example files.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
-cifti_example_data_dir <- "~/data/cifti"
-dtseries_file <- file.path(cifti_example_data_dir,
-  "Conte69.MyelinAndCorrThickness.32k_fs_LR.dtseries.nii");
-series_lh <- read.fs.series.cifti(dtseries_file, "lh");
-series_both <- read.fs.series.cifti(dtseries_file, "both");
-} # }
+cifti_file <- system.file("extdata", "cifti", "tiny.dtseries.nii", package = "freesurferformats")
+series_lh <- read.fs.series.cifti(cifti_file, "lh")
+dim(series_lh)
+#> [1] 10  4
+series_both <- read.fs.series.cifti(cifti_file, "both")
+names(series_both)
+#> [1] "lh" "rh"
 ```

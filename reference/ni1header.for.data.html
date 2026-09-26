@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Create NIFTI v1 header suitable for given data.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
       <div class="d-none name"><code>ni1header.for.data.Rd</code></div>
     </div>
 
@@ -44,7 +44,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ni1header.for.data</span><span class="op">(</span><span class="va">niidata</span>, allow_fshack <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ni1header.for.data</span><span class="op">(</span><span class="va">niidata</span>, allow_fshack <span class="op">=</span> <span class="cn">FALSE</span>, pair <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -57,6 +57,11 @@
 
 <dt id="arg-allow-fshack">allow_fshack<a class="anchor" aria-label="anchor" href="#arg-allow-fshack"></a></dt>
 <dd><p>logical, whether to allow data in which the first dimension is larger than 32767, and use the FreeSurfer NIFTI v1 hack to support his. The hack will be used only if needed. WARNING: Files written with the hack do not conform to the NIFTI v1 standard and will not be read correctly by most software. All FreeSurfer tools and the Python 'nibabel' module support it.</p></dd>
+
+
+<dt id="arg-pair">pair<a class="anchor" aria-label="anchor" href="#arg-pair"></a></dt>
+<dd><p>logical, whether the header should describe a NIFTI v1 pair (a <code>.hdr</code> header file plus a separate
+<code>.img</code> data file) instead of a single file. See <code><a href="ni1header.template.html">ni1header.template</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

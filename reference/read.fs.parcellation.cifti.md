@@ -1,9 +1,9 @@
 # Read surface parcellation data from CIFTI dlabel files.
 
-Uses the 'cifti' package to load the data from a CIFTI dlabel file (a
-dense surface parcellation, i.e., an integer label key per vertex) and
-returns the per-vertex label keys for a single brain structure. This is
-the CIFTI analogue of a FreeSurfer annotation file.
+Read the data from a CIFTI dlabel file (a dense surface parcellation,
+i.e., an integer label key per vertex) and return the per-vertex label
+keys for a single brain structure. This is the CIFTI analogue of a
+FreeSurfer annotation file.
 
 ## Usage
 
@@ -23,7 +23,13 @@ read.fs.parcellation.cifti(
   character string, the full path to a file in CIFTI 2 format, should
   end with '.dlabel.nii'. Note that this is NOT a NIfTI file, despite
   the '.nii' part; it uses a CIFTI 2 header instead. See the spec for
-  details.
+  details. An 'fs.cifti' object from
+  [`read.cifti.header`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.header.md)
+  or an 'fs.cifti.data' object from
+  [`read.cifti`](https://dfsp-spirit.github.io/freesurferformats/reference/read.cifti.md)
+  may be given instead of a path (this is faster if you need the data of
+  several structures). An object created by the 'cifti' package is still
+  accepted for backwards compatibility.
 
 - brain_structure:
 
@@ -65,11 +71,6 @@ value in the CIFTI data are set to `NA`; a key of 0 denotes the unknown
 'brain_structure' is 'both' and 'with_label_table' is 'TRUE', a named
 list with entries 'lh' and 'rh', each as described above.
 
-## Note
-
-This function calls code from the 'cifti' package by John Muschelli:
-<https://CRAN.R-project.org/package=cifti>.
-
 ## References
 
 See
@@ -81,15 +82,17 @@ including example files.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Downloaded CIFTI2 example data from https://www.nitrc.org/projects/cifti/
-cifti_example_data_dir <- "~/data/cifti"
-dlabel_file <- file.path(cifti_example_data_dir,
-  "Conte69.parcellations_VGD11b.32k_fs_LR.dlabel.nii");
-parc_lh <- read.fs.parcellation.cifti(dlabel_file, "lh");
-parc_rh <- read.fs.parcellation.cifti(dlabel_file, "rh");
-parc_with_table <- read.fs.parcellation.cifti(dlabel_file, "lh",
-  with_label_table = TRUE);
-# fsbrain::vis.fs.surface(sf_lh, per_vertex_data = parc_lh);
-} # }
+label_file <- system.file("extdata", "cifti", "tiny.dlabel.nii", package = "freesurferformats")
+parc_lh <- read.fs.parcellation.cifti(label_file, "lh")
+table(parc_lh)
+#> parc_lh
+#> 0 1 2 3 
+#> 1 3 3 3 
+parc_with_table <- read.fs.parcellation.cifti(label_file, "lh", with_label_table = TRUE)
+parc_with_table$label_table
+#>   Key Red Green Blue Alpha    Label
+#> 1   0   1   1.0    1     0      ???
+#> 2   1   0   0.5    1     1 PARCEL_A
+#> 3   2   0   0.5    1     1 PARCEL_B
+#> 4   3   0   0.5    1     1 PARCEL_C
 ```

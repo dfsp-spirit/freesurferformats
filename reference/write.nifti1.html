@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Write header and data to a file in NIFTI v1 format.</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/write_nifti1.R" class="external-link"><code>R/write_nifti1.R</code></a></small>
       <div class="d-none name"><code>write.nifti1.Rd</code></div>
     </div>
 
@@ -52,7 +52,10 @@
 
 
 <dl><dt id="arg-filepath">filepath<a class="anchor" aria-label="anchor" href="#arg-filepath"></a></dt>
-<dd><p>the file to write. The extension should be '.nii' or '.nii.gz'.</p></dd>
+<dd><p>the file to write. The extension should be '.nii' or '.nii.gz' for a single file NIFTI image, and
+'.hdr', '.img' (optionally followed by '.gz') for a NIFTI v1 pair, i.e. a header file with the voxel data in a
+separate '.img' file. Which of the two is written follows from the <code>magic</code> field of the header: 'n+1' means a
+single file, 'ni1' means a pair. See <code><a href="ni1header.template.html">ni1header.template</a></code>.</p></dd>
 
 
 <dt id="arg-niidata">niidata<a class="anchor" aria-label="anchor" href="#arg-niidata"></a></dt>
@@ -68,12 +71,37 @@
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>invisible named list with the entries <code>header</code> (the header that was written) and <code>data</code> (the data that
+was written, or <code>NULL</code> if no data was passed).</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other nifti1 writers:
 <code><a href="nii1header.for.mgh.html">nii1header.for.mgh()</a></code>,
 <code><a href="write.fs.morph.ni1.html">write.fs.morph.ni1()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A single file NIFTI image (the default):</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, dim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nii_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".nii"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">write.nifti1</span><span class="op">(</span><span class="va">nii_file</span>, <span class="va">data</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># A NIFTI v1 pair, i.e. a header plus a separate data file. Ask for a pair</span></span></span>
+<span class="r-in"><span><span class="co"># header by passing 'pair = TRUE' (this is passed on to the header generator):</span></span></span>
+<span class="r-in"><span><span class="fu">write.nifti1</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".hdr"</span><span class="op">)</span>, <span class="va">data</span>, pair <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The NIFTI v1 pair files can be read back with the volume reader:</span></span></span>
+<span class="r-in"><span><span class="va">hdr_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".hdr"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">write.nifti1</span><span class="op">(</span><span class="va">hdr_file</span>, <span class="va">data</span>, pair <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">vol</span> <span class="op">&lt;-</span> <span class="fu"><a href="read.fs.volume.html">read.fs.volume</a></span><span class="op">(</span><span class="va">hdr_file</span>, with_header <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">vol</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4 3 2</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">freesurferformats</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Read volume file in MGH, MGZ or NIFTI format</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/master/R/read_fs_volume.R" class="external-link"><code>R/read_fs_volume.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/R/read_fs_volume.R" class="external-link"><code>R/read_fs_volume.R</code></a></small>
       <div class="d-none name"><code>read.fs.volume.Rd</code></div>
     </div>
 
@@ -62,7 +62,7 @@
 
 
 <dt id="arg-format">format<a class="anchor" aria-label="anchor" href="#arg-format"></a></dt>
-<dd><p>character string, one one of 'auto', 'nii', 'mgh' or 'mgz'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension.</p></dd>
+<dd><p>character string, one one of 'auto', 'nii', 'mgh', 'mgz', 'nrrd' or 'analyze'. The format to assume. If set to 'auto' (the default), the format will be derived from the file extension. The value 'analyze' covers the two-file image formats ANALYZE 7.5 and NIFTI v1 pair files, which share the <code>.hdr</code>/<code>.img</code> file extensions, see <code><a href="read.fs.volume.analyze.html">read.fs.volume.analyze</a></code>.</p></dd>
 
 
 <dt id="arg-flatten">flatten<a class="anchor" aria-label="anchor" href="#arg-flatten"></a></dt>
@@ -80,6 +80,13 @@
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>data, multi-dimensional array. The brain imaging data, one value per voxel. The data type and the dimensions depend on the data in the file, they are read from the header. If the parameter flatten is <code>TRUE</code>, a numeric vector is returned instead. Note: The return value changes if the parameter with_header is <code>TRUE</code>, see parameter description.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p>CIFTI-2 files (which are NIFTI-2 files, see <code><a href="read.cifti.html">read.cifti</a></code>) are
+refused with an error instead of being read as volumes: their payload is a
+matrix whose dimensions the CIFTI XML metadata describes, so the values would
+come back as voxels that mean nothing.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

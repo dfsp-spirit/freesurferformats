@@ -6,7 +6,7 @@ fs.volume instance.
 ## Usage
 
 ``` r
-nii1header.for.mgh(mgh, endian = "little")
+nii1header.for.mgh(mgh, endian = "little", pair = FALSE)
 ```
 
 ## Arguments
@@ -22,6 +22,14 @@ nii1header.for.mgh(mgh, endian = "little")
 
   character string, the endianness to use. Either 'little' or 'big'.
   Defaults to 'little'.
+
+- pair:
+
+  logical, whether the header should describe a NIFTI v1 *pair* (a
+  `.hdr` header file with the voxel data in a separate `.img` file, the
+  variant of the format that FSL and 3D Slicer work with) instead of a
+  single file (`.nii`). See
+  [`ni1header.template`](https://dfsp-spirit.github.io/freesurferformats/reference/ni1header.template.md).
 
 ## Value
 
