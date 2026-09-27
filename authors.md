@@ -16,7 +16,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/dfsp-spirit/freesurferformats/blob/v1.1.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/dfsp-spirit/freesurferformats/blob/master/DESCRIPTION)
 
 Schäfer T (2026). *freesurferformats: Read and Write 'FreeSurfer'
 Neuroimaging File Formats*. R package version 1.1.0,

@@ -370,12 +370,23 @@ structures:
 
 ## News
 
-- 2026-09-08: New freesurferformats version v1.0.2 released on CRAN, see
-  the
-  [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES).
-- 2026-07-08: New freesurferformats version v1.0.1 released on CRAN, see
-  the
-  [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES).
+- 2026-09-27: New freesurferformats version v1.1.0 released on CRAN.
+  This version add dramatically improved support for DWI-related formats
+  (including constant-memory streaming of multi-GB tract files),
+  transform matrices from various neuroimaging packages, and NIFTI
+  v2/CIFTI support. This is part of our effort to go beyond the
+  FreeSurfer/surface/MNI305 domain, and extend into HCP/connectome,
+  fMRI, and DWI space.
+- 2026-09-08: New freesurferformats version v1.0.2 released on CRAN.
+  This version improves security measures to protect against malicious
+  input and CIFTI support. See the
+  [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES) for
+  more details.
+- 2026-07-08: New freesurferformats version v1.0.1 released on CRAN.
+  This version adds seamless conversion betweem NIfTI v1 and MGZ data,
+  see the
+  [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES) for
+  details.
 - 2025-09-09: New freesurferformats version v1.0.0 released on CRAN, see
   the
   [CHANGES](https://dfsp-spirit.github.io/freesurferformats/CHANGES).
