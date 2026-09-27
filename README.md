@@ -71,8 +71,9 @@ We also provide wrappers and adapter functions for existing neuroimaging file fo
 
 ## News
 
-* 2026-09-08: New freesurferformats version v1.0.2 released on CRAN, see the [CHANGES](./CHANGES).
-* 2026-07-08: New freesurferformats version v1.0.1 released on CRAN, see the [CHANGES](./CHANGES).
+* 2026-09-27: New freesurferformats version v1.1.0 released on CRAN. This version add dramatically improved support for DWI-related formats and makes it easier to plot onto surfaces that are not in FreeSurfer's MNI305 space by providing easy options to retrieve templates like the fs_LR_32 meshes. See the [CHANGES](./CHANGES).
+* 2026-09-08: New freesurferformats version v1.0.2 released on CRAN. This version improves security measures to protect against malicious input and CIFTI support. See the [CHANGES](./CHANGES) for more details.
+* 2026-07-08: New freesurferformats version v1.0.1 released on CRAN. This version adds seamless conversion betweem NIfTI v1 and MGZ data, see the [CHANGES](./CHANGES) for details.
 * 2025-09-09: New freesurferformats version v1.0.0 released on CRAN, see the [CHANGES](./CHANGES).
 * 2024-02-03: New freesurferformats version v0.1.18 released on CRAN, see the [CHANGES](./CHANGES).
 * 2022-02-12: New freesurferformats version v0.1.17 released on CRAN, see the [CHANGES](./CHANGES).
