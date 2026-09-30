@@ -2,6 +2,11 @@ freesurferformats Changes
 =========================
 
 
+Version 1.1.1 -- Portable exactness test (CRAN noLD check)
+----------------------------------------------------------
+- FIX: the unit test that asserts a bit-exact text round trip of transformation matrices (`read.fs.transform(write.fs.transform(x))` returns the identical matrix) is skipped on builds whose decimal conversion cannot read a double back from its decimal representation, e.g. R compiled with `--disable-long-double` (the `noLD` check of CRAN), and in CRAN-like environments in general. This fixes the `noLD` issue reported for version 1.1.0, in which the test failed with 'Objects equal but not identical' for all four transformation file formats. The property under test belongs to the platform, not to the writer: 17 significant decimal digits identify a double uniquely only if the conversion is correct in both directions, and on such a build R itself does not return the original double, so no file format could. The writer is unchanged: it writes the shortest representation with at least 17 significant digits that the platform reads back exactly, and falls back to its most exact representation when no number of digits works, which other software (FSL, FreeSurfer, MRtrix3) still reads back exactly. The test still runs in continuous integration and in local `devtools::check()` runs, and the skip is guarded by a check of the conversion of the platform itself, so a real regression on a platform that can do the round trip cannot be hidden by it.
+
+
 Version 1.1.0 -- Track file readers and writers, transforms, CIFTI-2, ANALYZE and NRRD
 --------------------------------------------------------------------------------------
 - NEW: `fs.tracts`, a compact container for streamline data, with the accessors `fs.tracts.coords()`, `fs.tracts.lengths()`, `as.fs.tracts()` and `is.fs.tracts()`. `read.dti.trk()` and `read.dti.tck()` return this type instead of a plain list of matrices. **API change**: `tracks[[i]]`, `length()` and `lapply()` keep working, `as.list()` gives the old representation.

@@ -7,8 +7,8 @@ authors:
     given-names: Tim
     orcid: "https://orcid.org/0000-0002-3683-8070"
   - name: "freesurferformats: an R package for reading and writing neuroimaging data"
-version: 0.1.18
-date-released: "2024-02-03"
+version: 1.1.1
+date-released: "2026-09-30"
 identifiers:
   - description: All-versions DOI for freesurferformats.
     type: doi
