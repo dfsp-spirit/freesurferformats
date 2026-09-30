@@ -394,8 +394,15 @@ test_that("VTK files are read identically to what VTK itself reads (reference fi
 
     # The ASCII encoding stores single precision coordinates with 6 significant digits, so reading an ASCII
     # file back gives values that differ from VTK's single precision values by about 1e-7 relative. Binary
-    # files store the coordinates as they are and must match exactly.
-    tolerance <- if (polydata$encoding == "ASCII") 1e-6 else 0.0
+    # files store the coordinates bit by bit, so they must match up to the accuracy with which the reference
+    # values can be compared at all: the expected geometry is read from a text dump, and a platform whose
+    # decimal conversion is not correctly rounded contributes an error of that order, which is not a decoding
+    # error of this package and not fixable here. It was measured on an R built without long double (the
+    # `noLD` check of CRAN), which reads such values one unit in the last place too low. 1e-12 leaves about
+    # four orders of magnitude of room for that, and is still orders of magnitude below the smallest error a
+    # real decoding defect can cause -- reading single precision data as double, for example, shifts values by
+    # about 1e-7 relative, and a wrong byte order or a misread section offset by far more.
+    tolerance <- if (polydata$encoding == "ASCII") 1e-6 else 1e-12
     expect_equal(polydata$points, expected$points,
       tolerance = tolerance, info = file_name,
       ignore_attr = TRUE
