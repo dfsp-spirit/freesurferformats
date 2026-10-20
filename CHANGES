@@ -1,6 +1,10 @@
 freesurferformats Changes
 =========================
 
+Version 1.1.2 -- Portable exactness test (CRAN noLD check)
+-----------------------------------------------------------
+- Delete tests that do not work on noLD R
+
 
 Version 1.1.1 -- Portable exactness test (CRAN noLD check)
 ----------------------------------------------------------
