@@ -111,8 +111,6 @@ implements its own readers and writers for the following file formats:
   [`atlas.from.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/atlas.from.lut.and.csv.md)
   and written back with
   [`write.atlas.to.lut.and.csv()`](https://dfsp-spirit.github.io/freesurferformats/reference/write.atlas.to.lut.and.csv.md).
-  This is how several cortical atlases are distributed by third-party
-  tools (Desikan-Killiany, Brainnetome, Schaefer, …).
 
 - FreeSurfer *weight* file format: Contains one value per listed vertex.
   In contrast to curv files, weight files contain values not for all
